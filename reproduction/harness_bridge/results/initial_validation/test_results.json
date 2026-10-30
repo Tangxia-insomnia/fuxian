@@ -1,0 +1,99 @@
+{
+  "completed_at": "2026-10-30T14:55:27.662078+08:00",
+  "passed": false,
+  "test_count": 16,
+  "failure_count": 0,
+  "error_count": 1,
+  "skip_count": 0,
+  "seconds": 33.92216280000139,
+  "cases": [
+    {
+      "test": "__main__.ProtocolTests.test_mcp_ambiguous_error_is_structured_and_flagged",
+      "passed": true,
+      "seconds": 1.4053303000000597
+    },
+    {
+      "test": "__main__.ProtocolTests.test_real_stdio_initialize_list_call_and_errors",
+      "passed": false,
+      "error": "  + Exception Group Traceback (most recent call last):\n  |   File \"E:\\codexconversation\\课题研究\\reproduction\\harness_bridge\\test_server.py\", line 216, in test_real_stdio_initialize_list_call_and_errors\n  |     asyncio.run(asyncio.wait_for(run(), timeout=60))\n  |   File \"C:\\Users\\22803\\anaconda3\\Lib\\asyncio\\runners.py\", line 190, in run\n  |     return runner.run(main)\n  |            ^^^^^^^^^^^^^^^^\n  |   File \"C:\\Users\\22803\\anaconda3\\Lib\\asyncio\\runners.py\", line 118, in run\n  |     return self._loop.run_until_complete(task)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"C:\\Users\\22803\\anaconda3\\Lib\\asyncio\\base_events.py\", line 653, in run_until_complete\n  |     return future.result()\n  |            ^^^^^^^^^^^^^^^\n  |   File \"C:\\Users\\22803\\anaconda3\\Lib\\asyncio\\tasks.py\", line 479, in wait_for\n  |     return fut.result()\n  |            ^^^^^^^^^^^^\n  |   File \"E:\\codexconversation\\课题研究\\reproduction\\harness_bridge\\test_server.py\", line 179, in run\n  |     async with stdio_client(parameters) as (read, write):\n  |   File \"C:\\Users\\22803\\anaconda3\\Lib\\contextlib.py\", line 222, in __aexit__\n  |     await self.gen.athrow(typ, value, traceback)\n  |   File \"E:\\codexconversation\\课题研究\\reproduction\\harness_bridge\\.venv\\Lib\\site-packages\\mcp\\client\\stdio\\__init__.py\", line 182, in stdio_client\n  |     async with (\n  |   File \"E:\\codexconversation\\课题研究\\reproduction\\harness_bridge\\.venv\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py\", line 847, in __aexit__\n  |     raise BaseExceptionGroup(\n  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)\n  +-+---------------- 1 ----------------\n    | Traceback (most recent call last):\n    |   File \"E:\\codexconversation\\课题研究\\reproduction\\harness_bridge\\.venv\\Lib\\site-packages\\anyio\\_core\\_tasks.py\", line 327, in _run_coro\n    |     retval = await self._coro\n    |              ^^^^^^^^^^^^^^^^\n    |   File \"E:\\codexconversation\\课题研究\\reproduction\\harness_bridge\\.venv\\Lib\\site-packages\\mcp\\client\\stdio\\__init__.py\", line 162, in stdout_reader\n    |     await read_stream_writer.send(session_message)\n    |   File \"E:\\codexconversation\\课题研究\\reproduction\\harness_bridge\\.venv\\Lib\\site-packages\\anyio\\streams\\memory.py\", line 250, in send\n    |     self.send_nowait(item)\n    |   File \"E:\\codexconversation\\课题研究\\reproduction\\harness_bridge\\.venv\\Lib\\site-packages\\anyio\\streams\\memory.py\", line 221, in send_nowait\n    |     raise BrokenResourceError\n    | anyio.BrokenResourceError\n    +------------------------------------\n"
+    },
+    {
+      "test": "__main__.ToolTests.test_ambiguous_local_chain_rejected",
+      "passed": true,
+      "seconds": 0.001608200000191573
+    },
+    {
+      "test": "__main__.ToolTests.test_function_missing",
+      "passed": true,
+      "seconds": 0.0012094999983673915
+    },
+    {
+      "test": "__main__.ToolTests.test_invalid_parameters_and_path_injection",
+      "passed": true,
+      "seconds": 0.0002964000013889745
+    },
+    {
+      "test": "__main__.ToolTests.test_local_chain_has_priority_over_global_ambiguity",
+      "passed": true,
+      "seconds": 0.0014240999989851844
+    },
+    {
+      "test": "__main__.ToolTests.test_lookup_global_source",
+      "passed": true,
+      "seconds": 0.0011862999999721069
+    },
+    {
+      "test": "__main__.ToolTests.test_lookup_local_source_and_provenance",
+      "passed": true,
+      "seconds": 0.0291691999991599
+    },
+    {
+      "test": "__main__.ToolTests.test_malformed_context_fails_explicitly",
+      "passed": true,
+      "seconds": 0.0013596999997389503
+    },
+    {
+      "test": "__main__.ToolTests.test_missing_context_fails_explicitly",
+      "passed": true,
+      "seconds": 0.0012568999991344754
+    },
+    {
+      "test": "__main__.ToolTests.test_multiframe_chain_is_not_truncated",
+      "passed": true,
+      "seconds": 0.005625600002531428
+    },
+    {
+      "test": "__main__.ToolTests.test_multiple_definitions_rejected",
+      "passed": true,
+      "seconds": 0.0011517000020830892
+    },
+    {
+      "test": "__main__.ToolTests.test_no_model_engine_or_safety_guard_import",
+      "passed": true,
+      "seconds": 2.5899997126543894e-05
+    },
+    {
+      "test": "__main__.ToolTests.test_normal_context_and_original_hashes",
+      "passed": true,
+      "seconds": 0.014332400001876522
+    },
+    {
+      "test": "__main__.ToolTests.test_sample_missing_and_negative_index",
+      "passed": true,
+      "seconds": 0.0011976000023423694
+    },
+    {
+      "test": "__main__.ToolTests.test_source_hash_mismatch_is_not_success",
+      "passed": true,
+      "seconds": 0.007950799998070579
+    }
+  ],
+  "subtests": "parameter/error cases also recorded individually in tool_calls.json",
+  "protected_file_count": 3433,
+  "changed_protected_files": [],
+  "mcp_version": "1.30.0",
+  "python": "3.11.5 | packaged by Anaconda, Inc. | (main, Sep 11 2023, 13:26:23) [MSC v.1916 64 bit (AMD64)]",
+  "new_model_calls": 0,
+  "new_api_cost_cny": 0,
+  "harness_launched_by_tests": false
+}
