@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, sat\n\n    # Base script variables and constraints\n    ectx_key = Int('ectx_key')\n\n    # Constraint set 2 variables\n    genkey = Bool('genkey')\n    EVP_PKEY_keygen_init_ret = Int('EVP_PKEY_keygen_init_ret')\n    EVP_PKEY_keygen_ret = Int('EVP_PKEY_keygen_ret')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(ectx_key == 0)\n\n    # Constraint set 2 constraint\n    s.add(Or(\n        Not(genkey),\n        Not(Or(EVP_PKEY_keygen_init_ret <= 0, EVP_PKEY_keygen_ret <= 0))\n    ))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ectx_key () Int)\n(declare-fun EVP_PKEY_keygen_ret () Int)\n(declare-fun EVP_PKEY_keygen_init_ret () Int)\n(declare-fun genkey () Bool)\n(assert\n (= ectx_key 0))\n(assert\n (let (($x31 (or (<= EVP_PKEY_keygen_init_ret 0) (<= EVP_PKEY_keygen_ret 0))))\n(or (not genkey) (not $x31))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

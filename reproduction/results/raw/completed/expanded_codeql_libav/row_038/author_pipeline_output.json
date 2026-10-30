@@ -1,0 +1,13 @@
+{
+  "response": [
+    "step 1 z3 script: ```python\nname=Int('name')\ns.add(name == 0)\n```",
+    "step 1 z3 script: ```python\nfilt_name=Int('filt_name')\ns.add(filt_name == 0)\n```"
+  ],
+  "function_name_list": [
+    "create_filter"
+  ],
+  "function_body_list": [
+    "static int create_filter(AVFilterContext **filt_ctx, AVFilterGraph *ctx, int index,\n                         const char *filt_name, const char *args, void *log_ctx)\n{\n    const AVFilter *filt;\n    char inst_name[30];\n    char tmp_args[TMP_ARGS_SIZE];\n    int ret;\n\n    snprintf(inst_name, sizeof(inst_name), \"Parsed filter %d %s\", index, filt_name);\n\n    filt = avfilter_get_by_name(filt_name);\n\n    if (!filt) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"No such filter: '%s'\\n\", filt_name);\n        return AVERROR(EINVAL);\n    }\n\n    *filt_ctx = avfilter_graph_alloc_filter(ctx, filt, inst_name);\n    if (!*filt_ctx) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"Error creating filter '%s'\\n\", filt_name);\n        return AVERROR(ENOMEM);\n    }\n\n    if (!strcmp(filt_name, \"scale\") && args &&\n        ctx->scale_sws_opts) {\n        append_sws_flags(&args, ctx->scale_sws_opts, tmp_args);\n    }\n\n    ret = avfilter_init_str(*filt_ctx, args);\n    if (ret < 0) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"Error initializing filter '%s'\", filt_name);\n        if (args)\n            av_log(log_ctx, AV_LOG_ERROR, \" with args '%s'\", args);\n        av_log(log_ctx, AV_LOG_ERROR, \"\\n\");\n        avfilter_free(*filt_ctx);\n        return ret;\n    }\n\n    return 0;\n}"
+  ],
+  "result": true
+}

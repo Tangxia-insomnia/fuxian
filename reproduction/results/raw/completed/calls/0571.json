@@ -1,0 +1,45 @@
+{
+  "call_id": 571,
+  "sample_id": "NPD/codeql/libav:row=44:index=74",
+  "timestamp": "2026-10-26T00:55:08.693281+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a Z3 constraint solver expert, merge the following constraint sets into a single function.\n\n        Input:\n        1. Base Z3 script: ```python\nst=Int('st')\ns.add(st == 0)\n```\n        2. Constraint set 1: \n        3. Constraint set 2: ```python\nfrom z3 import *\n\n# Declare variables relevant to the constraints.\n# 'i' and 's->nb_streams' appear in the first constraint, so we model them as integers.\ni = Int('i')\nnb_streams = Int('nb_streams')\n\n# 'st' is a pointer-like variable; model it as an uninterpreted sort / integer handle.\n# We use a Bool to represent whether 'st' is non-null (st != 0).\nst_nonnull = Bool('st_nonnull')\n\n# 'codec_type' is a field of st->codecpar; model as an integer.\ncodec_type = Int('codec_type')\nAVMEDIA_TYPE_DATA = 5  # typical enum value placeholder; adjust if needed\n\ns = Solver()\n\n# Constraint 1: !(i == s->nb_streams) || !(!st)\n# In C: if i == nb_streams then st must be non-null (since !(!st) means st != 0).\n# Converted: (i != nb_streams) OR (st != 0)\ns.add(Or(i != nb_streams, st_nonnull))\n\n# Constraint 2: !(i = 0; i < s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_DATA)\n# The first part is a for-loop header, not a boolean expression. Interpreted as the loop\n# condition being false, i.e., NOT (0 <= i < nb_streams). So the constraint becomes:\n#   (i < 0 OR i >= nb_streams) OR (codec_type != AVMEDIA_TYPE_DATA)\ns.add(Or(i < 0, i >= nb_streams, codec_type != AVMEDIA_TYPE_DATA))\n\n# Check satisfiability\nprint(s.check())\nprint(s.model())\n```\n\n        Requirements:\n        1. Merge all constraints into a check_constraints() function\n        2. Retain ALL original constraints from the base script\n        3. Add any missing variable definitions from constraint sets\n        4. Function must return boolean (True if constraints are satisfied)\n        5. Return ONLY the function code without imports\n        6. Ensure code is directly executable\n\n        Function signature:\n        def check_constraints():\n            # Your merged constraints here\n            return result  # boolean\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "2b9eeae0-0ddc-44ca-9fc6-e92a0193f311",
+  "usage": {
+    "prompt_tokens": 574,
+    "completion_tokens": 195,
+    "total_tokens": 769,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 574
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\ndef check_constraints():\n    from z3 import Int, Bool, Solver, Or, sat\n\n    # Base script variables and constraints\n    st = Int('st')\n\n    # Variables from constraint set 2\n    i = Int('i')\n    nb_streams = Int('nb_streams')\n    st_nonnull = Bool('st_nonnull')\n    codec_type = Int('codec_type')\n    AVMEDIA_TYPE_DATA = 5\n\n    s = Solver()\n\n    # Base constraint\n    s.add(st == 0)\n\n    # Constraint set 2 - Constraint 1\n    s.add(Or(i != nb_streams, st_nonnull))\n\n    # Constraint set 2 - Constraint 2\n    s.add(Or(i < 0, i >= nb_streams, codec_type != AVMEDIA_TYPE_DATA))\n\n    return s.check() == sat\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.3745367999999871,
+  "cost_upper_bound_cny": 0.002708
+}

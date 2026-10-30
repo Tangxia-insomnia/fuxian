@@ -1,0 +1,96 @@
+```python
+nh=Int('nh')
+s.add(nh == 0)
+```
+```json
+["!(unlikely(f6i->nh)) || !(nexthop_is_blackhole(f6i->nh))", "!(!oif && ipv6_addr_any(saddr)) || !(!(nh->fib_nh_flags & RTNH_F_DEAD))", "!(!oif && ipv6_addr_any(saddr)) || !(unlikely(f6i->nh)) || !(nexthop_is_blackhole(f6i->nh))"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints.
+# The constraints reference `nh` (a nexthop pointer) and its field `fib_nh_flags`.
+# We model `nh` as a pointer (Int) where 0 means NULL, and `fib_nh_flags` as a bitvector
+# to allow bitwise AND with RTNH_F_DEAD.
+nh = Int('nh')                      # pointer: 0 == NULL, non-zero == valid
+fib_nh_flags = BitVec('fib_nh_flags', 32)
+
+# RTNH_F_DEAD flag value (from Linux kernel: 1)
+RTNH_F_DEAD = BitVecVal(1, 32)
+
+# Helper predicates mirroring the C macros/functions.
+# nexthop_is_blackhole(nh) and unlikely(...) are opaque; we model them as
+# uninterpreted booleans tied to `nh` being non-NULL (since they dereference nh).
+nexthop_is_blackhole = Function('nexthop_is_blackhole', IntSort(), BoolSort())
+unlikely_nh = Function('unlikely_nh', IntSort(), BoolSort())
+
+# Constraint 1:
+#   !(unlikely(f6i->nh)) || !(nexthop_is_blackhole(f6i->nh))
+# Included because it directly constrains `nh` (via f6i->nh, which is `nh`).
+# C semantics: !ptr  ->  ptr == 0 ; !(bool) -> Not(bool)
+c1 = Or(Not(unlikely_nh(nh)), Not(nexthop_is_blackhole(nh)))
+
+# Constraint 2:
+#   !(!oif && ipv6_addr_any(saddr)) || !(!(nh->fib_nh_flags & RTNH_F_DEAD))
+# Included because it references nh->fib_nh_flags (a field of `nh`).
+# The left disjunct depends on oif/saddr which are not in scope, so we treat
+# it as an unconstrained boolean `left2` (it does not affect `nh`).
+left2 = Bool('left2')
+# Right disjunct: !(!(nh->fib_nh_flags & RTNH_F_DEAD))
+#   inner: (nh->fib_nh_flags & RTNH_F_DEAD) != 0
+#   negated: (nh->fib_nh_flags & RTNH_F_DEAD) == 0
+right2 = (fib_nh_flags & RTNH_F_DEAD) == BitVecVal(0, 32)
+c2 = Or(left2, right2)
+
+# Constraint 3:
+#   !(!oif && ipv6_addr_any(saddr)) || !(unlikely(f6i->nh)) || !(nexthop_is_blackhole(f6i->nh))
+# Included because it references `nh` (f6i->nh) in the last two disjuncts.
+left3 = Bool('left3')  # same oif/saddr-dependent term as in c2, unconstrained here
+c3 = Or(left3, Not(unlikely_nh(nh)), Not(nexthop_is_blackhole(nh)))
+
+# Solve: check satisfiability of the conjunction of all constraints.
+s = Solver()
+s.add(c1)
+s.add(c2)
+s.add(c3)
+
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, BitVec, BitVecVal, Function, IntSort, BoolSort, Bool, Or, Not, Solver, sat
+
+    # Base script constraints
+    nh = Int('nh')
+
+    # Constraint set 2 variable definitions
+    fib_nh_flags = BitVec('fib_nh_flags', 32)
+    RTNH_F_DEAD = BitVecVal(1, 32)
+    nexthop_is_blackhole = Function('nexthop_is_blackhole', IntSort(), BoolSort())
+    unlikely_nh = Function('unlikely_nh', IntSort(), BoolSort())
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(nh == 0)
+
+    # Constraint 1
+    c1 = Or(Not(unlikely_nh(nh)), Not(nexthop_is_blackhole(nh)))
+    s.add(c1)
+
+    # Constraint 2
+    left2 = Bool('left2')
+    right2 = (fib_nh_flags & RTNH_F_DEAD) == BitVecVal(0, 32)
+    c2 = Or(left2, right2)
+    s.add(c2)
+
+    # Constraint 3
+    left3 = Bool('left3')
+    c3 = Or(left3, Not(unlikely_nh(nh)), Not(nexthop_is_blackhole(nh)))
+    s.add(c3)
+
+    return s.check() == sat
+```
+goto result: True

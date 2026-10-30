@@ -1,0 +1,45 @@
+{
+  "call_id": 679,
+  "sample_id": "NPD/codeql/openssl:row=8:index=9",
+  "timestamp": "2026-10-26T00:57:31.583417+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(operation & SMIME_SIGNERS) || !(operation == SMIME_SIGN) || !(cms == NULL)', '!(operation == SMIME_ENCRYPT) || !(cms == NULL)', '!(operation & SMIME_IP) || !(cms == NULL)', '!(operation == SMIME_SIGN_RECEIPT) || !(srcms == NULL)']\n        Relevant conditions/variables: [], cms\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "389dc374-49eb-4a10-8492-a0f438876aa5",
+  "usage": {
+    "prompt_tokens": 188,
+    "completion_tokens": 541,
+    "total_tokens": 729,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 188
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# operation: integer bitmask / enum value (C int)\noperation = BitVec('operation', 32)\n# cms: pointer, modeled as a 64-bit integer (0 == NULL)\ncms = BitVec('cms', 64)\n# srcms: pointer, modeled as a 64-bit integer (0 == NULL)\nsrcms = BitVec('srcms', 64)\n\n# SMIME_* constants (typical OpenSSL values; adjust if needed)\nSMIME_SIGNERS        = 0x0001\nSMIME_SIGN           = 0x0002\nSMIME_ENCRYPT        = 0x0004\nSMIME_IP             = 0x0008\nSMIME_SIGN_RECEIPT   = 0x0010\n\ns = Solver()\n\n# Constraint 1: !(operation & SMIME_SIGNERS) || !(operation == SMIME_SIGN) || !(cms == NULL)\n# Included because it constrains `cms` (must be non-NULL when operation has SMIME_SIGNERS bit\n# and operation equals SMIME_SIGN). C-style !(cms == NULL) becomes cms != 0.\ns.add(Or(\n    (operation & SMIME_SIGNERS) == 0,\n    operation != SMIME_SIGN,\n    cms != 0\n))\n\n# Constraint 2: !(operation == SMIME_ENCRYPT) || !(cms == NULL)\n# Included because it constrains `cms` (must be non-NULL when operation == SMIME_ENCRYPT).\ns.add(Or(\n    operation != SMIME_ENCRYPT,\n    cms != 0\n))\n\n# Constraint 3: !(operation & SMIME_IP) || !(cms == NULL)\n# Included because it constrains `cms` (must be non-NULL when SMIME_IP bit is set).\ns.add(Or(\n    (operation & SMIME_IP) == 0,\n    cms != 0\n))\n\n# Constraint 4: !(operation == SMIME_SIGN_RECEIPT) || !(srcms == NULL)\n# Included because it constrains `srcms` (must be non-NULL when operation == SMIME_SIGN_RECEIPT).\ns.add(Or(\n    operation != SMIME_SIGN_RECEIPT,\n    srcms != 0\n))\n\n# Check satisfiability and print result\nprint(s.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.4338583999997354,
+  "cost_upper_bound_cny": 0.004704
+}

@@ -1,0 +1,56 @@
+```python
+ap_sta=Int('ap_sta')
+s.add(ap_sta == 0)
+```
+```json
+["!(WARN_ON_ONCE(!sta || !ap_sta))"]
+```
+```python
+from z3 import *
+
+# Declare variables referenced in the constraint.
+# In C, `sta` and `ap_sta` are pointers; we model them as integer addresses
+# where 0 represents NULL and any non-zero value represents a valid pointer.
+sta    = Int('sta')
+ap_sta = Int('ap_sta')
+
+s = Solver()
+
+# Constraint: !(WARN_ON_ONCE(!sta || !ap_sta))
+#
+# WARN_ON_ONCE(cond) evaluates to `cond` (it warns if cond is true, and
+# returns the condition value). The outer `!` negates it, so the C code
+# asserts that the inner condition is FALSE:
+#
+#     !(!sta || !ap_sta)  ==  (sta != 0) && (ap_sta != 0)
+#
+# In other words: both `sta` and `ap_sta` must be non-NULL pointers.
+# We include this constraint because it directly constrains `ap_sta`
+# (and `sta`) to be non-null.
+s.add(And(sta != 0, ap_sta != 0))
+
+# Check satisfiability and print the model.
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, And, sat
+
+    # Variables from base script and constraint set 2
+    ap_sta = Int('ap_sta')
+    sta = Int('sta')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ap_sta == 0)
+
+    # Constraint set 2: !(WARN_ON_ONCE(!sta || !ap_sta)) => sta != 0 && ap_sta != 0
+    s.add(And(sta != 0, ap_sta != 0))
+
+    result = (s.check() == sat)
+    return result
+```
+goto result: False

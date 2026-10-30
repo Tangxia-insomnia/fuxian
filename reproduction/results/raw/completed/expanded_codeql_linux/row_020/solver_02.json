@@ -1,0 +1,7 @@
+{
+  "event_id": 2,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, DeclareSort, Const, Function, BoolSort\n    \n    # Base script constraints\n    skb_int = Int('skb')\n    s = Solver()\n    s.add(skb_int == 0)\n    \n    # Constraint set 2: model skb_unref(skb) as true\n    Skb = DeclareSort('Skb')\n    skb = Const('skb', Skb)\n    skb_unref = Function('skb_unref', Skb, BoolSort())\n    s.add(skb_unref(skb))\n    \n    result = s.check()\n    return result == __import__('z3').sat",
+  "ok": false,
+  "error": "ValueError: ValueError: Unsupported generated-code operation"
+}

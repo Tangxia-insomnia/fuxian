@@ -1,0 +1,60 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "parse_filter",
+      "var_name": "name",
+      "target": "ret = create_filter(filt_ctx, graph, index, name, opts, log_ctx);",
+      "code": "static int parse_filter(AVFilterContext **filt_ctx, const char **buf, AVFilterGraph *graph,\n                        int index, void *log_ctx)\n{\n    char *opts = NULL;\n    char *name = av_get_token(buf, \"=,;[\\n\");\n    int ret;\n\n    if (**buf == '=') {\n        (*buf)++;\n        opts = av_get_token(buf, \"[],;\\n\");\n    }\n\n    ret = create_filter(filt_ctx, graph, index, name, opts, log_ctx);\n    av_free(name);\n    av_free(opts);\n    return ret;\n}",
+      "body_sha256": "866e4afe587dec3886b9a70d564679dcebcd97c1b5c91278df79ea314d3b91f7",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "ret = create_filter(filt_ctx, graph, index, name, opts, log_ctx);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int parse_filter(AVFilterContext **filt_ctx, const char **buf, AVFilterGraph *graph,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static int parse_filter(AVFilterContext **filt_ctx, const char **buf, AVFilterGraph *graph,\n                        int index, void *log_ctx)\n{\n    char *opts = NULL;\n    char *name = av_get_token(buf, \"=,;[\\n\");\n    int ret;\n\n    if (**buf == '=') {\n        (*buf)++;\n        opts = av_get_token(buf, \"[],;\\n\");\n    }\n\n    ret = create_filter(filt_ctx, graph, index, name, opts, log_ctx);\n    av_free(name);\n    av_free(opts);\n    return ret;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "create_filter",
+      "var_name": "filt_name",
+      "target": "    snprintf(inst_name, sizeof(inst_name), \"Parsed filter %d %s\", index, filt_name);",
+      "code": "static int create_filter(AVFilterContext **filt_ctx, AVFilterGraph *ctx, int index,\n                         const char *filt_name, const char *args, void *log_ctx)\n{\n    const AVFilter *filt;\n    char inst_name[30];\n    char tmp_args[TMP_ARGS_SIZE];\n    int ret;\n\n    snprintf(inst_name, sizeof(inst_name), \"Parsed filter %d %s\", index, filt_name);\n\n    filt = avfilter_get_by_name(filt_name);\n\n    if (!filt) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"No such filter: '%s'\\n\", filt_name);\n        return AVERROR(EINVAL);\n    }\n\n    *filt_ctx = avfilter_graph_alloc_filter(ctx, filt, inst_name);\n    if (!*filt_ctx) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"Error creating filter '%s'\\n\", filt_name);\n        return AVERROR(ENOMEM);\n    }\n\n    if (!strcmp(filt_name, \"scale\") && args &&\n        ctx->scale_sws_opts) {\n        append_sws_flags(&args, ctx->scale_sws_opts, tmp_args);\n    }\n\n    ret = avfilter_init_str(*filt_ctx, args);\n    if (ret < 0) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"Error initializing filter '%s'\", filt_name);\n        if (args)\n            av_log(log_ctx, AV_LOG_ERROR, \" with args '%s'\", args);\n        av_log(log_ctx, AV_LOG_ERROR, \"\\n\");\n        avfilter_free(*filt_ctx);\n        return ret;\n    }\n\n    return 0;\n}",
+      "body_sha256": "8c2ff30e21c838cc05115bd80603fa59882fb67208d20a9f03066574ce469666",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "    snprintf(inst_name, sizeof(inst_name), \"Parsed filter %d %s\", index, filt_name);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int create_filter(AVFilterContext **filt_ctx, AVFilterGraph *ctx, int index,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static int create_filter(AVFilterContext **filt_ctx, AVFilterGraph *ctx, int index,\n                         const char *filt_name, const char *args, void *log_ctx)\n{\n    const AVFilter *filt;\n    char inst_name[30];\n    char tmp_args[TMP_ARGS_SIZE];\n    int ret;\n\n    snprintf(inst_name, sizeof(inst_name), \"Parsed filter %d %s\", index, filt_name);\n\n    filt = avfilter_get_by_name(filt_name);\n\n    if (!filt) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"No such filter: '%s'\\n\", filt_name);\n        return AVERROR(EINVAL);\n    }\n\n    *filt_ctx = avfilter_graph_alloc_filter(ctx, filt, inst_name);\n    if (!*filt_ctx) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"Error creating filter '%s'\\n\", filt_name);\n        return AVERROR(ENOMEM);\n    }\n\n    if (!strcmp(filt_name, \"scale\") && args &&\n        ctx->scale_sws_opts) {\n        append_sws_flags(&args, ctx->scale_sws_opts, tmp_args);\n    }\n\n    ret = avfilter_init_str(*filt_ctx, args);\n    if (ret < 0) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"Error initializing filter '%s'\", filt_name);\n        if (args)\n            av_log(log_ctx, AV_LOG_ERROR, \" with args '%s'\", args);\n        av_log(log_ctx, AV_LOG_ERROR, \"\\n\");\n        avfilter_free(*filt_ctx);\n        return ret;\n    }\n\n    return 0;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int parse_filter(AVFilterContext **filt_ctx, const char **buf, AVFilterGraph *graph,\n                        int index, void *log_ctx)\n{\n    char *opts = NULL;\n    char *name = av_get_token(buf, \"=,;[\\n\");\n    int ret;\n\n    if (**buf == '=') {\n        (*buf)++;\n        opts = av_get_token(buf, \"[],;\\n\");\n    }\n\n    ret = create_filter(filt_ctx, graph, index, name, opts, log_ctx);\n    av_free(name);\n    av_free(opts);\n    return ret;\n}",
+    "static int create_filter(AVFilterContext **filt_ctx, AVFilterGraph *ctx, int index,\n                         const char *filt_name, const char *args, void *log_ctx)\n{\n    const AVFilter *filt;\n    char inst_name[30];\n    char tmp_args[TMP_ARGS_SIZE];\n    int ret;\n\n    snprintf(inst_name, sizeof(inst_name), \"Parsed filter %d %s\", index, filt_name);\n\n    filt = avfilter_get_by_name(filt_name);\n\n    if (!filt) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"No such filter: '%s'\\n\", filt_name);\n        return AVERROR(EINVAL);\n    }\n\n    *filt_ctx = avfilter_graph_alloc_filter(ctx, filt, inst_name);\n    if (!*filt_ctx) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"Error creating filter '%s'\\n\", filt_name);\n        return AVERROR(ENOMEM);\n    }\n\n    if (!strcmp(filt_name, \"scale\") && args &&\n        ctx->scale_sws_opts) {\n        append_sws_flags(&args, ctx->scale_sws_opts, tmp_args);\n    }\n\n    ret = avfilter_init_str(*filt_ctx, args);\n    if (ret < 0) {\n        av_log(log_ctx, AV_LOG_ERROR,\n               \"Error initializing filter '%s'\", filt_name);\n        if (args)\n            av_log(log_ctx, AV_LOG_ERROR, \" with args '%s'\", args);\n        av_log(log_ctx, AV_LOG_ERROR, \"\\n\");\n        avfilter_free(*filt_ctx);\n        return ret;\n    }\n\n    return 0;\n}"
+  ]
+}

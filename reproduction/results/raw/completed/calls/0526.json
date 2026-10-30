@@ -1,0 +1,45 @@
+{
+  "call_id": 526,
+  "sample_id": "NPD/codeql/libav:row=30:index=38",
+  "timestamp": "2026-10-26T00:54:05.740064+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(is_yuv) || !(!yuv_line)']\n        Relevant conditions/variables: [], yuv_line\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "d5790a63-bbcc-4c6e-98e1-1c388a812582",
+  "usage": {
+    "prompt_tokens": 118,
+    "completion_tokens": 245,
+    "total_tokens": 363,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 118
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# is_yuv: boolean flag indicating YUV format\n# yuv_line: pointer-like variable; in C, !yuv_line means yuv_line == 0 (NULL)\nis_yuv = Bool('is_yuv')\nyuv_line = Int('yuv_line')  # modeled as integer; 0 represents NULL\n\n# Constraint: !(is_yuv) || !(!yuv_line)\n# In C: !is_yuv || !(!yuv_line)\n#   !is_yuv        -> Not(is_yuv)\n#   !yuv_line      -> yuv_line == 0\n#   !(!yuv_line)   -> Not(yuv_line == 0)  i.e. yuv_line != 0\n# So the constraint is: (Not(is_yuv)) Or (yuv_line != 0)\n# This is included because it is the only constraint affecting the specified variables.\nsolver = Solver()\nsolver.add(Or(Not(is_yuv), yuv_line != 0))\n\n# Check satisfiability and print result\nprint(solver.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.8114338000004864,
+  "cost_upper_bound_cny": 0.002196
+}

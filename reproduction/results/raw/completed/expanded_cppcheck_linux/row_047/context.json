@@ -1,0 +1,68 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "pas_init_IRQ",
+      "var_name": "mpic",
+      "target": "mpic_assign_isu(mpic, 0, mpic->paddr + 0x10000);",
+      "code": "static __init void pas_init_IRQ(void)\n{\n\tstruct device_node *np;\n\tstruct device_node *root, *mpic_node;\n\tunsigned long openpic_addr;\n\tconst unsigned int *opprop;\n\tint naddr, opplen;\n\tint mpic_flags;\n\tconst unsigned int *nmiprop;\n\tstruct mpic *mpic;\n\n\tmpic_node = NULL;\n\n\tfor_each_node_by_type(np, \"interrupt-controller\")\n\t\tif (of_device_is_compatible(np, \"open-pic\")) {\n\t\t\tmpic_node = np;\n\t\t\tbreak;\n\t\t}\n\tif (!mpic_node)\n\t\tfor_each_node_by_type(np, \"open-pic\") {\n\t\t\tmpic_node = np;\n\t\t\tbreak;\n\t\t}\n\tif (!mpic_node) {\n\t\tpr_err(\"Failed to locate the MPIC interrupt controller\\n\");\n\t\treturn;\n\t}\n\n\t/* Find address list in /platform-open-pic */\n\troot = of_find_node_by_path(\"/\");\n\tnaddr = of_n_addr_cells(root);\n\topprop = of_get_property(root, \"platform-open-pic\", &opplen);\n\tif (!opprop) {\n\t\tpr_err(\"No platform-open-pic property.\\n\");\n\t\tof_node_put(root);\n\t\treturn;\n\t}\n\topenpic_addr = of_read_number(opprop, naddr);\n\tpr_debug(\"OpenPIC addr: %lx\\n\", openpic_addr);\n\n\tmpic_flags = MPIC_LARGE_VECTORS | MPIC_NO_BIAS | MPIC_NO_RESET;\n\n\tnmiprop = of_get_property(mpic_node, \"nmi-source\", NULL);\n\tif (nmiprop)\n\t\tmpic_flags |= MPIC_ENABLE_MCK;\n\n\tmpic = mpic_alloc(mpic_node, openpic_addr,\n\t\t\t  mpic_flags, 0, 0, \"PASEMI-OPIC\");\n\tBUG_ON(!mpic);\n\n\tmpic_assign_isu(mpic, 0, mpic->paddr + 0x10000);\n\tmpic_init(mpic);\n\t/* The NMI/MCK source needs to be prio 15 */\n\tif (nmiprop) {\n\t\tnmi_virq = irq_create_mapping(NULL, *nmiprop);\n\t\tmpic_irq_set_priority(nmi_virq, 15);\n\t\tirq_set_irq_type(nmi_virq, IRQ_TYPE_EDGE_RISING);\n\t\tmpic_unmask_irq(irq_get_irq_data(nmi_virq));\n\t}\n\n\tnemo_init_IRQ(mpic);\n\n\tof_node_put(mpic_node);\n\tof_node_put(root);\n}",
+      "body_sha256": "1bb4c931ea748d25a5815545f5723ae73b33781d565b030a9a094843d80fde77",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "mpic_assign_isu(mpic, 0, mpic->paddr + 0x10000);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static __init void pas_init_IRQ(void)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "mpic ==0"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!opprop"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!mpic_node"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "!mpic_node",
+              "np, \"open-pic\""
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "np, \"interrupt-controller\"",
+              "of_device_is_compatible(np, \"open-pic\")"
+            ]
+          }
+        ],
+        "filter_function_code": "static __init void pas_init_IRQ(void)\n{\n\tstruct device_node *np;\n\tstruct device_node *root, *mpic_node;\n\tunsigned long openpic_addr;\n\tconst unsigned int *opprop;\n\tint naddr, opplen;\n\tint mpic_flags;\n\tconst unsigned int *nmiprop;\n\tstruct mpic *mpic;\n\n\tmpic_node = NULL;\n\n\tfor_each_node_by_type(np, \"interrupt-controller\")\n\t\tif (of_device_is_compatible(np, \"open-pic\")) {\n\t\t\tmpic_node = np;\n\t\t\tbreak;\n\t\t}\n\tif (!mpic_node)\n\t\tfor_each_node_by_type(np, \"open-pic\") {\n\t\t\tmpic_node = np;\n\t\t\tbreak;\n\t\t}\n\tif (!mpic_node) {\n\t\tpr_err(\"Failed to locate the MPIC interrupt controller\\n\");\n\t\treturn;\n\t}\n\n\t/* Find address list in /platform-open-pic */\n\troot = of_find_node_by_path(\"/\");\n\tnaddr = of_n_addr_cells(root);\n\topprop = of_get_property(root, \"platform-open-pic\", &opplen);\n\tif (!opprop) {\n\t\tpr_err(\"No platform-open-pic property.\\n\");\n\t\tof_node_put(root);\n\t\treturn;\n\t}\n\topenpic_addr = of_read_number(opprop, naddr);\n\tpr_debug(\"OpenPIC addr: %lx\\n\", openpic_addr);\n\n\tmpic_flags = MPIC_LARGE_VECTORS | MPIC_NO_BIAS | MPIC_NO_RESET;\n\n\tnmiprop = of_get_property(mpic_node, \"nmi-source\", NULL);\n\tif (nmiprop)\n\t\tmpic_flags |= MPIC_ENABLE_MCK;\n\n\tmpic = mpic_alloc(mpic_node, openpic_addr,\n\t\t\t  mpic_flags, 0, 0, \"PASEMI-OPIC\");\n\tBUG_ON(!mpic);\n\n\tmpic_assign_isu(mpic, 0, mpic->paddr + 0x10000);\n\tmpic_init(mpic);\n\t/* The NMI/MCK source needs to be prio 15 */\n\tif (nmiprop) {\n\t\tnmi_virq = irq_create_mapping(NULL, *nmiprop);\n\t\tmpic_irq_set_priority(nmi_virq, 15);\n\t\tirq_set_irq_type(nmi_virq, IRQ_TYPE_EDGE_RISING);\n\t\tmpic_unmask_irq(irq_get_irq_data(nmi_virq));\n\t}\n\n\tnemo_init_IRQ(mpic);\n\n\tof_node_put(mpic_node);\n\tof_node_put(root);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static __init void pas_init_IRQ(void)\n{\n\tstruct device_node *np;\n\tstruct device_node *root, *mpic_node;\n\tunsigned long openpic_addr;\n\tconst unsigned int *opprop;\n\tint naddr, opplen;\n\tint mpic_flags;\n\tconst unsigned int *nmiprop;\n\tstruct mpic *mpic;\n\n\tmpic_node = NULL;\n\n\tfor_each_node_by_type(np, \"interrupt-controller\")\n\t\tif (of_device_is_compatible(np, \"open-pic\")) {\n\t\t\tmpic_node = np;\n\t\t\tbreak;\n\t\t}\n\tif (!mpic_node)\n\t\tfor_each_node_by_type(np, \"open-pic\") {\n\t\t\tmpic_node = np;\n\t\t\tbreak;\n\t\t}\n\tif (!mpic_node) {\n\t\tpr_err(\"Failed to locate the MPIC interrupt controller\\n\");\n\t\treturn;\n\t}\n\n\t/* Find address list in /platform-open-pic */\n\troot = of_find_node_by_path(\"/\");\n\tnaddr = of_n_addr_cells(root);\n\topprop = of_get_property(root, \"platform-open-pic\", &opplen);\n\tif (!opprop) {\n\t\tpr_err(\"No platform-open-pic property.\\n\");\n\t\tof_node_put(root);\n\t\treturn;\n\t}\n\topenpic_addr = of_read_number(opprop, naddr);\n\tpr_debug(\"OpenPIC addr: %lx\\n\", openpic_addr);\n\n\tmpic_flags = MPIC_LARGE_VECTORS | MPIC_NO_BIAS | MPIC_NO_RESET;\n\n\tnmiprop = of_get_property(mpic_node, \"nmi-source\", NULL);\n\tif (nmiprop)\n\t\tmpic_flags |= MPIC_ENABLE_MCK;\n\n\tmpic = mpic_alloc(mpic_node, openpic_addr,\n\t\t\t  mpic_flags, 0, 0, \"PASEMI-OPIC\");\n\tBUG_ON(!mpic);\n\n\tmpic_assign_isu(mpic, 0, mpic->paddr + 0x10000);\n\tmpic_init(mpic);\n\t/* The NMI/MCK source needs to be prio 15 */\n\tif (nmiprop) {\n\t\tnmi_virq = irq_create_mapping(NULL, *nmiprop);\n\t\tmpic_irq_set_priority(nmi_virq, 15);\n\t\tirq_set_irq_type(nmi_virq, IRQ_TYPE_EDGE_RISING);\n\t\tmpic_unmask_irq(irq_get_irq_data(nmi_virq));\n\t}\n\n\tnemo_init_IRQ(mpic);\n\n\tof_node_put(mpic_node);\n\tof_node_put(root);\n}"
+  ]
+}

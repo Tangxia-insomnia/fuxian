@@ -1,0 +1,107 @@
+```python
+cms=Int('cms')
+s.add(cms == 0)
+```
+```json
+["!(operation & SMIME_SIGNERS) || !(operation == SMIME_SIGN) || !(cms == NULL)", "!(operation == SMIME_ENCRYPT) || !(cms == NULL)", "!(operation & SMIME_IP) || !(cms == NULL)", "!(operation == SMIME_SIGN_RECEIPT) || !(srcms == NULL)"]
+```
+```python
+from z3 import *
+
+# Declare variables appearing in the constraints.
+# 'operation' is a bitmask/flag integer used in C-style bitwise tests.
+# 'cms' and 'srcms' are pointers, modeled as integers (0 == NULL).
+operation = BitVec('operation', 32)
+cms = BitVec('cms', 64)
+srcms = BitVec('srcms', 64)
+
+# SMIME flag constants (typical OpenSSL values; only relative distinctness matters).
+SMIME_SIGNERS       = BitVecVal(0x0001, 32)
+SMIME_SIGN          = BitVecVal(0x0002, 32)
+SMIME_ENCRYPT       = BitVecVal(0x0004, 32)
+SMIME_IP            = BitVecVal(0x0008, 32)
+SMIME_SIGN_RECEIPT  = BitVecVal(0x0010, 32)
+
+s = Solver()
+
+# Constraint 1: !(operation & SMIME_SIGNERS) || !(operation == SMIME_SIGN) || !(cms == NULL)
+# Included because it constrains 'cms' (must be non-NULL when operation has
+# SMIME_SIGNERS set and equals SMIME_SIGN). C-style !ptr becomes ptr != 0.
+s.add(Or(
+    (operation & SMIME_SIGNERS) == 0,
+    operation != SMIME_SIGN,
+    cms != 0
+))
+
+# Constraint 2: !(operation == SMIME_ENCRYPT) || !(cms == NULL)
+# Included because it constrains 'cms' (must be non-NULL when operation == SMIME_ENCRYPT).
+s.add(Or(
+    operation != SMIME_ENCRYPT,
+    cms != 0
+))
+
+# Constraint 3: !(operation & SMIME_IP) || !(cms == NULL)
+# Included because it constrains 'cms' (must be non-NULL when SMIME_IP flag is set).
+s.add(Or(
+    (operation & SMIME_IP) == 0,
+    cms != 0
+))
+
+# Constraint 4: !(operation == SMIME_SIGN_RECEIPT) || !(srcms == NULL)
+# Included because it constrains 'srcms' (must be non-NULL when operation == SMIME_SIGN_RECEIPT).
+s.add(Or(
+    operation != SMIME_SIGN_RECEIPT,
+    srcms != 0
+))
+
+# Print the resulting script state (sanity check / executable output).
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, BitVec, BitVecVal, Solver, Or, sat
+
+    # Base script variables and constraints
+    cms_int = Int('cms')
+    s = Solver()
+    s.add(cms_int == 0)
+
+    # Constraint set 2 variables
+    operation = BitVec('operation', 32)
+    cms = BitVec('cms', 64)
+    srcms = BitVec('srcms', 64)
+
+    SMIME_SIGNERS      = BitVecVal(0x0001, 32)
+    SMIME_SIGN         = BitVecVal(0x0002, 32)
+    SMIME_ENCRYPT      = BitVecVal(0x0004, 32)
+    SMIME_IP           = BitVecVal(0x0008, 32)
+    SMIME_SIGN_RECEIPT = BitVecVal(0x0010, 32)
+
+    # Constraint 1
+    s.add(Or(
+        (operation & SMIME_SIGNERS) == 0,
+        operation != SMIME_SIGN,
+        cms != 0
+    ))
+
+    # Constraint 2
+    s.add(Or(
+        operation != SMIME_ENCRYPT,
+        cms != 0
+    ))
+
+    # Constraint 3
+    s.add(Or(
+        (operation & SMIME_IP) == 0,
+        cms != 0
+    ))
+
+    # Constraint 4
+    s.add(Or(
+        operation != SMIME_SIGN_RECEIPT,
+        srcms != 0
+    ))
+
+    return s.check() == sat
+```
+goto result: True

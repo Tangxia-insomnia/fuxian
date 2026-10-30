@@ -1,0 +1,67 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "srp_Verify_N_and_g",
+      "var_name": "bn_ctx",
+      "target": "BN_CTX_free(bn_ctx);",
+      "code": "static int srp_Verify_N_and_g(const BIGNUM *N, const BIGNUM *g)\n{\n    BN_CTX *bn_ctx = BN_CTX_new();\n    BIGNUM *p = BN_new();\n    BIGNUM *r = BN_new();\n    int ret =\n        g != NULL && N != NULL && bn_ctx != NULL && BN_is_odd(N) &&\n        BN_check_prime(N, bn_ctx, NULL) == 1 &&\n        p != NULL && BN_rshift1(p, N) &&\n        /* p = (N-1)/2 */\n        BN_check_prime(p, bn_ctx, NULL) == 1 &&\n        r != NULL &&\n        /* verify g^((N-1)/2) == -1 (mod N) */\n        BN_mod_exp(r, g, p, N, bn_ctx) &&\n        BN_add_word(r, 1) && BN_cmp(r, N) == 0;\n\n    BN_free(r);\n    BN_free(p);\n    BN_CTX_free(bn_ctx);\n    return ret;\n}",
+      "body_sha256": "3b891519bf655f41fccdc55bb903ced2e316460efc841c25c47e8efa7fac016b",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "BN_CTX_free(bn_ctx);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int srp_Verify_N_and_g(const BIGNUM *N, const BIGNUM *g)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static int srp_Verify_N_and_g(const BIGNUM *N, const BIGNUM *g)\n{\n    BN_CTX *bn_ctx = BN_CTX_new();\n    BIGNUM *p = BN_new();\n    BIGNUM *r = BN_new();\n    int ret =\n        g != NULL && N != NULL && bn_ctx != NULL && BN_is_odd(N) &&\n        BN_check_prime(N, bn_ctx, NULL) == 1 &&\n        p != NULL && BN_rshift1(p, N) &&\n        /* p = (N-1)/2 */\n        BN_check_prime(p, bn_ctx, NULL) == 1 &&\n        r != NULL &&\n        /* verify g^((N-1)/2) == -1 (mod N) */\n        BN_mod_exp(r, g, p, N, bn_ctx) &&\n        BN_add_word(r, 1) && BN_cmp(r, N) == 0;\n\n    BN_free(r);\n    BN_free(p);\n    BN_CTX_free(bn_ctx);\n    return ret;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "BN_CTX_free",
+      "var_name": "ctx",
+      "target": "        BN_POOL_ITEM *pool = ctx->pool.head;",
+      "code": "void BN_CTX_free(BN_CTX *ctx)\n{\n    if (ctx == NULL)\n        return;\n#ifndef FIPS_MODULE\n    OSSL_TRACE_BEGIN(BN_CTX) {\n        BN_POOL_ITEM *pool = ctx->pool.head;\n        BIO_printf(trc_out,\n                   \"BN_CTX_free(): stack-size=%d, pool-bignums=%d\\n\",\n                   ctx->stack.size, ctx->pool.size);\n        BIO_printf(trc_out, \"  dmaxs: \");\n        while (pool) {\n            unsigned loop = 0;\n            while (loop < BN_CTX_POOL_SIZE)\n                BIO_printf(trc_out, \"%02x \", pool->vals[loop++].dmax);\n            pool = pool->next;\n        }\n        BIO_printf(trc_out, \"\\n\");\n    } OSSL_TRACE_END(BN_CTX);\n#endif\n    BN_STACK_finish(&ctx->stack);\n    BN_POOL_finish(&ctx->pool);\n    OPENSSL_free(ctx);\n}",
+      "body_sha256": "499a066108289d134cebf4f285a84b9b557706e0811d98ca459a2b1225148903",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "        BN_POOL_ITEM *pool = ctx->pool.head;",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "void BN_CTX_free(BN_CTX *ctx)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "ctx == NULL"
+            ]
+          }
+        ],
+        "filter_function_code": "void BN_CTX_free(BN_CTX *ctx)\n{\n    if (ctx == NULL)\n        return;\n#ifndef FIPS_MODULE\n    OSSL_TRACE_BEGIN(BN_CTX) {\n        BN_POOL_ITEM *pool = ctx->pool.head;\n        BIO_printf(trc_out,\n                   \"BN_CTX_free(): stack-size=%d, pool-bignums=%d\\n\",\n                   ctx->stack.size, ctx->pool.size);\n        BIO_printf(trc_out, \"  dmaxs: \");\n        while (pool) {\n            unsigned loop = 0;\n            while (loop < BN_CTX_POOL_SIZE)\n                BIO_printf(trc_out, \"%02x \", pool->vals[loop++].dmax);\n            pool = pool->next;\n        }\n        BIO_printf(trc_out, \"\\n\");\n    } OSSL_TRACE_END(BN_CTX);\n#endif\n    BN_STACK_finish(&ctx->stack);\n    BN_POOL_finish(&ctx->pool);\n    OPENSSL_free(ctx);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int srp_Verify_N_and_g(const BIGNUM *N, const BIGNUM *g)\n{\n    BN_CTX *bn_ctx = BN_CTX_new();\n    BIGNUM *p = BN_new();\n    BIGNUM *r = BN_new();\n    int ret =\n        g != NULL && N != NULL && bn_ctx != NULL && BN_is_odd(N) &&\n        BN_check_prime(N, bn_ctx, NULL) == 1 &&\n        p != NULL && BN_rshift1(p, N) &&\n        /* p = (N-1)/2 */\n        BN_check_prime(p, bn_ctx, NULL) == 1 &&\n        r != NULL &&\n        /* verify g^((N-1)/2) == -1 (mod N) */\n        BN_mod_exp(r, g, p, N, bn_ctx) &&\n        BN_add_word(r, 1) && BN_cmp(r, N) == 0;\n\n    BN_free(r);\n    BN_free(p);\n    BN_CTX_free(bn_ctx);\n    return ret;\n}",
+    "void BN_CTX_free(BN_CTX *ctx)\n{\n    if (ctx == NULL)\n        return;\n#ifndef FIPS_MODULE\n    OSSL_TRACE_BEGIN(BN_CTX) {\n        BN_POOL_ITEM *pool = ctx->pool.head;\n        BIO_printf(trc_out,\n                   \"BN_CTX_free(): stack-size=%d, pool-bignums=%d\\n\",\n                   ctx->stack.size, ctx->pool.size);\n        BIO_printf(trc_out, \"  dmaxs: \");\n        while (pool) {\n            unsigned loop = 0;\n            while (loop < BN_CTX_POOL_SIZE)\n                BIO_printf(trc_out, \"%02x \", pool->vals[loop++].dmax);\n            pool = pool->next;\n        }\n        BIO_printf(trc_out, \"\\n\");\n    } OSSL_TRACE_END(BN_CTX);\n#endif\n    BN_STACK_finish(&ctx->stack);\n    BN_POOL_finish(&ctx->pool);\n    OPENSSL_free(ctx);\n}"
+  ]
+}

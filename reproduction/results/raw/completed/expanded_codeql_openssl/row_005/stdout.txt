@@ -1,0 +1,85 @@
+```python
+key_param=Int('key_param')
+s.add(key_param == 0)
+```
+```json
+["!(key_param == NULL || key_param->idx != keyidx) || !((nparam->param = sk_OPENSSL_STRING_new_null()) == NULL)", "!(keyidx < 0)"]
+```
+```python
+from z3 import *
+
+# Declare variables used in the constraints
+# key_param is a pointer (modeled as an integer address; 0 means NULL)
+key_param = Int('key_param')
+# keyidx is an integer index
+keyidx = Int('keyidx')
+# nparam->param is a pointer field (modeled as an integer address; 0 means NULL)
+nparam_param = Int('nparam_param')
+
+# Constraint 1:
+#   !(key_param == NULL || key_param->idx != keyidx)
+#       || !((nparam->param = sk_OPENSSL_STRING_new_null()) == NULL)
+#
+# This constraint affects key_param (and keyidx). It encodes:
+#   - If key_param is non-NULL AND key_param->idx == keyidx,
+#     then the assignment (nparam->param = sk_OPENSSL_STRING_new_null())
+#     must NOT be NULL (i.e., the allocation must succeed).
+#   - Otherwise the constraint is trivially satisfied.
+#
+# Since key_param->idx is a field access on a pointer, we model it as a
+# separate integer variable key_param_idx. The C short-circuit semantics
+# mean key_param->idx is only meaningful when key_param != NULL.
+key_param_idx = Int('key_param_idx')
+
+# The assignment result is modeled as nparam_param (the value assigned).
+# "== NULL" becomes "== 0"; "!=" NULL becomes "!= 0".
+# The implication form: (key_param != 0 AND key_param_idx == keyidx) => nparam_param != 0
+constraint1 = Implies(
+    And(key_param != 0, key_param_idx == keyidx),
+    nparam_param != 0
+)
+
+# Constraint 2:
+#   !(keyidx < 0)
+# This constraint affects keyidx: keyidx must be non-negative.
+constraint2 = Not(keyidx < 0)
+
+# Build the solver and add the constraints
+s = Solver()
+s.add(constraint1)
+s.add(constraint2)
+
+# Check satisfiability and print the result
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Implies, And, Not, sat
+
+    # Base script variables and constraints
+    key_param = Int('key_param')
+
+    # Constraint set 2 variables
+    keyidx = Int('keyidx')
+    nparam_param = Int('nparam_param')
+    key_param_idx = Int('key_param_idx')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(key_param == 0)
+
+    # Constraint set 2 constraints
+    constraint1 = Implies(
+        And(key_param != 0, key_param_idx == keyidx),
+        nparam_param != 0
+    )
+    constraint2 = Not(keyidx < 0)
+
+    s.add(constraint1)
+    s.add(constraint2)
+
+    return s.check() == sat
+```
+goto result: True

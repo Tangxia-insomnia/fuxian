@@ -1,0 +1,14 @@
+{
+  "event_id": 5,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, sat, unsat\n\n    # Variable definitions (merged from base script and constraint sets)\n    folio_test_slab = Int('folio_test_slab')\n    object = Int('object')\n\n    s = Solver()\n\n    # Constraints from base script\n    s.add(folio_test_slab == 0)\n    s.add(object == 0)\n\n    # Constraints from constraint set 1\n    s.add(object == 0)\n    s.add(folio_test_slab == 0)\n\n    # Constraints from constraint set 2\n    PAGE_SIZE = 4096\n    s.add(object != 0)\n    s.add(object >= PAGE_SIZE)\n\n    # Check satisfiability\n    result = s.check()\n\n    if result == sat:\n        return True\n    elif result == unsat:\n        return False\n    else:\n        return False",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun folio_test_slab () Int)\n(declare-fun object () Int)\n(assert\n (= folio_test_slab 0))\n(assert\n (= object 0))\n(assert\n (= object 0))\n(assert\n (= folio_test_slab 0))\n(assert\n (and (distinct object 0) true))\n(assert\n (>= object 4096))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,45 @@
+{
+  "call_id": 361,
+  "sample_id": "NPD/codeql/kernel69:row=57:index=85",
+  "timestamp": "2026-10-26T00:50:43.450874+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static struct sk_buff *\nieee80211_rx_monitor(struct ieee80211_local *local, struct sk_buff *origskb,\n\t\t     struct ieee80211_rate *rate)\n{\n\tstruct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(origskb);\n\tstruct ieee80211_sub_if_data *sdata;\n\tstruct sk_buff *monskb = NULL;\n\tint present_fcs_len = 0;\n\tunsigned int rtap_space = 0;\n\tstruct ieee80211_sub_if_data *monitor_sdata =\n\t\trcu_dereference(local->monitor_sdata);\n\tbool only_monitor = false;\n\tunsigned int min_head_len;\n\n\tif (WARN_ON_ONCE(status->flag & RX_FLAG_RADIOTAP_TLV_AT_END &&\n\t\t\t !skb_mac_header_was_set(origskb))) {\n\t\t/* with this skb no way to know where frame payload starts */\n\t\tdev_kfree_skb(origskb);\n\t\treturn NULL;\n\t}\n\n\tif (status->flag & RX_FLAG_RADIOTAP_HE)\n\t\trtap_space += sizeof(struct ieee80211_radiotap_he);\n\n\tif (status->flag & RX_FLAG_RADIOTAP_HE_MU)\n\t\trtap_space += sizeof(struct ieee80211_radiotap_he_mu);\n\n\tif (status->flag & RX_FLAG_RADIOTAP_LSIG)\n\t\trtap_space += sizeof(struct ieee80211_radiotap_lsig);\n\n\tif (status->flag & RX_FLAG_RADIOTAP_TLV_AT_END)\n\t\trtap_space += skb_mac_header(origskb) - &origskb->data[rtap_space];\n\n\tmin_head_len = rtap_space;\n\n\t/*\n\t * First, we may need to make a copy of the skb because\n\t *  (1) we need to modify it for radiotap (if not present), and\n\t *  (2) the other RX handlers will modify the skb we got.\n\t *\n\t * We don't need to, of course, if we aren't going to return\n\t * the SKB because it has a bad FCS/PLCP checksum.\n\t */\n\n\tif (!(status->flag & RX_FLAG_NO_PSDU)) {\n\t\tif (ieee80211_hw_check(&local->hw, RX_INCLUDES_FCS)) {\n\t\t\tif (unlikely(origskb->len <= FCS_LEN + rtap_space)) {\n\t\t\t\t/* driver bug */\n\t\t\t\tWARN_ON(1);\n\t\t\t\tdev_kfree_skb(origskb);\n\t\t\t\treturn NULL;\n\t\t\t}\n\t\t\tpresent_fcs_len = FCS_LEN;\n\t\t}\n\n\t\t/* also consider the hdr->frame_control */\n\t\tmin_head_len += 2;\n\t}\n\n\t/* ensure that the expected data elements are in skb head */\n\tif (!pskb_may_pull(origskb, min_head_len)) {\n\t\tdev_kfree_skb(origskb);\n\t\treturn NULL;\n\t}\n\n\tonly_monitor = should_drop_frame(origskb, present_fcs_len, rtap_space);\n\n\tif (!local->monitors || (status->flag & RX_FLAG_SKIP_MONITOR)) {\n\t\tif (only_monitor) {\n\t\t\tdev_kfree_skb(origskb);\n\t\t\treturn NULL;\n\t\t}\n\n\t\treturn ieee80211_clean_skb(origskb, present_fcs_len,\n\t\t\t\t\t   rtap_space);\n\t}\n\n\tieee80211_handle_mu_mimo_mon(monitor_sdata, origskb, rtap_space);\n\n\tlist_for_each_entry_rcu(sdata, &local->mon_list, u.mntr.list) {\n\t\tbool last_monitor = list_is_last(&sdata->u.mntr.list,\n\t\t\t\t\t\t &local->mon_list);\n\n\t\tif (!monskb)\n\t\t\tmonskb = ieee80211_make_monitor_skb(local, &origskb,\n\t\t\t\t\t\t\t    rate, rtap_space,\n\t\t\t\t\t\t\t    only_monitor &&\n\t\t\t\t\t\t\t    last_monitor);\n\n\t\tif (monskb) {\n\t\t\tstruct sk_buff *skb;\n\n\t\t\tif (last_monitor) {\n\t\t\t\tskb = monskb;\n\t\t\t\tmonskb = NULL;\n\t\t\t} else {\n\t\t\t\tskb = skb_clone(monskb, GFP_ATOMIC);\n\t\t\t}\n\n\t\t\tif (skb) {\n\t\t\t\tskb->dev = sdata->dev;\n\t\t\t\tdev_sw_netstats_rx_add(skb->dev, skb->len);\n\t\t\t\tnetif_receive_skb(skb);\n\t\t\t}\n\t\t}\n\n\t\tif (last_monitor)\n\t\t\tbreak;\n\t}\n\n\t/* this happens if last_monitor was erroneously false */\n\tdev_kfree_skb(monskb);\n\n\t/* ditto */\n\tif (!origskb)\n\t\treturn NULL;\n\n\treturn ieee80211_clean_skb(origskb, present_fcs_len, rtap_space);\n}\n        - Target variables: [], monskb\n        - Constraints: ['!(last_monitor)', '!(!local->monitors || (status->flag & RX_FLAG_SKIP_MONITOR))', '!(!local->monitors || (status->flag & RX_FLAG_SKIP_MONITOR)) || !(only_monitor)', '!(!pskb_may_pull(origskb, min_head_len))', '!(!(status->flag & RX_FLAG_NO_PSDU)) || !(ieee80211_hw_check(&local->hw, RX_INCLUDES_FCS)) || !(unlikely(origskb->len <= FCS_LEN + rtap_space))', '!(WARN_ON_ONCE(status->flag & RX_FLAG_RADIOTAP_TLV_AT_END && !skb_mac_header_was_set(origskb)))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "482bce02-05b4-4ee5-a7ee-4feeefefbb13",
+  "usage": {
+    "prompt_tokens": 1367,
+    "completion_tokens": 11,
+    "total_tokens": 1378,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1367
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(last_monitor)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6965568000005078,
+  "cost_upper_bound_cny": 0.002822
+}

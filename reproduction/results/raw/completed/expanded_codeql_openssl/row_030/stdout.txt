@@ -1,0 +1,82 @@
+```python
+bs=Int('bs')
+s.add(bs == 0)
+```
+```json
+["!(i = 0; i < id_count; i++) || !(inf[DB_type][0] == DB_TYPE_REV) || !(single == NULL)"]
+```
+```python
+# Z3 script generated from C constraints
+# Relevant conditions/variables: bs
+#
+# The original C expression is:
+#   !(i = 0; i < id_count; i++) || !(inf[DB_type][0] == DB_TYPE_REV) || !(single == NULL)
+#
+# Notes on translation:
+#   - The first clause "!(i = 0; i < id_count; i++)" is not a valid C boolean
+#     expression (it is a for-loop header). It is treated here as the negation
+#     of the loop condition, i.e. the loop does NOT execute: NOT(i < id_count).
+#     Since no loop variable is provided in the relevant variables, we model
+#     the loop guard as a boolean flag `loop_guard` (i < id_count).
+#   - "inf[DB_type][0] == DB_TYPE_REV" is modeled as a boolean flag
+#     `inf_DB_type_0_eq_DB_TYPE_REV`.
+#   - "single == NULL" is modeled as a boolean flag `single_is_null`.
+#   - The disjunction is: (NOT loop_guard) OR (NOT inf_eq) OR (NOT single_is_null)
+#     which is equivalent to: NOT(loop_guard AND inf_eq AND single_is_null).
+#
+# Since the only relevant variable is `bs`, and `bs` does not appear in the
+# original constraint, the constraint is asserted as a standalone boolean
+# formula. If `bs` were tied to any of the flags, that linkage would be added
+# here; none is present in the input.
+
+from z3 import *
+
+# Boolean flags representing the sub-expressions of the C constraint
+loop_guard = Bool('loop_guard')          # represents (i < id_count)
+inf_eq_rev = Bool('inf_eq_rev')          # represents (inf[DB_type][0] == DB_TYPE_REV)
+single_is_null = Bool('single_is_null')  # represents (single == NULL)
+
+# Relevant variable from the input
+bs = Bool('bs')
+
+s = Solver()
+
+# Constraint: !(loop_guard) || !(inf_eq_rev) || !(single_is_null)
+# i.e. at least one of the three sub-conditions must be false.
+s.add(Or(Not(loop_guard), Not(inf_eq_rev), Not(single_is_null)))
+
+# `bs` is listed as a relevant variable but does not appear in the constraint;
+# it is declared above for completeness. No additional constraint is added.
+
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, sat
+
+    # Base script variables and constraints
+    bs = Int('bs')
+    s = Solver()
+    s.add(bs == 0)
+
+    # Constraint set 2 variables and constraints
+    loop_guard = Bool('loop_guard')
+    inf_eq_rev = Bool('inf_eq_rev')
+    single_is_null = Bool('single_is_null')
+    s.add(Or(Not(loop_guard), Not(inf_eq_rev), Not(single_is_null)))
+
+    return s.check() == sat
+```
+goto result: True
+```python
+resp=Int('resp')
+s.add(resp == 0)
+```
+```json
+[]
+```
+```python
+x=Int('x')
+s.add(x == 0)
+```

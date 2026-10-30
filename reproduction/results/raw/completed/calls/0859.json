@@ -1,0 +1,45 @@
+{
+  "call_id": 859,
+  "sample_id": "NPD/codeql/openssl:row=46:index=48",
+  "timestamp": "2026-10-26T01:03:14.632603+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(BIO_parse_hostserv(opt_arg(), NULL, &port, BIO_PARSE_PRIO_SERV) < 1)', '!(BIO_parse_hostserv(opt_arg(), &host, &port, BIO_PARSE_PRIO_SERV) < 1)', '!(port == NULL || cctx == NULL || vpm == NULL)']\n        Relevant conditions/variables: [], port\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "ce4b582c-730c-4ec4-bca8-7a1c1205bc57",
+  "usage": {
+    "prompt_tokens": 180,
+    "completion_tokens": 610,
+    "total_tokens": 790,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 180
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables referenced in the constraints.\n# - port: pointer (modeled as an integer address; 0 means NULL)\n# - host: pointer (modeled as an integer address; 0 means NULL)\n# - cctx: pointer (modeled as an integer address; 0 means NULL)\n# - vpm:  pointer (modeled as an integer address; 0 means NULL)\n# - opt_arg(): modeled as an uninterpreted function returning a pointer (Int)\n# - BIO_parse_hostserv(...): modeled as an uninterpreted function returning Int\nport = Int('port')\nhost = Int('host')\ncctx = Int('cctx')\nvpm  = Int('vpm')\n\nopt_arg = Function('opt_arg', IntSort())\nBIO_parse_hostserv = Function('BIO_parse_hostserv', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())\n\ns = Solver()\n\n# Constraint 1: !(BIO_parse_hostserv(opt_arg(), NULL, &port, BIO_PARSE_PRIO_SERV) < 1)\n# Included because it constrains the value of `port` (via &port) and the\n# return value of BIO_parse_hostserv. In C, `!(x < 1)` is equivalent to `x >= 1`.\n# NULL is modeled as 0. BIO_PARSE_PRIO_SERV is an opaque constant; we model it\n# as an uninterpreted integer constant.\nBIO_PARSE_PRIO_SERV = Int('BIO_PARSE_PRIO_SERV')\ns.add(Not(BIO_parse_hostserv(opt_arg(0), 0, port, BIO_PARSE_PRIO_SERV) < 1))\n\n# Constraint 2: !(BIO_parse_hostserv(opt_arg(), &host, &port, BIO_PARSE_PRIO_SERV) < 1)\n# Included because it constrains `port` (via &port) and `host` (via &host).\n# Equivalent to BIO_parse_hostserv(...) >= 1.\ns.add(Not(BIO_parse_hostserv(opt_arg(0), host, port, BIO_PARSE_PRIO_SERV) < 1))\n\n# Constraint 3: !(port == NULL || cctx == NULL || vpm == NULL)\n# Included because it directly constrains `port` (and also cctx, vpm).\n# In C, `!(a || b || c)` is equivalent to `!a && !b && !c`, i.e. all non-NULL.\n# NULL is modeled as 0.\ns.add(Not(Or(port == 0, cctx == 0, vpm == 0)))\n\n# Print the solver state (sanity check / executable output)\nprint(s)\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.9263317000004463,
+  "cost_upper_bound_cny": 0.00524
+}

@@ -1,0 +1,45 @@
+{
+  "call_id": 386,
+  "sample_id": "NPD/codeql/kernel69:row=62:index=92",
+  "timestamp": "2026-10-26T00:51:14.204921+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int\nieee80211_process_tdls_channel_switch_resp(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t\t   struct sk_buff *skb)\n{\n\tstruct ieee80211_local *local = sdata->local;\n\tstruct ieee802_11_elems *elems = NULL;\n\tstruct sta_info *sta;\n\tstruct ieee80211_tdls_data *tf = (void *)skb->data;\n\tbool local_initiator;\n\tstruct ieee80211_rx_status *rx_status = IEEE80211_SKB_RXCB(skb);\n\tint baselen = offsetof(typeof(*tf), u.chan_switch_resp.variable);\n\tstruct ieee80211_tdls_ch_sw_params params = {};\n\tint ret;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\tparams.action_code = WLAN_TDLS_CHANNEL_SWITCH_RESPONSE;\n\tparams.timestamp = rx_status->device_timestamp;\n\n\tif (skb->len < baselen) {\n\t\ttdls_dbg(sdata, \"TDLS channel switch resp too short: %d\\n\",\n\t\t\t skb->len);\n\t\treturn -EINVAL;\n\t}\n\n\tsta = sta_info_get(sdata, tf->sa);\n\tif (!sta || !test_sta_flag(sta, WLAN_STA_TDLS_PEER_AUTH)) {\n\t\ttdls_dbg(sdata, \"TDLS chan switch from non-peer sta %pM\\n\",\n\t\t\t tf->sa);\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tparams.sta = &sta->sta;\n\tparams.status = le16_to_cpu(tf->u.chan_switch_resp.status_code);\n\tif (params.status != 0) {\n\t\tret = 0;\n\t\tgoto call_drv;\n\t}\n\n\telems = ieee802_11_parse_elems(tf->u.chan_switch_resp.variable,\n\t\t\t\t       skb->len - baselen, false, NULL);\n\tif (!elems) {\n\t\tret = -ENOMEM;\n\t\tgoto out;\n\t}\n\n\tif (elems->parse_error) {\n\t\ttdls_dbg(sdata, \"Invalid IEs in TDLS channel switch resp\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tif (!elems->ch_sw_timing || !elems->lnk_id) {\n\t\ttdls_dbg(sdata, \"TDLS channel switch resp - missing IEs\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\t/* validate the initiator is set correctly */\n\tlocal_initiator =\n\t\t!memcmp(elems->lnk_id->init_sta, sdata->vif.addr, ETH_ALEN);\n\tif (local_initiator == sta->sta.tdls_initiator) {\n\t\ttdls_dbg(sdata, \"TDLS chan switch invalid lnk-id initiator\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tparams.switch_time = le16_to_cpu(elems->ch_sw_timing->switch_time);\n\tparams.switch_timeout = le16_to_cpu(elems->ch_sw_timing->switch_timeout);\n\n\tparams.tmpl_skb =\n\t\tieee80211_tdls_ch_sw_resp_tmpl_get(sta, &params.ch_sw_tm_ie);\n\tif (!params.tmpl_skb) {\n\t\tret = -ENOENT;\n\t\tgoto out;\n\t}\n\n\tret = 0;\ncall_drv:\n\tdrv_tdls_recv_channel_switch(sdata->local, sdata, &params);\n\n\ttdls_dbg(sdata,\n\t\t \"TDLS channel switch response received from %pM status %d\\n\",\n\t\t tf->sa, params.status);\n\nout:\n\tdev_kfree_skb_any(params.tmpl_skb);\n\tkfree(elems);\n\treturn ret;\n}\n        - Target variables: [], elems\n        - Constraints: ['!(params.status != 0)', '!(skb->len < baselen)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "1976510c-4b2a-49da-bacd-a63a12ae3b22",
+  "usage": {
+    "prompt_tokens": 963,
+    "completion_tokens": 15,
+    "total_tokens": 978,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 963
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(skb->len < baselen)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6912177000003794,
+  "cost_upper_bound_cny": 0.002046
+}

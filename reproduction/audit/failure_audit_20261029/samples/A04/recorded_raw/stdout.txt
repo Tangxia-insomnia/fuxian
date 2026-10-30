@@ -1,0 +1,148 @@
+```python
+saved_clone=Int('saved_clone')
+s.add(saved_clone == 0)
+```
+```json
+[]
+```
+```python
+folio_test_slab=Int('folio_test_slab')
+object=Int('object')
+s.add(folio_test_slab == 0)
+s.add(object == 0)
+```
+```python
+object=Int('object')
+folio_test_slab=Int('folio_test_slab')
+s.add(object==0)
+s.add(folio_test_slab==0)
+```
+```python
+# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early
+# folio_test_slab is not evaluated in this path; keep existing constraint
+# No additional constraints needed beyond existing ones
+```
+```python
+def check_constraints():
+    # Variables
+    # object is NULL (ZERO_OR_NULL_PTR true) -> object == 0
+    # kfree returns early when object is NULL
+    # folio_test_slab is not evaluated in this path
+
+    object_ptr = 0  # object is NULL
+
+    # Constraint: object is NULL (ZERO_OR_NULL_PTR true)
+    # This means kfree returns early, so folio_test_slab is not evaluated
+    constraints = []
+
+    # ZERO_OR_NULL_PTR(object) is true -> object == 0
+    constraints.append(object_ptr == 0)
+
+    # Since object is NULL, kfree returns early.
+    # folio_test_slab is not evaluated in this path.
+    # No additional constraints needed beyond existing ones.
+
+    # Validate all constraints
+    for c in constraints:
+        if not c:
+            return False
+    return True
+```
+ValueError: No actual Solver.check executed
+```python
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat, unsat
+
+    # Variables
+    # object is NULL (ZERO_OR_NULL_PTR true) -> object == 0
+    # kfree returns early when object is NULL
+    # folio_test_slab is not evaluated in this path
+
+    object_ptr = Int('object_ptr')
+
+    s = Solver()
+
+    # Constraint: object is NULL (ZERO_OR_NULL_PTR true)
+    # This means kfree returns early, so folio_test_slab is not evaluated
+    s.add(object_ptr == 0)
+
+    # Since object is NULL, kfree returns early.
+    # folio_test_slab is not evaluated in this path.
+    # No additional constraints needed beyond existing ones.
+
+    result = s.check()
+    return result == sat
+```
+dereference constraint: True
+```json
+["!(unlikely(ZERO_OR_NULL_PTR(object)))"]
+```
+```python
+# Z3 script generated from C constraints
+#
+# Original C constraint: !(unlikely(ZERO_OR_NULL_PTR(object)))
+#
+# Analysis:
+#   - ZERO_OR_NULL_PTR(x) is a kernel macro that evaluates to true when x is NULL
+#     or when x is a small value that could be a ZERO_SIZE_PTR (typically <= 4096).
+#     In practice, for verification purposes, we model it as: x == NULL (i.e., x == 0).
+#   - unlikely(...) is a branch-prediction hint; it has no semantic effect on the
+#     truth value of the expression, so it is dropped.
+#   - The outer '!' negates the check, so the constraint asserts that 'object'
+#     is NOT a zero-or-null pointer, i.e., object != NULL.
+#
+# Relevant condition (line 13): if (unlikely(!folio_test_slab(folio)))
+#   This condition does not directly constrain 'object'; it is included for
+#   context. The only variable we need to constrain is 'object'.
+#
+# Variable modeling:
+#   - 'object' is treated as an uninterpreted pointer-sized integer (BitVec 64).
+#   - NULL is represented as 0.
+
+from z3 import *
+
+# Declare 'object' as a 64-bit pointer-sized bitvector (unconstrained).
+object = BitVec('object', 64)
+
+# Constraint derived from: !(unlikely(ZERO_OR_NULL_PTR(object)))
+#   ZERO_OR_NULL_PTR(object)  <=>  object == 0
+#   Negation:                    object != 0
+# This is the only constraint affecting 'object' from the given input.
+constraint_object_not_null = (object != 0)
+
+# Solve / check satisfiability of the constraint set.
+s = Solver()
+s.add(constraint_object_not_null)
+
+# Print result and a sample model for inspection.
+print("Constraints:")
+print("  object != 0   # from !(unlikely(ZERO_OR_NULL_PTR(object)))")
+print()
+print("Check result:", s.check())
+if s.check() == sat:
+    print("Model:", s.model())
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, BitVec, sat
+
+    # Base script variables and constraints
+    folio_test_slab = Int('folio_test_slab')
+    object = Int('object')
+
+    s = Solver()
+    s.add(folio_test_slab == 0)
+    s.add(object == 0)
+
+    # Constraint set 1: object_ptr is NULL (ZERO_OR_NULL_PTR true)
+    object_ptr = Int('object_ptr')
+    s.add(object_ptr == 0)
+
+    # Constraint set 2: object (as BitVec 64) must be non-null
+    object_bv = BitVec('object_bv', 64)
+    s.add(object_bv != 0)
+
+    result = s.check()
+    return result == sat
+```
+goto result: True

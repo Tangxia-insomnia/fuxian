@@ -1,0 +1,80 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "inet6_validate_link_af",
+      "var_name": "idev",
+      "target": "\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)",
+      "code": "static int inet6_validate_link_af(const struct net_device *dev,\n\t\t\t\t  const struct nlattr *nla,\n\t\t\t\t  struct netlink_ext_ack *extack)\n{\n\tstruct nlattr *tb[IFLA_INET6_MAX + 1];\n\tstruct inet6_dev *idev = NULL;\n\tint err;\n\n\tif (dev) {\n\t\tidev = __in6_dev_get(dev);\n\t\tif (!idev)\n\t\t\treturn -EAFNOSUPPORT;\n\t}\n\n\terr = nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla,\n\t\t\t\t\t  inet6_af_policy, extack);\n\tif (err)\n\t\treturn err;\n\n\tif (!tb[IFLA_INET6_TOKEN] && !tb[IFLA_INET6_ADDR_GEN_MODE])\n\t\treturn -EINVAL;\n\n\tif (tb[IFLA_INET6_ADDR_GEN_MODE]) {\n\t\tu8 mode = nla_get_u8(tb[IFLA_INET6_ADDR_GEN_MODE]);\n\n\t\tif (check_addr_gen_mode(mode) < 0)\n\t\t\treturn -EINVAL;\n\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)\n\t\t\treturn -EINVAL;\n\t}\n\n\treturn 0;\n}",
+      "body_sha256": "2c336688df01cb1bb2d664c21cc6e2b6d0e5dc693992a1b14157d8d52d8e28f1",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)",
+            "condition": [
+              {
+                "condition": "if (tb[IFLA_INET6_ADDR_GEN_MODE])",
+                "line_number": 22
+              },
+              {
+                "condition": "if (dev)",
+                "line_number": 27
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (tb[IFLA_INET6_ADDR_GEN_MODE])",
+            "line_number": 22
+          },
+          {
+            "condition": "if (dev)",
+            "line_number": 27
+          }
+        ],
+        "variable_assignments": {
+          "text": "static int inet6_validate_link_af(const struct net_device *dev,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "tb[IFLA_INET6_ADDR_GEN_MODE]",
+              "check_addr_gen_mode(mode) < 0"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!tb[IFLA_INET6_TOKEN] && !tb[IFLA_INET6_ADDR_GEN_MODE]"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "err"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "dev",
+              "!idev"
+            ]
+          }
+        ],
+        "filter_function_code": "static int inet6_validate_link_af(const struct net_device *dev,\n\t\t\t\t  const struct nlattr *nla,\n\t\t\t\t  struct netlink_ext_ack *extack)\n{\n\tstruct nlattr *tb[IFLA_INET6_MAX + 1];\n\tstruct inet6_dev *idev = NULL;\n\tint err;\n\n\tif (dev) {\n\t\tidev = __in6_dev_get(dev);\n\t\tif (!idev)\n\t\t\treturn -EAFNOSUPPORT;\n\t}\n\n\terr = nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla,\n\t\t\t\t\t  inet6_af_policy, extack);\n\tif (err)\n\t\treturn err;\n\n\tif (!tb[IFLA_INET6_TOKEN] && !tb[IFLA_INET6_ADDR_GEN_MODE])\n\t\treturn -EINVAL;\n\n\tif (tb[IFLA_INET6_ADDR_GEN_MODE]) {\n\t\tu8 mode = nla_get_u8(tb[IFLA_INET6_ADDR_GEN_MODE]);\n\n\t\tif (check_addr_gen_mode(mode) < 0)\n\t\t\treturn -EINVAL;\n\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)\n\t\t\treturn -EINVAL;\n\t}\n\n\treturn 0;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int inet6_validate_link_af(const struct net_device *dev,\n\t\t\t\t  const struct nlattr *nla,\n\t\t\t\t  struct netlink_ext_ack *extack)\n{\n\tstruct nlattr *tb[IFLA_INET6_MAX + 1];\n\tstruct inet6_dev *idev = NULL;\n\tint err;\n\n\tif (dev) {\n\t\tidev = __in6_dev_get(dev);\n\t\tif (!idev)\n\t\t\treturn -EAFNOSUPPORT;\n\t}\n\n\terr = nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla,\n\t\t\t\t\t  inet6_af_policy, extack);\n\tif (err)\n\t\treturn err;\n\n\tif (!tb[IFLA_INET6_TOKEN] && !tb[IFLA_INET6_ADDR_GEN_MODE])\n\t\treturn -EINVAL;\n\n\tif (tb[IFLA_INET6_ADDR_GEN_MODE]) {\n\t\tu8 mode = nla_get_u8(tb[IFLA_INET6_ADDR_GEN_MODE]);\n\n\t\tif (check_addr_gen_mode(mode) < 0)\n\t\t\treturn -EINVAL;\n\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)\n\t\t\treturn -EINVAL;\n\t}\n\n\treturn 0;\n}"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "event_id": 4,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Or\n    \n    yuv_line = Int('yuv_line')\n    is_yuv = Int('is_yuv')\n    \n    solver = Solver()\n    \n    # Base script constraint\n    solver.add(yuv_line == 0)\n    \n    # Constraint set 2: !is_yuv || !(!yuv_line)\n    # is_yuv == 0 represents !is_yuv\n    # yuv_line != 0 represents !(!yuv_line)\n    solver.add(Or(is_yuv == 0, yuv_line != 0))\n    \n    result = solver.check()\n    return result == 1",
+  "ok": false,
+  "error": "ValueError: ValueError: Returned boolean disagrees with last solver result"
+}

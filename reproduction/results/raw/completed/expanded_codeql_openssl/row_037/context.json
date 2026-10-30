@@ -1,0 +1,286 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "pkeyutl_main",
+      "var_name": "mctx",
+      "target": "mctx, digestname, kemop, libctx, app_get0_propq());",
+      "code": "int pkeyutl_main(int argc, char **argv)\n{\n    CONF *conf = NULL;\n    BIO *in = NULL, *out = NULL, *secout = NULL;\n    ENGINE *e = NULL;\n    EVP_PKEY_CTX *ctx = NULL;\n    EVP_PKEY *pkey = NULL;\n    char *infile = NULL, *outfile = NULL, *secoutfile = NULL, *sigfile = NULL, *passinarg = NULL;\n    char hexdump = 0, asn1parse = 0, rev = 0, *prog;\n    unsigned char *buf_in = NULL, *buf_out = NULL, *sig = NULL, *secret = NULL;\n    OPTION_CHOICE o;\n    int buf_inlen = 0, siglen = -1;\n    int keyform = FORMAT_UNDEF, peerform = FORMAT_UNDEF;\n    int keysize = -1, pkey_op = EVP_PKEY_OP_SIGN, key_type = KEY_PRIVKEY;\n    int engine_impl = 0;\n    int ret = 1, rv = -1;\n    size_t buf_outlen = 0, secretlen = 0;\n    const char *inkey = NULL;\n    const char *peerkey = NULL;\n    const char *kdfalg = NULL, *digestname = NULL, *kemop = NULL;\n    int kdflen = 0;\n    STACK_OF(OPENSSL_STRING) *pkeyopts = NULL;\n    STACK_OF(OPENSSL_STRING) *pkeyopts_passin = NULL;\n    int rawin = 0;\n    EVP_MD_CTX *mctx = NULL;\n    EVP_MD *md = NULL;\n    int filesize = -1;\n    OSSL_LIB_CTX *libctx = app_get0_libctx();\n\n    prog = opt_init(argc, argv, pkeyutl_options);\n    while ((o = opt_next()) != OPT_EOF) {\n        switch (o) {\n        case OPT_EOF:\n        case OPT_ERR:\n opthelp:\n            BIO_printf(bio_err, \"%s: Use -help for summary.\\n\", prog);\n            goto end;\n        case OPT_HELP:\n            opt_help(pkeyutl_options);\n            ret = 0;\n            goto end;\n        case OPT_IN:\n            infile = opt_arg();\n            break;\n        case OPT_OUT:\n            outfile = opt_arg();\n            break;\n        case OPT_SECOUT:\n            secoutfile = opt_arg();\n            break;\n        case OPT_SIGFILE:\n            sigfile = opt_arg();\n            break;\n        case OPT_ENGINE_IMPL:\n            engine_impl = 1;\n            break;\n        case OPT_INKEY:\n            inkey = opt_arg();\n            break;\n        case OPT_PEERKEY:\n            peerkey = opt_arg();\n            break;\n        case OPT_PASSIN:\n            passinarg = opt_arg();\n            break;\n        case OPT_PEERFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &peerform))\n                goto opthelp;\n            break;\n        case OPT_KEYFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &keyform))\n                goto opthelp;\n            break;\n        case OPT_R_CASES:\n            if (!opt_rand(o))\n                goto end;\n            break;\n        case OPT_CONFIG:\n            conf = app_load_config_modules(opt_arg());\n            if (conf == NULL)\n                goto end;\n            break;\n        case OPT_PROV_CASES:\n            if (!opt_provider(o))\n                goto end;\n            break;\n        case OPT_ENGINE:\n            e = setup_engine(opt_arg(), 0);\n            break;\n        case OPT_PUBIN:\n            key_type = KEY_PUBKEY;\n            break;\n        case OPT_CERTIN:\n            key_type = KEY_CERT;\n            break;\n        case OPT_ASN1PARSE:\n            asn1parse = 1;\n            break;\n        case OPT_HEXDUMP:\n            hexdump = 1;\n            break;\n        case OPT_SIGN:\n            pkey_op = EVP_PKEY_OP_SIGN;\n            break;\n        case OPT_VERIFY:\n            pkey_op = EVP_PKEY_OP_VERIFY;\n            break;\n        case OPT_VERIFYRECOVER:\n            pkey_op = EVP_PKEY_OP_VERIFYRECOVER;\n            break;\n        case OPT_ENCRYPT:\n            pkey_op = EVP_PKEY_OP_ENCRYPT;\n            break;\n        case OPT_DECRYPT:\n            pkey_op = EVP_PKEY_OP_DECRYPT;\n            break;\n        case OPT_DERIVE:\n            pkey_op = EVP_PKEY_OP_DERIVE;\n            break;\n        case OPT_DECAP:\n            pkey_op = EVP_PKEY_OP_DECAPSULATE;\n            break;\n        case OPT_ENCAP:\n            pkey_op = EVP_PKEY_OP_ENCAPSULATE;\n            break;\n        case OPT_KEMOP:\n            kemop = opt_arg();\n            break;\n        case OPT_KDF:\n            pkey_op = EVP_PKEY_OP_DERIVE;\n            key_type = KEY_NONE;\n            kdfalg = opt_arg();\n            break;\n        case OPT_KDFLEN:\n            kdflen = atoi(opt_arg());\n            break;\n        case OPT_REV:\n            rev = 1;\n            break;\n        case OPT_PKEYOPT:\n            if ((pkeyopts == NULL &&\n                 (pkeyopts = sk_OPENSSL_STRING_new_null()) == NULL) ||\n                sk_OPENSSL_STRING_push(pkeyopts, opt_arg()) == 0) {\n                BIO_puts(bio_err, \"out of memory\\n\");\n                goto end;\n            }\n            break;\n        case OPT_PKEYOPT_PASSIN:\n            if ((pkeyopts_passin == NULL &&\n                 (pkeyopts_passin = sk_OPENSSL_STRING_new_null()) == NULL) ||\n                sk_OPENSSL_STRING_push(pkeyopts_passin, opt_arg()) == 0) {\n                BIO_puts(bio_err, \"out of memory\\n\");\n                goto end;\n            }\n            break;\n        case OPT_RAWIN:\n            rawin = 1;\n            break;\n        case OPT_DIGEST:\n            digestname = opt_arg();\n            break;\n        }\n    }\n\n    /* No extra arguments. */\n    if (!opt_check_rest_arg(NULL))\n        goto opthelp;\n\n    if (!app_RAND_load())\n        goto end;\n\n    if (digestname != NULL)\n        rawin = 1;\n\n    if (kdfalg != NULL) {\n        if (kdflen == 0) {\n            BIO_printf(bio_err,\n                       \"%s: no KDF length given (-kdflen parameter).\\n\", prog);\n            goto opthelp;\n        }\n    } else if (inkey == NULL) {\n        BIO_printf(bio_err,\n                   \"%s: no private key given (-inkey parameter).\\n\", prog);\n        goto opthelp;\n    } else if (peerkey != NULL && pkey_op != EVP_PKEY_OP_DERIVE) {\n        BIO_printf(bio_err,\n                   \"%s: no peer key given (-peerkey parameter).\\n\", prog);\n        goto opthelp;\n    }\n\n    pkey = get_pkey(kdfalg, inkey, keyform, key_type, passinarg, pkey_op, e);\n\n    if (pkey_op == EVP_PKEY_OP_VERIFYRECOVER && !EVP_PKEY_is_a(pkey, \"RSA\")) {\n        BIO_printf(bio_err, \"%s: -verifyrecover can be used only with RSA\\n\", prog);\n        goto end;\n    }\n\n    if (pkey_op == EVP_PKEY_OP_SIGN || pkey_op == EVP_PKEY_OP_VERIFY) {\n        if (only_rawin(pkey)) {\n            if (is_EdDSA(pkey) && digestname != NULL) {\n                BIO_printf(bio_err,\n                           \"%s: -digest (prehash) is not supported with EdDSA\\n\", prog);\n                EVP_PKEY_free(pkey);\n                goto end;\n            }\n            rawin = 1; /* implied for Ed25519(ph) and Ed448(ph) and maybe others in the future */\n        }\n    } else if (digestname != NULL || rawin) {\n        BIO_printf(bio_err,\n                   \"%s: -digest and -rawin can only be used with -sign or -verify\\n\", prog);\n        EVP_PKEY_free(pkey);\n        goto opthelp;\n    }\n\n    if (rawin && rev) {\n        BIO_printf(bio_err, \"%s: -rev cannot be used with raw input\\n\", prog);\n        EVP_PKEY_free(pkey);\n        goto opthelp;\n    }\n\n    if (rawin) {\n        if ((mctx = EVP_MD_CTX_new()) == NULL) {\n            BIO_printf(bio_err, \"Error: out of memory\\n\");\n            EVP_PKEY_free(pkey);\n            goto end;\n        }\n    }\n    ctx = init_ctx(kdfalg, &keysize, pkey_op, e, engine_impl, rawin, pkey,\n                   mctx, digestname, kemop, libctx, app_get0_propq());\n    if (ctx == NULL) {\n        BIO_printf(bio_err, \"%s: Error initializing context\\n\", prog);\n        goto end;\n    }\n    if (peerkey != NULL && !setup_peer(ctx, peerform, peerkey, e)) {\n        BIO_printf(bio_err, \"%s: Error setting up peer key\\n\", prog);\n        goto end;\n    }\n    if (pkeyopts != NULL) {\n        int num = sk_OPENSSL_STRING_num(pkeyopts);\n        int i;\n\n        for (i = 0; i < num; ++i) {\n            const char *opt = sk_OPENSSL_STRING_value(pkeyopts, i);\n\n            if (pkey_ctrl_string(ctx, opt) <= 0) {\n                BIO_printf(bio_err, \"%s: Can't set parameter \\\"%s\\\":\\n\",\n                           prog, opt);\n                goto end;\n            }\n        }\n    }\n    if (pkeyopts_passin != NULL) {\n        int num = sk_OPENSSL_STRING_num(pkeyopts_passin);\n        int i;\n\n        for (i = 0; i < num; i++) {\n            char *opt = sk_OPENSSL_STRING_value(pkeyopts_passin, i);\n            char *passin = strchr(opt, ':');\n            char *passwd;\n\n            if (passin == NULL) {\n                /* Get password interactively */\n                char passwd_buf[4096];\n                int r;\n\n                BIO_snprintf(passwd_buf, sizeof(passwd_buf), \"Enter %s: \", opt);\n                r = EVP_read_pw_string(passwd_buf, sizeof(passwd_buf) - 1,\n                                       passwd_buf, 0);\n                if (r < 0) {\n                    if (r == -2)\n                        BIO_puts(bio_err, \"user abort\\n\");\n                    else\n                        BIO_puts(bio_err, \"entry failed\\n\");\n                    goto end;\n                }\n                passwd = OPENSSL_strdup(passwd_buf);\n                if (passwd == NULL) {\n                    BIO_puts(bio_err, \"out of memory\\n\");\n                    goto end;\n                }\n            } else {\n                /*\n                 * Get password as a passin argument: First split option name\n                 * and passphrase argument into two strings\n                 */\n                *passin = 0;\n                passin++;\n                if (app_passwd(passin, NULL, &passwd, NULL) == 0) {\n                    BIO_printf(bio_err, \"failed to get '%s'\\n\", opt);\n                    goto end;\n                }\n            }\n\n            if (EVP_PKEY_CTX_ctrl_str(ctx, opt, passwd) <= 0) {\n                BIO_printf(bio_err, \"%s: Can't set parameter \\\"%s\\\":\\n\",\n                           prog, opt);\n                goto end;\n            }\n            OPENSSL_free(passwd);\n        }\n    }\n\n    if (sigfile != NULL && (pkey_op != EVP_PKEY_OP_VERIFY)) {\n        BIO_printf(bio_err,\n                   \"%s: Signature file specified for non verify\\n\", prog);\n        goto end;\n    }\n\n    if (sigfile == NULL && (pkey_op == EVP_PKEY_OP_VERIFY)) {\n        BIO_printf(bio_err,\n                   \"%s: No signature file specified for verify\\n\", prog);\n        goto end;\n    }\n\n    if (pkey_op != EVP_PKEY_OP_DERIVE && pkey_op != EVP_PKEY_OP_ENCAPSULATE) {\n        in = bio_open_default(infile, 'r', FORMAT_BINARY);\n        if (infile != NULL) {\n            struct stat st;\n\n            if (stat(infile, &st) == 0 && st.st_size <= INT_MAX)\n                filesize = (int)st.st_size;\n        }\n        if (in == NULL)\n            goto end;\n    }\n    out = bio_open_default(outfile, 'w', FORMAT_BINARY);\n    if (out == NULL)\n        goto end;\n\n    if (pkey_op == EVP_PKEY_OP_ENCAPSULATE) {\n        if (secoutfile == NULL) {\n            BIO_printf(bio_err, \"Encapsulation requires '-secret' argument\\n\");\n            goto end;\n        }\n        secout = bio_open_default(secoutfile, 'w', FORMAT_BINARY);\n        if (secout == NULL)\n            goto end;\n    }\n\n    if (sigfile != NULL) {\n        BIO *sigbio = BIO_new_file(sigfile, \"rb\");\n\n        if (sigbio == NULL) {\n            BIO_printf(bio_err, \"Can't open signature file %s\\n\", sigfile);\n            goto end;\n        }\n        siglen = bio_to_mem(&sig, keysize * 10, sigbio);\n        BIO_free(sigbio);\n        if (siglen < 0) {\n            BIO_printf(bio_err, \"Error reading signature data\\n\");\n            goto end;\n        }\n    }\n\n    /* Raw input data is handled elsewhere */\n    if (in != NULL && !rawin) {\n        /* Read the input data */\n        buf_inlen = bio_to_mem(&buf_in, -1, in);\n        if (buf_inlen < 0) {\n            BIO_printf(bio_err, \"Error reading input Data\\n\");\n            goto end;\n        }\n        if (rev) {\n            size_t i;\n            unsigned char ctmp;\n            size_t l = (size_t)buf_inlen;\n\n            for (i = 0; i < l / 2; i++) {\n                ctmp = buf_in[i];\n                buf_in[i] = buf_in[l - 1 - i];\n                buf_in[l - 1 - i] = ctmp;\n            }\n        }\n    }\n\n    /* Sanity check the input if the input is not raw */\n    if (!rawin\n        && (pkey_op == EVP_PKEY_OP_SIGN || pkey_op == EVP_PKEY_OP_VERIFY)) {\n        if (buf_inlen > EVP_MAX_MD_SIZE) {\n            BIO_printf(bio_err,\n                       \"Error: The non-raw input data length %d is too long - max supported hashed size is %d\\n\",\n                       buf_inlen, EVP_MAX_MD_SIZE);\n            goto end;\n        }\n    }\n\n    if (pkey_op == EVP_PKEY_OP_VERIFY) {\n        if (rawin) {\n            rv = do_raw_keyop(pkey_op, mctx, pkey, in, filesize, sig, siglen,\n                              NULL, 0);\n        } else {\n            rv = EVP_PKEY_verify(ctx, sig, (size_t)siglen,\n                                 buf_in, (size_t)buf_inlen);\n        }\n        if (rv == 1) {\n            BIO_puts(out, \"Signature Verified Successfully\\n\");\n            ret = 0;\n        } else {\n            BIO_puts(out, \"Signature Verification Failure\\n\");\n        }\n        goto end;\n    }\n    if (rawin) {\n        /* rawin allocates the buffer in do_raw_keyop() */\n        rv = do_raw_keyop(pkey_op, mctx, pkey, in, filesize, NULL, 0,\n                          &buf_out, (size_t *)&buf_outlen);\n    } else {\n        if (kdflen != 0) {\n            buf_outlen = kdflen;\n            rv = 1;\n        } else {\n            rv = do_keyop(ctx, pkey_op, NULL, (size_t *)&buf_outlen,\n                          buf_in, (size_t)buf_inlen, NULL, (size_t *)&secretlen);\n        }\n        if (rv > 0 && buf_outlen != 0) {\n            buf_out = app_malloc(buf_outlen, \"buffer output\");\n            if (secretlen > 0)\n                secret = app_malloc(secretlen, \"secret output\");\n            rv = do_keyop(ctx, pkey_op,\n                          buf_out, (size_t *)&buf_outlen,\n                          buf_in, (size_t)buf_inlen, secret, (size_t *)&secretlen);\n        }\n    }\n    if (rv <= 0) {\n        if (pkey_op != EVP_PKEY_OP_DERIVE) {\n            BIO_puts(bio_err, \"Public Key operation error\\n\");\n        } else {\n            BIO_puts(bio_err, \"Key derivation failed\\n\");\n        }\n        goto end;\n    }\n    ret = 0;\n\n    if (asn1parse) {\n        if (!ASN1_parse_dump(out, buf_out, buf_outlen, 1, -1))\n            ERR_print_errors(bio_err); /* but still return success */\n    } else if (hexdump) {\n        BIO_dump(out, (char *)buf_out, buf_outlen);\n    } else {\n        BIO_write(out, buf_out, buf_outlen);\n    }\n    if (secretlen > 0)\n        BIO_write(secout, secret, secretlen);\n\n end:\n    if (ret != 0)\n        ERR_print_errors(bio_err);\n    EVP_MD_CTX_free(mctx);\n    EVP_PKEY_CTX_free(ctx);\n    EVP_MD_free(md);\n    release_engine(e);\n    BIO_free(in);\n    BIO_free_all(out);\n    BIO_free_all(secout);\n    OPENSSL_free(buf_in);\n    OPENSSL_free(buf_out);\n    OPENSSL_free(sig);\n    OPENSSL_free(secret);\n    sk_OPENSSL_STRING_free(pkeyopts);\n    sk_OPENSSL_STRING_free(pkeyopts_passin);\n    NCONF_free(conf);\n    return ret;\n}",
+      "body_sha256": "3b64d7dc5b6162b6c2574ccbf1da9387006f7099177ecb5c07574a9458f60670",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "mctx, digestname, kemop, libctx, app_get0_propq());",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "int pkeyutl_main(int argc, char **argv)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "end",
+            "condition": [
+              "rawin",
+              "(mctx = EVP_MD_CTX_new()) == NULL"
+            ]
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "rawin && rev"
+            ]
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "digestname != NULL || rawin"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "pkey_op == EVP_PKEY_OP_SIGN || pkey_op == EVP_PKEY_OP_VERIFY",
+              "only_rawin(pkey)",
+              "is_EdDSA(pkey) && digestname != NULL"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "pkey_op == EVP_PKEY_OP_VERIFYRECOVER && !EVP_PKEY_is_a(pkey, \"RSA\")"
+            ]
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "peerkey != NULL && pkey_op != EVP_PKEY_OP_DERIVE"
+            ]
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "inkey == NULL"
+            ]
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "kdfalg != NULL",
+              "kdflen == 0"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "!app_RAND_load()"
+            ]
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "!opt_check_rest_arg(NULL)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": [
+              "(pkeyopts_passin == NULL && (pkeyopts_passin = sk_OPENSSL_STRING_new_null()) == NULL) || sk_OPENSSL_STRING_push(pkeyopts_passin, opt_arg()) == 0"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": [
+              "(pkeyopts == NULL && (pkeyopts = sk_OPENSSL_STRING_new_null()) == NULL) || sk_OPENSSL_STRING_push(pkeyopts, opt_arg()) == 0"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": [
+              "!opt_provider(o)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": [
+              "conf == NULL"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": [
+              "!opt_rand(o)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "!opt_format(opt_arg(), OPT_FMT_ANY, &keyform)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "!opt_format(opt_arg(), OPT_FMT_ANY, &peerform)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": []
+          }
+        ],
+        "filter_function_code": "int pkeyutl_main(int argc, char **argv)\n{\n    CONF *conf = NULL;\n    BIO *in = NULL, *out = NULL, *secout = NULL;\n    ENGINE *e = NULL;\n    EVP_PKEY_CTX *ctx = NULL;\n    EVP_PKEY *pkey = NULL;\n    char *infile = NULL, *outfile = NULL, *secoutfile = NULL, *sigfile = NULL, *passinarg = NULL;\n    char hexdump = 0, asn1parse = 0, rev = 0, *prog;\n    unsigned char *buf_in = NULL, *buf_out = NULL, *sig = NULL, *secret = NULL;\n    OPTION_CHOICE o;\n    int buf_inlen = 0, siglen = -1;\n    int keyform = FORMAT_UNDEF, peerform = FORMAT_UNDEF;\n    int keysize = -1, pkey_op = EVP_PKEY_OP_SIGN, key_type = KEY_PRIVKEY;\n    int engine_impl = 0;\n    int ret = 1, rv = -1;\n    size_t buf_outlen = 0, secretlen = 0;\n    const char *inkey = NULL;\n    const char *peerkey = NULL;\n    const char *kdfalg = NULL, *digestname = NULL, *kemop = NULL;\n    int kdflen = 0;\n    STACK_OF(OPENSSL_STRING) *pkeyopts = NULL;\n    STACK_OF(OPENSSL_STRING) *pkeyopts_passin = NULL;\n    int rawin = 0;\n    EVP_MD_CTX *mctx = NULL;\n    EVP_MD *md = NULL;\n    int filesize = -1;\n    OSSL_LIB_CTX *libctx = app_get0_libctx();\n\n    prog = opt_init(argc, argv, pkeyutl_options);\n    while ((o = opt_next()) != OPT_EOF) {\n        switch (o) {\n        case OPT_EOF:\n        case OPT_ERR:\n opthelp:\n            BIO_printf(bio_err, \"%s: Use -help for summary.\\n\", prog);\n            goto end;\n        case OPT_HELP:\n            opt_help(pkeyutl_options);\n            ret = 0;\n            goto end;\n        case OPT_IN:\n            infile = opt_arg();\n            break;\n        case OPT_OUT:\n            outfile = opt_arg();\n            break;\n        case OPT_SECOUT:\n            secoutfile = opt_arg();\n            break;\n        case OPT_SIGFILE:\n            sigfile = opt_arg();\n            break;\n        case OPT_ENGINE_IMPL:\n            engine_impl = 1;\n            break;\n        case OPT_INKEY:\n            inkey = opt_arg();\n            break;\n        case OPT_PEERKEY:\n            peerkey = opt_arg();\n            break;\n        case OPT_PASSIN:\n            passinarg = opt_arg();\n            break;\n        case OPT_PEERFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &peerform))\n                goto opthelp;\n            break;\n        case OPT_KEYFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &keyform))\n                goto opthelp;\n            break;\n        case OPT_R_CASES:\n            if (!opt_rand(o))\n                goto end;\n            break;\n        case OPT_CONFIG:\n            conf = app_load_config_modules(opt_arg());\n            if (conf == NULL)\n                goto end;\n            break;\n        case OPT_PROV_CASES:\n            if (!opt_provider(o))\n                goto end;\n            break;\n        case OPT_ENGINE:\n            e = setup_engine(opt_arg(), 0);\n            break;\n        case OPT_PUBIN:\n            key_type = KEY_PUBKEY;\n            break;\n        case OPT_CERTIN:\n            key_type = KEY_CERT;\n            break;\n        case OPT_ASN1PARSE:\n            asn1parse = 1;\n            break;\n        case OPT_HEXDUMP:\n            hexdump = 1;\n            break;\n        case OPT_SIGN:\n            pkey_op = EVP_PKEY_OP_SIGN;\n            break;\n        case OPT_VERIFY:\n            pkey_op = EVP_PKEY_OP_VERIFY;\n            break;\n        case OPT_VERIFYRECOVER:\n            pkey_op = EVP_PKEY_OP_VERIFYRECOVER;\n            break;\n        case OPT_ENCRYPT:\n            pkey_op = EVP_PKEY_OP_ENCRYPT;\n            break;\n        case OPT_DECRYPT:\n            pkey_op = EVP_PKEY_OP_DECRYPT;\n            break;\n        case OPT_DERIVE:\n            pkey_op = EVP_PKEY_OP_DERIVE;\n            break;\n        case OPT_DECAP:\n            pkey_op = EVP_PKEY_OP_DECAPSULATE;\n            break;\n        case OPT_ENCAP:\n            pkey_op = EVP_PKEY_OP_ENCAPSULATE;\n            break;\n        case OPT_KEMOP:\n            kemop = opt_arg();\n            break;\n        case OPT_KDF:\n            pkey_op = EVP_PKEY_OP_DERIVE;\n            key_type = KEY_NONE;\n            kdfalg = opt_arg();\n            break;\n        case OPT_KDFLEN:\n            kdflen = atoi(opt_arg());\n            break;\n        case OPT_REV:\n            rev = 1;\n            break;\n        case OPT_PKEYOPT:\n            if ((pkeyopts == NULL &&\n                 (pkeyopts = sk_OPENSSL_STRING_new_null()) == NULL) ||\n                sk_OPENSSL_STRING_push(pkeyopts, opt_arg()) == 0) {\n                BIO_puts(bio_err, \"out of memory\\n\");\n                goto end;\n            }\n            break;\n        case OPT_PKEYOPT_PASSIN:\n            if ((pkeyopts_passin == NULL &&\n                 (pkeyopts_passin = sk_OPENSSL_STRING_new_null()) == NULL) ||\n                sk_OPENSSL_STRING_push(pkeyopts_passin, opt_arg()) == 0) {\n                BIO_puts(bio_err, \"out of memory\\n\");\n                goto end;\n            }\n            break;\n        case OPT_RAWIN:\n            rawin = 1;\n            break;\n        case OPT_DIGEST:\n            digestname = opt_arg();\n            break;\n        }\n    }\n\n    /* No extra arguments. */\n    if (!opt_check_rest_arg(NULL))\n        goto opthelp;\n\n    if (!app_RAND_load())\n        goto end;\n\n    if (digestname != NULL)\n        rawin = 1;\n\n    if (kdfalg != NULL) {\n        if (kdflen == 0) {\n            BIO_printf(bio_err,\n                       \"%s: no KDF length given (-kdflen parameter).\\n\", prog);\n            goto opthelp;\n        }\n    } else if (inkey == NULL) {\n        BIO_printf(bio_err,\n                   \"%s: no private key given (-inkey parameter).\\n\", prog);\n        goto opthelp;\n    } else if (peerkey != NULL && pkey_op != EVP_PKEY_OP_DERIVE) {\n        BIO_printf(bio_err,\n                   \"%s: no peer key given (-peerkey parameter).\\n\", prog);\n        goto opthelp;\n    }\n\n    pkey = get_pkey(kdfalg, inkey, keyform, key_type, passinarg, pkey_op, e);\n\n    if (pkey_op == EVP_PKEY_OP_VERIFYRECOVER && !EVP_PKEY_is_a(pkey, \"RSA\")) {\n        BIO_printf(bio_err, \"%s: -verifyrecover can be used only with RSA\\n\", prog);\n        goto end;\n    }\n\n    if (pkey_op == EVP_PKEY_OP_SIGN || pkey_op == EVP_PKEY_OP_VERIFY) {\n        if (only_rawin(pkey)) {\n            if (is_EdDSA(pkey) && digestname != NULL) {\n                BIO_printf(bio_err,\n                           \"%s: -digest (prehash) is not supported with EdDSA\\n\", prog);\n                EVP_PKEY_free(pkey);\n                goto end;\n            }\n            rawin = 1; /* implied for Ed25519(ph) and Ed448(ph) and maybe others in the future */\n        }\n    } else if (digestname != NULL || rawin) {\n        BIO_printf(bio_err,\n                   \"%s: -digest and -rawin can only be used with -sign or -verify\\n\", prog);\n        EVP_PKEY_free(pkey);\n        goto opthelp;\n    }\n\n    if (rawin && rev) {\n        BIO_printf(bio_err, \"%s: -rev cannot be used with raw input\\n\", prog);\n        EVP_PKEY_free(pkey);\n        goto opthelp;\n    }\n\n    if (rawin) {\n        if ((mctx = EVP_MD_CTX_new()) == NULL) {\n            BIO_printf(bio_err, \"Error: out of memory\\n\");\n            EVP_PKEY_free(pkey);\n            goto end;\n        }\n    }\n    ctx = init_ctx(kdfalg, &keysize, pkey_op, e, engine_impl, rawin, pkey,\n                   mctx, digestname, kemop, libctx, app_get0_propq());\n    if (ctx == NULL) {\n        BIO_printf(bio_err, \"%s: Error initializing context\\n\", prog);\n        goto end;\n    }\n    if (peerkey != NULL && !setup_peer(ctx, peerform, peerkey, e)) {\n        BIO_printf(bio_err, \"%s: Error setting up peer key\\n\", prog);\n        goto end;\n    }\n    if (pkeyopts != NULL) {\n        int num = sk_OPENSSL_STRING_num(pkeyopts);\n        int i;\n\n        for (i = 0; i < num; ++i) {\n            const char *opt = sk_OPENSSL_STRING_value(pkeyopts, i);\n\n            if (pkey_ctrl_string(ctx, opt) <= 0) {\n                BIO_printf(bio_err, \"%s: Can't set parameter \\\"%s\\\":\\n\",\n                           prog, opt);\n                goto end;\n            }\n        }\n    }\n    if (pkeyopts_passin != NULL) {\n        int num = sk_OPENSSL_STRING_num(pkeyopts_passin);\n        int i;\n\n        for (i = 0; i < num; i++) {\n            char *opt = sk_OPENSSL_STRING_value(pkeyopts_passin, i);\n            char *passin = strchr(opt, ':');\n            char *passwd;\n\n            if (passin == NULL) {\n                /* Get password interactively */\n                char passwd_buf[4096];\n                int r;\n\n                BIO_snprintf(passwd_buf, sizeof(passwd_buf), \"Enter %s: \", opt);\n                r = EVP_read_pw_string(passwd_buf, sizeof(passwd_buf) - 1,\n                                       passwd_buf, 0);\n                if (r < 0) {\n                    if (r == -2)\n                        BIO_puts(bio_err, \"user abort\\n\");\n                    else\n                        BIO_puts(bio_err, \"entry failed\\n\");\n                    goto end;\n                }\n                passwd = OPENSSL_strdup(passwd_buf);\n                if (passwd == NULL) {\n                    BIO_puts(bio_err, \"out of memory\\n\");\n                    goto end;\n                }\n            } else {\n                /*\n                 * Get password as a passin argument: First split option name\n                 * and passphrase argument into two strings\n                 */\n                *passin = 0;\n                passin++;\n                if (app_passwd(passin, NULL, &passwd, NULL) == 0) {\n                    BIO_printf(bio_err, \"failed to get '%s'\\n\", opt);\n                    goto end;\n                }\n            }\n\n            if (EVP_PKEY_CTX_ctrl_str(ctx, opt, passwd) <= 0) {\n                BIO_printf(bio_err, \"%s: Can't set parameter \\\"%s\\\":\\n\",\n                           prog, opt);\n                goto end;\n            }\n            OPENSSL_free(passwd);\n        }\n    }\n\n    if (sigfile != NULL && (pkey_op != EVP_PKEY_OP_VERIFY)) {\n        BIO_printf(bio_err,\n                   \"%s: Signature file specified for non verify\\n\", prog);\n        goto end;\n    }\n\n    if (sigfile == NULL && (pkey_op == EVP_PKEY_OP_VERIFY)) {\n        BIO_printf(bio_err,\n                   \"%s: No signature file specified for verify\\n\", prog);\n        goto end;\n    }\n\n    if (pkey_op != EVP_PKEY_OP_DERIVE && pkey_op != EVP_PKEY_OP_ENCAPSULATE) {\n        in = bio_open_default(infile, 'r', FORMAT_BINARY);\n        if (infile != NULL) {\n            struct stat st;\n\n            if (stat(infile, &st) == 0 && st.st_size <= INT_MAX)\n                filesize = (int)st.st_size;\n        }\n        if (in == NULL)\n            goto end;\n    }\n    out = bio_open_default(outfile, 'w', FORMAT_BINARY);\n    if (out == NULL)\n        goto end;\n\n    if (pkey_op == EVP_PKEY_OP_ENCAPSULATE) {\n        if (secoutfile == NULL) {\n            BIO_printf(bio_err, \"Encapsulation requires '-secret' argument\\n\");\n            goto end;\n        }\n        secout = bio_open_default(secoutfile, 'w', FORMAT_BINARY);\n        if (secout == NULL)\n            goto end;\n    }\n\n    if (sigfile != NULL) {\n        BIO *sigbio = BIO_new_file(sigfile, \"rb\");\n\n        if (sigbio == NULL) {\n            BIO_printf(bio_err, \"Can't open signature file %s\\n\", sigfile);\n            goto end;\n        }\n        siglen = bio_to_mem(&sig, keysize * 10, sigbio);\n        BIO_free(sigbio);\n        if (siglen < 0) {\n            BIO_printf(bio_err, \"Error reading signature data\\n\");\n            goto end;\n        }\n    }\n\n    /* Raw input data is handled elsewhere */\n    if (in != NULL && !rawin) {\n        /* Read the input data */\n        buf_inlen = bio_to_mem(&buf_in, -1, in);\n        if (buf_inlen < 0) {\n            BIO_printf(bio_err, \"Error reading input Data\\n\");\n            goto end;\n        }\n        if (rev) {\n            size_t i;\n            unsigned char ctmp;\n            size_t l = (size_t)buf_inlen;\n\n            for (i = 0; i < l / 2; i++) {\n                ctmp = buf_in[i];\n                buf_in[i] = buf_in[l - 1 - i];\n                buf_in[l - 1 - i] = ctmp;\n            }\n        }\n    }\n\n    /* Sanity check the input if the input is not raw */\n    if (!rawin\n        && (pkey_op == EVP_PKEY_OP_SIGN || pkey_op == EVP_PKEY_OP_VERIFY)) {\n        if (buf_inlen > EVP_MAX_MD_SIZE) {\n            BIO_printf(bio_err,\n                       \"Error: The non-raw input data length %d is too long - max supported hashed size is %d\\n\",\n                       buf_inlen, EVP_MAX_MD_SIZE);\n            goto end;\n        }\n    }\n\n    if (pkey_op == EVP_PKEY_OP_VERIFY) {\n        if (rawin) {\n            rv = do_raw_keyop(pkey_op, mctx, pkey, in, filesize, sig, siglen,\n                              NULL, 0);\n        } else {\n            rv = EVP_PKEY_verify(ctx, sig, (size_t)siglen,\n                                 buf_in, (size_t)buf_inlen);\n        }\n        if (rv == 1) {\n            BIO_puts(out, \"Signature Verified Successfully\\n\");\n            ret = 0;\n        } else {\n            BIO_puts(out, \"Signature Verification Failure\\n\");\n        }\n        goto end;\n    }\n    if (rawin) {\n        /* rawin allocates the buffer in do_raw_keyop() */\n        rv = do_raw_keyop(pkey_op, mctx, pkey, in, filesize, NULL, 0,\n                          &buf_out, (size_t *)&buf_outlen);\n    } else {\n        if (kdflen != 0) {\n            buf_outlen = kdflen;\n            rv = 1;\n        } else {\n            rv = do_keyop(ctx, pkey_op, NULL, (size_t *)&buf_outlen,\n                          buf_in, (size_t)buf_inlen, NULL, (size_t *)&secretlen);\n        }\n        if (rv > 0 && buf_outlen != 0) {\n            buf_out = app_malloc(buf_outlen, \"buffer output\");\n            if (secretlen > 0)\n                secret = app_malloc(secretlen, \"secret output\");\n            rv = do_keyop(ctx, pkey_op,\n                          buf_out, (size_t *)&buf_outlen,\n                          buf_in, (size_t)buf_inlen, secret, (size_t *)&secretlen);\n        }\n    }\n    if (rv <= 0) {\n        if (pkey_op != EVP_PKEY_OP_DERIVE) {\n            BIO_puts(bio_err, \"Public Key operation error\\n\");\n        } else {\n            BIO_puts(bio_err, \"Key derivation failed\\n\");\n        }\n        goto end;\n    }\n    ret = 0;\n\n    if (asn1parse) {\n        if (!ASN1_parse_dump(out, buf_out, buf_outlen, 1, -1))\n            ERR_print_errors(bio_err); /* but still return success */\n    } else if (hexdump) {\n        BIO_dump(out, (char *)buf_out, buf_outlen);\n    } else {\n        BIO_write(out, buf_out, buf_outlen);\n    }\n    if (secretlen > 0)\n        BIO_write(secout, secret, secretlen);\n\n end:\n    if (ret != 0)\n        ERR_print_errors(bio_err);\n    EVP_MD_CTX_free(mctx);\n    EVP_PKEY_CTX_free(ctx);\n    EVP_MD_free(md);\n    release_engine(e);\n    BIO_free(in);\n    BIO_free_all(out);\n    BIO_free_all(secout);\n    OPENSSL_free(buf_in);\n    OPENSSL_free(buf_out);\n    OPENSSL_free(sig);\n    OPENSSL_free(secret);\n    sk_OPENSSL_STRING_free(pkeyopts);\n    sk_OPENSSL_STRING_free(pkeyopts_passin);\n    NCONF_free(conf);\n    return ret;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "int pkeyutl_main(int argc, char **argv)\n{\n    CONF *conf = NULL;\n    BIO *in = NULL, *out = NULL, *secout = NULL;\n    ENGINE *e = NULL;\n    EVP_PKEY_CTX *ctx = NULL;\n    EVP_PKEY *pkey = NULL;\n    char *infile = NULL, *outfile = NULL, *secoutfile = NULL, *sigfile = NULL, *passinarg = NULL;\n    char hexdump = 0, asn1parse = 0, rev = 0, *prog;\n    unsigned char *buf_in = NULL, *buf_out = NULL, *sig = NULL, *secret = NULL;\n    OPTION_CHOICE o;\n    int buf_inlen = 0, siglen = -1;\n    int keyform = FORMAT_UNDEF, peerform = FORMAT_UNDEF;\n    int keysize = -1, pkey_op = EVP_PKEY_OP_SIGN, key_type = KEY_PRIVKEY;\n    int engine_impl = 0;\n    int ret = 1, rv = -1;\n    size_t buf_outlen = 0, secretlen = 0;\n    const char *inkey = NULL;\n    const char *peerkey = NULL;\n    const char *kdfalg = NULL, *digestname = NULL, *kemop = NULL;\n    int kdflen = 0;\n    STACK_OF(OPENSSL_STRING) *pkeyopts = NULL;\n    STACK_OF(OPENSSL_STRING) *pkeyopts_passin = NULL;\n    int rawin = 0;\n    EVP_MD_CTX *mctx = NULL;\n    EVP_MD *md = NULL;\n    int filesize = -1;\n    OSSL_LIB_CTX *libctx = app_get0_libctx();\n\n    prog = opt_init(argc, argv, pkeyutl_options);\n    while ((o = opt_next()) != OPT_EOF) {\n        switch (o) {\n        case OPT_EOF:\n        case OPT_ERR:\n opthelp:\n            BIO_printf(bio_err, \"%s: Use -help for summary.\\n\", prog);\n            goto end;\n        case OPT_HELP:\n            opt_help(pkeyutl_options);\n            ret = 0;\n            goto end;\n        case OPT_IN:\n            infile = opt_arg();\n            break;\n        case OPT_OUT:\n            outfile = opt_arg();\n            break;\n        case OPT_SECOUT:\n            secoutfile = opt_arg();\n            break;\n        case OPT_SIGFILE:\n            sigfile = opt_arg();\n            break;\n        case OPT_ENGINE_IMPL:\n            engine_impl = 1;\n            break;\n        case OPT_INKEY:\n            inkey = opt_arg();\n            break;\n        case OPT_PEERKEY:\n            peerkey = opt_arg();\n            break;\n        case OPT_PASSIN:\n            passinarg = opt_arg();\n            break;\n        case OPT_PEERFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &peerform))\n                goto opthelp;\n            break;\n        case OPT_KEYFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &keyform))\n                goto opthelp;\n            break;\n        case OPT_R_CASES:\n            if (!opt_rand(o))\n                goto end;\n            break;\n        case OPT_CONFIG:\n            conf = app_load_config_modules(opt_arg());\n            if (conf == NULL)\n                goto end;\n            break;\n        case OPT_PROV_CASES:\n            if (!opt_provider(o))\n                goto end;\n            break;\n        case OPT_ENGINE:\n            e = setup_engine(opt_arg(), 0);\n            break;\n        case OPT_PUBIN:\n            key_type = KEY_PUBKEY;\n            break;\n        case OPT_CERTIN:\n            key_type = KEY_CERT;\n            break;\n        case OPT_ASN1PARSE:\n            asn1parse = 1;\n            break;\n        case OPT_HEXDUMP:\n            hexdump = 1;\n            break;\n        case OPT_SIGN:\n            pkey_op = EVP_PKEY_OP_SIGN;\n            break;\n        case OPT_VERIFY:\n            pkey_op = EVP_PKEY_OP_VERIFY;\n            break;\n        case OPT_VERIFYRECOVER:\n            pkey_op = EVP_PKEY_OP_VERIFYRECOVER;\n            break;\n        case OPT_ENCRYPT:\n            pkey_op = EVP_PKEY_OP_ENCRYPT;\n            break;\n        case OPT_DECRYPT:\n            pkey_op = EVP_PKEY_OP_DECRYPT;\n            break;\n        case OPT_DERIVE:\n            pkey_op = EVP_PKEY_OP_DERIVE;\n            break;\n        case OPT_DECAP:\n            pkey_op = EVP_PKEY_OP_DECAPSULATE;\n            break;\n        case OPT_ENCAP:\n            pkey_op = EVP_PKEY_OP_ENCAPSULATE;\n            break;\n        case OPT_KEMOP:\n            kemop = opt_arg();\n            break;\n        case OPT_KDF:\n            pkey_op = EVP_PKEY_OP_DERIVE;\n            key_type = KEY_NONE;\n            kdfalg = opt_arg();\n            break;\n        case OPT_KDFLEN:\n            kdflen = atoi(opt_arg());\n            break;\n        case OPT_REV:\n            rev = 1;\n            break;\n        case OPT_PKEYOPT:\n            if ((pkeyopts == NULL &&\n                 (pkeyopts = sk_OPENSSL_STRING_new_null()) == NULL) ||\n                sk_OPENSSL_STRING_push(pkeyopts, opt_arg()) == 0) {\n                BIO_puts(bio_err, \"out of memory\\n\");\n                goto end;\n            }\n            break;\n        case OPT_PKEYOPT_PASSIN:\n            if ((pkeyopts_passin == NULL &&\n                 (pkeyopts_passin = sk_OPENSSL_STRING_new_null()) == NULL) ||\n                sk_OPENSSL_STRING_push(pkeyopts_passin, opt_arg()) == 0) {\n                BIO_puts(bio_err, \"out of memory\\n\");\n                goto end;\n            }\n            break;\n        case OPT_RAWIN:\n            rawin = 1;\n            break;\n        case OPT_DIGEST:\n            digestname = opt_arg();\n            break;\n        }\n    }\n\n    /* No extra arguments. */\n    if (!opt_check_rest_arg(NULL))\n        goto opthelp;\n\n    if (!app_RAND_load())\n        goto end;\n\n    if (digestname != NULL)\n        rawin = 1;\n\n    if (kdfalg != NULL) {\n        if (kdflen == 0) {\n            BIO_printf(bio_err,\n                       \"%s: no KDF length given (-kdflen parameter).\\n\", prog);\n            goto opthelp;\n        }\n    } else if (inkey == NULL) {\n        BIO_printf(bio_err,\n                   \"%s: no private key given (-inkey parameter).\\n\", prog);\n        goto opthelp;\n    } else if (peerkey != NULL && pkey_op != EVP_PKEY_OP_DERIVE) {\n        BIO_printf(bio_err,\n                   \"%s: no peer key given (-peerkey parameter).\\n\", prog);\n        goto opthelp;\n    }\n\n    pkey = get_pkey(kdfalg, inkey, keyform, key_type, passinarg, pkey_op, e);\n\n    if (pkey_op == EVP_PKEY_OP_VERIFYRECOVER && !EVP_PKEY_is_a(pkey, \"RSA\")) {\n        BIO_printf(bio_err, \"%s: -verifyrecover can be used only with RSA\\n\", prog);\n        goto end;\n    }\n\n    if (pkey_op == EVP_PKEY_OP_SIGN || pkey_op == EVP_PKEY_OP_VERIFY) {\n        if (only_rawin(pkey)) {\n            if (is_EdDSA(pkey) && digestname != NULL) {\n                BIO_printf(bio_err,\n                           \"%s: -digest (prehash) is not supported with EdDSA\\n\", prog);\n                EVP_PKEY_free(pkey);\n                goto end;\n            }\n            rawin = 1; /* implied for Ed25519(ph) and Ed448(ph) and maybe others in the future */\n        }\n    } else if (digestname != NULL || rawin) {\n        BIO_printf(bio_err,\n                   \"%s: -digest and -rawin can only be used with -sign or -verify\\n\", prog);\n        EVP_PKEY_free(pkey);\n        goto opthelp;\n    }\n\n    if (rawin && rev) {\n        BIO_printf(bio_err, \"%s: -rev cannot be used with raw input\\n\", prog);\n        EVP_PKEY_free(pkey);\n        goto opthelp;\n    }\n\n    if (rawin) {\n        if ((mctx = EVP_MD_CTX_new()) == NULL) {\n            BIO_printf(bio_err, \"Error: out of memory\\n\");\n            EVP_PKEY_free(pkey);\n            goto end;\n        }\n    }\n    ctx = init_ctx(kdfalg, &keysize, pkey_op, e, engine_impl, rawin, pkey,\n                   mctx, digestname, kemop, libctx, app_get0_propq());\n    if (ctx == NULL) {\n        BIO_printf(bio_err, \"%s: Error initializing context\\n\", prog);\n        goto end;\n    }\n    if (peerkey != NULL && !setup_peer(ctx, peerform, peerkey, e)) {\n        BIO_printf(bio_err, \"%s: Error setting up peer key\\n\", prog);\n        goto end;\n    }\n    if (pkeyopts != NULL) {\n        int num = sk_OPENSSL_STRING_num(pkeyopts);\n        int i;\n\n        for (i = 0; i < num; ++i) {\n            const char *opt = sk_OPENSSL_STRING_value(pkeyopts, i);\n\n            if (pkey_ctrl_string(ctx, opt) <= 0) {\n                BIO_printf(bio_err, \"%s: Can't set parameter \\\"%s\\\":\\n\",\n                           prog, opt);\n                goto end;\n            }\n        }\n    }\n    if (pkeyopts_passin != NULL) {\n        int num = sk_OPENSSL_STRING_num(pkeyopts_passin);\n        int i;\n\n        for (i = 0; i < num; i++) {\n            char *opt = sk_OPENSSL_STRING_value(pkeyopts_passin, i);\n            char *passin = strchr(opt, ':');\n            char *passwd;\n\n            if (passin == NULL) {\n                /* Get password interactively */\n                char passwd_buf[4096];\n                int r;\n\n                BIO_snprintf(passwd_buf, sizeof(passwd_buf), \"Enter %s: \", opt);\n                r = EVP_read_pw_string(passwd_buf, sizeof(passwd_buf) - 1,\n                                       passwd_buf, 0);\n                if (r < 0) {\n                    if (r == -2)\n                        BIO_puts(bio_err, \"user abort\\n\");\n                    else\n                        BIO_puts(bio_err, \"entry failed\\n\");\n                    goto end;\n                }\n                passwd = OPENSSL_strdup(passwd_buf);\n                if (passwd == NULL) {\n                    BIO_puts(bio_err, \"out of memory\\n\");\n                    goto end;\n                }\n            } else {\n                /*\n                 * Get password as a passin argument: First split option name\n                 * and passphrase argument into two strings\n                 */\n                *passin = 0;\n                passin++;\n                if (app_passwd(passin, NULL, &passwd, NULL) == 0) {\n                    BIO_printf(bio_err, \"failed to get '%s'\\n\", opt);\n                    goto end;\n                }\n            }\n\n            if (EVP_PKEY_CTX_ctrl_str(ctx, opt, passwd) <= 0) {\n                BIO_printf(bio_err, \"%s: Can't set parameter \\\"%s\\\":\\n\",\n                           prog, opt);\n                goto end;\n            }\n            OPENSSL_free(passwd);\n        }\n    }\n\n    if (sigfile != NULL && (pkey_op != EVP_PKEY_OP_VERIFY)) {\n        BIO_printf(bio_err,\n                   \"%s: Signature file specified for non verify\\n\", prog);\n        goto end;\n    }\n\n    if (sigfile == NULL && (pkey_op == EVP_PKEY_OP_VERIFY)) {\n        BIO_printf(bio_err,\n                   \"%s: No signature file specified for verify\\n\", prog);\n        goto end;\n    }\n\n    if (pkey_op != EVP_PKEY_OP_DERIVE && pkey_op != EVP_PKEY_OP_ENCAPSULATE) {\n        in = bio_open_default(infile, 'r', FORMAT_BINARY);\n        if (infile != NULL) {\n            struct stat st;\n\n            if (stat(infile, &st) == 0 && st.st_size <= INT_MAX)\n                filesize = (int)st.st_size;\n        }\n        if (in == NULL)\n            goto end;\n    }\n    out = bio_open_default(outfile, 'w', FORMAT_BINARY);\n    if (out == NULL)\n        goto end;\n\n    if (pkey_op == EVP_PKEY_OP_ENCAPSULATE) {\n        if (secoutfile == NULL) {\n            BIO_printf(bio_err, \"Encapsulation requires '-secret' argument\\n\");\n            goto end;\n        }\n        secout = bio_open_default(secoutfile, 'w', FORMAT_BINARY);\n        if (secout == NULL)\n            goto end;\n    }\n\n    if (sigfile != NULL) {\n        BIO *sigbio = BIO_new_file(sigfile, \"rb\");\n\n        if (sigbio == NULL) {\n            BIO_printf(bio_err, \"Can't open signature file %s\\n\", sigfile);\n            goto end;\n        }\n        siglen = bio_to_mem(&sig, keysize * 10, sigbio);\n        BIO_free(sigbio);\n        if (siglen < 0) {\n            BIO_printf(bio_err, \"Error reading signature data\\n\");\n            goto end;\n        }\n    }\n\n    /* Raw input data is handled elsewhere */\n    if (in != NULL && !rawin) {\n        /* Read the input data */\n        buf_inlen = bio_to_mem(&buf_in, -1, in);\n        if (buf_inlen < 0) {\n            BIO_printf(bio_err, \"Error reading input Data\\n\");\n            goto end;\n        }\n        if (rev) {\n            size_t i;\n            unsigned char ctmp;\n            size_t l = (size_t)buf_inlen;\n\n            for (i = 0; i < l / 2; i++) {\n                ctmp = buf_in[i];\n                buf_in[i] = buf_in[l - 1 - i];\n                buf_in[l - 1 - i] = ctmp;\n            }\n        }\n    }\n\n    /* Sanity check the input if the input is not raw */\n    if (!rawin\n        && (pkey_op == EVP_PKEY_OP_SIGN || pkey_op == EVP_PKEY_OP_VERIFY)) {\n        if (buf_inlen > EVP_MAX_MD_SIZE) {\n            BIO_printf(bio_err,\n                       \"Error: The non-raw input data length %d is too long - max supported hashed size is %d\\n\",\n                       buf_inlen, EVP_MAX_MD_SIZE);\n            goto end;\n        }\n    }\n\n    if (pkey_op == EVP_PKEY_OP_VERIFY) {\n        if (rawin) {\n            rv = do_raw_keyop(pkey_op, mctx, pkey, in, filesize, sig, siglen,\n                              NULL, 0);\n        } else {\n            rv = EVP_PKEY_verify(ctx, sig, (size_t)siglen,\n                                 buf_in, (size_t)buf_inlen);\n        }\n        if (rv == 1) {\n            BIO_puts(out, \"Signature Verified Successfully\\n\");\n            ret = 0;\n        } else {\n            BIO_puts(out, \"Signature Verification Failure\\n\");\n        }\n        goto end;\n    }\n    if (rawin) {\n        /* rawin allocates the buffer in do_raw_keyop() */\n        rv = do_raw_keyop(pkey_op, mctx, pkey, in, filesize, NULL, 0,\n                          &buf_out, (size_t *)&buf_outlen);\n    } else {\n        if (kdflen != 0) {\n            buf_outlen = kdflen;\n            rv = 1;\n        } else {\n            rv = do_keyop(ctx, pkey_op, NULL, (size_t *)&buf_outlen,\n                          buf_in, (size_t)buf_inlen, NULL, (size_t *)&secretlen);\n        }\n        if (rv > 0 && buf_outlen != 0) {\n            buf_out = app_malloc(buf_outlen, \"buffer output\");\n            if (secretlen > 0)\n                secret = app_malloc(secretlen, \"secret output\");\n            rv = do_keyop(ctx, pkey_op,\n                          buf_out, (size_t *)&buf_outlen,\n                          buf_in, (size_t)buf_inlen, secret, (size_t *)&secretlen);\n        }\n    }\n    if (rv <= 0) {\n        if (pkey_op != EVP_PKEY_OP_DERIVE) {\n            BIO_puts(bio_err, \"Public Key operation error\\n\");\n        } else {\n            BIO_puts(bio_err, \"Key derivation failed\\n\");\n        }\n        goto end;\n    }\n    ret = 0;\n\n    if (asn1parse) {\n        if (!ASN1_parse_dump(out, buf_out, buf_outlen, 1, -1))\n            ERR_print_errors(bio_err); /* but still return success */\n    } else if (hexdump) {\n        BIO_dump(out, (char *)buf_out, buf_outlen);\n    } else {\n        BIO_write(out, buf_out, buf_outlen);\n    }\n    if (secretlen > 0)\n        BIO_write(secout, secret, secretlen);\n\n end:\n    if (ret != 0)\n        ERR_print_errors(bio_err);\n    EVP_MD_CTX_free(mctx);\n    EVP_PKEY_CTX_free(ctx);\n    EVP_MD_free(md);\n    release_engine(e);\n    BIO_free(in);\n    BIO_free_all(out);\n    BIO_free_all(secout);\n    OPENSSL_free(buf_in);\n    OPENSSL_free(buf_out);\n    OPENSSL_free(sig);\n    OPENSSL_free(secret);\n    sk_OPENSSL_STRING_free(pkeyopts);\n    sk_OPENSSL_STRING_free(pkeyopts_passin);\n    NCONF_free(conf);\n    return ret;\n}"
+  ]
+}

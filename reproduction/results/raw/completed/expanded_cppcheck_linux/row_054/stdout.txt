@@ -1,0 +1,35 @@
+```python
+drv=Int('drv')
+s.add(drv == 0)
+```
+```json
+["!(drv ==0)"]
+```
+```python
+from z3 import *
+
+# Declare variable `drv` as an integer (C variable used in the constraint)
+drv = Int('drv')
+
+# Create solver
+s = Solver()
+
+# Constraint: !(drv == 0)
+# In C, this is equivalent to drv != 0.
+# Included because it directly constrains the variable `drv`.
+s.add(drv != 0)
+
+# Check satisfiability and print result
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver
+    drv = Int('drv')
+    s = Solver()
+    s.add(drv == 0)
+    s.add(drv != 0)
+    return s.check() == sat
+```
+goto result: False

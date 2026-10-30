@@ -1,0 +1,29 @@
+```python
+mpic=Int('mpic')
+s.add(mpic == 0)
+```
+```json
+["!(mpic ==0)"]
+```
+```z3
+; Declare the variable mpic as an integer (C-style scalar)
+(declare-const mpic Int)
+
+; Constraint: !(mpic == 0)
+; In C, this means mpic is non-zero (true when mpic != 0).
+; Converted to Z3 as mpic != 0.
+(assert (not (= mpic 0)))
+
+; Check satisfiability
+(check-sat)
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    mpic = Int('mpic')
+    s = Solver()
+    s.add(mpic == 0)
+    s.add(mpic != 0)
+    return s.check() == sat
+```
+goto result: False

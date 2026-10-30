@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, Implies, And, sat\n    \n    s = Solver()\n    \n    # Define all variables as Int to avoid NameError and type issues\n    pubsta = Int('pubsta')\n    sta = Int('sta')\n    n_rates = Int('n_rates')\n    \n    # Branch condition: pubsta is truthy (non-NULL)\n    s.add(pubsta != 0)\n    \n    # After the if(pubsta) block, sta is assigned via container_of(pubsta, ...)\n    # Since pubsta != 0, sta becomes a valid pointer (non-zero)\n    s.add(sta != 0)\n    \n    # status->n_rates check inside the pubsta block\n    # n_rates is unsigned, non-zero means > 0\n    s.add(Implies(n_rates != 0, n_rates > 0))\n    \n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun pubsta () Int)\n(declare-fun sta () Int)\n(declare-fun n_rates () Int)\n(assert\n (and (distinct pubsta 0) true))\n(assert\n (and (distinct sta 0) true))\n(assert\n (=> (and (distinct n_rates 0) true) (> n_rates 0)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,42 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "test_strn_ne",
+      "var_name": "s2",
+      "target": "if (n1 != n2 || s1 == NULL || strncmp(s1, s2, n1) == 0) {",
+      "code": "int test_strn_ne(const char *file, int line, const char *st1, const char *st2,\n                 const char *s1, size_t n1, const char *s2, size_t n2)\n{\n    if ((s1 == NULL) ^ (s2 == NULL))\n      return 1;\n    if (n1 != n2 || s1 == NULL || strncmp(s1, s2, n1) == 0) {\n        test_fail_string_message(NULL, file, line, \"string\", st1, st2, \"!=\",\n                                 s1, s1 == NULL ? 0 : OPENSSL_strnlen(s1, n1),\n                                 s2, s2 == NULL ? 0 : OPENSSL_strnlen(s2, n2));\n        return 0;\n    }\n    return 1;\n}",
+      "body_sha256": "03ecf237266cacc843e602981702e8dbcca1f7aa08218e9991f19593b50bfa8f",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (n1 != n2 || s1 == NULL || strncmp(s1, s2, n1) == 0) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "int test_strn_ne(const char *file, int line, const char *st1, const char *st2,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "(s1 == NULL) ^ (s2 == NULL)"
+            ]
+          }
+        ],
+        "filter_function_code": "int test_strn_ne(const char *file, int line, const char *st1, const char *st2,\n                 const char *s1, size_t n1, const char *s2, size_t n2)\n{\n    if ((s1 == NULL) ^ (s2 == NULL))\n      return 1;\n    if (n1 != n2 || s1 == NULL || strncmp(s1, s2, n1) == 0) {\n        test_fail_string_message(NULL, file, line, \"string\", st1, st2, \"!=\",\n                                 s1, s1 == NULL ? 0 : OPENSSL_strnlen(s1, n1),\n                                 s2, s2 == NULL ? 0 : OPENSSL_strnlen(s2, n2));\n        return 0;\n    }\n    return 1;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "int test_strn_ne(const char *file, int line, const char *st1, const char *st2,\n                 const char *s1, size_t n1, const char *s2, size_t n2)\n{\n    if ((s1 == NULL) ^ (s2 == NULL))\n      return 1;\n    if (n1 != n2 || s1 == NULL || strncmp(s1, s2, n1) == 0) {\n        test_fail_string_message(NULL, file, line, \"string\", st1, st2, \"!=\",\n                                 s1, s1 == NULL ? 0 : OPENSSL_strnlen(s1, n1),\n                                 s2, s2 == NULL ? 0 : OPENSSL_strnlen(s2, n2));\n        return 0;\n    }\n    return 1;\n}"
+  ]
+}

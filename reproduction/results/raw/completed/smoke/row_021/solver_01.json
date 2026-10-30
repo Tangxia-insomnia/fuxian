@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, Or, And, Not, sat\n    \n    s = Solver()\n    \n    # Declare all variables as Int type\n    sublist = Int('sublist')\n    net = Int('net')\n    skb = Int('skb')\n    curr_dev = Int('curr_dev')\n    dev = Int('dev')\n    curr_net = Int('curr_net')\n    \n    # Constraint: sublist is empty (list_empty == 1)\n    s.add(sublist == 1)\n    \n    # Constraint: net is non-NULL\n    s.add(net != 0)\n    \n    # Constraint: skb is non-NULL\n    s.add(skb != 0)\n    \n    # Constraint: curr_dev initialized to NULL\n    s.add(curr_dev == 0)\n    \n    # Constraint: condition at line 18 forced true\n    # (curr_dev != dev) OR (curr_net != net)\n    s.add(Or(curr_dev != dev, curr_net != net))\n    \n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sublist () Int)\n(declare-fun net () Int)\n(declare-fun skb () Int)\n(declare-fun curr_dev () Int)\n(declare-fun curr_net () Int)\n(declare-fun dev () Int)\n(assert\n (= sublist 1))\n(assert\n (and (distinct net 0) true))\n(assert\n (and (distinct skb 0) true))\n(assert\n (= curr_dev 0))\n(assert\n (or (and (distinct curr_dev dev) true) (and (distinct curr_net net) true)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

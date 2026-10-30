@@ -1,0 +1,150 @@
+{
+  "sample": {
+    "sample_id": "NPD/codeql/kernel69:row=23:index=42",
+    "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+    "row_position": 23,
+    "original_index": 42,
+    "original_label": 0,
+    "prediction": null,
+    "end_to_end_status": "not_run_blocked",
+    "end_to_end_attempted": false,
+    "official_entry_error": "ModuleNotFoundError: No module named 'util'",
+    "llm_status": "not_run",
+    "solver_status": "not_run_on_sample",
+    "api_calls": 0,
+    "cost_cny": 0,
+    "component_status": "extraction_and_prompt_passed",
+    "target_condition_count": 2,
+    "early_jump_count": 10,
+    "component_error": null,
+    "component_duration_seconds": 0.000636199999917153
+  },
+  "location": {
+    "file_path": "net/ipv6/ip6_output.c",
+    "region": {
+      "startLine": 1677,
+      "startColumn": 31,
+      "endColumn": 39
+    },
+    "context": {
+      "startLine": 1675,
+      "endLine": 1679,
+      "snippet": {
+        "text": "\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,"
+      }
+    }
+  },
+  "var_name": "skb_prev",
+  "function_name": "__ip6_append_data",
+  "function_code_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+  "source_adaptation": {
+    "kind": "diagnostic_only_in_memory_import_adaptation",
+    "source": "llm4pfa/extract_util_plus.py",
+    "source_sha256": "c69bd09ef04bbf49fd1c6bc4e7609bdc59c795255b4863c770122b82de94f546",
+    "removed_import": "from LLM4Detection.m_agent.conditions_info import ContextHelper,Conditions",
+    "postponed_annotations": true,
+    "reason": "ContextHelper is used only in an uncalled helper annotation; selected extract_conditions path has no dependency on either missing type.",
+    "function_bodies_changed": false,
+    "upstream_files_changed": false,
+    "not_a_repaired_full_pipeline": true
+  },
+  "extracted_conditions": {
+    "bug_line_constraints": [
+      {
+        "text": "\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,",
+        "condition": [
+          {
+            "condition": "goto alloc_new_skb",
+            "line_number": 172
+          },
+          {
+            "condition": "if (fraggap)",
+            "line_number": 270
+          }
+        ]
+      }
+    ],
+    "target_conditions": [
+      {
+        "condition": "goto alloc_new_skb",
+        "line_number": 172
+      },
+      {
+        "condition": "if (fraggap)",
+        "line_number": 270
+      }
+    ],
+    "variable_assignments": {
+      "text": "static int __ip6_append_data(struct sock *sk,",
+      "condition": []
+    },
+    "variable_non_empty": [],
+    "early_jump_constraints": [
+      {
+        "text": "error",
+        "condition": [
+          "!skb"
+        ]
+      },
+      {
+        "text": "error",
+        "condition": [
+          "copy < 0 && !(flags & MSG_SPLICE_PAGES)"
+        ]
+      },
+      {
+        "text": "alloc_new_skb",
+        "condition": [
+          "!skb"
+        ]
+      },
+      {
+        "text": "return",
+        "condition": [
+          "(flags & MSG_SPLICE_PAGES) && length",
+          "inet_test_bit(HDRINCL, sk)"
+        ]
+      },
+      {
+        "text": "return",
+        "condition": [
+          "(flags & MSG_ZEROCOPY) && length",
+          "sock_flag(sk, SOCK_ZEROCOPY)",
+          "!uarg"
+        ]
+      },
+      {
+        "text": "return",
+        "condition": [
+          "(flags & MSG_ZEROCOPY) && length",
+          "getfrag == ip_generic_getfrag && msg->msg_ubuf",
+          "skb_zcopy(skb) && msg->msg_ubuf != skb_zcopy(skb)"
+        ]
+      },
+      {
+        "text": "return",
+        "condition": []
+      },
+      {
+        "text": "emsgsize",
+        "condition": [
+          "cork->length + length > mtu - headersize && ipc6->dontfrag && (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_ICMPV6 || sk->sk_protocol == IPPROTO_RAW)"
+        ]
+      },
+      {
+        "text": "emsgsize",
+        "condition": [
+          "headersize + transhdrlen > mtu"
+        ]
+      },
+      {
+        "text": "emsgsize",
+        "condition": [
+          "mtu <= fragheaderlen || ((mtu - fragheaderlen) & ~7) + fragheaderlen <= sizeof(struct frag_hdr)"
+        ]
+      }
+    ],
+    "filter_function_code": "static int __ip6_append_data(struct sock *sk,\n\t\t\t     struct sk_buff_head *queue,\n\t\t\t     struct inet_cork_full *cork_full,\n\t\t\t     struct inet6_cork *v6_cork,\n\t\t\t     struct page_frag *pfrag,\n\t\t\t     int getfrag(void *from, char *to, int offset,\n\t\t\t\t\t int len, int odd, struct sk_buff *skb),\n\t\t\t     void *from, size_t length, int transhdrlen,\n\t\t\t     unsigned int flags, struct ipcm6_cookie *ipc6)\n{\n\tstruct sk_buff *skb, *skb_prev = NULL;\n\tstruct inet_cork *cork = &cork_full->base;\n\tstruct flowi6 *fl6 = &cork_full->fl.u.ip6;\n\tunsigned int maxfraglen, fragheaderlen, mtu, orig_mtu, pmtu;\n\tstruct ubuf_info *uarg = NULL;\n\tint exthdrlen = 0;\n\tint dst_exthdrlen = 0;\n\tint hh_len;\n\tint copy;\n\tint err;\n\tint offset = 0;\n\tbool zc = false;\n\tu32 tskey = 0;\n\tstruct rt6_info *rt = dst_rt6_info(cork->dst);\n\tbool paged, hold_tskey, extra_uref = false;\n\tstruct ipv6_txoptions *opt = v6_cork->opt;\n\tint csummode = CHECKSUM_NONE;\n\tunsigned int maxnonfragsize, headersize;\n\tunsigned int wmem_alloc_delta = 0;\n\n\tskb = skb_peek_tail(queue);\n\tif (!skb) {\n\t\texthdrlen = opt ? opt->opt_flen : 0;\n\t\tdst_exthdrlen = rt->dst.header_len - rt->rt6i_nfheader_len;\n\t}\n\n\tpaged = !!cork->gso_size;\n\tmtu = cork->gso_size ? IP6_MAX_MTU : cork->fragsize;\n\torig_mtu = mtu;\n\n\thh_len = LL_RESERVED_SPACE(rt->dst.dev);\n\n\tfragheaderlen = sizeof(struct ipv6hdr) + rt->rt6i_nfheader_len +\n\t\t\t(opt ? opt->opt_nflen : 0);\n\n\theadersize = sizeof(struct ipv6hdr) +\n\t\t     (opt ? opt->opt_flen + opt->opt_nflen : 0) +\n\t\t     rt->rt6i_nfheader_len;\n\n\tif (mtu <= fragheaderlen ||\n\t    ((mtu - fragheaderlen) & ~7) + fragheaderlen <= sizeof(struct frag_hdr))\n\t\tgoto emsgsize;\n\n\tmaxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -\n\t\t     sizeof(struct frag_hdr);\n\n\t/* as per RFC 7112 section 5, the entire IPv6 Header Chain must fit\n\t * the first fragment\n\t */\n\tif (headersize + transhdrlen > mtu)\n\t\tgoto emsgsize;\n\n\tif (cork->length + length > mtu - headersize && ipc6->dontfrag &&\n\t    (sk->sk_protocol == IPPROTO_UDP ||\n\t     sk->sk_protocol == IPPROTO_ICMPV6 ||\n\t     sk->sk_protocol == IPPROTO_RAW)) {\n\t\tipv6_local_rxpmtu(sk, fl6, mtu - headersize +\n\t\t\t\tsizeof(struct ipv6hdr));\n\t\tgoto emsgsize;\n\t}\n\n\tif (ip6_sk_ignore_df(sk))\n\t\tmaxnonfragsize = sizeof(struct ipv6hdr) + IPV6_MAXPLEN;\n\telse\n\t\tmaxnonfragsize = mtu;\n\n\tif (cork->length + length > maxnonfragsize - headersize) {\nemsgsize:\n\t\tpmtu = max_t(int, mtu - headersize + sizeof(struct ipv6hdr), 0);\n\t\tipv6_local_error(sk, EMSGSIZE, fl6, pmtu);\n\t\treturn -EMSGSIZE;\n\t}\n\n\t/* CHECKSUM_PARTIAL only with no extension headers and when\n\t * we are not going to fragment\n\t */\n\tif (transhdrlen && sk->sk_protocol == IPPROTO_UDP &&\n\t    headersize == sizeof(struct ipv6hdr) &&\n\t    length <= mtu - headersize &&\n\t    (!(flags & MSG_MORE) || cork->gso_size) &&\n\t    rt->dst.dev->features & (NETIF_F_IPV6_CSUM | NETIF_F_HW_CSUM))\n\t\tcsummode = CHECKSUM_PARTIAL;\n\n\tif ((flags & MSG_ZEROCOPY) && length) {\n\t\tstruct msghdr *msg = from;\n\n\t\tif (getfrag == ip_generic_getfrag && msg->msg_ubuf) {\n\t\t\tif (skb_zcopy(skb) && msg->msg_ubuf != skb_zcopy(skb))\n\t\t\t\treturn -EINVAL;\n\n\t\t\t/* Leave uarg NULL if can't zerocopy, callers should\n\t\t\t * be able to handle it.\n\t\t\t */\n\t\t\tif ((rt->dst.dev->features & NETIF_F_SG) &&\n\t\t\t    csummode == CHECKSUM_PARTIAL) {\n\t\t\t\tpaged = true;\n\t\t\t\tzc = true;\n\t\t\t\tuarg = msg->msg_ubuf;\n\t\t\t}\n\t\t} else if (sock_flag(sk, SOCK_ZEROCOPY)) {\n\t\t\tuarg = msg_zerocopy_realloc(sk, length, skb_zcopy(skb));\n\t\t\tif (!uarg)\n\t\t\t\treturn -ENOBUFS;\n\t\t\textra_uref = !skb_zcopy(skb);\t/* only ref on new uarg */\n\t\t\tif (rt->dst.dev->features & NETIF_F_SG &&\n\t\t\t    csummode == CHECKSUM_PARTIAL) {\n\t\t\t\tpaged = true;\n\t\t\t\tzc = true;\n\t\t\t} else {\n\t\t\t\tuarg_to_msgzc(uarg)->zerocopy = 0;\n\t\t\t\tskb_zcopy_set(skb, uarg, &extra_uref);\n\t\t\t}\n\t\t}\n\t} else if ((flags & MSG_SPLICE_PAGES) && length) {\n\t\tif (inet_test_bit(HDRINCL, sk))\n\t\t\treturn -EPERM;\n\t\tif (rt->dst.dev->features & NETIF_F_SG &&\n\t\t    getfrag == ip_generic_getfrag)\n\t\t\t/* We need an empty buffer to attach stuff to */\n\t\t\tpaged = true;\n\t\telse\n\t\t\tflags &= ~MSG_SPLICE_PAGES;\n\t}\n\n\thold_tskey = cork->tx_flags & SKBTX_ANY_TSTAMP &&\n\t\t     READ_ONCE(sk->sk_tsflags) & SOF_TIMESTAMPING_OPT_ID;\n\tif (hold_tskey)\n\t\ttskey = atomic_inc_return(&sk->sk_tskey) - 1;\n\n\t/*\n\t * Let's try using as much space as possible.\n\t * Use MTU if total length of the message fits into the MTU.\n\t * Otherwise, we need to reserve fragment header and\n\t * fragment alignment (= 8-15 octects, in total).\n\t *\n\t * Note that we may need to \"move\" the data from the tail\n\t * of the buffer to the new fragment when we split\n\t * the message.\n\t *\n\t * FIXME: It may be fragmented into multiple chunks\n\t *        at once if non-fragmentable extension headers\n\t *        are too large.\n\t * --yoshfuji\n\t */\n\n\tcork->length += length;\n\tif (!skb)\n\t\tgoto alloc_new_skb;\n\n\twhile (length > 0) {\n\t\t/* Check if the remaining data fits into current packet. */\n\t\tcopy = (cork->length <= mtu ? mtu : maxfraglen) - skb->len;\n\t\tif (copy < length)\n\t\t\tcopy = maxfraglen - skb->len;\n\n\t\tif (copy <= 0) {\n\t\t\tchar *data;\n\t\t\tunsigned int datalen;\n\t\t\tunsigned int fraglen;\n\t\t\tunsigned int fraggap;\n\t\t\tunsigned int alloclen, alloc_extra;\n\t\t\tunsigned int pagedlen;\nalloc_new_skb:\n\t\t\t/* There's no room in the current skb */\n\t\t\tif (skb)\n\t\t\t\tfraggap = skb->len - maxfraglen;\n\t\t\telse\n\t\t\t\tfraggap = 0;\n\t\t\t/* update mtu and maxfraglen if necessary */\n\t\t\tif (!skb || !skb_prev)\n\t\t\t\tip6_append_data_mtu(&mtu, &maxfraglen,\n\t\t\t\t\t\t    fragheaderlen, skb, rt,\n\t\t\t\t\t\t    orig_mtu);\n\n\t\t\tskb_prev = skb;\n\n\t\t\t/*\n\t\t\t * If remaining data exceeds the mtu,\n\t\t\t * we know we need more fragment(s).\n\t\t\t */\n\t\t\tdatalen = length + fraggap;\n\n\t\t\tif (datalen > (cork->length <= mtu ? mtu : maxfraglen) - fragheaderlen)\n\t\t\t\tdatalen = maxfraglen - fragheaderlen - rt->dst.trailer_len;\n\t\t\tfraglen = datalen + fragheaderlen;\n\t\t\tpagedlen = 0;\n\n\t\t\talloc_extra = hh_len;\n\t\t\talloc_extra += dst_exthdrlen;\n\t\t\talloc_extra += rt->dst.trailer_len;\n\n\t\t\t/* We just reserve space for fragment header.\n\t\t\t * Note: this may be overallocation if the message\n\t\t\t * (without MSG_MORE) fits into the MTU.\n\t\t\t */\n\t\t\talloc_extra += sizeof(struct frag_hdr);\n\n\t\t\tif ((flags & MSG_MORE) &&\n\t\t\t    !(rt->dst.dev->features&NETIF_F_SG))\n\t\t\t\talloclen = mtu;\n\t\t\telse if (!paged &&\n\t\t\t\t (fraglen + alloc_extra < SKB_MAX_ALLOC ||\n\t\t\t\t  !(rt->dst.dev->features & NETIF_F_SG)))\n\t\t\t\talloclen = fraglen;\n\t\t\telse {\n\t\t\t\talloclen = fragheaderlen + transhdrlen;\n\t\t\t\tpagedlen = datalen - transhdrlen;\n\t\t\t}\n\t\t\talloclen += alloc_extra;\n\n\t\t\tif (datalen != length + fraggap) {\n\t\t\t\t/*\n\t\t\t\t * this is not the last fragment, the trailer\n\t\t\t\t * space is regarded as data space.\n\t\t\t\t */\n\t\t\t\tdatalen += rt->dst.trailer_len;\n\t\t\t}\n\n\t\t\tfraglen = datalen + fragheaderlen;\n\n\t\t\tcopy = datalen - transhdrlen - fraggap - pagedlen;\n\t\t\t/* [!] NOTE: copy may be negative if pagedlen>0\n\t\t\t * because then the equation may reduces to -fraggap.\n\t\t\t */\n\t\t\tif (copy < 0 && !(flags & MSG_SPLICE_PAGES)) {\n\t\t\t\terr = -EINVAL;\n\t\t\t\tgoto error;\n\t\t\t}\n\t\t\tif (transhdrlen) {\n\t\t\t\tskb = sock_alloc_send_skb(sk, alloclen,\n\t\t\t\t\t\t(flags & MSG_DONTWAIT), &err);\n\t\t\t} else {\n\t\t\t\tskb = NULL;\n\t\t\t\tif (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=\n\t\t\t\t    2 * sk->sk_sndbuf)\n\t\t\t\t\tskb = alloc_skb(alloclen,\n\t\t\t\t\t\t\tsk->sk_allocation);\n\t\t\t\tif (unlikely(!skb))\n\t\t\t\t\terr = -ENOBUFS;\n\t\t\t}\n\t\t\tif (!skb)\n\t\t\t\tgoto error;\n\t\t\t/*\n\t\t\t *\tFill in the control structures\n\t\t\t */\n\t\t\tskb->protocol = htons(ETH_P_IPV6);\n\t\t\tskb->ip_summed = csummode;\n\t\t\tskb->csum = 0;\n\t\t\t/* reserve for fragmentation and ipsec header */\n\t\t\tskb_reserve(skb, hh_len + sizeof(struct frag_hdr) +\n\t\t\t\t    dst_exthdrlen);\n\n\t\t\t/*\n\t\t\t *\tFind where to start putting bytes\n\t\t\t */\n\t\t\tdata = skb_put(skb, fraglen - pagedlen);\n\t\t\tskb_set_network_header(skb, exthdrlen);\n\t\t\tdata += fragheaderlen;\n\t\t\tskb->transport_header = (skb->network_header +\n\t\t\t\t\t\t fragheaderlen);\n\t\t\tif (fraggap) {\n\t\t\t\tskb->csum = skb_copy_and_csum_bits(\n\t\t\t\t\tskb_prev, maxfraglen,\n\t\t\t\t\tdata + transhdrlen, fraggap);\n\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,\n\t\t\t\t\t\t\t  skb->csum);\n\t\t\t\tdata += fraggap;\n\t\t\t\tpskb_trim_unique(skb_prev, maxfraglen);\n\t\t\t}\n\t\t\tif (copy > 0 &&\n\t\t\t    getfrag(from, data + transhdrlen, offset,\n\t\t\t\t    copy, fraggap, skb) < 0) {\n\t\t\t\terr = -EFAULT;\n\t\t\t\tkfree_skb(skb);\n\t\t\t\tgoto error;\n\t\t\t} else if (flags & MSG_SPLICE_PAGES) {\n\t\t\t\tcopy = 0;\n\t\t\t}\n\n\t\t\toffset += copy;\n\t\t\tlength -= copy + transhdrlen;\n\t\t\ttranshdrlen = 0;\n\t\t\texthdrlen = 0;\n\t\t\tdst_exthdrlen = 0;\n\n\t\t\t/* Only the initial fragment is time stamped */\n\t\t\tskb_shinfo(skb)->tx_flags = cork->tx_flags;\n\t\t\tcork->tx_flags = 0;\n\t\t\tskb_shinfo(skb)->tskey = tskey;\n\t\t\ttskey = 0;\n\t\t\tskb_zcopy_set(skb, uarg, &extra_uref);\n\n\t\t\tif ((flags & MSG_CONFIRM) && !skb_prev)\n\t\t\t\tskb_set_dst_pending_confirm(skb, 1);\n\n\t\t\t/*\n\t\t\t * Put the packet on the pending queue\n\t\t\t */\n\t\t\tif (!skb->destructor) {\n\t\t\t\tskb->destructor = sock_wfree;\n\t\t\t\tskb->sk = sk;\n\t\t\t\twmem_alloc_delta += skb->truesize;\n\t\t\t}\n\t\t\t__skb_queue_tail(queue, skb);\n\t\t\tcontinue;\n\t\t}\n\n\t\tif (copy > length)\n\t\t\tcopy = length;\n\n\t\tif (!(rt->dst.dev->features&NETIF_F_SG) &&\n\t\t    skb_tailroom(skb) >= copy) {\n\t\t\tunsigned int off;\n\n\t\t\toff = skb->len;\n\t\t\tif (getfrag(from, skb_put(skb, copy),\n\t\t\t\t\t\toffset, copy, off, skb) < 0) {\n\t\t\t\t__skb_trim(skb, off);\n\t\t\t\terr = -EFAULT;\n\t\t\t\tgoto error;\n\t\t\t}\n\t\t} else if (flags & MSG_SPLICE_PAGES) {\n\t\t\tstruct msghdr *msg = from;\n\n\t\t\terr = -EIO;\n\t\t\tif (WARN_ON_ONCE(copy > msg->msg_iter.count))\n\t\t\t\tgoto error;\n\n\t\t\terr = skb_splice_from_iter(skb, &msg->msg_iter, copy,\n\t\t\t\t\t\t   sk->sk_allocation);\n\t\t\tif (err < 0)\n\t\t\t\tgoto error;\n\t\t\tcopy = err;\n\t\t\twmem_alloc_delta += copy;\n\t\t} else if (!zc) {\n\t\t\tint i = skb_shinfo(skb)->nr_frags;\n\n\t\t\terr = -ENOMEM;\n\t\t\tif (!sk_page_frag_refill(sk, pfrag))\n\t\t\t\tgoto error;\n\n\t\t\tskb_zcopy_downgrade_managed(skb);\n\t\t\tif (!skb_can_coalesce(skb, i, pfrag->page,\n\t\t\t\t\t      pfrag->offset)) {\n\t\t\t\terr = -EMSGSIZE;\n\t\t\t\tif (i == MAX_SKB_FRAGS)\n\t\t\t\t\tgoto error;\n\n\t\t\t\t__skb_fill_page_desc(skb, i, pfrag->page,\n\t\t\t\t\t\t     pfrag->offset, 0);\n\t\t\t\tskb_shinfo(skb)->nr_frags = ++i;\n\t\t\t\tget_page(pfrag->page);\n\t\t\t}\n\t\t\tcopy = min_t(int, copy, pfrag->size - pfrag->offset);\n\t\t\tif (getfrag(from,\n\t\t\t\t    page_address(pfrag->page) + pfrag->offset,\n\t\t\t\t    offset, copy, skb->len, skb) < 0)\n\t\t\t\tgoto error_efault;\n\n\t\t\tpfrag->offset += copy;\n\t\t\tskb_frag_size_add(&skb_shinfo(skb)->frags[i - 1], copy);\n\t\t\tskb->len += copy;\n\t\t\tskb->data_len += copy;\n\t\t\tskb->truesize += copy;\n\t\t\twmem_alloc_delta += copy;\n\t\t} else {\n\t\t\terr = skb_zerocopy_iter_dgram(skb, from, copy);\n\t\t\tif (err < 0)\n\t\t\t\tgoto error;\n\t\t}\n\t\toffset += copy;\n\t\tlength -= copy;\n\t}\n\n\tif (wmem_alloc_delta)\n\t\trefcount_add(wmem_alloc_delta, &sk->sk_wmem_alloc);\n\treturn 0;\n\nerror_efault:\n\terr = -EFAULT;\nerror:\n\tnet_zcopy_put_abort(uarg, extra_uref);\n\tcork->length -= length;\n\tIP6_INC_STATS(sock_net(sk), rt->rt6i_idev, IPSTATS_MIB_OUTDISCARDS);\n\trefcount_add(wmem_alloc_delta, &sk->sk_wmem_alloc);\n\tif (hold_tskey)\n\t\tatomic_dec(&sk->sk_tskey);\n\treturn err;\n}"
+  },
+  "generated_initial_prompt": "\n        Convert C code constraints into Z3 solver script.\n        Current constraints: [{'condition': 'goto alloc_new_skb', 'line_number': 172}, {'condition': 'if (fraggap)', 'line_number': 270}, 'skb_prev == 0']\n\n        Guidelines:\n        \nImportant guidelines for generating Z3 scripts:\n1. Variable Type Guidelines:\n   - Prefer Int type over Bool type\n   - Default to Int type for unknown variables\n   - Convert !ptr to ptr==0 for Int variables\n   \n2. Boolean Representation:\n   - Represent False as Int variable == 0\n   - Represent True as Int variable == 1\n   \n3. Critical Rules:\n   - Use And, Or, Not instead of &, |, ! operators\n   - Avoid assigning Int values to Bool variables\n   - Convert !ptr or Not(ptr) to ptr==0 only\n   \n4. Constraint Guidelines:\n   - Prefer using ==1 or ==0 over inequality operators\n   - Skip constraints for uncertain value ranges\n   - Only interpret function returns when names clearly indicate meaning\n\n\n        Format response strictly as:\n        ```python\n        var_name1=Int('var1')\n        var_name2=Bool('var2')\n        s.add(constraint 1)\n        s.add(constraint 2)\n        ...\n        ```\n        "
+}

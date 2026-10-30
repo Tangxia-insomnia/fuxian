@@ -1,0 +1,45 @@
+{
+  "call_id": 344,
+  "sample_id": "NPD/codeql/kernel69:row=52:index=78",
+  "timestamp": "2026-10-26T00:50:20.062367+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(unlikely(ZERO_OR_NULL_PTR(object)))']\n        Relevant conditions/variables: [{'condition': 'if (unlikely(!folio_test_slab(folio)))', 'line_number': 13}], object\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "b778c4c8-9fdd-4422-aba6-f94c19c5e4fa",
+  "usage": {
+    "prompt_tokens": 143,
+    "completion_tokens": 381,
+    "total_tokens": 524,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 143
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\n# Z3 script generated from C constraints\n#\n# Relevant C condition (line 13):\n#     if (unlikely(!folio_test_slab(folio)))\n#\n# Input constraint:\n#     !(unlikely(ZERO_OR_NULL_PTR(object)))\n#\n# Notes on translation:\n#   - `unlikely(...)` is a branch-prediction hint only; it has no semantic\n#     effect on the truth value of the expression, so it is dropped.\n#   - `ZERO_OR_NULL_PTR(x)` in the Linux kernel is defined as\n#         unlikely(!x || ZERO_OR_NULL_PTR_impl(x))\n#     i.e. it is true when the pointer is NULL (0) or falls in the low\n#     \"zero page\" range. For the purpose of this constraint we model the\n#     pointer as an integer address and treat \"zero or null\" as `object == 0`.\n#   - The outer `!(...)` therefore reduces to `object != 0`.\n#   - `object` is the only variable from the relevant conditions that this\n#     constraint touches, so it is the only one we declare.\n\nfrom z3 import *\n\n# `object` is a pointer; model it as an unbounded integer address.\nobject = Int('object')\n\ns = Solver()\n\n# Constraint: !(unlikely(ZERO_OR_NULL_PTR(object)))\n#   => !(object == 0)\n#   => object != 0\n# Included because the C code asserts the object pointer is non-NULL\n# (and not in the zero page) before it is dereferenced / tested.\ns.add(object != 0)\n\n# Check satisfiability and print a model for inspection.\nprint(s.check())\nprint(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.8677605000002586,
+  "cost_upper_bound_cny": 0.003334
+}

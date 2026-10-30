@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, sat\n\n    # Base script variables and constraints\n    ctx = Int('ctx')\n\n    # Constraint set 2 variables\n    ptype = Int('ptype')\n    V_ASN1_SEQUENCE = Int('V_ASN1_SEQUENCE')\n    decoder_from_data_ok = Bool('decoder_from_data_ok')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(ctx == 0)\n\n    # Constraint set 2, constraint 1\n    s.add(Or(ptype != V_ASN1_SEQUENCE, decoder_from_data_ok))\n\n    # Constraint set 2, constraint 2\n    s.add(Or(ptype != V_ASN1_SEQUENCE, ctx != 0))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ctx () Int)\n(declare-fun decoder_from_data_ok () Bool)\n(declare-fun V_ASN1_SEQUENCE () Int)\n(declare-fun ptype () Int)\n(assert\n (= ctx 0))\n(assert\n (let (($x28 (and (distinct ptype V_ASN1_SEQUENCE) true)))\n (or $x28 decoder_from_data_ok)))\n(assert\n (let (($x28 (and (distinct ptype V_ASN1_SEQUENCE) true)))\n(or $x28 (and (distinct ctx 0) true))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver\n    drv = Int('drv')\n    s = Solver()\n    s.add(drv == 0)\n    s.add(drv != 0)\n    return s.check() == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun drv () Int)\n(assert\n (= drv 0))\n(assert\n (and (distinct drv 0) true))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 3,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n\n    # Variables from base script\n    folio_test_slab = Int('folio_test_slab')\n    object = Int('object')\n\n    # Variables from constraint set 1\n    object_ptr = Int('object_ptr')\n\n    s = Solver()\n\n    # --- Base script constraints ---\n    s.add(folio_test_slab == 0)\n    s.add(object == 0)\n\n    # --- Constraint set 1 constraints ---\n    s.add(object_ptr == 0)\n    s.add(Or(folio_test_slab == 0, folio_test_slab == 1))\n\n    # --- Constraint set 2 constraints ---\n    PAGE_SIZE = 4096\n    s.add(object != 0)\n    s.add(object >= PAGE_SIZE)\n\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun folio_test_slab () Int)\n(declare-fun object () Int)\n(declare-fun object_ptr () Int)\n(assert\n (= folio_test_slab 0))\n(assert\n (= object 0))\n(assert\n (= object_ptr 0))\n(assert\n (let (($x9 (= folio_test_slab 0)))\n (or $x9 (= folio_test_slab 1))))\n(assert\n (and (distinct object 0) true))\n(assert\n (>= object 4096))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

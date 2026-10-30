@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    \n    s = Solver()\n    \n    # Define all variables with consistent Int types\n    sdata_u_mgd_associated = Int('sdata_u_mgd_associated')\n    ether_addr_equal_result = Int('ether_addr_equal_result')\n    mgmt_u_action_category = Int('mgmt_u_action_category')\n    WLAN_CATEGORY_SPECTRUM_MGMT = Int('WLAN_CATEGORY_SPECTRUM_MGMT')\n    ies_len = Int('ies_len')\n    \n    # Constraint: sdata->u.mgd.associated must be non-zero (truthy)\n    s.add(sdata_u_mgd_associated != 0)\n    \n    # Constraint: ether_addr_equal(...) must be true (represented as == 1)\n    s.add(ether_addr_equal_result == 1)\n    \n    # Constraint: mgmt->u.action.category != WLAN_CATEGORY_SPECTRUM_MGMT\n    s.add(mgmt_u_action_category != WLAN_CATEGORY_SPECTRUM_MGMT)\n    \n    # Constraint: ies_len must be >= 0\n    s.add(ies_len >= 0)\n    \n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sdata_u_mgd_associated () Int)\n(declare-fun ether_addr_equal_result () Int)\n(declare-fun WLAN_CATEGORY_SPECTRUM_MGMT () Int)\n(declare-fun mgmt_u_action_category () Int)\n(declare-fun ies_len () Int)\n(assert\n (and (distinct sdata_u_mgd_associated 0) true))\n(assert\n (= ether_addr_equal_result 1))\n(assert\n (and (distinct mgmt_u_action_category WLAN_CATEGORY_SPECTRUM_MGMT) true))\n(assert\n (>= ies_len 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

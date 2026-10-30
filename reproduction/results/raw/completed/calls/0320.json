@@ -1,0 +1,45 @@
+{
+  "call_id": 320,
+  "sample_id": "NPD/codeql/kernel69:row=44:index=69",
+  "timestamp": "2026-10-26T00:49:44.544918+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: void ieee80211_ibss_rx_queued_mgmt(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t   struct sk_buff *skb)\n{\n\tstruct ieee80211_rx_status *rx_status;\n\tstruct ieee80211_mgmt *mgmt;\n\tu16 fc;\n\tstruct ieee802_11_elems *elems;\n\tint ies_len;\n\n\trx_status = IEEE80211_SKB_RXCB(skb);\n\tmgmt = (struct ieee80211_mgmt *) skb->data;\n\tfc = le16_to_cpu(mgmt->frame_control);\n\n\tif (!sdata->u.ibss.ssid_len)\n\t\treturn; /* not ready to merge yet */\n\n\tswitch (fc & IEEE80211_FCTL_STYPE) {\n\tcase IEEE80211_STYPE_PROBE_REQ:\n\t\tieee80211_rx_mgmt_probe_req(sdata, skb);\n\t\tbreak;\n\tcase IEEE80211_STYPE_PROBE_RESP:\n\tcase IEEE80211_STYPE_BEACON:\n\t\tieee80211_rx_mgmt_probe_beacon(sdata, mgmt, skb->len,\n\t\t\t\t\t       rx_status);\n\t\tbreak;\n\tcase IEEE80211_STYPE_AUTH:\n\t\tieee80211_rx_mgmt_auth_ibss(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_DEAUTH:\n\t\tieee80211_rx_mgmt_deauth_ibss(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_ACTION:\n\t\tswitch (mgmt->u.action.category) {\n\t\tcase WLAN_CATEGORY_SPECTRUM_MGMT:\n\t\t\ties_len = skb->len -\n\t\t\t\t  offsetof(struct ieee80211_mgmt,\n\t\t\t\t\t   u.action.u.chan_switch.variable);\n\n\t\t\tif (ies_len < 0)\n\t\t\t\tbreak;\n\n\t\t\telems = ieee802_11_parse_elems(\n\t\t\t\tmgmt->u.action.u.chan_switch.variable,\n\t\t\t\ties_len, true, NULL);\n\n\t\t\tif (elems && !elems->parse_error)\n\t\t\t\tieee80211_rx_mgmt_spectrum_mgmt(sdata, mgmt,\n\t\t\t\t\t\t\t\tskb->len,\n\t\t\t\t\t\t\t\trx_status,\n\t\t\t\t\t\t\t\telems);\n\t\t\tkfree(elems);\n\t\t\tbreak;\n\t\t}\n\t}\n}\n        - Target variables: [{'condition': 'if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)', 'line_number': 31}, {'condition': 'if(mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT)', 'line_number': 33}], elems\n        - Constraints: ['!(ies_len < 0)', '!(!sdata->u.ibss.ssid_len)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "79b9508d-b177-4a54-bceb-beb7ca8667a3",
+  "usage": {
+    "prompt_tokens": 703,
+    "completion_tokens": 13,
+    "total_tokens": 716,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 703
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(ies_len < 0)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.47677399999975023,
+  "cost_upper_bound_cny": 0.00151
+}

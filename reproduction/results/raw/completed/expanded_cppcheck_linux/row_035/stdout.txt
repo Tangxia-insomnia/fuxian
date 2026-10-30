@@ -1,0 +1,120 @@
+```python
+np=Int('np')
+hbase=Int('hbase')
+iommu=Int('iommu')
+s.add(iommu == 0)
+s.add(hbase == 0)
+```
+```python
+iommu=Int('iommu')
+np=Int('np')
+hbase=Int('hbase')
+dbase=Int('dbase')
+dsize=Int('dsize')
+fbase=Int('fbase')
+fsize=Int('fsize')
+hend=Int('hend')
+htab_address=Int('htab_address')
+htab_size_bytes=Int('htab_size_bytes')
+
+# Assume pointer "iommu" is NULL
+s.add(iommu == 0)
+
+# for_each_node_by_name(np, "axon") - loop iterates over axon nodes
+# np is a valid node pointer (non-NULL) inside the loop
+s.add(np != 0)
+
+# if(!(hbase == 0)) - branch where hbase is non-zero
+s.add(hbase != 0)
+```
+```python
+iommu=Int('iommu')
+np=Int('np')
+hbase=Int('hbase')
+dbase=Int('dbase')
+dsize=Int('dsize')
+fbase=Int('fbase')
+fsize=Int('fsize')
+hend=Int('hend')
+htab_address=Int('htab_address')
+htab_size_bytes=Int('htab_size_bytes')
+
+# Assume pointer "iommu" is NULL
+s.add(iommu == 0)
+
+# Line 83: if(!(hbase == 0)) - branch taken when hbase is non-zero
+# This branch is reached only when (fbase + fsize) > 0x800000000ul
+# hbase = __pa(htab_address), so hbase is derived from htab_address
+# htab_address must be non-NULL (checked earlier with if(!htab_address) return -1)
+s.add(htab_address != 0)
+
+# hbase is non-zero in this branch
+s.add(hbase != 0)
+
+# hbase = __pa(htab_address) - physical address, non-zero
+# hend = hbase + htab_size_bytes
+s.add(hend == hbase + htab_size_bytes)
+
+# Segment alignment constraints (must hold to reach this point)
+# hbase == ALIGN(hbase, 1 << IO_SEGMENT_SHIFT)
+# hend == ALIGN(hend, 1 << IO_SEGMENT_SHIFT)
+# These are alignment properties; represent as hbase being a multiple of segment size
+# (skipping exact alignment since IO_SEGMENT_SHIFT value is uncertain)
+
+# np is a valid axon node pointer inside the loop
+s.add(np != 0)
+```
+```python
+# New constraints for the for_each_node_by_name(np, "axon") loop at line 77
+# Inside the loop, np is a valid (non-NULL) axon device node pointer
+s.add(np != 0)
+
+# New constraints for the if(!(hbase == 0)) branch at line 83
+# The branch is taken when hbase is non-zero
+# Note: existing constraint s.add(hbase == 0) is kept; this adds the branch condition
+# hbase is derived from __pa(htab_address), so htab_address must be non-NULL
+htab_address=Int('htab_address')
+s.add(htab_address != 0)
+
+# hbase is non-zero in this branch (branch condition)
+s.add(hbase != 0)
+
+# hend = hbase + htab_size_bytes
+htab_size_bytes=Int('htab_size_bytes')
+hend=Int('hend')
+s.add(hend == hbase + htab_size_bytes)
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    
+    s = Solver()
+    
+    # Variable declarations
+    np = Int('np')
+    hbase = Int('hbase')
+    htab_address = Int('htab_address')
+    htab_size_bytes = Int('htab_size_bytes')
+    hend = Int('hend')
+    
+    # Constraint: np is a valid (non-NULL) axon device node pointer
+    s.add(np != 0)
+    
+    # Existing constraint: hbase == 0 (kept from original script)
+    s.add(hbase == 0)
+    
+    # Constraint: htab_address must be non-NULL (derived from __pa(htab_address))
+    s.add(htab_address != 0)
+    
+    # Branch condition: hbase is non-zero in this branch
+    s.add(hbase != 0)
+    
+    # Constraint: hend = hbase + htab_size_bytes
+    s.add(hend == hbase + htab_size_bytes)
+    
+    # Check satisfiability
+    result = s.check()
+    return result == sat
+```
+dereference constraint: False
+result2=False

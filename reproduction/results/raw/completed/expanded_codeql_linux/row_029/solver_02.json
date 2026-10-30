@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, Bool, Or, sat\n\n    # Variables from base script and constraint set 1 (Int type)\n    ifp = Int('ifp')\n    idev = Int('idev')\n\n    # Variables from constraint set 2 (Bool type) - use distinct names to avoid conflict\n    ifp_b = Bool('ifp_b')\n    idev_b = Bool('idev_b')\n\n    s = Solver()\n\n    # Base script constraints\n    s.add(ifp == 0)\n    s.add(idev == 0)\n\n    # Constraint set 1 constraints\n    s.add(ifp == 0)\n    s.add(idev == 0)\n\n    # Constraint set 2 constraints: Or(ifp, idev) on boolean variables\n    s.add(Or(ifp_b, idev_b))\n\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ifp () Int)\n(declare-fun idev () Int)\n(declare-fun idev_b () Bool)\n(declare-fun ifp_b () Bool)\n(assert\n (= ifp 0))\n(assert\n (= idev 0))\n(assert\n (= ifp 0))\n(assert\n (= idev 0))\n(assert\n (or ifp_b idev_b))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,45 @@
+{
+  "call_id": 1133,
+  "sample_id": "NPD/infer/openssl:row=0:index=None",
+  "timestamp": "2026-10-26T01:08:07.814567+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(ptype == V_ASN1_SEQUENCE) || !(!OSSL_DECODER_from_data(ctx, &pm, &pmlen))', '!(ptype == V_ASN1_SEQUENCE) || !(ctx == NULL)']\n        Relevant conditions/variables: [], ctx\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "e26b85e2-237f-4e66-9861-1597a5563e75",
+  "usage": {
+    "prompt_tokens": 160,
+    "completion_tokens": 386,
+    "total_tokens": 546,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 160
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# ctx: pointer (modeled as an integer address; 0 means NULL)\nctx = Int('ctx')\n\n# ptype: integer type tag (V_ASN1_SEQUENCE is a constant; we model it symbolically)\nptype = Int('ptype')\nV_ASN1_SEQUENCE = Int('V_ASN1_SEQUENCE')\n\n# OSSL_DECODER_from_data return value: modeled as a boolean (true = success/nonzero)\n# The C expression !OSSL_DECODER_from_data(...) is true when the call fails.\ndecoder_from_data_ok = Bool('decoder_from_data_ok')\n\ns = Solver()\n\n# Constraint 1:\n#   !(ptype == V_ASN1_SEQUENCE) || !(!OSSL_DECODER_from_data(ctx, &pm, &pmlen))\n# Simplifies to: ptype != V_ASN1_SEQUENCE || OSSL_DECODER_from_data(...) succeeds\n# Included because it constrains ptype (and the decoder call outcome) which\n# gates the code path under analysis.\ns.add(Or(ptype != V_ASN1_SEQUENCE, decoder_from_data_ok))\n\n# Constraint 2:\n#   !(ptype == V_ASN1_SEQUENCE) || !(ctx == NULL)\n# Simplifies to: ptype != V_ASN1_SEQUENCE || ctx != 0\n# Included because it constrains ctx (must be non-NULL when ptype is SEQUENCE).\ns.add(Or(ptype != V_ASN1_SEQUENCE, ctx != 0))\n\n# Check satisfiability and print model\nprint(s.check())\nprint(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.226445899999817,
+  "cost_upper_bound_cny": 0.003408
+}

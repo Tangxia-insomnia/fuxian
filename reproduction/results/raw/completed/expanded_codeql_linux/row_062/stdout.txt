@@ -1,0 +1,177 @@
+```python
+elems=Int('elems')
+s.add(elems == 0)
+```
+```json
+["!(skb->len < baselen)"]
+```
+```python
+from z3 import *
+
+# Declare variables used in the constraint
+# skb->len and baselen are integer-valued fields (lengths in bytes)
+skb_len = Int('skb_len')   # represents skb->len
+baselen = Int('baselen')   # represents baselen
+
+# Constraint: !(skb->len < baselen)
+# In C, this is equivalent to skb->len >= baselen.
+# We include it because it directly constrains the relationship between
+# skb->len and baselen (the only variables appearing in the expression).
+s = Solver()
+s.add(Not(skb_len < baselen))
+
+# Check satisfiability and print a model if one exists
+if s.check() == sat:
+    print(s.model())
+else:
+    print("unsat")
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat, Not
+
+    # Base script variables and constraints
+    elems = Int('elems')
+    s = Solver()
+    s.add(elems == 0)
+
+    # Constraint set 2 variables and constraints
+    skb_len = Int('skb_len')
+    baselen = Int('baselen')
+    s.add(Not(skb_len < baselen))
+
+    return s.check() == sat
+```
+goto result: True
+```python
+folio_test_slab=Int('folio_test_slab')
+object=Int('object')
+s.add(folio_test_slab == 0)
+s.add(object == 0)
+```
+```python
+object=Int('object')
+folio_test_slab=Int('folio_test_slab')
+s.add(object==0)
+s.add(folio_test_slab==0)
+```
+```python
+# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early
+# folio_test_slab is not evaluated since early return occurs
+# No additional constraints needed beyond existing ones
+```
+```python
+def check_constraints():
+    # Object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early.
+    # folio_test_slab is not evaluated since early return occurs.
+    # No additional constraints needed beyond existing ones.
+    #
+    # Represent the NULL pointer condition as an Int variable equal to 0.
+    ptr = 0  # object is NULL
+
+    # ZERO_OR_NULL_PTR(ptr) is true when ptr == 0
+    zero_or_null_ptr = 1 if ptr == 0 else 0
+
+    # kfree returns early when ZERO_OR_NULL_PTR is true
+    kfree_early_return = 1 if zero_or_null_ptr == 1 else 0
+
+    # folio_test_slab is NOT evaluated because of the early return
+    folio_test_slab_evaluated = 0 if kfree_early_return == 1 else 1
+
+    # Validation: early return must have occurred, and folio_test_slab must not be evaluated
+    return bool(kfree_early_return == 1 and folio_test_slab_evaluated == 0)
+```
+ValueError: No actual Solver.check executed
+```python
+def check_constraints():
+    from z3 import Int, Solver, And, sat
+
+    # Object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early.
+    # folio_test_slab is not evaluated since early return occurs.
+    ptr = Int('ptr')
+    zero_or_null_ptr = Int('zero_or_null_ptr')
+    kfree_early_return = Int('kfree_early_return')
+    folio_test_slab_evaluated = Int('folio_test_slab_evaluated')
+
+    s = Solver()
+
+    # Object is NULL
+    s.add(ptr == 0)
+
+    # ZERO_OR_NULL_PTR(ptr) is true when ptr == 0
+    s.add(zero_or_null_ptr == 1)
+
+    # kfree returns early when ZERO_OR_NULL_PTR is true
+    s.add(kfree_early_return == 1)
+
+    # folio_test_slab is NOT evaluated because of the early return
+    s.add(folio_test_slab_evaluated == 0)
+
+    result = s.check()
+    return result == sat
+```
+dereference constraint: True
+```json
+["!(unlikely(ZERO_OR_NULL_PTR(object)))"]
+```
+```python
+from z3 import *
+
+# Declare the pointer variable `object` as an integer address.
+# In C, `object` is a pointer; we model it as an integer address where 0 means NULL.
+object = Int('object')
+
+# Constraint: !(unlikely(ZERO_OR_NULL_PTR(object)))
+# ZERO_OR_NULL_PTR(x) is true when x is NULL or a small error-pointer value.
+# In the Linux kernel, ZERO_OR_NULL_PTR(x) is defined as:
+#     unlikely(!x || (unsigned long)(x) < PAGE_SIZE)
+# i.e., the pointer is NULL or its address is below PAGE_SIZE (typically 4096).
+# The C code negates this, so the constraint requires that `object` is a valid,
+# non-NULL pointer whose address is at least PAGE_SIZE.
+# This is relevant because the subsequent condition
+#     if (unlikely(!folio_test_slab(folio)))
+# dereferences `object` (as a folio), which would be invalid for NULL or
+# error-pointer values. Hence we must assert the pointer is valid.
+PAGE_SIZE = 4096
+
+# object is not NULL and its address is >= PAGE_SIZE
+s = Solver()
+s.add(object != 0)
+s.add(object >= PAGE_SIZE)
+
+# Print the solver state for inspection
+print(s)
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, And, sat
+
+    # Base script variables and constraints
+    folio_test_slab = Int('folio_test_slab')
+    object = Int('object')
+
+    s = Solver()
+    s.add(folio_test_slab == 0)
+    s.add(object == 0)
+
+    # Constraint set 1 variables and constraints
+    ptr = Int('ptr')
+    zero_or_null_ptr = Int('zero_or_null_ptr')
+    kfree_early_return = Int('kfree_early_return')
+    folio_test_slab_evaluated = Int('folio_test_slab_evaluated')
+
+    s.add(ptr == 0)
+    s.add(zero_or_null_ptr == 1)
+    s.add(kfree_early_return == 1)
+    s.add(folio_test_slab_evaluated == 0)
+
+    # Constraint set 2 constraints (object already declared above)
+    PAGE_SIZE = 4096
+    s.add(object != 0)
+    s.add(object >= PAGE_SIZE)
+
+    result = s.check()
+    return result == sat
+```
+goto result: False

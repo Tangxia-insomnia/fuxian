@@ -1,0 +1,42 @@
+{
+  "audit_id": "A06",
+  "sample_id": "NPD/infer/openssl:row=4:index=None",
+  "selection_reason": "格式解析失败",
+  "selection": "purposive diagnostic; not random and not representative",
+  "label": 0,
+  "prediction": null,
+  "status": "failed",
+  "error": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+  "source_status": "No explicit source location/complete SARIF codeFlow in published row; raw function_list/assignment hints preserved, not invented",
+  "sink": {
+    "file_path": "ssl/bio_ssl.c",
+    "region": {
+      "startLine": 247,
+      "startColumn": 13,
+      "endColumn": 15
+    },
+    "context": {
+      "startLine": 245,
+      "endLine": 249,
+      "snippet": {
+        "text": "if (sc->handshake_func == ssl->method->ssl_connect)"
+      }
+    }
+  },
+  "saved_context_exists": true,
+  "function_chain": [
+    "ssl_ctrl"
+  ],
+  "final_attempt_call_ids": [
+    1145,
+    1146
+  ],
+  "earlier_attempt_call_ids_not_reused": [],
+  "solver_evidence": [],
+  "argument_parameter_mapping": [],
+  "duration_seconds": 2.5275351999998747,
+  "cost_upper_bound_cny": 0.006581999999999866,
+  "missing_steps": [
+    "See recorded error; unexecuted steps have no LLM/SMT output and are not fabricated"
+  ]
+}

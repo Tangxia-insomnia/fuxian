@@ -1,0 +1,115 @@
+```python
+times=Int('times')
+s.add(times == 0)
+```
+```json
+["!(avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0) || !(!strcmp(KEYFRAMES_TIMESTAMP_TAG, str_val) && !times) || !(!(times = av_mallocz(sizeof(*times) * arraylen)))"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraint
+# times: pointer (modeled as an integer address; 0 means NULL)
+times = Int('times')
+
+# str_val: string buffer used by amf_get_string / strcmp
+# Modeled as an uninterpreted string-like value; we only care about equality with the tag
+str_val = String('str_val')
+KEYFRAMES_TIMESTAMP_TAG = StringVal("KEYFRAMES_TIMESTAMP_TAG")
+
+# Boolean predicates abstracting C function calls / comparisons
+# avio_tell(ioc) < max_pos - 2  -> abstracted as a boolean
+avio_tell_lt = Bool('avio_tell_lt')
+# amf_get_string(ioc, str_val, sizeof(str_val)) > 0 -> abstracted as a boolean
+amf_get_string_gt0 = Bool('amf_get_string_gt0')
+
+# The original C constraint:
+#   !(avio_tell(ioc) < max_pos - 2 && amf_get_string(...) > 0)
+#   || !(!strcmp(KEYFRAMES_TIMESTAMP_TAG, str_val) && !times)
+#   || !(!(times = av_mallocz(...)))
+#
+# Notes on translation:
+#  - "!ptr" in C means "ptr == NULL" (i.e., times == 0)
+#  - "!(times = av_mallocz(...))" means the assignment produced NULL, i.e., times == 0
+#    (the assignment itself is the value; !(assignment) is true iff result is NULL)
+#  - "!strcmp(a,b)" means strings are equal
+#  - The whole expression is a disjunction of three negated conjunctions.
+
+# Clause 1: !(avio_tell_lt && amf_get_string_gt0)
+clause1 = Not(And(avio_tell_lt, amf_get_string_gt0))
+
+# Clause 2: !(!strcmp(TAG, str_val) && !times)
+#   !strcmp(...)  -> str_val == KEYFRAMES_TIMESTAMP_TAG
+#   !times        -> times == 0
+clause2 = Not(And(str_val == KEYFRAMES_TIMESTAMP_TAG, times == 0))
+
+# Clause 3: !(!(times = av_mallocz(...)))
+#   The inner assignment yields a pointer; !(ptr) is true iff ptr == 0.
+#   So !(!(assignment)) is true iff the assignment result is non-NULL,
+#   i.e., times != 0.
+clause3 = Not(times == 0)
+
+# Full constraint
+constraint = Or(clause1, clause2, clause3)
+
+s = Solver()
+s.add(constraint)
+
+# Check satisfiability and print a model if any
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, String, StringVal, Bool, Not, And, Or, Solver, sat
+
+    # Base script constraints
+    times = Int('times')
+
+    # Constraint set 2 variables
+    str_val = String('str_val')
+    KEYFRAMES_TIMESTAMP_TAG = StringVal("KEYFRAMES_TIMESTAMP_TAG")
+    avio_tell_lt = Bool('avio_tell_lt')
+    amf_get_string_gt0 = Bool('amf_get_string_gt0')
+
+    s = Solver()
+
+    # Base constraint
+    s.add(times == 0)
+
+    # Constraint set 2 clauses
+    clause1 = Not(And(avio_tell_lt, amf_get_string_gt0))
+    clause2 = Not(And(str_val == KEYFRAMES_TIMESTAMP_TAG, times == 0))
+    clause3 = Not(times == 0)
+    constraint = Or(clause1, clause2, clause3)
+    s.add(constraint)
+
+    return s.check() == sat
+```
+NameError: name 'String' is not defined
+```python
+def check_constraints():
+    from z3 import Int, Solver, And, Or, Not, sat
+
+    times = Int('times')
+    str_val = Int('str_val')
+    KEYFRAMES_TIMESTAMP_TAG = Int('KEYFRAMES_TIMESTAMP_TAG')
+    avio_tell_lt = Int('avio_tell_lt')
+    amf_get_string_gt0 = Int('amf_get_string_gt0')
+
+    s = Solver()
+
+    # Base constraint
+    s.add(times == 0)
+
+    # Constraint set 2 clauses
+    clause1 = Not(And(avio_tell_lt == 1, amf_get_string_gt0 == 1))
+    clause2 = Not(And(str_val == KEYFRAMES_TIMESTAMP_TAG, times == 0))
+    clause3 = Not(times == 0)
+    constraint = Or(clause1, clause2, clause3)
+    s.add(constraint)
+
+    return s.check() == sat
+```
+goto result: True

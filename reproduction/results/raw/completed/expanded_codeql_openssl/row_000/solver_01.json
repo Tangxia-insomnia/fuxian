@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Not, Or, sat\n\n    # Base script variables and constraints\n    pktmp = Int('pktmp')\n\n    # Constraint set 2 variables\n    rrow = Int('rrow')\n    batch = Bool('batch')\n    buf0 = Int('buf0')\n    fgets_ret = Int('fgets_ret')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(pktmp == 0)\n\n    # Constraint set 2 constraints\n    s.add(Not(rrow != 0))\n    s.add(Or(batch, fgets_ret != 0))\n    s.add(Or(batch, Or(buf0 == ord('y'), buf0 == ord('Y'))))\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: NameError: name 'ord' is not defined"
+}

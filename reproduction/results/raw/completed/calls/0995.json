@@ -1,0 +1,45 @@
+{
+  "call_id": 995,
+  "sample_id": "NPD/cppcheck/linux:row=47:index=None",
+  "timestamp": "2026-10-26T01:05:40.552110+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(mpic ==0)']\n        Relevant conditions/variables: [], mpic\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "42f845f2-a55e-404b-93e8-1ce8f5da1719",
+  "usage": {
+    "prompt_tokens": 111,
+    "completion_tokens": 92,
+    "total_tokens": 203,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 111
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```z3\n; Declare the variable mpic as an integer (C-style scalar)\n(declare-const mpic Int)\n\n; Constraint: !(mpic == 0)\n; In C, this means mpic is non-zero (true when mpic != 0).\n; Converted to Z3 as mpic != 0.\n(assert (not (= mpic 0)))\n\n; Check satisfiability\n(check-sat)\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.7876286000000619,
+  "cost_upper_bound_cny": 0.000958
+}

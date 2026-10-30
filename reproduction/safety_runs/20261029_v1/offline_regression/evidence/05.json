@@ -1,0 +1,62 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/kernel69:row=55:index=81",
+    "status": "blocked_context",
+    "prediction": null,
+    "error": "Tracked value passed via an unsupported compound argument",
+    "decision_basis": null
+  },
+  "alert": {
+    "var_name": "sta",
+    "function_name": "ieee80211_mgd_probe_ap_send",
+    "location": {
+      "file_path": "net/mac80211/mlme.c",
+      "region": {
+        "startLine": 3428,
+        "startColumn": 28,
+        "endColumn": 31
+      },
+      "context": {
+        "startLine": 3426,
+        "endLine": 3430,
+        "snippet": {
+          "text": "\t\t\tieee80211_check_fast_rx(sta);"
+        }
+      }
+    },
+    "function_code": "static void ieee80211_mgd_probe_ap_send(struct ieee80211_sub_if_data *sdata)\n{\n\tstruct ieee80211_if_managed *ifmgd = &sdata->u.mgd;\n\tu8 *dst = sdata->vif.cfg.ap_addr;\n\tu8 unicast_limit = max(1, max_probe_tries - 3);\n\tstruct sta_info *sta;\n\n\tlockdep_assert_wiphy(sdata->local->hw.wiphy);\n\n\tif (WARN_ON(ieee80211_vif_is_mld(&sdata->vif)))\n\t\treturn;\n\n\t/*\n\t * Try sending broadcast probe requests for the last three\n\t * probe requests after the first ones failed since some\n\t * buggy APs only support broadcast probe requests.\n\t */\n\tif (ifmgd->probe_send_count >= unicast_limit)\n\t\tdst = NULL;\n\n\t/*\n\t * When the hardware reports an accurate Tx ACK status, it's\n\t * better to send a nullfunc frame instead of a probe request,\n\t * as it will kick us off the AP quickly if we aren't associated\n\t * anymore. The timeout will be reset if the frame is ACKed by\n\t * the AP.\n\t */\n\tifmgd->probe_send_count++;\n\n\tif (dst) {\n\t\tsta = sta_info_get(sdata, dst);\n\t\tif (!WARN_ON(!sta))\n\t\t\tieee80211_check_fast_rx(sta);\n\t}\n\n\tif (ieee80211_hw_check(&sdata->local->hw, REPORTS_TX_ACK_STATUS)) {\n\t\tifmgd->nullfunc_failed = false;\n\t\tieee80211_send_nullfunc(sdata->local, sdata, false);\n\t} else {\n\t\tieee80211_mlme_send_probe_req(sdata, sdata->vif.addr, dst,\n\t\t\t\t\t      sdata->vif.cfg.ssid,\n\t\t\t\t\t      sdata->vif.cfg.ssid_len,\n\t\t\t\t\t      sdata->deflink.conf->bss->channel);\n\t}\n\n\tifmgd->probe_timeout = jiffies + msecs_to_jiffies(probe_wait_ms);\n\trun_again(sdata, ifmgd->probe_timeout);\n}",
+    "function_list": [
+      "WARN_ON"
+    ],
+    "bug_line_constraints": [
+      {
+        "text": "\t\t\tieee80211_check_fast_rx(sta);",
+        "condition": [
+          "if (dst)",
+          "if (!WARN_ON(!sta))"
+        ]
+      }
+    ],
+    "var_assign_conditions": [],
+    "pointer_null_postconditions": [],
+    "early_jump_constraints": [
+      {
+        "text": "return;",
+        "condition": [
+          "if (WARN_ON(ieee80211_vif_is_mld(&sdata->vif)))"
+        ]
+      }
+    ],
+    "index": 81
+  },
+  "context": null,
+  "recorded_answer": null,
+  "solver_events": [],
+  "issues": [
+    {
+      "code": "unresolved_prior_audit:函数代码或调用链恢复错误",
+      "evidence_ref": "audit/failure_audit_20261029/samples/A05/audit.md"
+    }
+  ]
+}

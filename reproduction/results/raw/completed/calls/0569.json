@@ -1,0 +1,45 @@
+{
+  "call_id": 569,
+  "sample_id": "NPD/codeql/libav:row=44:index=74",
+  "timestamp": "2026-10-26T00:55:05.731040+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int flv_data_packet(AVFormatContext *s, AVPacket *pkt,\n                           int64_t dts, int64_t next)\n{\n    AVIOContext *pb = s->pb;\n    AVStream *st    = NULL;\n    char buf[20];\n    int ret = AVERROR_INVALIDDATA;\n    int i, length = -1;\n\n    switch (avio_r8(pb)) {\n    case AMF_DATA_TYPE_MIXEDARRAY:\n        avio_seek(pb, 4, SEEK_CUR);\n    case AMF_DATA_TYPE_OBJECT:\n        break;\n    default:\n        goto skip;\n    }\n\n    while ((ret = amf_get_string(pb, buf, sizeof(buf))) > 0) {\n        AMFDataType type = avio_r8(pb);\n        if (type == AMF_DATA_TYPE_STRING && !strcmp(buf, \"text\")) {\n            length = avio_rb16(pb);\n            ret    = av_get_packet(pb, pkt, length);\n            if (ret < 0)\n                goto skip;\n            else\n                break;\n        } else {\n            if ((ret = amf_skip_tag(pb, type)) < 0)\n                goto skip;\n        }\n    }\n\n    if (length < 0) {\n        ret = AVERROR_INVALIDDATA;\n        goto skip;\n    }\n\n    for (i = 0; i < s->nb_streams; i++) {\n        st = s->streams[i];\n        if (st->codecpar->codec_type == AVMEDIA_TYPE_DATA)\n            break;\n    }\n\n    if (i == s->nb_streams) {\n        st = create_stream(s, AVMEDIA_TYPE_DATA);\n        if (!st)\n            return AVERROR(ENOMEM);\n        st->codecpar->codec_id = AV_CODEC_ID_TEXT;\n    }\n\n    pkt->dts  = dts;\n    pkt->pts  = dts;\n    pkt->size = ret;\n\n    pkt->stream_index = st->index;\n    pkt->flags       |= AV_PKT_FLAG_KEY;\n\nskip:\n    avio_seek(s->pb, next + 4, SEEK_SET);\n\n    return ret;\n}\n        - Target variables: [], st\n        - Constraints: ['!(i == s->nb_streams) || !(!st)', '!(i = 0; i < s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_DATA)', '!(length < 0)', '!((ret = amf_get_string(pb, buf, sizeof(buf))) > 0) || !(!(type == AMF_DATA_TYPE_STRING && !strcmp(buf, \"text\"))) || !((ret = amf_skip_tag(pb, type)) < 0)', '!((ret = amf_get_string(pb, buf, sizeof(buf))) > 0) || !(type == AMF_DATA_TYPE_STRING && !strcmp(buf, \"text\")) || !(!(ret < 0))', '!((ret = amf_get_string(pb, buf, sizeof(buf))) > 0) || !(type == AMF_DATA_TYPE_STRING && !strcmp(buf, \"text\")) || !(ret < 0)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "e0be3e44-3e00-4d53-9fb9-d17c81cfd259",
+  "usage": {
+    "prompt_tokens": 794,
+    "completion_tokens": 57,
+    "total_tokens": 851,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 794
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(i == s->nb_streams) || !(!st)\", \"!(i = 0; i < s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_DATA)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.7644407999996474,
+  "cost_upper_bound_cny": 0.002044
+}

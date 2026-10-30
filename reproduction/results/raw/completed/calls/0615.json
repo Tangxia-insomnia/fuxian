@@ -1,0 +1,45 @@
+{
+  "call_id": 615,
+  "sample_id": "NPD/codeql/libav:row=54:index=95",
+  "timestamp": "2026-10-26T00:56:01.239911+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: int avio_read(AVIOContext *s, unsigned char *buf, int size)\n{\n    int len, size1;\n\n    size1 = size;\n    while (size > 0) {\n        len = s->buf_end - s->buf_ptr;\n        if (len > size)\n            len = size;\n        if (len == 0 || s->write_flag) {\n            if(size > s->buffer_size && !s->update_checksum){\n                if(s->read_packet)\n                    len = s->read_packet(s->opaque, buf, size);\n                if (len <= 0) {\n                    /* do not modify buffer if EOF reached so that a seek back can\n                    be done without rereading data */\n                    s->eof_reached = 1;\n                    if(len<0)\n                        s->error= len;\n                    break;\n                } else {\n                    s->pos += len;\n                    size -= len;\n                    buf += len;\n                    s->buf_ptr = s->buffer;\n                    s->buf_end = s->buffer/* + len*/;\n                }\n            } else {\n                fill_buffer(s);\n                len = s->buf_end - s->buf_ptr;\n                if (len == 0)\n                    break;\n            }\n        } else {\n            memcpy(buf, s->buf_ptr, len);\n            buf += len;\n            s->buf_ptr += len;\n            size -= len;\n        }\n    }\n    if (size1 == size) {\n        if (s->error)         return s->error;\n        if (s->eof_reached)   return AVERROR_EOF;\n    }\n    return size1 - size;\n}\n        - Target variables: [], buf\n        - Constraints: ['!(size > 0) || !(len == 0 || s->write_flag) || !(!(size > s->buffer_size && !s->update_checksum)) || !(len == 0)', '!(size > 0) || !(len == 0 || s->write_flag) || !(size > s->buffer_size && !s->update_checksum) || !(len <= 0)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "a18283e2-06e5-41f9-85ae-2abbeae8f097",
+  "usage": {
+    "prompt_tokens": 528,
+    "completion_tokens": 5,
+    "total_tokens": 533,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 528
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.8692502999992939,
+  "cost_upper_bound_cny": 0.001096
+}

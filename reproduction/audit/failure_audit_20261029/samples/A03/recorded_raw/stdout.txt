@@ -1,0 +1,72 @@
+```python
+che=Int('che')
+s.add(che == 0)
+```
+```json
+[
+  "!((elem_type = get_bits(gb, 3)) != TYPE_END) || !(elem_type < TYPE_DSE) || !(!(che=get_che(ac, elem_type, elem_id)))"
+]
+```
+```python
+from z3 import *
+
+# Declare variables appearing in the constraint
+# elem_type: result of get_bits(gb, 3) - an integer bitfield value
+elem_type = Int('elem_type')
+# TYPE_END and TYPE_DSE are C enum constants; model as symbolic Ints
+TYPE_END = Int('TYPE_END')
+TYPE_DSE = Int('TYPE_DSE')
+# che: result of get_che(...) - modeled as an integer (0 means NULL/false)
+che = Int('che')
+
+s = Solver()
+
+# Original C constraint:
+# !((elem_type = get_bits(gb, 3)) != TYPE_END) || !(elem_type < TYPE_DSE) || !(!(che=get_che(ac, elem_type, elem_id)))
+#
+# The assignment (elem_type = get_bits(gb,3)) is already captured by elem_type being
+# the value returned by get_bits; we treat elem_type as that value directly.
+# Similarly (che = get_che(...)) is captured by che being the return value.
+#
+# Rewrite in C logic:
+#   !(elem_type != TYPE_END) || !(elem_type < TYPE_DSE) || !(!(che != 0))
+# = (elem_type == TYPE_END) || (elem_type >= TYPE_DSE) || (che != 0)
+#
+# This constraint is included because it directly references `che` (and elem_type),
+# which are the relevant variables of interest.
+
+s.add(Or(
+    elem_type == TYPE_END,      # !(elem_type != TYPE_END)
+    elem_type >= TYPE_DSE,      # !(elem_type < TYPE_DSE)
+    che != 0                    # !(!(che != 0))  -> che is non-null/truthy
+))
+
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or, sat
+
+    # Variables from base script
+    che = Int('che')
+
+    # Variables from constraint set 2
+    elem_type = Int('elem_type')
+    TYPE_END = Int('TYPE_END')
+    TYPE_DSE = Int('TYPE_DSE')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(che == 0)
+
+    # Constraint set 2 constraint
+    s.add(Or(
+        elem_type == TYPE_END,
+        elem_type >= TYPE_DSE,
+        che != 0
+    ))
+
+    return s.check() == sat
+```
+goto result: True

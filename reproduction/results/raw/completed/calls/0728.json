@@ -1,0 +1,45 @@
+{
+  "call_id": 728,
+  "sample_id": "NPD/codeql/openssl:row=16:index=17",
+  "timestamp": "2026-10-26T00:59:15.242823+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(check || check_named) || !(pctx == NULL || EVP_PKEY_param_check(pctx) <= 0)', '!(check || check_named) || !(check_named && !EVP_PKEY_set_utf8_string_param(params_key, OSSL_PKEY_PARAM_EC_GROUP_CHECK_TYPE, OSSL_PKEY_EC_GROUP_CHECK_NAMED))', '!(text && !EVP_PKEY_print_params(out, params_key, 0, NULL))', '!(list_curves)', '!(out == NULL)', '!(no_seed && !EVP_PKEY_set_octet_string_param(params_key, OSSL_PKEY_PARAM_EC_SEED, NULL, 0))', '!(!(curve_name != NULL)) || !(asn1_encoding != NULL && !EVP_PKEY_set_utf8_string_param( params_key, OSSL_PKEY_PARAM_EC_ENCODING, asn1_encoding))', '!(!(curve_name != NULL)) || !(point_format && !EVP_PKEY_set_utf8_string_param( params_key, OSSL_PKEY_PARAM_EC_POINT_CONVERSION_FORMAT, point_format))', '!(!(curve_name != NULL)) || !(params_key == NULL)', '!(curve_name != NULL) || !(gctx_params == NULL || EVP_PKEY_keygen_init(gctx_params) <= 0 || EVP_PKEY_CTX_set_params(gctx_params, params) <= 0 || EVP_PKEY_keygen(gctx_params, &params_key) <= 0)', '!(!app_RAND_load())', '!(!opt_check_rest_arg(NULL))', '!(!opt_provider(o))', '!(!opt_rand(o))', '!(!opt_string(asn1_encoding, asn1_encoding_options))', '!(!opt_string(point_format, point_format_options))', '!(!opt_format(opt_arg(), OPT_FMT_PEMDER, &outformat))', '!(!opt_format(opt_arg(), OPT_FMT_PEMDER, &informat))']\n        Relevant conditions/variables: [], ectx_params\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "61a3ae2c-96d3-4a13-a1be-e52b14ebaeaf",
+  "usage": {
+    "prompt_tokens": 563,
+    "completion_tokens": 1587,
+    "total_tokens": 2150,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 563
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables relevant to the constraints\n# (Only those appearing in the constraints are declared; booleans for C conditions,\n#  Ints for functions returning int, and uninterpreted sorts for pointers/objects.)\n\n# Boolean conditions from the C code\ncheck = Bool('check')\ncheck_named = Bool('check_named')\ntext = Bool('text')\nlist_curves = Bool('list_curves')\nno_seed = Bool('no_seed')\npoint_format = Bool('point_format')\n\n# Pointer / object nullity flags (encoded as Bool: True means non-NULL)\npctx_nonnull = Bool('pctx_nonnull')\nparams_key_nonnull = Bool('params_key_nonnull')\nout_nonnull = Bool('out_nonnull')\ncurve_name_nonnull = Bool('curve_name_nonnull')\nasn1_encoding_nonnull = Bool('asn1_encoding_nonnull')\ngctx_params_nonnull = Bool('gctx_params_nonnull')\n\n# Function return values (modeled as Int; <=0 means failure)\nEVP_PKEY_param_check_ret = Int('EVP_PKEY_param_check_ret')\nEVP_PKEY_set_utf8_string_param_ret = Int('EVP_PKEY_set_utf8_string_param_ret')\nEVP_PKEY_print_params_ret = Int('EVP_PKEY_print_params_ret')\nEVP_PKEY_set_octet_string_param_ret = Int('EVP_PKEY_set_octet_string_param_ret')\nEVP_PKEY_keygen_init_ret = Int('EVP_PKEY_keygen_init_ret')\nEVP_PKEY_CTX_set_params_ret = Int('EVP_PKEY_CTX_set_params_ret')\nEVP_PKEY_keygen_ret = Int('EVP_PKEY_keygen_ret')\n\n# Boolean results of helper functions\napp_RAND_load_ret = Bool('app_RAND_load_ret')\nopt_check_rest_arg_ret = Bool('opt_check_rest_arg_ret')\nopt_provider_ret = Bool('opt_provider_ret')\nopt_rand_ret = Bool('opt_rand_ret')\nopt_string_asn1_ret = Bool('opt_string_asn1_ret')\nopt_string_point_format_ret = Bool('opt_string_point_format_ret')\nopt_format_out_ret = Bool('opt_format_out_ret')\nopt_format_in_ret = Bool('opt_format_in_ret')\n\ns = Solver()\n\n# Constraint 1: !(check || check_named) || !(pctx == NULL || EVP_PKEY_param_check(pctx) <= 0)\n# Included: relates to `check`, `check_named`, and `pctx` (via pctx_nonnull).\ns.add(Or(Not(Or(check, check_named)),\n         Not(Or(Not(pctx_nonnull), EVP_PKEY_param_check_ret <= 0))))\n\n# Constraint 2: !(check || check_named) || !(check_named && !EVP_PKEY_set_utf8_string_param(...))\n# Included: relates to `check`, `check_named`, and params_key (via params_key_nonnull).\ns.add(Or(Not(Or(check, check_named)),\n         Not(And(check_named, EVP_PKEY_set_utf8_string_param_ret == 0))))\n\n# Constraint 3: !(text && !EVP_PKEY_print_params(out, params_key, 0, NULL))\n# Included: relates to `text`, `out`, and `params_key`.\ns.add(Not(And(text, EVP_PKEY_print_params_ret == 0)))\n\n# Constraint 4: !(list_curves)\n# Included: relates to `list_curves`.\ns.add(Not(list_curves))\n\n# Constraint 5: !(out == NULL)\n# Included: relates to `out`.\ns.add(out_nonnull)\n\n# Constraint 6: !(no_seed && !EVP_PKEY_set_octet_string_param(...))\n# Included: relates to `no_seed` and `params_key`.\ns.add(Not(And(no_seed, EVP_PKEY_set_octet_string_param_ret == 0)))\n\n# Constraint 7: !(!(curve_name != NULL)) || !(asn1_encoding != NULL && !EVP_PKEY_set_utf8_string_param(...))\n# Included: relates to `curve_name` and `asn1_encoding`.\ns.add(Or(Not(curve_name_nonnull),\n         Not(And(asn1_encoding_nonnull, EVP_PKEY_set_utf8_string_param_ret == 0))))\n\n# Constraint 8: !(!(curve_name != NULL)) || !(point_format && !EVP_PKEY_set_utf8_string_param(...))\n# Included: relates to `curve_name` and `point_format`.\ns.add(Or(Not(curve_name_nonnull),\n         Not(And(point_format, EVP_PKEY_set_utf8_string_param_ret == 0))))\n\n# Constraint 9: !(!(curve_name != NULL)) || !(params_key == NULL)\n# Included: relates to `curve_name` and `params_key`.\ns.add(Or(Not(curve_name_nonnull), params_key_nonnull))\n\n# Constraint 10: !(curve_name != NULL) || !(gctx_params == NULL || EVP_PKEY_keygen_init(...) <= 0 || EVP_PKEY_CTX_set_params(...) <= 0 || EVP_PKEY_keygen(...) <= 0)\n# Included: relates to `curve_name` and `gctx_params`.\ns.add(Or(Not(curve_name_nonnull),\n         Not(Or(Not(gctx_params_nonnull),\n                EVP_PKEY_keygen_init_ret <= 0,\n                EVP_PKEY_CTX_set_params_ret <= 0,\n                EVP_PKEY_keygen_ret <= 0))))\n\n# Constraint 11: !(!app_RAND_load())\n# Included: general precondition (no specific variable, but part of the constraint set).\ns.add(app_RAND_load_ret)\n\n# Constraint 12: !(!opt_check_rest_arg(NULL))\n# Included: general precondition.\ns.add(opt_check_rest_arg_ret)\n\n# Constraint 13: !(!opt_provider(o))\n# Included: general precondition.\ns.add(opt_provider_ret)\n\n# Constraint 14: !(!opt_rand(o))\n# Included: general precondition.\ns.add(opt_rand_ret)\n\n# Constraint 15: !(!opt_string(asn1_encoding, asn1_encoding_options))\n# Included: relates to `asn1_encoding`.\ns.add(opt_string_asn1_ret)\n\n# Constraint 16: !(!opt_string(point_format, point_format_options))\n# Included: relates to `point_format`.\ns.add(opt_string_point_format_ret)\n\n# Constraint 17: !(!opt_format(opt_arg(), OPT_FMT_PEMDER, &outformat))\n# Included: general precondition.\ns.add(opt_format_out_ret)\n\n# Constraint 18: !(!opt_format(opt_arg(), OPT_FMT_PEMDER, &informat))\n# Included: general precondition.\ns.add(opt_format_in_ret)\n\n# Check satisfiability and print result\nprint(s.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 5.6378474000002825,
+  "cost_upper_bound_cny": 0.013822
+}

@@ -1,0 +1,69 @@
+```python
+outdir=Int('outdir')
+s.add(outdir == 0)
+```
+```json
+["!((outdir == NULL) && (req)) || !(outdir == NULL)", "!(app_isdir(outdir) <= 0)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# outdir is a pointer; model as an integer address (0 == NULL)
+outdir = Int('outdir')
+
+# app_isdir is an external function; model its return value as an uninterpreted integer
+app_isdir_ret = Int('app_isdir_ret')
+
+s = Solver()
+
+# Constraint 1: !((outdir == NULL) && (req)) || !(outdir == NULL)
+# Included because it directly constrains `outdir`.
+# In C, `req` is a boolean condition; we model it as an uninterpreted Bool.
+req = Bool('req')
+# C: !((outdir == NULL) && req) || !(outdir == NULL)
+# Translate: (outdir != 0) OR (outdir != 0)  -- i.e., outdir != 0
+# (since !(A && B) || !A  ==  !A || !B || !A  ==  !A || !B, and !A alone suffices)
+s.add(Or(Not(And(outdir == 0, req)), Not(outdir == 0)))
+
+# Constraint 2: !(app_isdir(outdir) <= 0)
+# Included because it constrains `outdir` via the call app_isdir(outdir).
+# Model app_isdir(outdir) as an uninterpreted function of outdir.
+app_isdir = Function('app_isdir', IntSort(), IntSort())
+# C: !(app_isdir(outdir) <= 0)  ==>  app_isdir(outdir) > 0
+s.add(Not(app_isdir(outdir) <= 0))
+
+# Check satisfiability
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, And, Function, IntSort, sat
+
+    # Base script constraints
+    outdir = Int('outdir')
+
+    # Constraint set 2 variables
+    app_isdir_ret = Int('app_isdir_ret')
+    req = Bool('req')
+    app_isdir = Function('app_isdir', IntSort(), IntSort())
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(outdir == 0)
+
+    # Constraint set 2, Constraint 1
+    s.add(Or(Not(And(outdir == 0, req)), Not(outdir == 0)))
+
+    # Constraint set 2, Constraint 2
+    s.add(Not(app_isdir(outdir) <= 0))
+
+    return s.check() == sat
+```
+goto result: True
+```python
+src=Int('src')
+s.add(src == 0)
+```

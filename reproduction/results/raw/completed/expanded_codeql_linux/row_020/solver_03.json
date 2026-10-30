@@ -1,0 +1,14 @@
+{
+  "event_id": 3,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    \n    # Base script constraints\n    skb = Int('skb')\n    s = Solver()\n    s.add(skb == 0)\n    \n    # Constraint set 2: !(!skb_unref(skb)) simplifies to skb_unref(skb) being truthy\n    # Model skb_unref as an Int (0 = false, 1 = true)\n    skb_unref = Int('skb_unref')\n    s.add(skb_unref == 1)\n    \n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun skb () Int)\n(declare-fun skb_unref () Int)\n(assert\n (= skb 0))\n(assert\n (= skb_unref 1))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

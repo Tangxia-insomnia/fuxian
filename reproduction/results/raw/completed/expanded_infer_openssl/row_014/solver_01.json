@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, DeclareSort, Const, Function, sat\n\n    # Base script constraints\n    sc_int = Int('sc')\n    s = Solver()\n    s.add(sc_int == 0)\n\n    # Constraint set 2: model SSL_CONNECTION_FROM_CONST_SSL and NULL check\n    SSL = DeclareSort('SSL')\n    SSL_CONNECTION = DeclareSort('SSL_CONNECTION')\n    NULL = Const('NULL', SSL_CONNECTION)\n    SSL_CONNECTION_FROM_CONST_SSL = Function(\n        'SSL_CONNECTION_FROM_CONST_SSL', SSL, SSL_CONNECTION\n    )\n    ssl = Const('ssl', SSL)\n    sc_ptr = Const('sc', SSL_CONNECTION)\n\n    s.add(sc_ptr == SSL_CONNECTION_FROM_CONST_SSL(ssl))\n    s.add(sc_ptr != NULL)\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: NameError: name 'DeclareSort' is not defined"
+}

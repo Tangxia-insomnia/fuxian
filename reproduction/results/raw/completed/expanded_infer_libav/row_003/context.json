@@ -1,0 +1,69 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "query_formats",
+      "var_name": "formats",
+      "target": "ff_formats_ref(formats, &ctx->inputs[0]->out_formats);",
+      "code": "static int query_formats(AVFilterContext *ctx)\n{\n    AVFilterFormats *formats;\n    enum AVPixelFormat pix_fmt;\n    int ret;\n\n    if (ctx->inputs[0]) {\n        const AVPixFmtDescriptor *desc = NULL;\n        formats = NULL;\n        while ((desc = av_pix_fmt_desc_next(desc))) {\n            pix_fmt = av_pix_fmt_desc_get_id(desc);\n            if ((sws_isSupportedInput(pix_fmt) ||\n                 sws_isSupportedEndiannessConversion(pix_fmt))\n                && (ret = ff_add_format(&formats, pix_fmt)) < 0) {\n                ff_formats_unref(&formats);\n                return ret;\n            }\n        }\n        ff_formats_ref(formats, &ctx->inputs[0]->out_formats);\n    }\n    if (ctx->outputs[0]) {\n        const AVPixFmtDescriptor *desc = NULL;\n        formats = NULL;\n        while ((desc = av_pix_fmt_desc_next(desc))) {\n            pix_fmt = av_pix_fmt_desc_get_id(desc);\n            if ((sws_isSupportedOutput(pix_fmt) ||\n                 sws_isSupportedEndiannessConversion(pix_fmt))\n                && (ret = ff_add_format(&formats, pix_fmt)) < 0) {\n                ff_formats_unref(&formats);\n                return ret;\n            }\n        }\n        ff_formats_ref(formats, &ctx->outputs[0]->in_formats);\n    }\n\n    return 0;\n}",
+      "body_sha256": "de173df5c3f9f9bd934864c0170c518c87d5334c602035f5e2d130611913aa28",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "ff_formats_ref(formats, &ctx->inputs[0]->out_formats);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int query_formats(AVFilterContext *ctx)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "ctx->inputs[0]",
+              "(desc = av_pix_fmt_desc_next(desc))",
+              "(sws_isSupportedInput(pix_fmt) || sws_isSupportedEndiannessConversion(pix_fmt)) && (ret = ff_add_format(&formats, pix_fmt)) < 0"
+            ]
+          }
+        ],
+        "filter_function_code": "static int query_formats(AVFilterContext *ctx)\n{\n    AVFilterFormats *formats;\n    enum AVPixelFormat pix_fmt;\n    int ret;\n\n    if (ctx->inputs[0]) {\n        const AVPixFmtDescriptor *desc = NULL;\n        formats = NULL;\n        while ((desc = av_pix_fmt_desc_next(desc))) {\n            pix_fmt = av_pix_fmt_desc_get_id(desc);\n            if ((sws_isSupportedInput(pix_fmt) ||\n                 sws_isSupportedEndiannessConversion(pix_fmt))\n                && (ret = ff_add_format(&formats, pix_fmt)) < 0) {\n                ff_formats_unref(&formats);\n                return ret;\n            }\n        }\n        ff_formats_ref(formats, &ctx->inputs[0]->out_formats);\n    }\n    if (ctx->outputs[0]) {\n        const AVPixFmtDescriptor *desc = NULL;\n        formats = NULL;\n        while ((desc = av_pix_fmt_desc_next(desc))) {\n            pix_fmt = av_pix_fmt_desc_get_id(desc);\n            if ((sws_isSupportedOutput(pix_fmt) ||\n                 sws_isSupportedEndiannessConversion(pix_fmt))\n                && (ret = ff_add_format(&formats, pix_fmt)) < 0) {\n                ff_formats_unref(&formats);\n                return ret;\n            }\n        }\n        ff_formats_ref(formats, &ctx->outputs[0]->in_formats);\n    }\n\n    return 0;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "ff_formats_ref",
+      "var_name": "f",
+      "target": "    FORMATS_REF(f, ref);",
+      "code": "void ff_formats_ref(AVFilterFormats *f, AVFilterFormats **ref)\n{\n    FORMATS_REF(f, ref);\n}",
+      "body_sha256": "a50ae6d5bfdeab69ac043aa932587859e2107d65c293d9af1520b038c5e5b77f",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "    FORMATS_REF(f, ref);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "void ff_formats_ref(AVFilterFormats *f, AVFilterFormats **ref)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "void ff_formats_ref(AVFilterFormats *f, AVFilterFormats **ref)\n{\n    FORMATS_REF(f, ref);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int query_formats(AVFilterContext *ctx)\n{\n    AVFilterFormats *formats;\n    enum AVPixelFormat pix_fmt;\n    int ret;\n\n    if (ctx->inputs[0]) {\n        const AVPixFmtDescriptor *desc = NULL;\n        formats = NULL;\n        while ((desc = av_pix_fmt_desc_next(desc))) {\n            pix_fmt = av_pix_fmt_desc_get_id(desc);\n            if ((sws_isSupportedInput(pix_fmt) ||\n                 sws_isSupportedEndiannessConversion(pix_fmt))\n                && (ret = ff_add_format(&formats, pix_fmt)) < 0) {\n                ff_formats_unref(&formats);\n                return ret;\n            }\n        }\n        ff_formats_ref(formats, &ctx->inputs[0]->out_formats);\n    }\n    if (ctx->outputs[0]) {\n        const AVPixFmtDescriptor *desc = NULL;\n        formats = NULL;\n        while ((desc = av_pix_fmt_desc_next(desc))) {\n            pix_fmt = av_pix_fmt_desc_get_id(desc);\n            if ((sws_isSupportedOutput(pix_fmt) ||\n                 sws_isSupportedEndiannessConversion(pix_fmt))\n                && (ret = ff_add_format(&formats, pix_fmt)) < 0) {\n                ff_formats_unref(&formats);\n                return ret;\n            }\n        }\n        ff_formats_ref(formats, &ctx->outputs[0]->in_formats);\n    }\n\n    return 0;\n}",
+    "void ff_formats_ref(AVFilterFormats *f, AVFilterFormats **ref)\n{\n    FORMATS_REF(f, ref);\n}"
+  ]
+}

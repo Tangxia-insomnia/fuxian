@@ -1,0 +1,449 @@
+```python
+ref=Int('ref')
+s.add(ref == 0)
+```
+```json
+["!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++) || !(!(i < 0)) || !(i = index; i + 1 < sl->ref_count[list]; i++) || !(sl->ref_list[list][i].parent && ref->long_ref == sl->ref_list[list][i].parent->long_ref && ref->pic_id   == sl->ref_list[list][i].pic_id)", "!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++) || !(i = h->short_ref_count - 1; i >= 0; i--) || !(ref->frame_num == frame_num && (ref->reference & pic_structure))"]
+```
+```python
+from z3 import *
+
+# Declarations for the variables appearing in the constraints.
+# We model the C pointers/structs as uninterpreted sorts and the
+# integer fields as Int/Bool where appropriate.
+
+# --- Sorts for structs / pointers ---
+SlType   = DeclareSort('SlType')       # sl (slice header)
+RefType  = DeclareSort('RefType')      # ref (picture reference)
+ParentType = DeclareSort('ParentType') # parent picture
+
+# --- sl fields ---
+sl_list_count        = Function('sl_list_count', SlType, Int)
+sl_nb_ref_mods       = Function('sl_nb_ref_modifications', SlType, Int, Int)  # sl->nb_ref_modifications[list]
+sl_ref_count         = Function('sl_ref_count', SlType, Int, Int)             # sl->ref_count[list]
+sl_ref_list_parent   = Function('sl_ref_list_parent', SlType, Int, Int, ParentType)  # sl->ref_list[list][i].parent
+sl_ref_list_pic_id   = Function('sl_ref_list_pic_id', SlType, Int, Int, Int)  # sl->ref_list[list][i].pic_id
+
+# --- ref fields ---
+ref_long_ref         = Function('ref_long_ref', RefType, ParentType)  # ref->long_ref
+ref_pic_id           = Function('ref_pic_id', RefType, Int)           # ref->pic_id
+ref_frame_num        = Function('ref_frame_num', RefType, Int)        # ref->frame_num
+ref_reference        = Function('ref_reference', RefType, Int)        # ref->reference
+
+# --- h fields ---
+h_short_ref_count    = Function('h_short_ref_count', SlType, Int)     # h->short_ref_count
+
+# --- free variables ---
+sl    = Const('sl', SlType)
+ref   = Const('ref', RefType)
+pic_structure = Int('pic_structure')
+frame_num     = Int('frame_num')
+
+# Loop indices (existentially quantified in the C loops)
+list  = Int('list')
+index = Int('index')
+i     = Int('i')
+
+# =====================================================================
+# Constraint 1:
+#   !(list = 0; list < sl->list_count; list++)
+#   || !(index = 0; index < sl->nb_ref_modifications[list]; index++)
+#   || !(!(i < 0))
+#   || !(i = index; i + 1 < sl->ref_count[list]; i++)
+#   || !(sl->ref_list[list][i].parent
+#        && ref->long_ref == sl->ref_list[list][i].parent->long_ref
+#        && ref->pic_id   == sl->ref_list[list][i].pic_id)
+#
+# The C code is a disjunction of negations of loop/condition blocks.
+# The whole expression is FALSE only when every block is TRUE, i.e.
+# when there exist list, index, i satisfying all the loop bounds and
+# the final condition.  We therefore encode the *negation* of the
+# whole constraint (the "bad" case) as a conjunction of the block
+# conditions, and assert its negation.
+# =====================================================================
+
+# Block 1: list = 0; list < sl->list_count; list++
+block1 = And(list == 0, list < sl_list_count(sl))
+
+# Block 2: index = 0; index < sl->nb_ref_modifications[list]; index++
+block2 = And(index == 0, index < sl_nb_ref_mods(sl, list))
+
+# Block 3: !(i < 0)  ->  i >= 0
+block3 = (i >= 0)
+
+# Block 4: i = index; i + 1 < sl->ref_count[list]; i++
+block4 = And(i == index, i + 1 < sl_ref_count(sl, list))
+
+# Block 5: sl->ref_list[list][i].parent
+#          && ref->long_ref == sl->ref_list[list][i].parent->long_ref
+#          && ref->pic_id   == sl->ref_list[list][i].pic_id
+# Note: parent is a pointer; "parent" truthy means parent != NULL.
+# We model parent as an uninterpreted ParentType and use a distinct
+# null constant to test non-nullness.
+null_parent = Const('null_parent', ParentType)
+parent_val  = sl_ref_list_parent(sl, list, i)
+block5 = And(
+    parent_val != null_parent,
+    ref_long_ref(ref) == parent_val,          # ref->long_ref == parent->long_ref
+    ref_pic_id(ref)   == sl_ref_list_pic_id(sl, list, i)
+)
+
+# The "bad" case: all blocks simultaneously true.
+bad_case_1 = And(block1, block2, block3, block4, block5)
+
+# The original constraint is the negation of bad_case_1.
+constraint_1 = Not(bad_case_1)
+
+# =====================================================================
+# Constraint 2:
+#   !(list = 0; list < sl->list_count; list++)
+#   || !(index = 0; index < sl->nb_ref_modifications[list]; index++)
+#   || !(i = h->short_ref_count - 1; i >= 0; i--)
+#   || !(ref->frame_num == frame_num && (ref->reference & pic_structure))
+#
+# Same structure: the constraint is FALSE only when all blocks hold.
+# =====================================================================
+
+# Block 1 (same as above)
+c2_block1 = And(list == 0, list < sl_list_count(sl))
+
+# Block 2 (same as above)
+c2_block2 = And(index == 0, index < sl_nb_ref_mods(sl, list))
+
+# Block 3: i = h->short_ref_count - 1; i >= 0; i--
+c2_block3 = And(i == h_short_ref_count(sl) - 1, i >= 0)
+
+# Block 4: ref->frame_num == frame_num && (ref->reference & pic_structure)
+# In C, "ref->reference & pic_structure" is truthy iff the bitwise AND
+# is non-zero.  We model this with a helper: (a & b) != 0.
+# Z3's bit-vector AND is used here; we cast to BitVec for the AND.
+ref_reference_bv = Function('ref_reference_bv', RefType, BitVecSort(32))
+pic_structure_bv = BitVec('pic_structure_bv', 32)
+c2_block4 = And(
+    ref_frame_num(ref) == frame_num,
+    (ref_reference_bv(ref) & pic_structure_bv) != BitVecVal(0, 32)
+)
+
+bad_case_2 = And(c2_block1, c2_block2, c2_block3, c2_block4)
+constraint_2 = Not(bad_case_2)
+
+# =====================================================================
+# Solver: assert both constraints and check satisfiability.
+# =====================================================================
+s = Solver()
+s.add(constraint_1)
+s.add(constraint_2)
+
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import (Int, Bool, Const, Function, DeclareSort, Solver,
+                    And, Not, BitVec, BitVecSort, BitVecVal)
+
+    # --- Base script variables ---
+    ref_int = Int('ref')
+    # Note: base script uses 'ref' as Int, but constraint set 2 uses 'ref'
+    # as a RefType constant. We keep both by renaming the base one.
+
+    # --- Sorts for structs / pointers ---
+    SlType     = DeclareSort('SlType')
+    RefType    = DeclareSort('RefType')
+    ParentType = DeclareSort('ParentType')
+
+    # --- sl fields ---
+    sl_list_count      = Function('sl_list_count', SlType, Int)
+    sl_nb_ref_mods     = Function('sl_nb_ref_modifications', SlType, Int, Int)
+    sl_ref_count       = Function('sl_ref_count', SlType, Int, Int)
+    sl_ref_list_parent = Function('sl_ref_list_parent', SlType, Int, Int, ParentType)
+    sl_ref_list_pic_id = Function('sl_ref_list_pic_id', SlType, Int, Int, Int)
+
+    # --- ref fields ---
+    ref_long_ref  = Function('ref_long_ref', RefType, ParentType)
+    ref_pic_id    = Function('ref_pic_id', RefType, Int)
+    ref_frame_num = Function('ref_frame_num', RefType, Int)
+    ref_reference = Function('ref_reference', RefType, Int)
+
+    # --- h fields ---
+    h_short_ref_count = Function('h_short_ref_count', SlType, Int)
+
+    # --- free variables ---
+    sl            = Const('sl', SlType)
+    ref           = Const('ref', RefType)
+    pic_structure = Int('pic_structure')
+    frame_num     = Int('frame_num')
+
+    # Loop indices
+    list  = Int('list')
+    index = Int('index')
+    i     = Int('i')
+
+    # --- Constraint 1 ---
+    block1 = And(list == 0, list < sl_list_count(sl))
+    block2 = And(index == 0, index < sl_nb_ref_mods(sl, list))
+    block3 = (i >= 0)
+    block4 = And(i == index, i + 1 < sl_ref_count(sl, list))
+
+    null_parent = Const('null_parent', ParentType)
+    parent_val  = sl_ref_list_parent(sl, list, i)
+    block5 = And(
+        parent_val != null_parent,
+        ref_long_ref(ref) == parent_val,
+        ref_pic_id(ref)   == sl_ref_list_pic_id(sl, list, i)
+    )
+
+    bad_case_1 = And(block1, block2, block3, block4, block5)
+    constraint_1 = Not(bad_case_1)
+
+    # --- Constraint 2 ---
+    c2_block1 = And(list == 0, list < sl_list_count(sl))
+    c2_block2 = And(index == 0, index < sl_nb_ref_mods(sl, list))
+    c2_block3 = And(i == h_short_ref_count(sl) - 1, i >= 0)
+
+    ref_reference_bv = Function('ref_reference_bv', RefType, BitVecSort(32))
+    pic_structure_bv = BitVec('pic_structure_bv', 32)
+    c2_block4 = And(
+        ref_frame_num(ref) == frame_num,
+        (ref_reference_bv(ref) & pic_structure_bv) != BitVecVal(0, 32)
+    )
+
+    bad_case_2 = And(c2_block1, c2_block2, c2_block3, c2_block4)
+    constraint_2 = Not(bad_case_2)
+
+    # --- Solver ---
+    s = Solver()
+    s.add(ref_int == 0)   # from base script
+    s.add(constraint_1)
+    s.add(constraint_2)
+
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import (Int, Const, Function, DeclareSort, Solver,
+                    And, Not, BitVec, BitVecSort, BitVecVal)
+
+    # --- Sorts for structs / pointers ---
+    SlType     = DeclareSort('SlType')
+    RefType    = DeclareSort('RefType')
+    ParentType = DeclareSort('ParentType')
+
+    # --- sl fields ---
+    sl_list_count      = Function('sl_list_count', SlType, Int)
+    sl_nb_ref_mods     = Function('sl_nb_ref_modifications', SlType, Int, Int)
+    sl_ref_count       = Function('sl_ref_count', SlType, Int, Int)
+    sl_ref_list_parent = Function('sl_ref_list_parent', SlType, Int, Int, ParentType)
+    sl_ref_list_pic_id = Function('sl_ref_list_pic_id', SlType, Int, Int, Int)
+
+    # --- ref fields ---
+    ref_long_ref  = Function('ref_long_ref', RefType, ParentType)
+    ref_pic_id    = Function('ref_pic_id', RefType, Int)
+    ref_frame_num = Function('ref_frame_num', RefType, Int)
+
+    # --- h fields ---
+    h_short_ref_count = Function('h_short_ref_count', SlType, Int)
+
+    # --- free variables ---
+    ref_int       = Int('ref')
+    sl            = Const('sl', SlType)
+    ref           = Const('ref', RefType)
+    pic_structure = Int('pic_structure')
+    frame_num     = Int('frame_num')
+
+    # Loop indices
+    list  = Int('list')
+    index = Int('index')
+    i     = Int('i')
+
+    # --- Constraint 1 ---
+    block1 = And(list == 0, list < sl_list_count(sl))
+    block2 = And(index == 0, index < sl_nb_ref_mods(sl, list))
+    block3 = (i >= 0)
+    block4 = And(i == index, i + 1 < sl_ref_count(sl, list))
+
+    null_parent = Const('null_parent', ParentType)
+    parent_val  = sl_ref_list_parent(sl, list, i)
+    block5 = And(
+        parent_val != null_parent,
+        ref_long_ref(ref) == parent_val,
+        ref_pic_id(ref)   == sl_ref_list_pic_id(sl, list, i)
+    )
+
+    bad_case_1 = And(block1, block2, block3, block4, block5)
+    constraint_1 = Not(bad_case_1)
+
+    # --- Constraint 2 ---
+    c2_block1 = And(list == 0, list < sl_list_count(sl))
+    c2_block2 = And(index == 0, index < sl_nb_ref_mods(sl, list))
+    c2_block3 = And(i == h_short_ref_count(sl) - 1, i >= 0)
+
+    ref_reference_bv = Function('ref_reference_bv', RefType, BitVecSort(32))
+    pic_structure_bv = BitVec('pic_structure_bv', 32)
+    c2_block4 = And(
+        ref_frame_num(ref) == frame_num,
+        (ref_reference_bv(ref) & pic_structure_bv) != BitVecVal(0, 32)
+    )
+
+    bad_case_2 = And(c2_block1, c2_block2, c2_block3, c2_block4)
+    constraint_2 = Not(bad_case_2)
+
+    # --- Solver ---
+    s = Solver()
+    s.add(ref_int == 0)   # from base script
+    s.add(constraint_1)
+    s.add(constraint_2)
+
+    from z3 import sat
+    return s.check() == sat
+NameError: name 'DeclareSort' is not defined
+def check_constraints():
+    from z3 import (Int, Const, Function, DeclareSort, Solver,
+                    And, Not, BitVec, BitVecSort, BitVecVal, sat)
+
+    # --- Sorts for structs / pointers ---
+    SlType     = DeclareSort('SlType')
+    RefType    = DeclareSort('RefType')
+    ParentType = DeclareSort('ParentType')
+
+    # --- sl fields ---
+    sl_list_count      = Function('sl_list_count', SlType, Int)
+    sl_nb_ref_mods     = Function('sl_nb_ref_modifications', SlType, Int, Int)
+    sl_ref_count       = Function('sl_ref_count', SlType, Int, Int)
+    sl_ref_list_parent = Function('sl_ref_list_parent', SlType, Int, Int, ParentType)
+    sl_ref_list_pic_id = Function('sl_ref_list_pic_id', SlType, Int, Int, Int)
+
+    # --- ref fields ---
+    ref_long_ref  = Function('ref_long_ref', RefType, ParentType)
+    ref_pic_id    = Function('ref_pic_id', RefType, Int)
+    ref_frame_num = Function('ref_frame_num', RefType, Int)
+
+    # --- h fields ---
+    h_short_ref_count = Function('h_short_ref_count', SlType, Int)
+
+    # --- free variables ---
+    ref_int       = Int('ref')
+    sl            = Const('sl', SlType)
+    ref           = Const('ref', RefType)
+    pic_structure = Int('pic_structure')
+    frame_num     = Int('frame_num')
+
+    # Loop indices
+    list  = Int('list')
+    index = Int('index')
+    i     = Int('i')
+
+    # --- Constraint 1 ---
+    block1 = And(list == 0, list < sl_list_count(sl))
+    block2 = And(index == 0, index < sl_nb_ref_mods(sl, list))
+    block3 = (i >= 0)
+    block4 = And(i == index, i + 1 < sl_ref_count(sl, list))
+
+    null_parent = Const('null_parent', ParentType)
+    parent_val  = sl_ref_list_parent(sl, list, i)
+    block5 = And(
+        parent_val != null_parent,
+        ref_long_ref(ref) == parent_val,
+        ref_pic_id(ref)   == sl_ref_list_pic_id(sl, list, i)
+    )
+
+    bad_case_1 = And(block1, block2, block3, block4, block5)
+    constraint_1 = Not(bad_case_1)
+
+    # --- Constraint 2 ---
+    c2_block1 = And(list == 0, list < sl_list_count(sl))
+    c2_block2 = And(index == 0, index < sl_nb_ref_mods(sl, list))
+    c2_block3 = And(i == h_short_ref_count(sl) - 1, i >= 0)
+
+    ref_reference_bv = Function('ref_reference_bv', RefType, BitVecSort(32))
+    pic_structure_bv = BitVec('pic_structure_bv', 32)
+    c2_block4 = And(
+        ref_frame_num(ref) == frame_num,
+        (ref_reference_bv(ref) & pic_structure_bv) != BitVecVal(0, 32)
+    )
+
+    bad_case_2 = And(c2_block1, c2_block2, c2_block3, c2_block4)
+    constraint_2 = Not(bad_case_2)
+
+    # --- Solver ---
+    s = Solver()
+    s.add(ref_int == 0)   # from base script
+    s.add(constraint_1)
+    s.add(constraint_2)
+
+    return s.check() == sat
+NameError: name 'DeclareSort' is not defined
+def check_constraints():
+    from z3 import (Int, Const, Function, Solver, And, Not, sat)
+
+    # --- Model structs/pointers as Int (per guidelines) ---
+    # sl, ref, parent are all modeled as Int handles.
+    # Field accessors are uninterpreted Int->Int functions.
+
+    # --- sl fields ---
+    sl_list_count      = Function('sl_list_count', Int, Int)
+    sl_nb_ref_mods     = Function('sl_nb_ref_modifications', Int, Int, Int)
+    sl_ref_count       = Function('sl_ref_count', Int, Int, Int)
+    sl_ref_list_parent = Function('sl_ref_list_parent', Int, Int, Int, Int)
+    sl_ref_list_pic_id = Function('sl_ref_list_pic_id', Int, Int, Int, Int)
+
+    # --- ref fields ---
+    ref_long_ref  = Function('ref_long_ref', Int, Int)
+    ref_pic_id    = Function('ref_pic_id', Int, Int)
+    ref_frame_num = Function('ref_frame_num', Int, Int)
+    ref_reference = Function('ref_reference', Int, Int)
+
+    # --- h fields ---
+    h_short_ref_count = Function('h_short_ref_count', Int, Int)
+
+    # --- free variables ---
+    ref_int       = Int('ref')
+    sl            = Int('sl')
+    ref           = Int('ref_ptr')
+    pic_structure = Int('pic_structure')
+    frame_num     = Int('frame_num')
+
+    # Loop indices
+    list  = Int('list')
+    index = Int('index')
+    i     = Int('i')
+
+    # --- Constraint 1 ---
+    block1 = And(list == 0, list < sl_list_count(sl))
+    block2 = And(index == 0, index < sl_nb_ref_mods(sl, list))
+    block3 = (i >= 0)
+    block4 = And(i == index, i + 1 < sl_ref_count(sl, list))
+
+    parent_val = sl_ref_list_parent(sl, list, i)
+    block5 = And(
+        parent_val != 0,
+        ref_long_ref(ref) == parent_val,
+        ref_pic_id(ref)   == sl_ref_list_pic_id(sl, list, i)
+    )
+
+    bad_case_1 = And(block1, block2, block3, block4, block5)
+    constraint_1 = Not(bad_case_1)
+
+    # --- Constraint 2 ---
+    c2_block1 = And(list == 0, list < sl_list_count(sl))
+    c2_block2 = And(index == 0, index < sl_nb_ref_mods(sl, list))
+    c2_block3 = And(i == h_short_ref_count(sl) - 1, i >= 0)
+
+    # Model bitwise AND via uninterpreted helper returning Int;
+    # truthy iff result != 0.
+    bit_and = Function('bit_and', Int, Int, Int)
+    c2_block4 = And(
+        ref_frame_num(ref) == frame_num,
+        bit_and(ref_reference(ref), pic_structure) != 0
+    )
+
+    bad_case_2 = And(c2_block1, c2_block2, c2_block3, c2_block4)
+    constraint_2 = Not(bad_case_2)
+
+    # --- Solver ---
+    s = Solver()
+    s.add(ref_int == 0)   # from base script
+    s.add(constraint_1)
+    s.add(constraint_2)
+
+    return s.check() == sat
+Z3Exception: Z3 sort expected

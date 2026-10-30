@@ -1,0 +1,87 @@
+```python
+pctx=Int('pctx')
+s.add(pctx == 0)
+```
+```json
+["!(operation == SMIME_ENCRYPT) || !(i = 0; i < sk_X509_num(encerts); i++) || !(kparam != NULL) || !(!cms_set_pkey_param(pctx, kparam->param))"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints.
+# pctx is the only relevant condition/variable mentioned; model it as an uninterpreted
+# pointer-like integer (0 = NULL, non-zero = valid pointer).
+pctx = Int('pctx')
+
+# The C constraint references several other symbols. Since they are not in the
+# "relevant conditions/variables" list, we still need them to express the
+# constraint faithfully, but we treat them as uninterpreted booleans/ints.
+# - operation == SMIME_ENCRYPT  -> modeled as a boolean flag
+# - sk_X509_num(encerts) loop   -> modeled as a boolean "loop_condition"
+# - kparam != NULL              -> modeled as a boolean
+# - cms_set_pkey_param(...)     -> modeled as a boolean return value
+operation_is_smime_encrypt = Bool('operation_is_smime_encrypt')
+loop_condition = Bool('loop_condition')          # represents (i = 0; i < sk_X509_num(encerts); i++)
+kparam_not_null = Bool('kparam_not_null')        # represents (kparam != NULL)
+cms_set_pkey_param_ok = Bool('cms_set_pkey_param_ok')  # represents !cms_set_pkey_param(...)
+
+# Original C constraint:
+#   !(operation == SMIME_ENCRYPT)
+#   || !(i = 0; i < sk_X509_num(encerts); i++)
+#   || !(kparam != NULL)
+#   || !(!cms_set_pkey_param(pctx, kparam->param))
+#
+# Note: the last term is a double negation: !(!cms_set_pkey_param(...))
+#       which simplifies to cms_set_pkey_param(...) being true.
+#
+# The constraint is a disjunction; we assert it as a validity check.
+constraint = Or(
+    Not(operation_is_smime_encrypt),   # !(operation == SMIME_ENCRYPT)
+    Not(loop_condition),               # !(loop condition)
+    Not(kparam_not_null),              # !(kparam != NULL)
+    cms_set_pkey_param_ok              # !(!cms_set_pkey_param(...)) == cms_set_pkey_param(...)
+)
+
+# Check satisfiability of the constraint (i.e., whether there is an assignment
+# that violates the original C assertion). If unsat, the constraint always holds.
+s = Solver()
+s.add(Not(constraint))  # look for a counterexample to the constraint
+result = s.check()
+
+if result == unsat:
+    print("Constraint is valid (no counterexample found).")
+else:
+    print("Constraint can be violated. Counterexample:")
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Or, Not, Solver, unsat
+
+    # Base script constraints
+    pctx = Int('pctx')
+
+    # Constraint set 2 variables
+    operation_is_smime_encrypt = Bool('operation_is_smime_encrypt')
+    loop_condition = Bool('loop_condition')
+    kparam_not_null = Bool('kparam_not_null')
+    cms_set_pkey_param_ok = Bool('cms_set_pkey_param_ok')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(pctx == 0)
+
+    # Constraint set 2 constraint
+    constraint = Or(
+        Not(operation_is_smime_encrypt),
+        Not(loop_condition),
+        Not(kparam_not_null),
+        cms_set_pkey_param_ok
+    )
+    s.add(constraint)
+
+    result = s.check()
+    return result != unsat
+```
+goto result: True

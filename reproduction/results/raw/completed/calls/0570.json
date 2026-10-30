@@ -1,0 +1,45 @@
+{
+  "call_id": 570,
+  "sample_id": "NPD/codeql/libav:row=44:index=74",
+  "timestamp": "2026-10-26T00:55:06.516166+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(i == s->nb_streams) || !(!st)', '!(i = 0; i < s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_DATA)']\n        Relevant conditions/variables: [], st\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "11272de3-d039-469a-8180-5025084c0195",
+  "usage": {
+    "prompt_tokens": 155,
+    "completion_tokens": 402,
+    "total_tokens": 557,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 155
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables relevant to the constraints.\n# 'i' and 's->nb_streams' appear in the first constraint, so we model them as integers.\ni = Int('i')\nnb_streams = Int('nb_streams')\n\n# 'st' is a pointer-like variable; model it as an uninterpreted sort / integer handle.\n# We use a Bool to represent whether 'st' is non-null (st != 0).\nst_nonnull = Bool('st_nonnull')\n\n# 'codec_type' is a field of st->codecpar; model as an integer.\ncodec_type = Int('codec_type')\nAVMEDIA_TYPE_DATA = 5  # typical enum value placeholder; adjust if needed\n\ns = Solver()\n\n# Constraint 1: !(i == s->nb_streams) || !(!st)\n# In C: if i == nb_streams then st must be non-null (since !(!st) means st != 0).\n# Converted: (i != nb_streams) OR (st != 0)\ns.add(Or(i != nb_streams, st_nonnull))\n\n# Constraint 2: !(i = 0; i < s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_DATA)\n# The first part is a for-loop header, not a boolean expression. Interpreted as the loop\n# condition being false, i.e., NOT (0 <= i < nb_streams). So the constraint becomes:\n#   (i < 0 OR i >= nb_streams) OR (codec_type != AVMEDIA_TYPE_DATA)\ns.add(Or(i < 0, i >= nb_streams, codec_type != AVMEDIA_TYPE_DATA))\n\n# Check satisfiability\nprint(s.check())\nprint(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.1611564000004364,
+  "cost_upper_bound_cny": 0.003526
+}

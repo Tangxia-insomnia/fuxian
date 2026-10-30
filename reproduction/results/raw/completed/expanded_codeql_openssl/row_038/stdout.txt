@@ -1,0 +1,228 @@
+```python
+pkey=Int('pkey')
+s.add(pkey == 0)
+```
+```json
+["!(newreq || gen_x509) || !(CAcert == NULL && pkey == NULL)", "!(newreq && pkey == NULL) || !(genctx == NULL)", "!(keyfile != NULL) || !(pkey == NULL)", "!(pkey == NULL)", "!(pkey != NULL && (keyfile == NULL || keyout != NULL)) || !(out == NULL)", "!(!PEM_write_bio_PrivateKey(out, pkey, cipher, NULL, 0, NULL, passout))", "!(!PEM_write_bio_PrivateKey(out, pkey, cipher, NULL, 0, NULL, passout)) || !((ERR_GET_REASON(ERR_peek_error()) == PEM_R_PROBLEMS_GETTING_PASSWORD) && (i < 3))", "!(newreq || gen_x509) || !(req == NULL) || !(!make_REQ(req, pkey, fsubj, multirdn, !gen_x509, chtype))"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints
+# pkey is a pointer-like variable; model as an integer (0 = NULL, non-zero = valid pointer)
+pkey = Int('pkey')
+
+# Other variables appearing in constraints that involve pkey
+newreq = Bool('newreq')
+gen_x509 = Bool('gen_x509')
+CAcert = Int('CAcert')
+genctx = Int('genctx')
+keyfile = Int('keyfile')
+keyout = Int('keyout')
+out = Int('out')
+cipher = Int('cipher')
+passout = Int('passout')
+req = Int('req')
+fsubj = Int('fsubj')
+multirdn = Bool('multirdn')
+chtype = Int('chtype')
+i = Int('i')
+
+# Helper: pointer NULL check as Z3 expression
+def is_null(p):
+    return p == 0
+
+def not_null(p):
+    return p != 0
+
+s = Solver()
+
+# Constraint 1: !(newreq || gen_x509) || !(CAcert == NULL && pkey == NULL)
+# Included because it directly references pkey (pkey == NULL).
+s.add(Or(Not(Or(newreq, gen_x509)),
+         Not(And(is_null(CAcert), is_null(pkey)))))
+
+# Constraint 2: !(newreq && pkey == NULL) || !(genctx == NULL)
+# Included because it references pkey == NULL.
+s.add(Or(Not(And(newreq, is_null(pkey))),
+         Not(is_null(genctx))))
+
+# Constraint 3: !(keyfile != NULL) || !(pkey == NULL)
+# Included because it references pkey == NULL.
+s.add(Or(Not(not_null(keyfile)),
+         Not(is_null(pkey))))
+
+# Constraint 4: !(pkey == NULL)
+# Directly constrains pkey (pkey must be non-NULL).
+s.add(Not(is_null(pkey)))
+
+# Constraint 5: !(pkey != NULL && (keyfile == NULL || keyout != NULL)) || !(out == NULL)
+# Included because it references pkey != NULL.
+s.add(Or(Not(And(not_null(pkey),
+                 Or(is_null(keyfile), not_null(keyout)))),
+         Not(is_null(out))))
+
+# Constraint 6: !(!PEM_write_bio_PrivateKey(out, pkey, cipher, NULL, 0, NULL, passout))
+# This is a function call result; model the call success as a Bool.
+PEM_write_bio_PrivateKey_ok = Bool('PEM_write_bio_PrivateKey_ok')
+# The constraint asserts the call returns true (non-zero), i.e., !(!call) => call is true.
+s.add(PEM_write_bio_PrivateKey_ok)
+
+# Constraint 7: !(!PEM_write_bio_PrivateKey(...)) || !((ERR_GET_REASON(ERR_peek_error()) == PEM_R_PROBLEMS_GETTING_PASSWORD) && (i < 3))
+# Included because it references the same PEM_write_bio_PrivateKey call involving pkey.
+ERR_reason_is_pwd_problem = Bool('ERR_reason_is_pwd_problem')
+s.add(Or(PEM_write_bio_PrivateKey_ok,
+         Not(And(ERR_reason_is_pwd_problem, i < 3))))
+
+# Constraint 8: !(newreq || gen_x509) || !(req == NULL) || !(!make_REQ(req, pkey, fsubj, multirdn, !gen_x509, chtype))
+# Included because it references pkey as an argument to make_REQ.
+make_REQ_ok = Bool('make_REQ_ok')
+s.add(Or(Not(Or(newreq, gen_x509)),
+         Not(is_null(req)),
+         make_REQ_ok))
+
+# Print the solver state for inspection
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, And
+
+    # Base script variable
+    pkey = Int('pkey')
+
+    # Variables from constraint set 2
+    newreq = Bool('newreq')
+    gen_x509 = Bool('gen_x509')
+    CAcert = Int('CAcert')
+    genctx = Int('genctx')
+    keyfile = Int('keyfile')
+    keyout = Int('keyout')
+    out = Int('out')
+    cipher = Int('cipher')
+    passout = Int('passout')
+    req = Int('req')
+    fsubj = Int('fsubj')
+    multirdn = Bool('multirdn')
+    chtype = Int('chtype')
+    i = Int('i')
+
+    PEM_write_bio_PrivateKey_ok = Bool('PEM_write_bio_PrivateKey_ok')
+    ERR_reason_is_pwd_problem = Bool('ERR_reason_is_pwd_problem')
+    make_REQ_ok = Bool('make_REQ_ok')
+
+    def is_null(p):
+        return p == 0
+
+    def not_null(p):
+        return p != 0
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(pkey == 0)
+
+    # Constraint set 2 constraints
+    s.add(Or(Not(Or(newreq, gen_x509)),
+             Not(And(is_null(CAcert), is_null(pkey)))))
+
+    s.add(Or(Not(And(newreq, is_null(pkey))),
+             Not(is_null(genctx))))
+
+    s.add(Or(Not(not_null(keyfile)),
+             Not(is_null(pkey))))
+
+    s.add(Not(is_null(pkey)))
+
+    s.add(Or(Not(And(not_null(pkey),
+                     Or(is_null(keyfile), not_null(keyout)))),
+             Not(is_null(out))))
+
+    s.add(PEM_write_bio_PrivateKey_ok)
+
+    s.add(Or(PEM_write_bio_PrivateKey_ok,
+             Not(And(ERR_reason_is_pwd_problem, i < 3))))
+
+    s.add(Or(Not(Or(newreq, gen_x509)),
+             Not(is_null(req)),
+             make_REQ_ok))
+
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or, Not, And, sat
+
+    # All variables as Int type
+    pkey = Int('pkey')
+    newreq = Int('newreq')
+    gen_x509 = Int('gen_x509')
+    CAcert = Int('CAcert')
+    genctx = Int('genctx')
+    keyfile = Int('keyfile')
+    keyout = Int('keyout')
+    out = Int('out')
+    cipher = Int('cipher')
+    passout = Int('passout')
+    req = Int('req')
+    fsubj = Int('fsubj')
+    multirdn = Int('multirdn')
+    chtype = Int('chtype')
+    i = Int('i')
+    PEM_write_bio_PrivateKey_ok = Int('PEM_write_bio_PrivateKey_ok')
+    ERR_reason_is_pwd_problem = Int('ERR_reason_is_pwd_problem')
+    make_REQ_ok = Int('make_REQ_ok')
+
+    def is_null(p):
+        return p == 0
+
+    def not_null(p):
+        return p != 0
+
+    def is_true(b):
+        return b == 1
+
+    def is_false(b):
+        return b == 0
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(pkey == 0)
+
+    # Constraint 1: !(newreq || gen_x509) || !(CAcert == NULL && pkey == NULL)
+    s.add(Or(Not(Or(is_true(newreq), is_true(gen_x509))),
+             Not(And(is_null(CAcert), is_null(pkey)))))
+
+    # Constraint 2: !(newreq && pkey == NULL) || !(genctx == NULL)
+    s.add(Or(Not(And(is_true(newreq), is_null(pkey))),
+             Not(is_null(genctx))))
+
+    # Constraint 3: !(keyfile != NULL) || !(pkey == NULL)
+    s.add(Or(Not(not_null(keyfile)),
+             Not(is_null(pkey))))
+
+    # Constraint 4: !(pkey == NULL)
+    s.add(Not(is_null(pkey)))
+
+    # Constraint 5: !(pkey != NULL && (keyfile == NULL || keyout != NULL)) || !(out == NULL)
+    s.add(Or(Not(And(not_null(pkey),
+                     Or(is_null(keyfile), not_null(keyout)))),
+             Not(is_null(out))))
+
+    # Constraint 6: PEM_write_bio_PrivateKey_ok is true
+    s.add(PEM_write_bio_PrivateKey_ok == 1)
+
+    # Constraint 7: !(!PEM_write_bio_PrivateKey(...)) || !((ERR_GET_REASON(...) == PEM_R_PROBLEMS_GETTING_PASSWORD) && (i < 3))
+    s.add(Or(is_true(PEM_write_bio_PrivateKey_ok),
+             Not(And(is_true(ERR_reason_is_pwd_problem), i < 3))))
+
+    # Constraint 8: !(newreq || gen_x509) || !(req == NULL) || !(!make_REQ(...))
+    s.add(Or(Not(Or(is_true(newreq), is_true(gen_x509))),
+             Not(is_null(req)),
+             is_true(make_REQ_ok)))
+
+    return s.check() == sat
+```
+goto result: False

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, And, sat\n    \n    s = Solver()\n    \n    # Define all variables as Int type\n    num_nh = Int('num_nh')\n    i = Int('i')\n    nhe = Int('nhe')\n    err = Int('err')\n    \n    # num_nh must be positive (WARN_ON(!num_nh) returns early if num_nh == 0)\n    s.add(num_nh > 0)\n    \n    # i is a loop counter starting at 0\n    s.add(i >= 0)\n    \n    # Loop condition: i < num_nh\n    s.add(i < num_nh)\n    \n    # nhe is NULL (0)\n    s.add(nhe == 0)\n    \n    # Error path taken: err = -ENOENT (-2)\n    s.add(err == -2)\n    \n    # After cleanup loop (i--; i >= 0; --i), i becomes -1\n    # Since first iteration failed, no entries were added\n    # Model the post-loop state: i == -1\n    i_after = Int('i_after')\n    s.add(i_after == i - 1)\n    s.add(i_after == -1)\n    \n    # Check satisfiability\n    result = s.check()\n    \n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun num_nh () Int)\n(declare-fun i () Int)\n(declare-fun nhe () Int)\n(declare-fun err () Int)\n(declare-fun i_after () Int)\n(assert\n (> num_nh 0))\n(assert\n (>= i 0))\n(assert\n (< i num_nh))\n(assert\n (= nhe 0))\n(assert\n (= err (- 2)))\n(assert\n (= i_after (- i 1)))\n(assert\n (= i_after (- 1)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

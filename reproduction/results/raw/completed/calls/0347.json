@@ -1,0 +1,45 @@
+{
+  "call_id": 347,
+  "sample_id": "NPD/codeql/kernel69:row=53:index=79",
+  "timestamp": "2026-10-26T00:50:24.868468+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static bool ieee80211_assoc_success(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t    struct ieee80211_mgmt *mgmt,\n\t\t\t\t    struct ieee802_11_elems *elems,\n\t\t\t\t    const u8 *elem_start, unsigned int elem_len)\n{\n\tstruct ieee80211_if_managed *ifmgd = &sdata->u.mgd;\n\tstruct ieee80211_mgd_assoc_data *assoc_data = ifmgd->assoc_data;\n\tstruct ieee80211_local *local = sdata->local;\n\tunsigned int link_id;\n\tstruct sta_info *sta;\n\tu64 changed[IEEE80211_MLD_MAX_NUM_LINKS] = {};\n\tu16 valid_links = 0, dormant_links = 0;\n\tint err;\n\n\tlockdep_assert_wiphy(sdata->local->hw.wiphy);\n\t/*\n\t * station info was already allocated and inserted before\n\t * the association and should be available to us\n\t */\n\tsta = sta_info_get(sdata, assoc_data->ap_addr);\n\tif (WARN_ON(!sta))\n\t\tgoto out_err;\n\n\tsta->sta.spp_amsdu = assoc_data->spp_amsdu;\n\n\tif (ieee80211_vif_is_mld(&sdata->vif)) {\n\t\tfor (link_id = 0; link_id < IEEE80211_MLD_MAX_NUM_LINKS; link_id++) {\n\t\t\tif (!assoc_data->link[link_id].bss)\n\t\t\t\tcontinue;\n\n\t\t\tvalid_links |= BIT(link_id);\n\t\t\tif (assoc_data->link[link_id].disabled)\n\t\t\t\tdormant_links |= BIT(link_id);\n\n\t\t\tif (link_id != assoc_data->assoc_link_id) {\n\t\t\t\terr = ieee80211_sta_allocate_link(sta, link_id);\n\t\t\t\tif (err)\n\t\t\t\t\tgoto out_err;\n\t\t\t}\n\t\t}\n\n\t\tieee80211_vif_set_links(sdata, valid_links, dormant_links);\n\t}\n\n\tfor (link_id = 0; link_id < IEEE80211_MLD_MAX_NUM_LINKS; link_id++) {\n\t\tstruct cfg80211_bss *cbss = assoc_data->link[link_id].bss;\n\t\tstruct ieee80211_link_data *link;\n\t\tstruct link_sta_info *link_sta;\n\n\t\tif (!cbss)\n\t\t\tcontinue;\n\n\t\tlink = sdata_dereference(sdata->link[link_id], sdata);\n\t\tif (WARN_ON(!link))\n\t\t\tgoto out_err;\n\n\t\tif (ieee80211_vif_is_mld(&sdata->vif))\n\t\t\tlink_info(link,\n\t\t\t\t  \"local address %pM, AP link address %pM%s\\n\",\n\t\t\t\t  link->conf->addr,\n\t\t\t\t  assoc_data->link[link_id].bss->bssid,\n\t\t\t\t  link_id == assoc_data->assoc_link_id ?\n\t\t\t\t\t\" (assoc)\" : \"\");\n\n\t\tlink_sta = rcu_dereference_protected(sta->link[link_id],\n\t\t\t\t\t\t     lockdep_is_held(&local->hw.wiphy->mtx));\n\t\tif (WARN_ON(!link_sta))\n\t\t\tgoto out_err;\n\n\t\tif (!link->u.mgd.have_beacon) {\n\t\t\tconst struct cfg80211_bss_ies *ies;\n\n\t\t\trcu_read_lock();\n\t\t\ties = rcu_dereference(cbss->beacon_ies);\n\t\t\tif (ies)\n\t\t\t\tlink->u.mgd.have_beacon = true;\n\t\t\telse\n\t\t\t\ties = rcu_dereference(cbss->ies);\n\t\t\tieee80211_get_dtim(ies,\n\t\t\t\t\t   &link->conf->sync_dtim_count,\n\t\t\t\t\t   &link->u.mgd.dtim_period);\n\t\t\tlink->conf->beacon_int = cbss->beacon_interval;\n\t\t\trcu_read_unlock();\n\t\t}\n\n\t\tlink->conf->dtim_period = link->u.mgd.dtim_period ?: 1;\n\n\t\tif (link_id != assoc_data->assoc_link_id) {\n\t\t\tlink->u.mgd.conn = assoc_data->link[link_id].conn;\n\n\t\t\terr = ieee80211_prep_channel(sdata, link, link_id, cbss,\n\t\t\t\t\t\t     true, &link->u.mgd.conn);\n\t\t\tif (err) {\n\t\t\t\tlink_info(link, \"prep_channel failed\\n\");\n\t\t\t\tgoto out_err;\n\t\t\t}\n\t\t}\n\n\t\terr = ieee80211_mgd_setup_link_sta(link, sta, link_sta,\n\t\t\t\t\t\t   assoc_data->link[link_id].bss);\n\t\tif (err)\n\t\t\tgoto out_err;\n\n\t\tif (!ieee80211_assoc_config_link(link, link_sta,\n\t\t\t\t\t\t assoc_data->link[link_id].bss,\n\t\t\t\t\t\t mgmt, elem_start, elem_len,\n\t\t\t\t\t\t &changed[link_id]))\n\t\t\tgoto out_err;\n\n\t\tif (assoc_data->link[link_id].status != WLAN_STATUS_SUCCESS) {\n\t\t\tvalid_links &= ~BIT(link_id);\n\t\t\tieee80211_sta_remove_link(sta, link_id);\n\t\t\tcontinue;\n\t\t}\n\n\t\tif (link_id != assoc_data->assoc_link_id) {\n\t\t\terr = ieee80211_sta_activate_link(sta, link_id);\n\t\t\tif (err)\n\t\t\t\tgoto out_err;\n\t\t}\n\t}\n\n\t/* links might have changed due to rejected ones, set them again */\n\tieee80211_vif_set_links(sdata, valid_links, dormant_links);\n\n\trate_control_rate_init(sta);\n\n\tif (ifmgd->flags & IEEE80211_STA_MFP_ENABLED) {\n\t\tset_sta_flag(sta, WLAN_STA_MFP);\n\t\tsta->sta.mfp = true;\n\t} else {\n\t\tsta->sta.mfp = false;\n\t}\n\n\tieee80211_sta_set_max_amsdu_subframes(sta, elems->ext_capab,\n\t\t\t\t\t      elems->ext_capab_len);\n\n\tsta->sta.wme = (elems->wmm_param || elems->s1g_capab) &&\n\t\t       local->hw.queues >= IEEE80211_NUM_ACS;\n\n\terr = sta_info_move_state(sta, IEEE80211_STA_ASSOC);\n\tif (!err && !(ifmgd->flags & IEEE80211_STA_CONTROL_PORT))\n\t\terr = sta_info_move_state(sta, IEEE80211_STA_AUTHORIZED);\n\tif (err) {\n\t\tsdata_info(sdata,\n\t\t\t   \"failed to move station %pM to desired state\\n\",\n\t\t\t   sta->sta.addr);\n\t\tWARN_ON(__sta_info_destroy(sta));\n\t\tgoto out_err;\n\t}\n\n\tif (sdata->wdev.use_4addr)\n\t\tdrv_sta_set_4addr(local, sdata, &sta->sta, true);\n\n\tieee80211_set_associated(sdata, assoc_data, changed);\n\n\t/*\n\t * If we're using 4-addr mode, let the AP know that we're\n\t * doing so, so that it can create the STA VLAN on its side\n\t */\n\tif (ifmgd->use_4addr)\n\t\tieee80211_send_4addr_nullfunc(local, sdata);\n\n\t/*\n\t * Start timer to probe the connection to the AP now.\n\t * Also start the timer that will detect beacon loss.\n\t */\n\tieee80211_sta_reset_beacon_monitor(sdata);\n\tieee80211_sta_reset_conn_monitor(sdata);\n\n\treturn true;\nout_err:\n\teth_zero_addr(sdata->vif.cfg.ap_addr);\n\treturn false;\n}\n        - Target variables: [], sta\n        - Constraints: ['!(WARN_ON(!sta))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "a5472f34-2352-43cd-88fd-15aadc9b9e3c",
+  "usage": {
+    "prompt_tokens": 1800,
+    "completion_tokens": 13,
+    "total_tokens": 1813,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1800
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(WARN_ON(!sta))\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.8477980000006937,
+  "cost_upper_bound_cny": 0.003704
+}

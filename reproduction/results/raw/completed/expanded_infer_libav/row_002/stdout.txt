@@ -1,0 +1,84 @@
+```python
+movie_format_ctx=Int('movie_format_ctx')
+s.add(movie_format_ctx == 0)
+```
+```json
+["!((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, NULL)) < 0)", "!(movie->seek_point > 0) || !((ret = av_seek_frame(movie->format_ctx, -1, timestamp, AVSEEK_FLAG_BACKWARD)) < 0)", "!((ret = av_find_best_stream(movie->format_ctx, AVMEDIA_TYPE_VIDEO, movie->stream_index, -1, NULL, 0)) < 0)"]
+```
+```python
+from z3 import *
+
+# Declarations for the variables involved in the constraints.
+# movie->format_ctx is a pointer-like handle; model it as an Int (address/id).
+# ret is the return value of the FFmpeg calls; model as Int.
+# movie->seek_point and timestamp are numeric; model as Int.
+# movie->stream_index is an index; model as Int.
+# iformat is a pointer; model as Int (0 == NULL).
+# movie->file_name is a pointer; model as Int (0 == NULL).
+
+movie_format_ctx = Int('movie->format_ctx')
+ret = Int('ret')
+movie_seek_point = Int('movie->seek_point')
+timestamp = Int('timestamp')
+movie_stream_index = Int('movie->stream_index')
+iformat = Int('iformat')
+movie_file_name = Int('movie->file_name')
+
+s = Solver()
+
+# Constraint 1:
+#   !((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, NULL)) < 0)
+# The C expression asserts that the call does NOT return a negative value,
+# i.e. ret >= 0. The call also writes into movie->format_ctx, so we model
+# that the resulting format_ctx is non-null (a successful open yields a
+# valid context). We include this because it constrains movie->format_ctx.
+s.add(ret >= 0)
+s.add(movie_format_ctx != 0)
+
+# Constraint 2:
+#   !(movie->seek_point > 0) || !((ret = av_seek_frame(movie->format_ctx, -1, timestamp, AVSEEK_FLAG_BACKWARD)) < 0)
+# This is a guarded constraint: if seek_point > 0, then the seek call must
+# succeed (ret >= 0). It affects movie->format_ctx (used as argument) and
+# ret. We encode the implication directly.
+s.add(Implies(movie_seek_point > 0, ret >= 0))
+
+# Constraint 3:
+#   !((ret = av_find_best_stream(movie->format_ctx, AVMEDIA_TYPE_VIDEO, movie->stream_index, -1, NULL, 0)) < 0)
+# The call must succeed (ret >= 0). It reads movie->format_ctx and
+# movie->stream_index, so we include it as it constrains those variables.
+s.add(ret >= 0)
+
+# Print the resulting script state (check satisfiability).
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Implies, sat
+
+    # Base script variables
+    movie_format_ctx = Int('movie_format_ctx')
+
+    # Variables from constraint set 2
+    movie_format_ctx_2 = Int('movie->format_ctx')
+    ret = Int('ret')
+    movie_seek_point = Int('movie->seek_point')
+    timestamp = Int('timestamp')
+    movie_stream_index = Int('movie->stream_index')
+    iformat = Int('iformat')
+    movie_file_name = Int('movie->file_name')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(movie_format_ctx == 0)
+
+    # Constraint set 2 constraints
+    s.add(ret >= 0)
+    s.add(movie_format_ctx_2 != 0)
+    s.add(Implies(movie_seek_point > 0, ret >= 0))
+    s.add(ret >= 0)
+
+    return s.check() == sat
+```
+goto result: True

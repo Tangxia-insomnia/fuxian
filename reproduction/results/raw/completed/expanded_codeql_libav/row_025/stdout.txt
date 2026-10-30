@@ -1,0 +1,62 @@
+```python
+pal=Int('pal')
+s.add(pal == 0)
+```
+```json
+["!(nplanes == 1 && bpp == 8) || !(buf_end - buf < 257)"]
+```
+```python
+from z3 import *
+
+# Declare variables used in the constraint
+# nplanes: number of planes (integer)
+# bpp: bits per pixel (integer)
+# buf_end, buf: pointers modeled as integers (addresses)
+nplanes = Int('nplanes')
+bpp = Int('bpp')
+buf_end = Int('buf_end')
+buf = Int('buf')
+
+s = Solver()
+
+# Constraint: !(nplanes == 1 && bpp == 8) || !(buf_end - buf < 257)
+# This is the negation of the "bad" condition:
+#   (nplanes == 1 && bpp == 8) && (buf_end - buf < 257)
+# i.e., the constraint forbids the case where a 1-plane 8-bpp image
+# has less than 257 bytes of remaining buffer space.
+# Included because it directly constrains nplanes, bpp, and buffer size.
+s.add(Or(Not(And(nplanes == 1, bpp == 8)),
+         Not(buf_end - buf < 257)))
+
+# Check satisfiability and print result
+if s.check() == sat:
+    print("sat")
+    print(s.model())
+else:
+    print("unsat")
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or, Not, And, sat
+
+    # Base script variables and constraints
+    pal = Int('pal')
+
+    # Constraint set 2 variables
+    nplanes = Int('nplanes')
+    bpp = Int('bpp')
+    buf_end = Int('buf_end')
+    buf = Int('buf')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(pal == 0)
+
+    # Constraint set 2 constraint
+    s.add(Or(Not(And(nplanes == 1, bpp == 8)),
+             Not(buf_end - buf < 257)))
+
+    return s.check() == sat
+```
+goto result: True

@@ -1,0 +1,45 @@
+{
+  "call_id": 610,
+  "sample_id": "NPD/codeql/libav:row=54:index=95",
+  "timestamp": "2026-10-26T00:55:55.278131+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int sox_read_header(AVFormatContext *s)\n{\n    AVIOContext *pb = s->pb;\n    unsigned header_size, comment_size;\n    double sample_rate, sample_rate_frac;\n    AVStream *st;\n\n    st = avformat_new_stream(s, NULL);\n    if (!st)\n        return AVERROR(ENOMEM);\n\n    st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;\n\n    if (avio_rl32(pb) == SOX_TAG) {\n        st->codecpar->codec_id = AV_CODEC_ID_PCM_S32LE;\n        header_size         = avio_rl32(pb);\n        avio_skip(pb, 8); /* sample count */\n        sample_rate         = av_int2double(avio_rl64(pb));\n        st->codecpar->channels = avio_rl32(pb);\n        comment_size        = avio_rl32(pb);\n    } else {\n        st->codecpar->codec_id = AV_CODEC_ID_PCM_S32BE;\n        header_size         = avio_rb32(pb);\n        avio_skip(pb, 8); /* sample count */\n        sample_rate         = av_int2double(avio_rb64(pb));\n        st->codecpar->channels = avio_rb32(pb);\n        comment_size        = avio_rb32(pb);\n    }\n\n    if (comment_size > 0xFFFFFFFFU - SOX_FIXED_HDR - 4U) {\n        av_log(s, AV_LOG_ERROR, \"invalid comment size (%u)\\n\", comment_size);\n        return -1;\n    }\n\n    if (sample_rate <= 0 || sample_rate > INT_MAX) {\n        av_log(s, AV_LOG_ERROR, \"invalid sample rate (%f)\\n\", sample_rate);\n        return -1;\n    }\n\n    sample_rate_frac = sample_rate - floor(sample_rate);\n    if (sample_rate_frac)\n        av_log(s, AV_LOG_WARNING,\n               \"truncating fractional part of sample rate (%f)\\n\",\n               sample_rate_frac);\n\n    if ((header_size + 4) & 7 || header_size < SOX_FIXED_HDR + comment_size\n        || st->codecpar->channels > 65535) /* Reserve top 16 bits */ {\n        av_log(s, AV_LOG_ERROR, \"invalid header\\n\");\n        return -1;\n    }\n\n    if (comment_size && comment_size < UINT_MAX) {\n        char *comment = av_malloc(comment_size+1);\n        if (avio_read(pb, comment, comment_size) != comment_size) {\n            av_freep(&comment);\n            return AVERROR(EIO);\n        }\n        comment[comment_size] = 0;\n\n        av_dict_set(&s->metadata, \"comment\", comment,\n                               AV_DICT_DONT_STRDUP_VAL);\n    }\n\n    avio_skip(pb, header_size - SOX_FIXED_HDR - comment_size);\n\n    st->codecpar->sample_rate           = sample_rate;\n    st->codecpar->bits_per_coded_sample = 32;\n    st->codecpar->bit_rate              = st->codecpar->sample_rate *\n                                          st->codecpar->bits_per_coded_sample *\n                                          st->codecpar->channels;\n    st->codecpar->block_align           = st->codecpar->bits_per_coded_sample *\n                                          st->codecpar->channels / 8;\n\n    avpriv_set_pts_info(st, 64, 1, st->codecpar->sample_rate);\n\n    return 0;\n}\n        - Target variables: [], comment\n        - Constraints: ['!((header_size + 4) & 7 || header_size < SOX_FIXED_HDR + comment_size || st->codecpar->channels > 65535)', '!(sample_rate <= 0 || sample_rate > INT_MAX)', '!(comment_size > 0xFFFFFFFFU - SOX_FIXED_HDR - 4U)', '!(!st)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "42af2021-cabb-4da5-8021-cf18067a9709",
+  "usage": {
+    "prompt_tokens": 967,
+    "completion_tokens": 68,
+    "total_tokens": 1035,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 967
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!((header_size + 4) & 7 || header_size < SOX_FIXED_HDR + comment_size || st->codecpar->channels > 65535)\", \"!(comment_size > 0xFFFFFFFFU - SOX_FIXED_HDR - 4U)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6345271000000139,
+  "cost_upper_bound_cny": 0.002478
+}

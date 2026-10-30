@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Implies, Not, Or, Solver, sat\n\n    s = Solver()\n\n    # Base script constraints\n    rsigner = Int('rsigner')\n    s.add(rsigner == 0)\n\n    # Constraint set 2 variables\n    rsignfile_nonnull = Bool('rsignfile_nonnull')\n    ridx_filename_nonnull = Bool('ridx_filename_nonnull')\n    rkey_null = Bool('rkey_null')\n    rca_certs_null = Bool('rca_certs_null')\n\n    # Constraint 1: !(rsignfile != NULL) || !(rsigner == NULL)\n    s.add(Implies(rsignfile_nonnull, rsigner != 0))\n\n    # Constraint 6: !(ridx_filename != NULL && (rkey == NULL || rsigner == NULL || rca_certs == NULL))\n    s.add(Implies(ridx_filename_nonnull,\n                  Not(Or(rkey_null, rsigner == 0, rca_certs_null))))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun rsigner () Int)\n(declare-fun rsignfile_nonnull () Bool)\n(declare-fun rca_certs_null () Bool)\n(declare-fun rkey_null () Bool)\n(declare-fun ridx_filename_nonnull () Bool)\n(assert\n (= rsigner 0))\n(assert\n (=> rsignfile_nonnull (and (distinct rsigner 0) true)))\n(assert\n (=> ridx_filename_nonnull (not (or rkey_null (= rsigner 0) rca_certs_null))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

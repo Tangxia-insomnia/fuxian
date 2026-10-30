@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, sat\n\n    # Variable declarations (merged from base script and constraint set 2)\n    progressive_buf = Int('progressive_buf')\n    is_progressive = Bool('is_progressive')\n\n    s = Solver()\n\n    # Constraint from base script\n    s.add(progressive_buf == 0)\n\n    # Constraint from constraint set 2\n    s.add(Or(Not(is_progressive), progressive_buf != 0))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun progressive_buf () Int)\n(declare-fun is_progressive () Bool)\n(assert\n (= progressive_buf 0))\n(assert\n (let (($x26 (not is_progressive)))\n(or $x26 (and (distinct progressive_buf 0) true))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

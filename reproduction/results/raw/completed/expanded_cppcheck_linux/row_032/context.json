@@ -1,0 +1,42 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "cell_iommu_setup_window",
+      "var_name": "window",
+      "target": "window->table.it_size = size >> window->table.it_page_shift;",
+      "code": "static struct iommu_window * __init\ncell_iommu_setup_window(struct cbe_iommu *iommu, struct device_node *np,\n\t\t\tunsigned long offset, unsigned long size,\n\t\t\tunsigned long pte_offset)\n{\n\tstruct iommu_window *window;\n\tstruct page *page;\n\tu32 ioid;\n\n\tioid = cell_iommu_get_ioid(np);\n\n\twindow = kzalloc_node(sizeof(*window), GFP_KERNEL, iommu->nid);\n\tBUG_ON(window == NULL);\n\n\twindow->offset = offset;\n\twindow->size = size;\n\twindow->ioid = ioid;\n\twindow->iommu = iommu;\n\n\twindow->table.it_blocksize = 16;\n\twindow->table.it_base = (unsigned long)iommu->ptab;\n\twindow->table.it_index = iommu->nid;\n\twindow->table.it_page_shift = IOMMU_PAGE_SHIFT_4K;\n\twindow->table.it_offset =\n\t\t(offset >> window->table.it_page_shift) + pte_offset;\n\twindow->table.it_size = size >> window->table.it_page_shift;\n\twindow->table.it_ops = &cell_iommu_ops;\n\n\tif (!iommu_init_table(&window->table, iommu->nid, 0, 0))\n\t\tpanic(\"Failed to initialize iommu table\");\n\n\tpr_debug(\"\\tioid      %d\\n\", window->ioid);\n\tpr_debug(\"\\tblocksize %ld\\n\", window->table.it_blocksize);\n\tpr_debug(\"\\tbase      0x%016lx\\n\", window->table.it_base);\n\tpr_debug(\"\\toffset    0x%lx\\n\", window->table.it_offset);\n\tpr_debug(\"\\tsize      %ld\\n\", window->table.it_size);\n\n\tlist_add(&window->list, &iommu->windows);\n\n\tif (offset != 0)\n\t\treturn window;\n\n\t/* We need to map and reserve the first IOMMU page since it's used\n\t * by the spider workaround. In theory, we only need to do that when\n\t * running on spider but it doesn't really matter.\n\t *\n\t * This code also assumes that we have a window that starts at 0,\n\t * which is the case on all spider based blades.\n\t */\n\tpage = alloc_pages_node(iommu->nid, GFP_KERNEL, 0);\n\tBUG_ON(!page);\n\tiommu->pad_page = page_address(page);\n\tclear_page(iommu->pad_page);\n\n\t__set_bit(0, window->table.it_map);\n\ttce_build_cell(&window->table, window->table.it_offset, 1,\n\t\t       (unsigned long)iommu->pad_page, DMA_TO_DEVICE, 0);\n\n\treturn window;\n}",
+      "body_sha256": "3b54f27d0aa569c98b0e9ba8e5fc7f5ca13105171e5532bcff9e047964393791",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "window->table.it_size = size >> window->table.it_page_shift;",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static struct iommu_window * __init",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "window ==0"
+            ]
+          }
+        ],
+        "filter_function_code": "static struct iommu_window * __init\ncell_iommu_setup_window(struct cbe_iommu *iommu, struct device_node *np,\n\t\t\tunsigned long offset, unsigned long size,\n\t\t\tunsigned long pte_offset)\n{\n\tstruct iommu_window *window;\n\tstruct page *page;\n\tu32 ioid;\n\n\tioid = cell_iommu_get_ioid(np);\n\n\twindow = kzalloc_node(sizeof(*window), GFP_KERNEL, iommu->nid);\n\tBUG_ON(window == NULL);\n\n\twindow->offset = offset;\n\twindow->size = size;\n\twindow->ioid = ioid;\n\twindow->iommu = iommu;\n\n\twindow->table.it_blocksize = 16;\n\twindow->table.it_base = (unsigned long)iommu->ptab;\n\twindow->table.it_index = iommu->nid;\n\twindow->table.it_page_shift = IOMMU_PAGE_SHIFT_4K;\n\twindow->table.it_offset =\n\t\t(offset >> window->table.it_page_shift) + pte_offset;\n\twindow->table.it_size = size >> window->table.it_page_shift;\n\twindow->table.it_ops = &cell_iommu_ops;\n\n\tif (!iommu_init_table(&window->table, iommu->nid, 0, 0))\n\t\tpanic(\"Failed to initialize iommu table\");\n\n\tpr_debug(\"\\tioid      %d\\n\", window->ioid);\n\tpr_debug(\"\\tblocksize %ld\\n\", window->table.it_blocksize);\n\tpr_debug(\"\\tbase      0x%016lx\\n\", window->table.it_base);\n\tpr_debug(\"\\toffset    0x%lx\\n\", window->table.it_offset);\n\tpr_debug(\"\\tsize      %ld\\n\", window->table.it_size);\n\n\tlist_add(&window->list, &iommu->windows);\n\n\tif (offset != 0)\n\t\treturn window;\n\n\t/* We need to map and reserve the first IOMMU page since it's used\n\t * by the spider workaround. In theory, we only need to do that when\n\t * running on spider but it doesn't really matter.\n\t *\n\t * This code also assumes that we have a window that starts at 0,\n\t * which is the case on all spider based blades.\n\t */\n\tpage = alloc_pages_node(iommu->nid, GFP_KERNEL, 0);\n\tBUG_ON(!page);\n\tiommu->pad_page = page_address(page);\n\tclear_page(iommu->pad_page);\n\n\t__set_bit(0, window->table.it_map);\n\ttce_build_cell(&window->table, window->table.it_offset, 1,\n\t\t       (unsigned long)iommu->pad_page, DMA_TO_DEVICE, 0);\n\n\treturn window;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static struct iommu_window * __init\ncell_iommu_setup_window(struct cbe_iommu *iommu, struct device_node *np,\n\t\t\tunsigned long offset, unsigned long size,\n\t\t\tunsigned long pte_offset)\n{\n\tstruct iommu_window *window;\n\tstruct page *page;\n\tu32 ioid;\n\n\tioid = cell_iommu_get_ioid(np);\n\n\twindow = kzalloc_node(sizeof(*window), GFP_KERNEL, iommu->nid);\n\tBUG_ON(window == NULL);\n\n\twindow->offset = offset;\n\twindow->size = size;\n\twindow->ioid = ioid;\n\twindow->iommu = iommu;\n\n\twindow->table.it_blocksize = 16;\n\twindow->table.it_base = (unsigned long)iommu->ptab;\n\twindow->table.it_index = iommu->nid;\n\twindow->table.it_page_shift = IOMMU_PAGE_SHIFT_4K;\n\twindow->table.it_offset =\n\t\t(offset >> window->table.it_page_shift) + pte_offset;\n\twindow->table.it_size = size >> window->table.it_page_shift;\n\twindow->table.it_ops = &cell_iommu_ops;\n\n\tif (!iommu_init_table(&window->table, iommu->nid, 0, 0))\n\t\tpanic(\"Failed to initialize iommu table\");\n\n\tpr_debug(\"\\tioid      %d\\n\", window->ioid);\n\tpr_debug(\"\\tblocksize %ld\\n\", window->table.it_blocksize);\n\tpr_debug(\"\\tbase      0x%016lx\\n\", window->table.it_base);\n\tpr_debug(\"\\toffset    0x%lx\\n\", window->table.it_offset);\n\tpr_debug(\"\\tsize      %ld\\n\", window->table.it_size);\n\n\tlist_add(&window->list, &iommu->windows);\n\n\tif (offset != 0)\n\t\treturn window;\n\n\t/* We need to map and reserve the first IOMMU page since it's used\n\t * by the spider workaround. In theory, we only need to do that when\n\t * running on spider but it doesn't really matter.\n\t *\n\t * This code also assumes that we have a window that starts at 0,\n\t * which is the case on all spider based blades.\n\t */\n\tpage = alloc_pages_node(iommu->nid, GFP_KERNEL, 0);\n\tBUG_ON(!page);\n\tiommu->pad_page = page_address(page);\n\tclear_page(iommu->pad_page);\n\n\t__set_bit(0, window->table.it_map);\n\ttce_build_cell(&window->table, window->table.it_offset, 1,\n\t\t       (unsigned long)iommu->pad_page, DMA_TO_DEVICE, 0);\n\n\treturn window;\n}"
+  ]
+}

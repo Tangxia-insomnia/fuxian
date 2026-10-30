@@ -1,0 +1,66 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "drc_pmem_query_stats",
+      "var_name": "buff_stats",
+      "target": "be32_to_cpu(buff_stats->num_statistics));",
+      "code": "static ssize_t drc_pmem_query_stats(struct papr_scm_priv *p,\n\t\t\t\t    struct papr_scm_perf_stats *buff_stats,\n\t\t\t\t    unsigned int num_stats)\n{\n\tunsigned long ret[PLPAR_HCALL_BUFSIZE];\n\tsize_t size;\n\ts64 rc;\n\n\t/* Setup the out buffer */\n\tif (buff_stats) {\n\t\tmemcpy(buff_stats->eye_catcher,\n\t\t       PAPR_SCM_PERF_STATS_EYECATCHER, 8);\n\t\tbuff_stats->stats_version =\n\t\t\tcpu_to_be32(PAPR_SCM_PERF_STATS_VERSION);\n\t\tbuff_stats->num_statistics =\n\t\t\tcpu_to_be32(num_stats);\n\n\t\t/*\n\t\t * Calculate the buffer size based on num-stats provided\n\t\t * or use the prefetched max buffer length\n\t\t */\n\t\tif (num_stats)\n\t\t\t/* Calculate size from the num_stats */\n\t\t\tsize = sizeof(struct papr_scm_perf_stats) +\n\t\t\t\tnum_stats * sizeof(struct papr_scm_perf_stat);\n\t\telse\n\t\t\tsize = p->stat_buffer_len;\n\t} else {\n\t\t/* In case of no out buffer ignore the size */\n\t\tsize = 0;\n\t}\n\n\t/* Do the HCALL asking PHYP for info */\n\trc = plpar_hcall(H_SCM_PERFORMANCE_STATS, ret, p->drc_index,\n\t\t\t buff_stats ? virt_to_phys(buff_stats) : 0,\n\t\t\t size);\n\n\t/* Check if the error was due to an unknown stat-id */\n\tif (rc == H_PARTIAL) {\n\t\tdev_err(&p->pdev->dev,\n\t\t\t\"Unknown performance stats, Err:0x%016lX\\n\", ret[0]);\n\t\treturn -ENOENT;\n\t} else if (rc == H_AUTHORITY) {\n\t\tdev_info(&p->pdev->dev,\n\t\t\t \"Permission denied while accessing performance stats\");\n\t\treturn -EPERM;\n\t} else if (rc == H_UNSUPPORTED) {\n\t\tdev_dbg(&p->pdev->dev, \"Performance stats unsupported\\n\");\n\t\treturn -EOPNOTSUPP;\n\t} else if (rc != H_SUCCESS) {\n\t\tdev_err(&p->pdev->dev,\n\t\t\t\"Failed to query performance stats, Err:%lld\\n\", rc);\n\t\treturn -EIO;\n\n\t} else if (!size) {\n\t\t/* Handle case where stat buffer size was requested */\n\t\tdev_dbg(&p->pdev->dev,\n\t\t\t\"Performance stats size %ld\\n\", ret[0]);\n\t\treturn ret[0];\n\t}\n\n\t/* Successfully fetched the requested stats from phyp */\n\tdev_dbg(&p->pdev->dev,\n\t\t\"Performance stats returned %d stats\\n\",\n\t\tbe32_to_cpu(buff_stats->num_statistics));\n\treturn 0;\n}",
+      "body_sha256": "36399056ab015f93e127a1c0bd8999ae7ee6abb314bcf0013036dff11acb7e88",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "be32_to_cpu(buff_stats->num_statistics));",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static ssize_t drc_pmem_query_stats(struct papr_scm_priv *p,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "!size"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "rc != H_SUCCESS"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "rc == H_UNSUPPORTED"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "rc == H_AUTHORITY"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "rc == H_PARTIAL"
+            ]
+          }
+        ],
+        "filter_function_code": "static ssize_t drc_pmem_query_stats(struct papr_scm_priv *p,\n\t\t\t\t    struct papr_scm_perf_stats *buff_stats,\n\t\t\t\t    unsigned int num_stats)\n{\n\tunsigned long ret[PLPAR_HCALL_BUFSIZE];\n\tsize_t size;\n\ts64 rc;\n\n\t/* Setup the out buffer */\n\tif (buff_stats) {\n\t\tmemcpy(buff_stats->eye_catcher,\n\t\t       PAPR_SCM_PERF_STATS_EYECATCHER, 8);\n\t\tbuff_stats->stats_version =\n\t\t\tcpu_to_be32(PAPR_SCM_PERF_STATS_VERSION);\n\t\tbuff_stats->num_statistics =\n\t\t\tcpu_to_be32(num_stats);\n\n\t\t/*\n\t\t * Calculate the buffer size based on num-stats provided\n\t\t * or use the prefetched max buffer length\n\t\t */\n\t\tif (num_stats)\n\t\t\t/* Calculate size from the num_stats */\n\t\t\tsize = sizeof(struct papr_scm_perf_stats) +\n\t\t\t\tnum_stats * sizeof(struct papr_scm_perf_stat);\n\t\telse\n\t\t\tsize = p->stat_buffer_len;\n\t} else {\n\t\t/* In case of no out buffer ignore the size */\n\t\tsize = 0;\n\t}\n\n\t/* Do the HCALL asking PHYP for info */\n\trc = plpar_hcall(H_SCM_PERFORMANCE_STATS, ret, p->drc_index,\n\t\t\t buff_stats ? virt_to_phys(buff_stats) : 0,\n\t\t\t size);\n\n\t/* Check if the error was due to an unknown stat-id */\n\tif (rc == H_PARTIAL) {\n\t\tdev_err(&p->pdev->dev,\n\t\t\t\"Unknown performance stats, Err:0x%016lX\\n\", ret[0]);\n\t\treturn -ENOENT;\n\t} else if (rc == H_AUTHORITY) {\n\t\tdev_info(&p->pdev->dev,\n\t\t\t \"Permission denied while accessing performance stats\");\n\t\treturn -EPERM;\n\t} else if (rc == H_UNSUPPORTED) {\n\t\tdev_dbg(&p->pdev->dev, \"Performance stats unsupported\\n\");\n\t\treturn -EOPNOTSUPP;\n\t} else if (rc != H_SUCCESS) {\n\t\tdev_err(&p->pdev->dev,\n\t\t\t\"Failed to query performance stats, Err:%lld\\n\", rc);\n\t\treturn -EIO;\n\n\t} else if (!size) {\n\t\t/* Handle case where stat buffer size was requested */\n\t\tdev_dbg(&p->pdev->dev,\n\t\t\t\"Performance stats size %ld\\n\", ret[0]);\n\t\treturn ret[0];\n\t}\n\n\t/* Successfully fetched the requested stats from phyp */\n\tdev_dbg(&p->pdev->dev,\n\t\t\"Performance stats returned %d stats\\n\",\n\t\tbe32_to_cpu(buff_stats->num_statistics));\n\treturn 0;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static ssize_t drc_pmem_query_stats(struct papr_scm_priv *p,\n\t\t\t\t    struct papr_scm_perf_stats *buff_stats,\n\t\t\t\t    unsigned int num_stats)\n{\n\tunsigned long ret[PLPAR_HCALL_BUFSIZE];\n\tsize_t size;\n\ts64 rc;\n\n\t/* Setup the out buffer */\n\tif (buff_stats) {\n\t\tmemcpy(buff_stats->eye_catcher,\n\t\t       PAPR_SCM_PERF_STATS_EYECATCHER, 8);\n\t\tbuff_stats->stats_version =\n\t\t\tcpu_to_be32(PAPR_SCM_PERF_STATS_VERSION);\n\t\tbuff_stats->num_statistics =\n\t\t\tcpu_to_be32(num_stats);\n\n\t\t/*\n\t\t * Calculate the buffer size based on num-stats provided\n\t\t * or use the prefetched max buffer length\n\t\t */\n\t\tif (num_stats)\n\t\t\t/* Calculate size from the num_stats */\n\t\t\tsize = sizeof(struct papr_scm_perf_stats) +\n\t\t\t\tnum_stats * sizeof(struct papr_scm_perf_stat);\n\t\telse\n\t\t\tsize = p->stat_buffer_len;\n\t} else {\n\t\t/* In case of no out buffer ignore the size */\n\t\tsize = 0;\n\t}\n\n\t/* Do the HCALL asking PHYP for info */\n\trc = plpar_hcall(H_SCM_PERFORMANCE_STATS, ret, p->drc_index,\n\t\t\t buff_stats ? virt_to_phys(buff_stats) : 0,\n\t\t\t size);\n\n\t/* Check if the error was due to an unknown stat-id */\n\tif (rc == H_PARTIAL) {\n\t\tdev_err(&p->pdev->dev,\n\t\t\t\"Unknown performance stats, Err:0x%016lX\\n\", ret[0]);\n\t\treturn -ENOENT;\n\t} else if (rc == H_AUTHORITY) {\n\t\tdev_info(&p->pdev->dev,\n\t\t\t \"Permission denied while accessing performance stats\");\n\t\treturn -EPERM;\n\t} else if (rc == H_UNSUPPORTED) {\n\t\tdev_dbg(&p->pdev->dev, \"Performance stats unsupported\\n\");\n\t\treturn -EOPNOTSUPP;\n\t} else if (rc != H_SUCCESS) {\n\t\tdev_err(&p->pdev->dev,\n\t\t\t\"Failed to query performance stats, Err:%lld\\n\", rc);\n\t\treturn -EIO;\n\n\t} else if (!size) {\n\t\t/* Handle case where stat buffer size was requested */\n\t\tdev_dbg(&p->pdev->dev,\n\t\t\t\"Performance stats size %ld\\n\", ret[0]);\n\t\treturn ret[0];\n\t}\n\n\t/* Successfully fetched the requested stats from phyp */\n\tdev_dbg(&p->pdev->dev,\n\t\t\"Performance stats returned %d stats\\n\",\n\t\tbe32_to_cpu(buff_stats->num_statistics));\n\treturn 0;\n}"
+  ]
+}

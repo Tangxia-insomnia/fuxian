@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    bss_ies = Int('bss_ies')\n    s = Solver()\n    s.add(bss_ies == 0)\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun bss_ies () Int)\n(assert\n (= bss_ies 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

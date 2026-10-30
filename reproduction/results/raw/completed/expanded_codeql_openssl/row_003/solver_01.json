@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    # Model variables as Int (per guidelines)\n    # crlnumberfile: pointer-like value; 0 means NULL\n    crlnumberfile = 0  # unknown; treat as Int\n    # crlnumber: pointer-like value; 0 means NULL\n    crlnumber = 0\n    # conf, section, ENV_CRLNUMBER are opaque; model as Int\n    conf = 0\n    section = 0\n    ENV_CRLNUMBER = 0\n\n    # Constraint: crlnumberfile != NULL  <=>  crlnumberfile != 0\n    # Constraint: if crlnumberfile != 0, then load_serial returns non-NULL (crlnumber != 0)\n    # Otherwise (crlnumberfile == 0), no constraint on crlnumber.\n    # The script's error path (goto end) triggers when crlnumber == NULL after load.\n    # We model the successful path: crlnumberfile != 0 implies crlnumber != 0.\n\n    # Encode as: (crlnumberfile == 0) Or (crlnumber != 0)\n    # Using Int comparisons per guidelines (prefer ==0 / ==1 style where possible)\n    cond_null_file = (crlnumberfile == 0)\n    cond_crlnumber_ok = (crlnumber != 0)\n\n    # Validation: the implication must hold\n    valid = (cond_null_file or cond_crlnumber_ok)\n\n    return bool(valid)",
+  "ok": false,
+  "error": "ValueError: ValueError: No actual Solver.check executed"
+}

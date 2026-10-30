@@ -1,0 +1,45 @@
+{
+  "call_id": 1170,
+  "sample_id": "NPD/infer/openssl:row=10:index=None",
+  "timestamp": "2026-10-26T01:09:07.530971+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: int opt_verify(int opt, X509_VERIFY_PARAM *vpm)\n{\n    int i;\n    ossl_intmax_t t = 0;\n    ASN1_OBJECT *otmp;\n    X509_PURPOSE *xptmp;\n    const X509_VERIFY_PARAM *vtmp;\n\n    OPENSSL_assert(vpm != NULL);\n    OPENSSL_assert(opt > OPT_V__FIRST);\n    OPENSSL_assert(opt < OPT_V__LAST);\n\n    switch ((enum range)opt) {\n    case OPT_V__FIRST:\n    case OPT_V__LAST:\n        return 0;\n    case OPT_V_POLICY:\n        otmp = OBJ_txt2obj(opt_arg(), 0);\n        if (otmp == NULL) {\n            opt_printf_stderr(\"%s: Invalid Policy %s\\n\", prog, opt_arg());\n            return 0;\n        }\n        if (!X509_VERIFY_PARAM_add0_policy(vpm, otmp)) {\n            ASN1_OBJECT_free(otmp);\n            opt_printf_stderr(\"%s: Internal error adding Policy %s\\n\",\n                              prog, opt_arg());\n            return 0;\n        }\n        break;\n    case OPT_V_PURPOSE:\n        /* purpose name -> purpose index */\n        i = X509_PURPOSE_get_by_sname(opt_arg());\n        if (i < 0) {\n            opt_printf_stderr(\"%s: Invalid purpose %s\\n\", prog, opt_arg());\n            return 0;\n        }\n\n        /* purpose index -> purpose object */\n        xptmp = X509_PURPOSE_get0(i);\n\n        /* purpose object -> purpose value */\n        i = X509_PURPOSE_get_id(xptmp);\n\n        if (!X509_VERIFY_PARAM_set_purpose(vpm, i)) {\n            opt_printf_stderr(\"%s: Internal error setting purpose %s\\n\",\n                              prog, opt_arg());\n            return 0;\n        }\n        break;\n    case OPT_V_VERIFY_NAME:\n        vtmp = X509_VERIFY_PARAM_lookup(opt_arg());\n        if (vtmp == NULL) {\n            opt_printf_stderr(\"%s: Invalid verify name %s\\n\",\n                              prog, opt_arg());\n            return 0;\n        }\n        X509_VERIFY_PARAM_set1(vpm, vtmp);\n        break;\n    case OPT_V_VERIFY_DEPTH:\n        i = atoi(opt_arg());\n        if (i >= 0)\n            X509_VERIFY_PARAM_set_depth(vpm, i);\n        break;\n    case OPT_V_VERIFY_AUTH_LEVEL:\n        i = atoi(opt_arg());\n        if (i >= 0)\n            X509_VERIFY_PARAM_set_auth_level(vpm, i);\n        break;\n    case OPT_V_ATTIME:\n        if (!opt_intmax(opt_arg(), &t))\n            return 0;\n        if (t != (time_t)t) {\n            opt_printf_stderr(\"%s: epoch time out of range %s\\n\",\n                              prog, opt_arg());\n            return 0;\n        }\n        X509_VERIFY_PARAM_set_time(vpm, (time_t)t);\n        break;\n    case OPT_V_VERIFY_HOSTNAME:\n        if (!X509_VERIFY_PARAM_set1_host(vpm, opt_arg(), 0))\n            return 0;\n        break;\n    case OPT_V_VERIFY_EMAIL:\n        if (!X509_VERIFY_PARAM_set1_email(vpm, opt_arg(), 0))\n            return 0;\n        break;\n    case OPT_V_VERIFY_IP:\n        if (!X509_VERIFY_PARAM_set1_ip_asc(vpm, opt_arg()))\n            return 0;\n        break;\n    case OPT_V_IGNORE_CRITICAL:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_IGNORE_CRITICAL);\n        break;\n    case OPT_V_ISSUER_CHECKS:\n        /* NOP, deprecated */\n        break;\n    case OPT_V_CRL_CHECK:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_CRL_CHECK);\n        break;\n    case OPT_V_CRL_CHECK_ALL:\n        X509_VERIFY_PARAM_set_flags(vpm,\n                                    X509_V_FLAG_CRL_CHECK |\n                                    X509_V_FLAG_CRL_CHECK_ALL);\n        break;\n    case OPT_V_POLICY_CHECK:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_POLICY_CHECK);\n        break;\n    case OPT_V_EXPLICIT_POLICY:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_EXPLICIT_POLICY);\n        break;\n    case OPT_V_INHIBIT_ANY:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_INHIBIT_ANY);\n        break;\n    case OPT_V_INHIBIT_MAP:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_INHIBIT_MAP);\n        break;\n    case OPT_V_X509_STRICT:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_X509_STRICT);\n        break;\n    case OPT_V_EXTENDED_CRL:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_EXTENDED_CRL_SUPPORT);\n        break;\n    case OPT_V_USE_DELTAS:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_USE_DELTAS);\n        break;\n    case OPT_V_POLICY_PRINT:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_NOTIFY_POLICY);\n        break;\n    case OPT_V_CHECK_SS_SIG:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_CHECK_SS_SIGNATURE);\n        break;\n    case OPT_V_TRUSTED_FIRST:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_TRUSTED_FIRST);\n        break;\n    case OPT_V_SUITEB_128_ONLY:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_SUITEB_128_LOS_ONLY);\n        break;\n    case OPT_V_SUITEB_128:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_SUITEB_128_LOS);\n        break;\n    case OPT_V_SUITEB_192:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_SUITEB_192_LOS);\n        break;\n    case OPT_V_PARTIAL_CHAIN:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_PARTIAL_CHAIN);\n        break;\n    case OPT_V_NO_ALT_CHAINS:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_NO_ALT_CHAINS);\n        break;\n    case OPT_V_NO_CHECK_TIME:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_NO_CHECK_TIME);\n        break;\n    case OPT_V_ALLOW_PROXY_CERTS:\n        X509_VERIFY_PARAM_set_flags(vpm, X509_V_FLAG_ALLOW_PROXY_CERTS);\n        break;\n    }\n    return 1;\n\n}\n        - Target variables: [], xptmp\n        - Constraints: ['!(i < 0)', '!(!X509_VERIFY_PARAM_add0_policy(vpm, otmp))', '!(otmp == NULL)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "fad29e43-600a-49d7-a308-5e66a2c59765",
+  "usage": {
+    "prompt_tokens": 1761,
+    "completion_tokens": 5,
+    "total_tokens": 1766,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1761
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6586293999998816,
+  "cost_upper_bound_cny": 0.003562
+}

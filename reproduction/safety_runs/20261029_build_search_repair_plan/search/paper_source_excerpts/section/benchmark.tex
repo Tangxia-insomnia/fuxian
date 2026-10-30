@@ -1,0 +1,12 @@
+\subsection{Dataset}
+
+We first manually label and construct a new benchmark \ourbench{}, which includes false positive reported by state-of-the-art static analyzers on real-world complex software systems.  
+
+
+
+\textbf{Bug Types.} We target three representative categories of critical bugs: null pointer dereference (NPD), use-after-free (UAF), and buffer overflow (BOF). 
+\textbf{Target Projects.} We select the latest versions of three well-maintained and large-scale C/C++ open-source projects for scanning, including the Linux kernel~\cite{kernel}, OpenSSL~\cite{openssl}, and Libav~\cite{libav}.
+\textbf{Static Analyzers.} We use three state-of-the-art static analyzers: CodeQL~\cite{codeql}, Infer~\cite{infer}, and CppCheck~\cite{cppcheck}. 
+
+
+We adopt the following sampling strategy for manual inspection: if a static analyzer detects more than 100 warnings in a project, we randomly sample 100 instances; otherwise, all instances are included. For each warning, two participants will individually label it as True or False. In total, the construction process takes around 100 person-hours. The final benchmark \ourbench{} contains 364 warnings, of which 45 are real bugs. Detailed benchmark statistics are presented in Table \ref{table:benchmark} in Appendix~\ref{ap:dataset} and the detailed labeling process is in Appendix~\ref{ap:dataset}. 

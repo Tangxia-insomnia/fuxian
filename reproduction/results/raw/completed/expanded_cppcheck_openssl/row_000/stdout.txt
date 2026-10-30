@@ -1,0 +1,95 @@
+```python
+key_param=Int('key_param')
+s.add(key_param == 0)
+```
+```json
+["!(key_param == NULL || key_param->idx != keyidx) || !((nparam->param = sk_OPENSSL_STRING_new_null()) == NULL)", "!(keyidx < 0)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# key_param is a pointer to a struct; we model it as an uninterpreted integer (address).
+# NULL is represented as 0.
+key_param = Int('key_param')
+
+# key_param->idx is the field accessed; model as an uninterpreted integer.
+key_param_idx = Int('key_param_idx')
+
+# keyidx is an integer parameter.
+keyidx = Int('keyidx')
+
+# nparam->param is a pointer field; model as an uninterpreted integer (address).
+nparam_param = Int('nparam_param')
+
+# sk_OPENSSL_STRING_new_null() return value; model as an uninterpreted integer (address).
+sk_new_null_ret = Int('sk_new_null_ret')
+
+s = Solver()
+
+# Constraint 1:
+#   !(key_param == NULL || key_param->idx != keyidx)
+#       || !((nparam->param = sk_OPENSSL_STRING_new_null()) == NULL)
+#
+# This constraint is included because it references key_param (and keyidx),
+# which are among the relevant conditions/variables. It encodes the C
+# short-circuit logic: the whole expression is satisfiable unless both
+# disjuncts are false.
+#
+# C semantics:
+#   - "key_param == NULL"  -> key_param == 0
+#   - "key_param->idx"     -> key_param_idx (only meaningful when key_param != 0)
+#   - "!((nparam->param = sk_OPENSSL_STRING_new_null()) == NULL)"
+#       -> the assignment result (sk_new_null_ret) is not NULL, i.e. sk_new_null_ret != 0
+#
+# Note: In C, if key_param == NULL, the second operand of || is not evaluated,
+# so key_param->idx is not dereferenced. We model the logical meaning directly.
+constraint1 = Or(
+    Not(Or(key_param == 0, key_param_idx != keyidx)),
+    Not(sk_new_null_ret == 0)
+)
+s.add(constraint1)
+
+# Constraint 2:
+#   !(keyidx < 0)
+# This constraint is included because it references keyidx, which is used
+# together with key_param in the first constraint (key_param->idx != keyidx).
+# It asserts keyidx is non-negative.
+constraint2 = Not(keyidx < 0)
+s.add(constraint2)
+
+# Check satisfiability and print result
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or, Not, sat
+
+    # Base script variables and constraints
+    key_param = Int('key_param')
+
+    # Constraint set 2 variables
+    key_param_idx = Int('key_param_idx')
+    keyidx = Int('keyidx')
+    nparam_param = Int('nparam_param')
+    sk_new_null_ret = Int('sk_new_null_ret')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(key_param == 0)
+
+    # Constraint set 2, constraint 1
+    constraint1 = Or(
+        Not(Or(key_param == 0, key_param_idx != keyidx)),
+        Not(sk_new_null_ret == 0)
+    )
+    s.add(constraint1)
+
+    # Constraint set 2, constraint 2
+    constraint2 = Not(keyidx < 0)
+    s.add(constraint2)
+
+    return s.check() == sat
+```
+goto result: True

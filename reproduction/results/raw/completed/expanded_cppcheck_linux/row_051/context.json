@@ -1,0 +1,48 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ps3_system_bus_remove",
+      "var_name": "drv",
+      "target": "if (drv->remove)",
+      "code": "static void ps3_system_bus_remove(struct device *_dev)\n{\n\tstruct ps3_system_bus_device *dev = ps3_dev_to_system_bus_dev(_dev);\n\tstruct ps3_system_bus_driver *drv;\n\n\tBUG_ON(!dev);\n\tdev_dbg(_dev, \"%s:%d\\n\", __func__, __LINE__);\n\n\tdrv = ps3_system_bus_dev_to_system_bus_drv(dev);\n\tBUG_ON(!drv);\n\n\tif (drv->remove)\n\t\tdrv->remove(dev);\n\telse\n\t\tdev_dbg(&dev->core, \"%s:%d %s: no remove method\\n\",\n\t\t\t__func__, __LINE__, drv->core.name);\n\n\tpr_debug(\" <- %s:%d: %s\\n\", __func__, __LINE__, dev_name(&dev->core));\n}",
+      "body_sha256": "c9282ad82609ead8856bfcb07977ea18163220eee8e49cb9cefb833511c0768e",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (drv->remove)",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void ps3_system_bus_remove(struct device *_dev)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "drv ==0"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "dev ==0"
+            ]
+          }
+        ],
+        "filter_function_code": "static void ps3_system_bus_remove(struct device *_dev)\n{\n\tstruct ps3_system_bus_device *dev = ps3_dev_to_system_bus_dev(_dev);\n\tstruct ps3_system_bus_driver *drv;\n\n\tBUG_ON(!dev);\n\tdev_dbg(_dev, \"%s:%d\\n\", __func__, __LINE__);\n\n\tdrv = ps3_system_bus_dev_to_system_bus_drv(dev);\n\tBUG_ON(!drv);\n\n\tif (drv->remove)\n\t\tdrv->remove(dev);\n\telse\n\t\tdev_dbg(&dev->core, \"%s:%d %s: no remove method\\n\",\n\t\t\t__func__, __LINE__, drv->core.name);\n\n\tpr_debug(\" <- %s:%d: %s\\n\", __func__, __LINE__, dev_name(&dev->core));\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void ps3_system_bus_remove(struct device *_dev)\n{\n\tstruct ps3_system_bus_device *dev = ps3_dev_to_system_bus_dev(_dev);\n\tstruct ps3_system_bus_driver *drv;\n\n\tBUG_ON(!dev);\n\tdev_dbg(_dev, \"%s:%d\\n\", __func__, __LINE__);\n\n\tdrv = ps3_system_bus_dev_to_system_bus_drv(dev);\n\tBUG_ON(!drv);\n\n\tif (drv->remove)\n\t\tdrv->remove(dev);\n\telse\n\t\tdev_dbg(&dev->core, \"%s:%d %s: no remove method\\n\",\n\t\t\t__func__, __LINE__, drv->core.name);\n\n\tpr_debug(\" <- %s:%d: %s\\n\", __func__, __LINE__, dev_name(&dev->core));\n}"
+  ]
+}

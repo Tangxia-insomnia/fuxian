@@ -1,0 +1,33 @@
+[
+  {
+    "caller": "tcp_set_allowed_congestion_control",
+    "callee": "kfree",
+    "statement": "\tkfree(saved_clone);",
+    "caller_tracked_variable": "saved_clone",
+    "recorded_callee_tracked_variable": "object",
+    "callee_parameters": [
+      "object"
+    ],
+    "call_candidates": [
+      {
+        "name": "kfree",
+        "arguments": [
+          "saved_clone"
+        ],
+        "start": 1,
+        "end": 19,
+        "text": "kfree(saved_clone)"
+      }
+    ],
+    "audit_note": "Lexical positional check; not a new experiment and not proof of alias/value propagation",
+    "recomputed_tracked_parameter": "object",
+    "parameter_name_matches_saved_frame": true,
+    "all_positional_pairs": [
+      {
+        "position_zero_based": 0,
+        "argument": "saved_clone",
+        "parameter": "object"
+      }
+    ]
+  }
+]

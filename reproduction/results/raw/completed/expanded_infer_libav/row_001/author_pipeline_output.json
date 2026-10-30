@@ -1,0 +1,11 @@
+{
+  "response": [
+    "step 1 z3 script: ```python\nmovie_format_ctx=Int('movie_format_ctx')\ns.add(movie_format_ctx == 0)\n```",
+    "response_filter_goto: ```json\n[\"!((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, NULL)) < 0)\"]\n```",
+    "z3 script: ```python\nfrom z3 import *\n\n# Declare variables relevant to the constraint.\n# movie->format_ctx is a pointer (address) passed by reference to avformat_open_input.\n# We model it as an integer address (0 == NULL).\nmovie_format_ctx = BitVec('movie_format_ctx', 64)\n\n# The C expression is:\n#   !((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, NULL)) < 0)\n#\n# Semantics:\n#   - avformat_open_input returns an int `ret`.\n#   - The constraint asserts that the negation of (ret < 0) holds,\n#     i.e. ret >= 0 (success or non-negative return).\n#   - The assignment to `ret` is a side effect; the constraint only\n#     concerns the truth value of (ret < 0).\n#\n# Since `ret` is a fresh local produced by the call, we model it as an\n# uninterpreted integer representing the return value of the call.\nret = Int('ret')\n\n# The constraint: NOT (ret < 0)  <=>  ret >= 0\n# This is the only condition affecting the specified variable\n# (movie->format_ctx is only used as an argument address; its value is\n# not constrained by this expression itself).\nconstraint = (ret >= 0)\n\n# Solve / check satisfiability of the constraint.\ns = Solver()\ns.add(constraint)\n\n# Print result (executable Z3 script behavior).\nprint(s.check())\n```",
+    "final z3 script: def check_constraints():\n    from z3 import Int, BitVec, Solver, sat\n\n    # Base script constraints\n    movie_format_ctx = Int('movie_format_ctx')\n    s = Solver()\n    s.add(movie_format_ctx == 0)\n\n    # Constraint set 2: model avformat_open_input return value\n    movie_format_ctx_bv = BitVec('movie_format_ctx_bv', 64)\n    ret = Int('ret')\n    s.add(ret >= 0)\n\n    return s.check() == sat"
+  ],
+  "function_name_list": [],
+  "function_body_list": [],
+  "result": true
+}

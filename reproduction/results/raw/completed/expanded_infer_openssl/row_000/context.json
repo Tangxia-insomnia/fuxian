@@ -1,0 +1,87 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "pkey_type2param",
+      "var_name": "ctx",
+      "target": "OSSL_DECODER_CTX_free(ctx);",
+      "code": "static EVP_PKEY *pkey_type2param(int ptype, const void *pval,\n                                 OSSL_LIB_CTX *libctx, const char *propq)\n{\n    EVP_PKEY *pkey = NULL;\n    EVP_PKEY_CTX *pctx = NULL;\n    OSSL_DECODER_CTX *ctx = NULL;\n\n    if (ptype == V_ASN1_SEQUENCE) {\n        const ASN1_STRING *pstr = pval;\n        const unsigned char *pm = pstr->data;\n        size_t pmlen = (size_t)pstr->length;\n        int selection = OSSL_KEYMGMT_SELECT_ALL_PARAMETERS;\n\n        ctx = OSSL_DECODER_CTX_new_for_pkey(&pkey, \"DER\", NULL, \"EC\",\n                                            selection, libctx, propq);\n        if (ctx == NULL)\n            goto err;\n\n        if (!OSSL_DECODER_from_data(ctx, &pm, &pmlen)) {\n            ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n            goto err;\n        }\n        OSSL_DECODER_CTX_free(ctx);\n        return pkey;\n    } else if (ptype == V_ASN1_OBJECT) {\n        const ASN1_OBJECT *poid = pval;\n        char groupname[OSSL_MAX_NAME_SIZE];\n\n        /* type == V_ASN1_OBJECT => the parameters are given by an asn1 OID */\n        pctx = EVP_PKEY_CTX_new_from_name(libctx, \"EC\", propq);\n        if (pctx == NULL || EVP_PKEY_paramgen_init(pctx) <= 0)\n            goto err;\n        if (OBJ_obj2txt(groupname, sizeof(groupname), poid, 0) <= 0\n                || EVP_PKEY_CTX_set_group_name(pctx, groupname) <= 0) {\n            ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n            goto err;\n        }\n        if (EVP_PKEY_paramgen(pctx, &pkey) <= 0)\n            goto err;\n        EVP_PKEY_CTX_free(pctx);\n        return pkey;\n    }\n\n    ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n    return NULL;\n\n err:\n    EVP_PKEY_free(pkey);\n    EVP_PKEY_CTX_free(pctx);\n    OSSL_DECODER_CTX_free(ctx);\n    return NULL;\n}",
+      "body_sha256": "e3e81b0b235ae329b76a9f68f8e165e6cfed88b817cfea8c2274a1a8aaf6e94f",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "OSSL_DECODER_CTX_free(ctx);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static EVP_PKEY *pkey_type2param(int ptype, const void *pval,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": []
+          },
+          {
+            "text": "return",
+            "condition": [
+              "ptype == V_ASN1_OBJECT"
+            ]
+          },
+          {
+            "text": "err",
+            "condition": [
+              "ptype == V_ASN1_OBJECT",
+              "EVP_PKEY_paramgen(pctx, &pkey) <= 0"
+            ]
+          },
+          {
+            "text": "err",
+            "condition": [
+              "ptype == V_ASN1_OBJECT",
+              "OBJ_obj2txt(groupname, sizeof(groupname), poid, 0) <= 0 || EVP_PKEY_CTX_set_group_name(pctx, groupname) <= 0"
+            ]
+          },
+          {
+            "text": "err",
+            "condition": [
+              "ptype == V_ASN1_OBJECT",
+              "pctx == NULL || EVP_PKEY_paramgen_init(pctx) <= 0"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "ptype == V_ASN1_SEQUENCE"
+            ]
+          },
+          {
+            "text": "err",
+            "condition": [
+              "ptype == V_ASN1_SEQUENCE",
+              "!OSSL_DECODER_from_data(ctx, &pm, &pmlen)"
+            ]
+          },
+          {
+            "text": "err",
+            "condition": [
+              "ptype == V_ASN1_SEQUENCE",
+              "ctx == NULL"
+            ]
+          }
+        ],
+        "filter_function_code": "static EVP_PKEY *pkey_type2param(int ptype, const void *pval,\n                                 OSSL_LIB_CTX *libctx, const char *propq)\n{\n    EVP_PKEY *pkey = NULL;\n    EVP_PKEY_CTX *pctx = NULL;\n    OSSL_DECODER_CTX *ctx = NULL;\n\n    if (ptype == V_ASN1_SEQUENCE) {\n        const ASN1_STRING *pstr = pval;\n        const unsigned char *pm = pstr->data;\n        size_t pmlen = (size_t)pstr->length;\n        int selection = OSSL_KEYMGMT_SELECT_ALL_PARAMETERS;\n\n        ctx = OSSL_DECODER_CTX_new_for_pkey(&pkey, \"DER\", NULL, \"EC\",\n                                            selection, libctx, propq);\n        if (ctx == NULL)\n            goto err;\n\n        if (!OSSL_DECODER_from_data(ctx, &pm, &pmlen)) {\n            ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n            goto err;\n        }\n        OSSL_DECODER_CTX_free(ctx);\n        return pkey;\n    } else if (ptype == V_ASN1_OBJECT) {\n        const ASN1_OBJECT *poid = pval;\n        char groupname[OSSL_MAX_NAME_SIZE];\n\n        /* type == V_ASN1_OBJECT => the parameters are given by an asn1 OID */\n        pctx = EVP_PKEY_CTX_new_from_name(libctx, \"EC\", propq);\n        if (pctx == NULL || EVP_PKEY_paramgen_init(pctx) <= 0)\n            goto err;\n        if (OBJ_obj2txt(groupname, sizeof(groupname), poid, 0) <= 0\n                || EVP_PKEY_CTX_set_group_name(pctx, groupname) <= 0) {\n            ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n            goto err;\n        }\n        if (EVP_PKEY_paramgen(pctx, &pkey) <= 0)\n            goto err;\n        EVP_PKEY_CTX_free(pctx);\n        return pkey;\n    }\n\n    ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n    return NULL;\n\n err:\n    EVP_PKEY_free(pkey);\n    EVP_PKEY_CTX_free(pctx);\n    OSSL_DECODER_CTX_free(ctx);\n    return NULL;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static EVP_PKEY *pkey_type2param(int ptype, const void *pval,\n                                 OSSL_LIB_CTX *libctx, const char *propq)\n{\n    EVP_PKEY *pkey = NULL;\n    EVP_PKEY_CTX *pctx = NULL;\n    OSSL_DECODER_CTX *ctx = NULL;\n\n    if (ptype == V_ASN1_SEQUENCE) {\n        const ASN1_STRING *pstr = pval;\n        const unsigned char *pm = pstr->data;\n        size_t pmlen = (size_t)pstr->length;\n        int selection = OSSL_KEYMGMT_SELECT_ALL_PARAMETERS;\n\n        ctx = OSSL_DECODER_CTX_new_for_pkey(&pkey, \"DER\", NULL, \"EC\",\n                                            selection, libctx, propq);\n        if (ctx == NULL)\n            goto err;\n\n        if (!OSSL_DECODER_from_data(ctx, &pm, &pmlen)) {\n            ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n            goto err;\n        }\n        OSSL_DECODER_CTX_free(ctx);\n        return pkey;\n    } else if (ptype == V_ASN1_OBJECT) {\n        const ASN1_OBJECT *poid = pval;\n        char groupname[OSSL_MAX_NAME_SIZE];\n\n        /* type == V_ASN1_OBJECT => the parameters are given by an asn1 OID */\n        pctx = EVP_PKEY_CTX_new_from_name(libctx, \"EC\", propq);\n        if (pctx == NULL || EVP_PKEY_paramgen_init(pctx) <= 0)\n            goto err;\n        if (OBJ_obj2txt(groupname, sizeof(groupname), poid, 0) <= 0\n                || EVP_PKEY_CTX_set_group_name(pctx, groupname) <= 0) {\n            ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n            goto err;\n        }\n        if (EVP_PKEY_paramgen(pctx, &pkey) <= 0)\n            goto err;\n        EVP_PKEY_CTX_free(pctx);\n        return pkey;\n    }\n\n    ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n    return NULL;\n\n err:\n    EVP_PKEY_free(pkey);\n    EVP_PKEY_CTX_free(pctx);\n    OSSL_DECODER_CTX_free(ctx);\n    return NULL;\n}"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n\n    # Variables from base script and constraint set 1\n    ctx = Int('ctx')\n    link = Int('link')\n    old_ctx = Int('old_ctx')\n\n    # Variable from constraint set 2\n    replace_ctx = Int('ctx_replace_ctx')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(old_ctx == 0)\n\n    # Constraint set 1\n    s.add(ctx != 0)\n    s.add(link != 0)\n    s.add(old_ctx == 0)\n\n    # Constraint set 2: !(WARN_ON(!ctx->replace_ctx)) ==> replace_ctx != NULL\n    s.add(replace_ctx != 0)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun old_ctx () Int)\n(declare-fun ctx () Int)\n(declare-fun link () Int)\n(declare-fun ctx_replace_ctx () Int)\n(assert\n (= old_ctx 0))\n(assert\n (and (distinct ctx 0) true))\n(assert\n (and (distinct link 0) true))\n(assert\n (= old_ctx 0))\n(assert\n (and (distinct ctx_replace_ctx 0) true))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

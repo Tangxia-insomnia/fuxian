@@ -1,0 +1,7 @@
+{
+  "event_id": 4,
+  "level": 0,
+  "source": "def check_constraints():\n    import z3\n    s = z3.Solver()\n\n    curr_dev = z3.Int('curr_dev')\n    curr_net = z3.Int('curr_net')\n    sublist = z3.Int('sublist')\n    dev = z3.Int('dev')\n    net = z3.Int('net')\n    skb = z3.Int('skb')\n\n    s.add(curr_dev == 0)\n    s.add(curr_net == 0)\n    s.add(sublist == 0)\n    s.add(dev != 0)\n    s.add(net != 0)\n    s.add(skb != 0)\n    s.add(curr_dev != dev)\n    s.add(sublist == 0)\n    s.add(curr_dev == dev)\n    s.add(curr_net == net)\n\n    result = s.check()\n    return result == z3.sat",
+  "ok": false,
+  "error": "ValueError: ValueError: Generated code may only import z3"
+}

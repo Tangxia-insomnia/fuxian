@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    cloned_skb = Int('cloned_skb')\n    s = Solver()\n    s.add(cloned_skb == 0)\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun cloned_skb () Int)\n(assert\n (= cloned_skb 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

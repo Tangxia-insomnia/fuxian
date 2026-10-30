@@ -1,0 +1,39 @@
+```python
+sta=Int('sta')
+s.add(sta == 0)
+```
+```json
+["!(WARN_ON(!sta))"]
+```
+```python
+from z3 import *
+
+# Variable: sta (treated as a boolean-like integer flag; nonzero = true)
+sta = Int('sta')
+
+s = Solver()
+
+# Constraint: !(WARN_ON(!sta))
+# WARN_ON(x) evaluates to x (it warns and returns the condition).
+# So WARN_ON(!sta) == !sta, and the outer ! negates it: !(!sta) == sta.
+# Therefore the constraint reduces to: sta must be nonzero (true).
+# This is included because it directly constrains the variable `sta`.
+s.add(sta != 0)
+
+# Check satisfiability and print result
+if s.check() == sat:
+    print("sat")
+    print(s.model())
+else:
+    print("unsat")
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    sta = Int('sta')
+    s = Solver()
+    s.add(sta == 0)
+    s.add(sta != 0)
+    return s.check() == sat
+```
+goto result: False

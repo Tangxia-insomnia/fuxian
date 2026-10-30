@@ -1,0 +1,45 @@
+{
+  "call_id": 134,
+  "sample_id": "NPD/codeql/kernel69:row=42:index=67",
+  "timestamp": "2026-10-26T00:31:05.100293+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int ieee80211_chsw_switch_vifs(struct ieee80211_local *local,\n\t\t\t\t      int n_vifs)\n{\n\tstruct ieee80211_vif_chanctx_switch *vif_chsw;\n\tstruct ieee80211_link_data *link;\n\tstruct ieee80211_chanctx *ctx, *old_ctx;\n\tint i, err;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\tvif_chsw = kcalloc(n_vifs, sizeof(vif_chsw[0]), GFP_KERNEL);\n\tif (!vif_chsw)\n\t\treturn -ENOMEM;\n\n\ti = 0;\n\tlist_for_each_entry(ctx, &local->chanctx_list, list) {\n\t\tif (ctx->replace_state != IEEE80211_CHANCTX_REPLACES_OTHER)\n\t\t\tcontinue;\n\n\t\tif (WARN_ON(!ctx->replace_ctx)) {\n\t\t\terr = -EINVAL;\n\t\t\tgoto out;\n\t\t}\n\n\t\tlist_for_each_entry(link, &ctx->reserved_links,\n\t\t\t\t    reserved_chanctx_list) {\n\t\t\tif (!ieee80211_link_has_in_place_reservation(link))\n\t\t\t\tcontinue;\n\n\t\t\told_ctx = ieee80211_link_get_chanctx(link);\n\t\t\tvif_chsw[i].vif = &link->sdata->vif;\n\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;\n\t\t\tvif_chsw[i].new_ctx = &ctx->conf;\n\t\t\tvif_chsw[i].link_conf = link->conf;\n\n\t\t\ti++;\n\t\t}\n\t}\n\n\terr = drv_switch_vif_chanctx(local, vif_chsw, n_vifs,\n\t\t\t\t     CHANCTX_SWMODE_SWAP_CONTEXTS);\n\nout:\n\tkfree(vif_chsw);\n\treturn err;\n}\n        - Target variables: [{'condition': 'list_for_each_entry(ctx, &local->chanctx_list, list)', 'line_number': 15}, {'condition': 'list_for_each_entry(link, &ctx->reserved_links, reserved_chanctx_list)', 'line_number': 24}], old_ctx\n        - Constraints: ['!(WARN_ON(!ctx->replace_ctx))', '!(!vif_chsw)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "b37ff355-ee31-422b-a946-b490eb426091",
+  "usage": {
+    "prompt_tokens": 565,
+    "completion_tokens": 17,
+    "total_tokens": 582,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 565
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(WARN_ON(!ctx->replace_ctx))\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.5377318000000741,
+  "cost_upper_bound_cny": 0.001266
+}

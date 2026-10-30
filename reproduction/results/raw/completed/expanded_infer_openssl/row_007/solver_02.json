@@ -1,0 +1,7 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, BitVec, BitVecVal, Bool, Implies, And, Or, Not, sat\n\n    # --- Variables from base script ---\n    flags = Int('flags')\n    tsa_name = Int('tsa_name')\n    signer = Int('signer')\n    TS_VFY_SIGNER = Int('TS_VFY_SIGNER')\n\n    s = Solver()\n\n    # --- Base script constraints ---\n    s.add(Implies(And((flags & TS_VFY_SIGNER) != 0, tsa_name != 0), signer == 0))\n    s.add(signer == 0)\n\n    # --- Constraint set 1 ---\n    s.add(TS_VFY_SIGNER != 0)\n    s.add(flags >= 0)\n    s.add(signer == 0)\n\n    cond = And(flags != 0, TS_VFY_SIGNER != 0, tsa_name != 0)\n    s.add(Implies(cond, tsa_name != 0))\n    s.add(Implies(cond, flags != 0))\n\n    # --- Constraint set 2 (separate solver with BitVec semantics) ---\n    flags_bv = BitVec('flags_bv', 32)\n    TS_VFY_SIGNATURE = BitVecVal(0x0002, 32)\n    verify_signature_result = Bool('TS_RESP_verify_signature_result')\n    signer_bv = BitVec('signer_bv', 32)\n\n    signature_flag_set = (flags_bv & TS_VFY_SIGNATURE) != 0\n    s.add(Or(Not(signature_flag_set), verify_signature_result))\n\n    # --- Check satisfiability ---\n    result = s.check()\n    return result == sat",
+  "ok": false,
+  "error": "ValueError: TypeError: unsupported operand type(s) for &: 'ArithRef' and 'ArithRef'"
+}

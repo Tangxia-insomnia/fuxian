@@ -1,0 +1,112 @@
+```python
+link=Int('link')
+s.add(link == 0)
+```
+Let's go through this step by step.
+
+**Step 1 – Understanding the target variables**  
+Target variables: `[]`, `link`  
+This means we care about constraints that involve `link` (and possibly no other target variables, since the list is otherwise empty).
+
+**Step 2 – Look at the given constraints**  
+
+1. `!(i == filter->nb_inputs)`  
+   - Involves `i` and `filter->nb_inputs`.  
+   - Does **not** involve `link`.  
+   - So, not relevant to target variables.
+
+2. `!(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_samplerates->nb_formats== 1)`  
+   - First part: `!(i = 0; i < filter->nb_inputs; i++)` — this looks like a malformed constraint (probably meant to represent loop condition negation), but it involves `i` and `filter->nb_inputs`, not `link`.  
+   - Second part: `!(link->type == AVMEDIA_TYPE_AUDIO && link->out_samplerates->nb_formats== 1)` — this **does** involve `link`.  
+   - Since the constraint is a disjunction (`||`), and one part involves `link`, the whole constraint involves `link`.  
+   - So this constraint is relevant.
+
+**Step 3 – Filtering**  
+Only the second constraint involves `link`. The first does not.
+
+**Step 4 – Final filtered constraints**  
+We keep only:  
+`!(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_samplerates->nb_formats== 1)`
+
+**Step 5 – JSON output**  
+
+```json
+["!(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_samplerates->nb_formats== 1)"]
+```
+```python
+from z3 import *
+
+# Declarations for variables referenced in the constraint.
+# The C constraint references:
+#   - i (loop counter)
+#   - filter->nb_inputs (loop bound)
+#   - link->type (compared against AVMEDIA_TYPE_AUDIO)
+#   - link->out_samplerates->nb_formats (compared against 1)
+#
+# Since the constraint is a disjunction of two negated sub-expressions,
+# we model each atomic component as an uninterpreted/typed variable.
+
+# Loop counter and bound
+i = Int('i')
+nb_inputs = Int('nb_inputs')
+
+# link->type and the AVMEDIA_TYPE_AUDIO constant
+link_type = Int('link_type')
+AVMEDIA_TYPE_AUDIO = Int('AVMEDIA_TYPE_AUDIO')
+
+# link->out_samplerates->nb_formats
+nb_formats = Int('nb_formats')
+
+s = Solver()
+
+# Original C constraint:
+#   !(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_samplerates->nb_formats == 1)
+#
+# The first part "!(i = 0; i < filter->nb_inputs; i++)" is a negated for-loop
+# condition. In C, a for-loop condition is true iff the loop executes at least
+# once, i.e., (i = 0) && (0 < nb_inputs). Its negation is therefore:
+#   !(i == 0 && 0 < nb_inputs)
+# which is included here because it is the left disjunct of the constraint.
+loop_condition = And(i == 0, 0 < nb_inputs)
+
+# Second part: !(link->type == AVMEDIA_TYPE_AUDIO && nb_formats == 1)
+# Included because it is the right disjunct of the constraint and directly
+# references the relevant variable `link`.
+second_condition = And(link_type == AVMEDIA_TYPE_AUDIO, nb_formats == 1)
+
+# Full constraint: !loop_condition || !second_condition
+s.add(Or(Not(loop_condition), Not(second_condition)))
+
+# Check satisfiability and print result
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, And, Or, Not, sat
+
+    # Base script variables and constraints
+    link = Int('link')
+
+    # Constraint set 2 variables
+    i = Int('i')
+    nb_inputs = Int('nb_inputs')
+    link_type = Int('link_type')
+    AVMEDIA_TYPE_AUDIO = Int('AVMEDIA_TYPE_AUDIO')
+    nb_formats = Int('nb_formats')
+
+    s = Solver()
+
+    # Base constraint
+    s.add(link == 0)
+
+    # Constraint set 2 constraints
+    loop_condition = And(i == 0, 0 < nb_inputs)
+    second_condition = And(link_type == AVMEDIA_TYPE_AUDIO, nb_formats == 1)
+    s.add(Or(Not(loop_condition), Not(second_condition)))
+
+    result = s.check() == sat
+    return result
+```
+goto result: True

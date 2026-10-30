@@ -1,0 +1,255 @@
+```python
+dev=Int('dev')
+s.add(dev == 0)
+```
+```json
+["!(cfg->fc_flags & RTNH_F_ONLINK) || !(!dev)", "!(cfg->fc_ifindex) || !(!dev)", "!(fib6_is_reject(cfg->fc_flags, dev, addr_type)) || !(dev != net->loopback_dev) || !(!idev)", "!(cfg->fc_flags & RTNH_F_ONLINK) || !(!(dev->flags & IFF_UP))", "!(idev->cnf.disable_ipv6)", "!(!(dev->flags & IFF_UP) && !cfg->fc_ignore_dev_down)", "!(!dev)"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints.
+# 'dev' is a pointer in C; model it as an integer address (0 == NULL).
+dev = Int('dev')
+
+# Boolean flags / fields accessed through pointers.
+# We model them as uninterpreted booleans/ints since their internal
+# structure is not part of the given constraints.
+dev_flags = Int('dev_flags')          # dev->flags
+cfg_fc_flags = Int('cfg_fc_flags')    # cfg->fc_flags
+cfg_fc_ifindex = Int('cfg_fc_ifindex')# cfg->fc_ifindex
+cfg_fc_ignore_dev_down = Bool('cfg_fc_ignore_dev_down')  # cfg->fc_ignore_dev_down
+idev = Int('idev')                    # idev pointer
+idev_cnf_disable_ipv6 = Bool('idev_cnf_disable_ipv6')    # idev->cnf.disable_ipv6
+net_loopback_dev = Int('net_loopback_dev')               # net->loopback_dev
+fib6_is_reject = Bool('fib6_is_reject')                  # fib6_is_reject(...) result
+addr_type = Int('addr_type')                             # addr_type argument
+
+# Constants
+RTNH_F_ONLINK = 1
+IFF_UP = 1
+
+s = Solver()
+
+# Constraint 1: !(cfg->fc_flags & RTNH_F_ONLINK) || !(!dev)
+# Included because it directly references 'dev' (via !dev).
+# C: !(cfg->fc_flags & RTNH_F_ONLINK) || (dev != NULL)
+s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, dev != 0))
+
+# Constraint 2: !(cfg->fc_ifindex) || !(!dev)
+# Included because it directly references 'dev'.
+# C: (cfg->fc_ifindex == 0) || (dev != NULL)
+s.add(Or(cfg_fc_ifindex == 0, dev != 0))
+
+# Constraint 3: !(fib6_is_reject(...)) || !(dev != net->loopback_dev) || !(!idev)
+# Included because it references 'dev' (comparison with loopback_dev).
+# C: !fib6_is_reject || (dev == net->loopback_dev) || (idev != NULL)
+s.add(Or(Not(fib6_is_reject), dev == net_loopback_dev, idev != 0))
+
+# Constraint 4: !(cfg->fc_flags & RTNH_F_ONLINK) || !(!(dev->flags & IFF_UP))
+# Included because it dereferences 'dev' (dev->flags), so it constrains 'dev'.
+# C: !(cfg->fc_flags & RTNH_F_ONLINK) || ((dev->flags & IFF_UP) != 0)
+s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, (dev_flags & IFF_UP) != 0))
+
+# Constraint 5: !(idev->cnf.disable_ipv6)
+# Not included: does not reference 'dev' (only 'idev').
+# s.add(Not(idev_cnf_disable_ipv6))
+
+# Constraint 6: !(!(dev->flags & IFF_UP) && !cfg->fc_ignore_dev_down)
+# Included because it dereferences 'dev' (dev->flags).
+# C: ((dev->flags & IFF_UP) != 0) || cfg->fc_ignore_dev_down
+s.add(Or((dev_flags & IFF_UP) != 0, cfg_fc_ignore_dev_down))
+
+# Constraint 7: !(!dev)
+# Included because it directly references 'dev'.
+# C: dev != NULL
+s.add(dev != 0)
+
+# Print the resulting script state (for inspection / execution).
+print(s)
+print("Check:", s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not
+
+    # Base script variables and constraints
+    dev = Int('dev')
+
+    # Variables from constraint set 2
+    dev_flags = Int('dev_flags')
+    cfg_fc_flags = Int('cfg_fc_flags')
+    cfg_fc_ifindex = Int('cfg_fc_ifindex')
+    cfg_fc_ignore_dev_down = Bool('cfg_fc_ignore_dev_down')
+    idev = Int('idev')
+    idev_cnf_disable_ipv6 = Bool('idev_cnf_disable_ipv6')
+    net_loopback_dev = Int('net_loopback_dev')
+    fib6_is_reject = Bool('fib6_is_reject')
+    addr_type = Int('addr_type')
+
+    # Constants
+    RTNH_F_ONLINK = 1
+    IFF_UP = 1
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(dev == 0)
+
+    # Constraint 1
+    s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, dev != 0))
+
+    # Constraint 2
+    s.add(Or(cfg_fc_ifindex == 0, dev != 0))
+
+    # Constraint 3
+    s.add(Or(Not(fib6_is_reject), dev == net_loopback_dev, idev != 0))
+
+    # Constraint 4
+    s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, (dev_flags & IFF_UP) != 0))
+
+    # Constraint 6
+    s.add(Or((dev_flags & IFF_UP) != 0, cfg_fc_ignore_dev_down))
+
+    # Constraint 7
+    s.add(dev != 0)
+
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or, Not, And
+
+    # Base script variable
+    dev = Int('dev')
+
+    # Variables from constraint set 2 (all Int per guidelines)
+    dev_flags = Int('dev_flags')
+    cfg_fc_flags = Int('cfg_fc_flags')
+    cfg_fc_ifindex = Int('cfg_fc_ifindex')
+    cfg_fc_ignore_dev_down = Int('cfg_fc_ignore_dev_down')
+    idev = Int('idev')
+    idev_cnf_disable_ipv6 = Int('idev_cnf_disable_ipv6')
+    net_loopback_dev = Int('net_loopback_dev')
+    fib6_is_reject = Int('fib6_is_reject')
+    addr_type = Int('addr_type')
+
+    # Constants
+    RTNH_F_ONLINK = 1
+    IFF_UP = 1
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(dev == 0)
+
+    # Constraint 1: !(cfg->fc_flags & RTNH_F_ONLINK) || (dev != NULL)
+    s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, dev != 0))
+
+    # Constraint 2: (cfg->fc_ifindex == 0) || (dev != NULL)
+    s.add(Or(cfg_fc_ifindex == 0, dev != 0))
+
+    # Constraint 3: !fib6_is_reject || (dev == net->loopback_dev) || (idev != NULL)
+    s.add(Or(fib6_is_reject == 0, dev == net_loopback_dev, idev != 0))
+
+    # Constraint 4: !(cfg->fc_flags & RTNH_F_ONLINK) || ((dev->flags & IFF_UP) != 0)
+    s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, (dev_flags & IFF_UP) != 0))
+
+    # Constraint 6: ((dev->flags & IFF_UP) != 0) || cfg->fc_ignore_dev_down
+    s.add(Or((dev_flags & IFF_UP) != 0, cfg_fc_ignore_dev_down == 1))
+
+    # Constraint 7: dev != NULL
+    s.add(dev != 0)
+
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import Int, Solver, Or, And, Not
+
+    # Base script variable
+    dev = Int('dev')
+
+    # Variables from constraint set 2 (all Int per guidelines)
+    dev_flags = Int('dev_flags')
+    cfg_fc_flags = Int('cfg_fc_flags')
+    cfg_fc_ifindex = Int('cfg_fc_ifindex')
+    cfg_fc_ignore_dev_down = Int('cfg_fc_ignore_dev_down')
+    idev = Int('idev')
+    net_loopback_dev = Int('net_loopback_dev')
+    fib6_is_reject = Int('fib6_is_reject')
+
+    # Constants
+    RTNH_F_ONLINK = 1
+    IFF_UP = 1
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(dev == 0)
+
+    # Constraint 1: !(cfg->fc_flags & RTNH_F_ONLINK) || (dev != NULL)
+    s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, dev != 0))
+
+    # Constraint 2: (cfg->fc_ifindex == 0) || (dev != NULL)
+    s.add(Or(cfg_fc_ifindex == 0, dev != 0))
+
+    # Constraint 3: !fib6_is_reject || (dev == net->loopback_dev) || (idev != NULL)
+    s.add(Or(fib6_is_reject == 0, dev == net_loopback_dev, idev != 0))
+
+    # Constraint 4: !(cfg->fc_flags & RTNH_F_ONLINK) || ((dev->flags & IFF_UP) != 0)
+    s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, (dev_flags & IFF_UP) != 0))
+
+    # Constraint 6: ((dev->flags & IFF_UP) != 0) || cfg->fc_ignore_dev_down
+    s.add(Or((dev_flags & IFF_UP) != 0, cfg_fc_ignore_dev_down == 1))
+
+    # Constraint 7: dev != NULL
+    s.add(dev != 0)
+
+    return s.check() == __import__('z3').sat
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import Int, Solver, Or, And, Not
+
+    # Base script variable
+    dev = Int('dev')
+
+    # Variables from constraint set 2 (all Int per guidelines)
+    dev_flags = Int('dev_flags')
+    cfg_fc_flags = Int('cfg_fc_flags')
+    cfg_fc_ifindex = Int('cfg_fc_ifindex')
+    cfg_fc_ignore_dev_down = Int('cfg_fc_ignore_dev_down')
+    idev = Int('idev')
+    net_loopback_dev = Int('net_loopback_dev')
+    fib6_is_reject = Int('fib6_is_reject')
+
+    # Constants
+    RTNH_F_ONLINK = 1
+    IFF_UP = 1
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(dev == 0)
+
+    # Constraint 1: !(cfg->fc_flags & RTNH_F_ONLINK) || (dev != NULL)
+    s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, dev != 0))
+
+    # Constraint 2: (cfg->fc_ifindex == 0) || (dev != NULL)
+    s.add(Or(cfg_fc_ifindex == 0, dev != 0))
+
+    # Constraint 3: !fib6_is_reject || (dev == net->loopback_dev) || (idev != NULL)
+    s.add(Or(fib6_is_reject == 0, dev == net_loopback_dev, idev != 0))
+
+    # Constraint 4: !(cfg->fc_flags & RTNH_F_ONLINK) || ((dev->flags & IFF_UP) != 0)
+    s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, (dev_flags & IFF_UP) != 0))
+
+    # Constraint 6: ((dev->flags & IFF_UP) != 0) || cfg->fc_ignore_dev_down
+    s.add(Or((dev_flags & IFF_UP) != 0, cfg_fc_ignore_dev_down == 1))
+
+    # Constraint 7: dev != NULL
+    s.add(dev != 0)
+
+    return s.check() == __import__('z3').sat
+ValueError: Unsupported generated-code operation

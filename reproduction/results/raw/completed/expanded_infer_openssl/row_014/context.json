@@ -1,0 +1,42 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "SSL_check_private_key",
+      "var_name": "sc",
+      "target": "if (sc->cert->key->x509 == NULL) {",
+      "code": "int SSL_check_private_key(const SSL *ssl)\n{\n    const SSL_CONNECTION *sc;\n\n    if ((sc = SSL_CONNECTION_FROM_CONST_SSL(ssl)) == NULL) {\n        ERR_raise(ERR_LIB_SSL, ERR_R_PASSED_NULL_PARAMETER);\n        return 0;\n    }\n    if (sc->cert->key->x509 == NULL) {\n        ERR_raise(ERR_LIB_SSL, SSL_R_NO_CERTIFICATE_ASSIGNED);\n        return 0;\n    }\n    if (sc->cert->key->privatekey == NULL) {\n        ERR_raise(ERR_LIB_SSL, SSL_R_NO_PRIVATE_KEY_ASSIGNED);\n        return 0;\n    }\n    return X509_check_private_key(sc->cert->key->x509,\n                                   sc->cert->key->privatekey);\n}",
+      "body_sha256": "9b118d4b0f74aa5d80b8c4b801ffc84bf7a4019bc23be9e9ad3668ec6231ba30",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (sc->cert->key->x509 == NULL) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "int SSL_check_private_key(const SSL *ssl)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "(sc = SSL_CONNECTION_FROM_CONST_SSL(ssl)) == NULL"
+            ]
+          }
+        ],
+        "filter_function_code": "int SSL_check_private_key(const SSL *ssl)\n{\n    const SSL_CONNECTION *sc;\n\n    if ((sc = SSL_CONNECTION_FROM_CONST_SSL(ssl)) == NULL) {\n        ERR_raise(ERR_LIB_SSL, ERR_R_PASSED_NULL_PARAMETER);\n        return 0;\n    }\n    if (sc->cert->key->x509 == NULL) {\n        ERR_raise(ERR_LIB_SSL, SSL_R_NO_CERTIFICATE_ASSIGNED);\n        return 0;\n    }\n    if (sc->cert->key->privatekey == NULL) {\n        ERR_raise(ERR_LIB_SSL, SSL_R_NO_PRIVATE_KEY_ASSIGNED);\n        return 0;\n    }\n    return X509_check_private_key(sc->cert->key->x509,\n                                   sc->cert->key->privatekey);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "int SSL_check_private_key(const SSL *ssl)\n{\n    const SSL_CONNECTION *sc;\n\n    if ((sc = SSL_CONNECTION_FROM_CONST_SSL(ssl)) == NULL) {\n        ERR_raise(ERR_LIB_SSL, ERR_R_PASSED_NULL_PARAMETER);\n        return 0;\n    }\n    if (sc->cert->key->x509 == NULL) {\n        ERR_raise(ERR_LIB_SSL, SSL_R_NO_CERTIFICATE_ASSIGNED);\n        return 0;\n    }\n    if (sc->cert->key->privatekey == NULL) {\n        ERR_raise(ERR_LIB_SSL, SSL_R_NO_PRIVATE_KEY_ASSIGNED);\n        return 0;\n    }\n    return X509_check_private_key(sc->cert->key->x509,\n                                   sc->cert->key->privatekey);\n}"
+  ]
+}

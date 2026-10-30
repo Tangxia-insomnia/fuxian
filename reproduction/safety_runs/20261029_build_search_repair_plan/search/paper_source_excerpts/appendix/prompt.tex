@@ -1,0 +1,128 @@
+\section{Prompt Design of \app{}}
+\label{ap:prompt}
+
+\subsection{Prompt in Context-Aware Symbolic Range Reasoning}
+
+Prompt for variable symbolic range reasoning:
+
+\begin{mdframed}
+[linecolor=myblue!50,linewidth=2pt,roundcorner=10pt,backgroundcolor=myyellow!20]
+\small
+
+\hspace{3.5mm} \textbf{System Role}: You are an expert C/C++ programmer. 
+
+\textbf{Task Description:} Your goal is to determine the possible value ranges for each variable in [conditional statement] assuming the [P] when [conditional statement]  is executed.
+
+Important:
+
+- Analyze each line sequentially through symbolic execution.
+
+- Consider function semantics based on their names.
+
+- Pay special attention to pointer operations and conditions.
+
+- Track how variable ranges change through the execution path.
+
+After the analysis, conclude your answer. 
+
+\textbf{Code Snippet:} [Code Snippet]
+
+Please provide your analysis in clear steps, explaining how you arrived at the value ranges.
+
+\end{mdframed}
+
+Prompt for contextual analysis:
+
+\begin{mdframed}
+[linecolor=myblue!50,linewidth=2pt,roundcorner=10pt,backgroundcolor=myyellow!20]
+\small
+
+\hspace{3.5mm} \textbf{System Role}: You are an expert C/C++ programmer. 
+
+\textbf{Task Description:} 
+Given the function [function name] with body [function body],
+your goal is to determine the possible value ranges for the function return value when [P]. If the value range cannot be directly determined and further investigation in deeper function is required, please use the search\_context tool to retrieve the function body for further analysis. 
+
+Important:
+
+... 
+
+\textbf{Code Snippet:} [Code Snippet]
+
+Please provide your analysis in clear steps, explaining how you arrived at the value ranges.
+
+\end{mdframed}
+
+
+\subsection{Prompt in SMT Query Script Generation}
+
+% Prompt in script template generation:
+
+Prompt in SMT constraints generation:
+
+\begin{mdframed}
+[linecolor=myblue!50,linewidth=2pt,roundcorner=10pt,backgroundcolor=myyellow!20]
+\small
+
+\hspace{3.5mm} \textbf{System Role}: You are an SMT constraint expert. 
+
+\textbf{Task Description:} 
+Convert the following C/C++ conditional expressions into Z3 SMT solver constraints: 
+[Conditional Expressions]
+
+When generating Z3 SMT solver scripts, follow these critical guidelines:
+
+[SMT Query Script Generation Rules]
+
+
+Return only the executable Z3 constraints in the following format:
+
+\verb|```|\textit{python} 
+
+\textit{var\_name1 = Int(`var 1')}
+
+\textit{var\_name2 = Bool(`var 2')}
+
+\textit{s.add(constraint 1)}
+
+\textit{s.add(constraint 2)} 
+
+...
+
+\verb|```|
+
+\end{mdframed}
+
+Prompt in script merging:
+
+\begin{mdframed}
+[linecolor=myblue!50,linewidth=2pt,roundcorner=10pt,backgroundcolor=myyellow!20]
+\small
+
+\hspace{3.5mm} \textbf{System Role}: You are an expert Z3 constraint solver. 
+
+\textbf{Task Description:} 
+I'll provide a Z3 constraint script and a set of additional constraints. Please combine them into a single script and keeping all existing constraints (both from the original script and the new constraint sets). If any new constraints are missing variable definitions, make sure to add or modify the necessary declarations.
+Return your solution as a function named \textit{check\_constraints()} that returns a boolean indicating whether the constraints are satisfiable. The function should be ready to execute and no imports or extra content needed.
+
+\textbf{Original Z3 script:} [SMT Query Script]
+
+\textbf{Additional Constraint Set:} [SMT Format Constraints]
+
+
+\end{mdframed}
+
+Prompt in script fix:
+
+\begin{mdframed}
+[linecolor=myblue!50,linewidth=2pt,roundcorner=10pt,backgroundcolor=myyellow!20]
+\small
+
+\hspace{3.5mm} \textbf{Task Description:} 
+The Z3 script you generated contains errors. Please fix and regenerate the Z3 Python script.  The script should be directly executable.
+
+\textbf{Error details:} [Error Message]
+
+\textbf{Additional Requirements:} [SMT Query Script Generation Rules]
+
+\end{mdframed}

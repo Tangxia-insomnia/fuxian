@@ -1,0 +1,45 @@
+{
+  "call_id": 1116,
+  "sample_id": "NPD/infer/libav:row=3:index=None",
+  "timestamp": "2026-10-26T01:07:44.085640+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int query_formats(AVFilterContext *ctx)\n{\n    AVFilterFormats *formats;\n    enum AVPixelFormat pix_fmt;\n    int ret;\n\n    if (ctx->inputs[0]) {\n        const AVPixFmtDescriptor *desc = NULL;\n        formats = NULL;\n        while ((desc = av_pix_fmt_desc_next(desc))) {\n            pix_fmt = av_pix_fmt_desc_get_id(desc);\n            if ((sws_isSupportedInput(pix_fmt) ||\n                 sws_isSupportedEndiannessConversion(pix_fmt))\n                && (ret = ff_add_format(&formats, pix_fmt)) < 0) {\n                ff_formats_unref(&formats);\n                return ret;\n            }\n        }\n        ff_formats_ref(formats, &ctx->inputs[0]->out_formats);\n    }\n    if (ctx->outputs[0]) {\n        const AVPixFmtDescriptor *desc = NULL;\n        formats = NULL;\n        while ((desc = av_pix_fmt_desc_next(desc))) {\n            pix_fmt = av_pix_fmt_desc_get_id(desc);\n            if ((sws_isSupportedOutput(pix_fmt) ||\n                 sws_isSupportedEndiannessConversion(pix_fmt))\n                && (ret = ff_add_format(&formats, pix_fmt)) < 0) {\n                ff_formats_unref(&formats);\n                return ret;\n            }\n        }\n        ff_formats_ref(formats, &ctx->outputs[0]->in_formats);\n    }\n\n    return 0;\n}\n        - Target variables: [], formats\n        - Constraints: ['!(ctx->inputs[0]) || !((desc = av_pix_fmt_desc_next(desc))) || !((sws_isSupportedInput(pix_fmt) || sws_isSupportedEndiannessConversion(pix_fmt)) && (ret = ff_add_format(&formats, pix_fmt)) < 0)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "9095e78e-5823-4c27-9765-6fd673bcb07b",
+  "usage": {
+    "prompt_tokens": 490,
+    "completion_tokens": 5,
+    "total_tokens": 495,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 490
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6913101000000097,
+  "cost_upper_bound_cny": 0.00102
+}

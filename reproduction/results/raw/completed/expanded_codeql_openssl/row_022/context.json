@@ -1,0 +1,35 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "app_RAND_load",
+      "var_name": "p",
+      "target": "if (!loadfiles(p))",
+      "code": "int app_RAND_load(void)\n{\n    char *p;\n    int i, ret = 1;\n\n    for (i = 0; i < sk_OPENSSL_STRING_num(randfiles); i++) {\n        p = sk_OPENSSL_STRING_value(randfiles, i);\n        if (!loadfiles(p))\n            ret = 0;\n    }\n    sk_OPENSSL_STRING_free(randfiles);\n    return ret;\n}",
+      "body_sha256": "d293dc54b691cd0b087c1a73b417907dff95914b041acd97bd01561d6500107a",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (!loadfiles(p))",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "int app_RAND_load(void)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "int app_RAND_load(void)\n{\n    char *p;\n    int i, ret = 1;\n\n    for (i = 0; i < sk_OPENSSL_STRING_num(randfiles); i++) {\n        p = sk_OPENSSL_STRING_value(randfiles, i);\n        if (!loadfiles(p))\n            ret = 0;\n    }\n    sk_OPENSSL_STRING_free(randfiles);\n    return ret;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "int app_RAND_load(void)\n{\n    char *p;\n    int i, ret = 1;\n\n    for (i = 0; i < sk_OPENSSL_STRING_num(randfiles); i++) {\n        p = sk_OPENSSL_STRING_value(randfiles, i);\n        if (!loadfiles(p))\n            ret = 0;\n    }\n    sk_OPENSSL_STRING_free(randfiles);\n    return ret;\n}"
+  ]
+}

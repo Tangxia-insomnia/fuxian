@@ -1,0 +1,14 @@
+{
+  "event_id": 3,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    \n    s = Solver()\n    \n    # ipv4_is_loopback(fl4->saddr) is true\n    ipv4_is_loopback_saddr = Int('ipv4_is_loopback_saddr')\n    s.add(ipv4_is_loopback_saddr == 1)\n    \n    # dev_out->flags & IFF_LOOPBACK == 0 (IFF_LOOPBACK = 1)\n    # Use bitwise AND via Z3's BitVec would be ideal, but with Int we model\n    # the constraint that the low bit is 0, i.e., flags is even.\n    dev_out_flags = Int('dev_out_flags')\n    s.add(dev_out_flags >= 0)\n    s.add(dev_out_flags % 2 == 0)\n    \n    # !netif_is_l3_master(dev_out) is true\n    netif_is_l3_master_dev_out = Int('netif_is_l3_master_dev_out')\n    s.add(netif_is_l3_master_dev_out == 0)\n    \n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ipv4_is_loopback_saddr () Int)\n(declare-fun dev_out_flags () Int)\n(declare-fun netif_is_l3_master_dev_out () Int)\n(assert\n (= ipv4_is_loopback_saddr 1))\n(assert\n (>= dev_out_flags 0))\n(assert\n (= (mod dev_out_flags 2) 0))\n(assert\n (= netif_is_l3_master_dev_out 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

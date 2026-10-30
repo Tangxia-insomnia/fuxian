@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    \n    # Define all variables with consistent Int types\n    fc = Int('fc')\n    IEEE80211_FCTL_STYPE = Int('IEEE80211_FCTL_STYPE')\n    IEEE80211_STYPE_ACTION = Int('IEEE80211_STYPE_ACTION')\n    sdata_u_mgd_associated = Int('sdata_u_mgd_associated')\n    ether_addr_equal_result = Int('ether_addr_equal_result')\n    mgmt_u_action_category = Int('mgmt_u_action_category')\n    WLAN_CATEGORY_SPECTRUM_MGMT = Int('WLAN_CATEGORY_SPECTRUM_MGMT')\n    WLAN_CATEGORY_PUBLIC = Int('WLAN_CATEGORY_PUBLIC')\n    elems = Int('elems')\n    \n    s = Solver()\n    \n    # Constraint: switch case IEEE80211_STYPE_ACTION matched (line 43)\n    # Bitwise AND on symbolic Ints is unsupported; model the masked result\n    # with a fresh variable constrained to equal IEEE80211_STYPE_ACTION.\n    fc_stype_masked = Int('fc_stype_masked')\n    s.add(fc_stype_masked == IEEE80211_STYPE_ACTION)\n    \n    # Constraint: sdata->u.mgd.associated is truthy (line 44)\n    s.add(sdata_u_mgd_associated != 0)\n    \n    # Constraint: ether_addr_equal(...) returns true (line 45)\n    s.add(ether_addr_equal_result != 0)\n    \n    # Constraint: first branch (SPECTRUM_MGMT) is FALSE to reach line 69 (line 48)\n    s.add(mgmt_u_action_category != WLAN_CATEGORY_SPECTRUM_MGMT)\n    \n    # Constraint: else-if condition at line 69 is TRUE\n    s.add(mgmt_u_action_category == WLAN_CATEGORY_PUBLIC)\n    \n    # Constraint: elems is NULL (assumption for this path)\n    s.add(elems == 0)\n    \n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun IEEE80211_STYPE_ACTION () Int)\n(declare-fun fc_stype_masked () Int)\n(declare-fun sdata_u_mgd_associated () Int)\n(declare-fun ether_addr_equal_result () Int)\n(declare-fun WLAN_CATEGORY_SPECTRUM_MGMT () Int)\n(declare-fun mgmt_u_action_category () Int)\n(declare-fun WLAN_CATEGORY_PUBLIC () Int)\n(declare-fun elems () Int)\n(assert\n (= fc_stype_masked IEEE80211_STYPE_ACTION))\n(assert\n (and (distinct sdata_u_mgd_associated 0) true))\n(assert\n (and (distinct ether_addr_equal_result 0) true))\n(assert\n (and (distinct mgmt_u_action_category WLAN_CATEGORY_SPECTRUM_MGMT) true))\n(assert\n (= mgmt_u_action_category WLAN_CATEGORY_PUBLIC))\n(assert\n (= elems 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

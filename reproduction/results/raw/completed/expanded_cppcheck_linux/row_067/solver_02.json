@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, Implies, sat\n\n    # Variable declarations (merged from base script and constraint sets)\n    frame_flags = Int('frame_flags')\n    DWARF_FRAME_CFA_REG_OFFSET = Int('DWARF_FRAME_CFA_REG_OFFSET')\n    prev = Int('prev')\n    reg = Int('reg')\n    reg_flags = Int('reg_flags')\n    DWARF_REG_OFFSET = Int('DWARF_REG_OFFSET')\n\n    s = Solver()\n\n    # --- Base script constraints ---\n    s.add(Implies(frame_flags == DWARF_FRAME_CFA_REG_OFFSET, prev != 0))\n    s.add(reg == 0)\n\n    # --- Constraint set 1 ---\n    s.add(reg == 0)\n    s.add(prev != 0)\n    s.add(frame_flags == DWARF_FRAME_CFA_REG_OFFSET)\n\n    # --- Constraint set 2 ---\n    s.add(reg_flags == DWARF_REG_OFFSET)\n    s.add(reg != 0)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun prev () Int)\n(declare-fun DWARF_FRAME_CFA_REG_OFFSET () Int)\n(declare-fun frame_flags () Int)\n(declare-fun reg () Int)\n(declare-fun DWARF_REG_OFFSET () Int)\n(declare-fun reg_flags () Int)\n(assert\n (let (($x13 (and (distinct prev 0) true)))\n (let (($x11 (= frame_flags DWARF_FRAME_CFA_REG_OFFSET)))\n (=> $x11 $x13))))\n(assert\n (= reg 0))\n(assert\n (= reg 0))\n(assert\n (and (distinct prev 0) true))\n(assert\n (= frame_flags DWARF_FRAME_CFA_REG_OFFSET))\n(assert\n (= reg_flags DWARF_REG_OFFSET))\n(assert\n (and (distinct reg 0) true))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

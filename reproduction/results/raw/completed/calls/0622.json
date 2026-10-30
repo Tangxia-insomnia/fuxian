@@ -1,0 +1,45 @@
+{
+  "call_id": 622,
+  "sample_id": "NPD/codeql/libav:row=56:index=97",
+  "timestamp": "2026-10-26T00:56:06.899589+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(;;) || !(tag == TAG_JPEG2) || !(i=0; i<s->nb_streams; i++) || !(st->codecpar->codec_id == AV_CODEC_ID_MJPEG && st->id == -2)', '!(;;) || !(tag == TAG_STREAMBLOCK) || !(i = 0; i < s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && st->id == -1)', '!(;;) || !(tag == TAG_VIDEOFRAME) || !(i=0; i<s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && st->id == ch_id)', '!(;;) || !(tag == TAG_STREAMHEAD || tag == TAG_STREAMHEAD2) || !(i=0; i<s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && st->id == -1)', '!(;;) || !(tag == TAG_VIDEOSTREAM) || !(i=0; i<s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && st->id == ch_id)']\n        Relevant conditions/variables: [], st\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "65a9ca20-0523-47c3-96bd-cf8a88c28ca9",
+  "usage": {
+    "prompt_tokens": 413,
+    "completion_tokens": 1321,
+    "total_tokens": 1734,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 413
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare symbolic variables used in the constraints.\n# We model the relevant fields of the stream `st` and loop/tag variables.\n# - tag: integer tag identifier (e.g., TAG_JPEG2, TAG_STREAMBLOCK, ...)\n# - i, nb_streams: loop counter and stream count\n# - codec_id: codec identifier (e.g., AV_CODEC_ID_MJPEG)\n# - codec_type: media type (e.g., AVMEDIA_TYPE_AUDIO, AVMEDIA_TYPE_VIDEO)\n# - st_id: the stream's id field (st->id)\n# - ch_id: channel id used in comparisons\ntag         = Int('tag')\ni           = Int('i')\nnb_streams  = Int('nb_streams')\ncodec_id    = Int('codec_id')\ncodec_type  = Int('codec_type')\nst_id       = Int('st_id')\nch_id       = Int('ch_id')\n\n# Symbolic constants for the tag values referenced in the constraints.\nTAG_JPEG2       = IntVal(0)   # placeholder symbolic value\nTAG_STREAMBLOCK = IntVal(1)\nTAG_VIDEOFRAME  = IntVal(2)\nTAG_STREAMHEAD  = IntVal(3)\nTAG_STREAMHEAD2 = IntVal(4)\nTAG_VIDEOSTREAM = IntVal(5)\n\n# Symbolic constants for codec ids / types.\nAV_CODEC_ID_MJPEG   = IntVal(10)\nAVMEDIA_TYPE_AUDIO  = IntVal(20)\nAVMEDIA_TYPE_VIDEO  = IntVal(21)\n\ns = Solver()\n\n# Constraint 1:\n#   !(;;) || !(tag == TAG_JPEG2) || !(i=0; i<s->nb_streams; i++) ||\n#   !(st->codecpar->codec_id == AV_CODEC_ID_MJPEG && st->id == -2)\n# The `!(;;)` and `!(i=0; i<s->nb_streams; i++)` are C loop/empty-statement\n# artifacts that are always false in a boolean sense (they are not real\n# conditions), so the disjunction reduces to the meaningful part:\n#   !(tag == TAG_JPEG2) || !(codec_id == AV_CODEC_ID_MJPEG && st_id == -2)\n# We include it because it constrains `tag`, `codec_id`, and `st_id`.\ns.add(Or(tag != TAG_JPEG2,\n         Not(And(codec_id == AV_CODEC_ID_MJPEG, st_id == -2))))\n\n# Constraint 2:\n#   !(;;) || !(tag == TAG_STREAMBLOCK) || !(i = 0; i < s->nb_streams; i++) ||\n#   !(st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && st->id == -1)\n# Reduces to: !(tag == TAG_STREAMBLOCK) ||\n#             !(codec_type == AVMEDIA_TYPE_AUDIO && st_id == -1)\n# Included because it constrains `tag`, `codec_type`, and `st_id`.\ns.add(Or(tag != TAG_STREAMBLOCK,\n         Not(And(codec_type == AVMEDIA_TYPE_AUDIO, st_id == -1))))\n\n# Constraint 3:\n#   !(;;) || !(tag == TAG_VIDEOFRAME) || !(i=0; i<s->nb_streams; i++) ||\n#   !(st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && st->id == ch_id)\n# Reduces to: !(tag == TAG_VIDEOFRAME) ||\n#             !(codec_type == AVMEDIA_TYPE_VIDEO && st_id == ch_id)\n# Included because it constrains `tag`, `codec_type`, `st_id`, and `ch_id`.\ns.add(Or(tag != TAG_VIDEOFRAME,\n         Not(And(codec_type == AVMEDIA_TYPE_VIDEO, st_id == ch_id))))\n\n# Constraint 4:\n#   !(;;) || !(tag == TAG_STREAMHEAD || tag == TAG_STREAMHEAD2) ||\n#   !(i=0; i<s->nb_streams; i++) ||\n#   !(st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && st->id == -1)\n# Reduces to: !(tag == TAG_STREAMHEAD || tag == TAG_STREAMHEAD2) ||\n#             !(codec_type == AVMEDIA_TYPE_AUDIO && st_id == -1)\n# Included because it constrains `tag`, `codec_type`, and `st_id`.\ns.add(Or(Not(Or(tag == TAG_STREAMHEAD, tag == TAG_STREAMHEAD2)),\n         Not(And(codec_type == AVMEDIA_TYPE_AUDIO, st_id == -1))))\n\n# Constraint 5:\n#   !(;;) || !(tag == TAG_VIDEOSTREAM) || !(i=0; i<s->nb_streams; i++) ||\n#   !(st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && st->id == ch_id)\n# Reduces to: !(tag == TAG_VIDEOSTREAM) ||\n#             !(codec_type == AVMEDIA_TYPE_VIDEO && st_id == ch_id)\n# Included because it constrains `tag`, `codec_type`, `st_id`, and `ch_id`.\ns.add(Or(tag != TAG_VIDEOSTREAM,\n         Not(And(codec_type == AVMEDIA_TYPE_VIDEO, st_id == ch_id))))\n\n# Check satisfiability and print a model if one exists.\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 5.380860000000212,
+  "cost_upper_bound_cny": 0.011394
+}

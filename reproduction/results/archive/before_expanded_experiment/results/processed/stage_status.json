@@ -1,0 +1,147 @@
+{
+  "timestamp": "2026-10-26T00:36:59.303117+08:00",
+  "implementation": "documented_completion",
+  "stage_01": "audit_completed",
+  "stage_02": "environment_and_model_service_verified",
+  "stage_03": {
+    "positive_class": "false_alarm_to_filter",
+    "sample_count": 5,
+    "false_alarm_count": 3,
+    "real_bug_count": 2,
+    "successful": 5,
+    "failed": 0,
+    "blocked": 0,
+    "missing_prediction_by_label": {
+      "false_alarm": 0,
+      "real_bug": 0
+    },
+    "success_rate": 1.0,
+    "confusion_matrix": {
+      "row_labels": [
+        "actual_false_alarm",
+        "actual_real_bug"
+      ],
+      "column_labels": [
+        "predicted_filter",
+        "predicted_keep"
+      ],
+      "values": [
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "unclassified": {
+        "false_alarm": 0,
+        "real_bug": 0
+      }
+    },
+    "counts": {
+      "false_alarm_filtered": 2,
+      "false_alarm_kept": 1,
+      "real_bug_filtered": 0,
+      "real_bug_kept": 2
+    },
+    "false_positive_filter_rate": 0.6666666666666666,
+    "real_bug_retention_rate": 1.0,
+    "real_bug_deletion_rate": 0.0,
+    "precision": 1.0,
+    "recall": 0.6666666666666666,
+    "f1": 0.8,
+    "mean_wall_seconds_all_selected": 12.12122300000001,
+    "mean_wall_seconds_successful": 12.12122300000001,
+    "api_calls_final_attempts": 32,
+    "cost_upper_bound_cny_final_attempts": 0.17612200000000008,
+    "incomplete_coverage_note": "If unclassified>0, all-selected recall/filter/retention rates count only confirmed outcomes; do not infer labels for failures.",
+    "false_positive_filter_rate_bounds": [
+      0.6666666666666666,
+      0.6666666666666666
+    ],
+    "real_bug_retention_rate_bounds": [
+      1.0,
+      1.0
+    ],
+    "prior_failed_attempts": 4,
+    "api_calls_including_prior_attempts": 62,
+    "wall_seconds_including_prior_attempts": 118.26719920000005
+  },
+  "stage_04": {
+    "positive_class": "false_alarm_to_filter",
+    "sample_count": 20,
+    "false_alarm_count": 10,
+    "real_bug_count": 10,
+    "successful": 16,
+    "failed": 0,
+    "blocked": 4,
+    "missing_prediction_by_label": {
+      "false_alarm": 2,
+      "real_bug": 2
+    },
+    "success_rate": 0.8,
+    "confusion_matrix": {
+      "row_labels": [
+        "actual_false_alarm",
+        "actual_real_bug"
+      ],
+      "column_labels": [
+        "predicted_filter",
+        "predicted_keep"
+      ],
+      "values": [
+        [
+          5,
+          3
+        ],
+        [
+          1,
+          7
+        ]
+      ],
+      "unclassified": {
+        "false_alarm": 2,
+        "real_bug": 2
+      }
+    },
+    "counts": {
+      "false_alarm_filtered": 5,
+      "false_alarm_kept": 3,
+      "real_bug_filtered": 1,
+      "real_bug_kept": 7
+    },
+    "false_positive_filter_rate": 0.5,
+    "real_bug_retention_rate": 0.7,
+    "real_bug_deletion_rate": 0.1,
+    "precision": 0.8333333333333334,
+    "recall": 0.5,
+    "f1": 0.625,
+    "mean_wall_seconds_all_selected": 9.882719404999921,
+    "mean_wall_seconds_successful": 12.35210101874992,
+    "api_calls_final_attempts": 122,
+    "cost_upper_bound_cny_final_attempts": 0.469338,
+    "incomplete_coverage_note": "If unclassified>0, all-selected recall/filter/retention rates count only confirmed outcomes; do not infer labels for failures.",
+    "false_positive_filter_rate_bounds": [
+      0.5,
+      0.7
+    ],
+    "real_bug_retention_rate_bounds": [
+      0.7,
+      0.9
+    ],
+    "prior_failed_attempts": 1,
+    "api_calls_including_prior_attempts": 129,
+    "wall_seconds_including_prior_attempts": 222.82264349999832
+  },
+  "stage_05": "small_sample_evaluation_completed",
+  "stage_06": "completion_implemented_and_tested",
+  "paper_full_reproduction_success": false,
+  "pilot_gate": {
+    "stable": true,
+    "smoke_successful": 5,
+    "smoke_total": 5,
+    "rule": "At least 3 successes, both labels, actual SMT, no execution failures; retain all context blocks"
+  }
+}

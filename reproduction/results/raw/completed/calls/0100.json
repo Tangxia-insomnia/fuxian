@@ -1,0 +1,45 @@
+{
+  "call_id": 100,
+  "sample_id": "NPD/codeql/kernel69:row=25:index=44",
+  "timestamp": "2026-10-26T00:30:07.732617+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(optlen > 0) || !(unlikely(ipv6_optlen(new) > optlen))', '!(optlen > 0) || !(IS_ERR(new))']\n        Relevant conditions/variables: [], new\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "cfde8c1e-7c83-4cfa-8c42-0ed3986581ab",
+  "usage": {
+    "prompt_tokens": 146,
+    "completion_tokens": 481,
+    "total_tokens": 627,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 146
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# 'new' is a pointer (modeled as an integer address); 0 means NULL\nnew = BitVec('new', 64)\n\n# 'optlen' is an integer length\noptlen = BitVec('optlen', 64)\n\n# 'ipv6_optlen(new)' is a function of the pointer; model as an uninterpreted function\nipv6_optlen = Function('ipv6_optlen', BitVecSort(64), BitVecSort(64))\n\n# 'IS_ERR(new)' checks whether the pointer encodes an error value.\n# Model as an uninterpreted predicate over the pointer.\nIS_ERR = Function('IS_ERR', BitVecSort(64), BoolSort())\n\n# 'unlikely(x)' is a branch-prediction hint; it does not change the truth value of x.\n# So 'unlikely(ipv6_optlen(new) > optlen)' is equivalent to 'ipv6_optlen(new) > optlen'.\n\ns = Solver()\n\n# Constraint 1: !(optlen > 0) || !(unlikely(ipv6_optlen(new) > optlen))\n#   Included because it constrains 'new' (via ipv6_optlen(new)) and 'optlen'.\n#   C semantics: if optlen > 0 then we must NOT have ipv6_optlen(new) > optlen.\n#   i.e. optlen > 0  ==>  ipv6_optlen(new) <= optlen\ns.add(Or(Not(optlen > 0), Not(ipv6_optlen(new) > optlen)))\n\n# Constraint 2: !(optlen > 0) || !(IS_ERR(new))\n#   Included because it constrains 'new' (via IS_ERR(new)) and 'optlen'.\n#   C semantics: if optlen > 0 then 'new' must not be an error pointer.\n#   i.e. optlen > 0  ==>  !IS_ERR(new)\ns.add(Or(Not(optlen > 0), Not(IS_ERR(new))))\n\n# Print the resulting constraints\nprint(s)\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.9356016000001546,
+  "cost_upper_bound_cny": 0.00414
+}

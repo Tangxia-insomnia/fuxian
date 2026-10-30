@@ -1,0 +1,45 @@
+{
+  "call_id": 202,
+  "sample_id": "NPD/codeql/kernel69:row=1:index=1",
+  "timestamp": "2026-10-26T00:46:58.851865+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(!(tun_info && (tun_info->mode & IP_TUNNEL_INFO_TX) && ip_tunnel_info_af(tun_info) == AF_INET && tun_info->key.u.ipv4.dst) && !(payload_protocol == htons(ETH_P_IP)) && !(payload_protocol == htons(ETH_P_IPV6)))']\n        Relevant conditions/variables: [{'condition': 'if (connected && md)', 'line_number': 101}, {'condition': 'if (use_cache)', 'line_number': 103}], tun_info\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "8d39c7b3-182f-4e57-a403-40ea7d774e96",
+  "usage": {
+    "prompt_tokens": 223,
+    "completion_tokens": 1021,
+    "total_tokens": 1244,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 223
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare symbolic variables matching the C code identifiers.\n# tun_info is a pointer, so we model it as an integer address (0 == NULL).\ntun_info = BitVec('tun_info', 64)\n\n# tun_info->mode is a bitfield; model as a 32-bit unsigned value.\ntun_info_mode = BitVec('tun_info_mode', 32)\n\n# ip_tunnel_info_af(tun_info) returns the address family (sa_family_t, 16-bit).\ntun_info_af = BitVec('tun_info_af', 16)\n\n# tun_info->key.u.ipv4.dst is a 32-bit IPv4 address.\ntun_info_key_u_ipv4_dst = BitVec('tun_info_key_u_ipv4_dst', 32)\n\n# payload_protocol is a 16-bit network-order protocol field.\npayload_protocol = BitVec('payload_protocol', 16)\n\n# Constants from the C headers.\nIP_TUNNEL_INFO_TX = BitVecVal(0x1, 32)   # bit flag in tun_info->mode\nAF_INET           = BitVecVal(2, 16)     # Linux AF_INET value\nETH_P_IP          = BitVecVal(0x0800, 16)\nETH_P_IPV6        = BitVecVal(0x86DD, 16)\n\n# ---------------------------------------------------------------------------\n# Original C constraint (negated twice, so effectively the inner expression):\n#\n#   !(!(tun_info\n#        && (tun_info->mode & IP_TUNNEL_INFO_TX)\n#        && ip_tunnel_info_af(tun_info) == AF_INET\n#        && tun_info->key.u.ipv4.dst)\n#     && !(payload_protocol == htons(ETH_P_IP))\n#     && !(payload_protocol == htons(ETH_P_IPV6)))\n#\n# The outer '!' plus the inner '!' on the first conjunct cancel out, so the\n# constraint reduces to the conjunction of:\n#   (a) tun_info != NULL\n#   (b) (tun_info->mode & IP_TUNNEL_INFO_TX) != 0\n#   (c) ip_tunnel_info_af(tun_info) == AF_INET\n#   (d) tun_info->key.u.ipv4.dst != 0\n#   (e) payload_protocol != htons(ETH_P_IP)\n#   (f) payload_protocol != htons(ETH_P_IPV6)\n#\n# Note: htons() on a little-endian host byte-swaps the constant.  We model\n# the comparison against the byte-swapped constants to preserve semantics.\n# ---------------------------------------------------------------------------\n\ndef htons(x):\n    # Byte-swap a 16-bit value (host -> network order on little-endian).\n    return ((x & 0xFF) << 8) | ((x >> 8) & 0xFF)\n\nETH_P_IP_HTONS   = BitVecVal(htons(0x0800), 16)\nETH_P_IPV6_HTONS = BitVecVal(htons(0x86DD), 16)\n\n# (a) tun_info is a non-NULL pointer.\nc_tun_info_nonnull = (tun_info != 0)\n\n# (b) The TX bit is set in tun_info->mode.\nc_mode_tx = ((tun_info_mode & IP_TUNNEL_INFO_TX) != 0)\n\n# (c) Address family is AF_INET.\nc_af_inet = (tun_info_af == AF_INET)\n\n# (d) Destination IPv4 address is non-zero.\nc_dst_nonzero = (tun_info_key_u_ipv4_dst != 0)\n\n# (e) payload_protocol is not ETH_P_IP (in network byte order).\nc_not_ip = (payload_protocol != ETH_P_IP_HTONS)\n\n# (f) payload_protocol is not ETH_P_IPV6 (in network byte order).\nc_not_ipv6 = (payload_protocol != ETH_P_IPV6_HTONS)\n\n# The full constraint is the conjunction of all six sub-conditions.\nconstraint = And(\n    c_tun_info_nonnull,\n    c_mode_tx,\n    c_af_inet,\n    c_dst_nonzero,\n    c_not_ip,\n    c_not_ipv6,\n)\n\n# Solve and report satisfiability.\ns = Solver()\ns.add(constraint)\n\nprint(\"Constraint:\", constraint)\nprint(\"Result:\", s.check())\nif s.check() == sat:\n    print(\"Model:\", s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 4.852264199999809,
+  "cost_upper_bound_cny": 0.008614
+}

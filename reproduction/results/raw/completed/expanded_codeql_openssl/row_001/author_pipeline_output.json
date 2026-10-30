@@ -1,0 +1,16 @@
+{
+  "response": [
+    "step 1 z3 script: ```python\noutdir=Int('outdir')\ns.add(outdir == 0)\n```",
+    "response_filter_goto: ```json\n[\"!((outdir == NULL) && (req)) || !(outdir == NULL)\", \"!(app_isdir(outdir) <= 0)\"]\n```",
+    "z3 script: ```python\nfrom z3 import *\n\n# Declare variables\n# outdir is a pointer; model as an integer address (0 == NULL)\noutdir = Int('outdir')\n\n# app_isdir is an external function; model its return value as an uninterpreted integer\napp_isdir_ret = Int('app_isdir_ret')\n\ns = Solver()\n\n# Constraint 1: !((outdir == NULL) && (req)) || !(outdir == NULL)\n# Included because it directly constrains `outdir`.\n# In C, `req` is a boolean condition; we model it as an uninterpreted Bool.\nreq = Bool('req')\n# C: !((outdir == NULL) && req) || !(outdir == NULL)\n# Translate: (outdir != 0) OR (outdir != 0)  -- i.e., outdir != 0\n# (since !(A && B) || !A  ==  !A || !B || !A  ==  !A || !B, and !A alone suffices)\ns.add(Or(Not(And(outdir == 0, req)), Not(outdir == 0)))\n\n# Constraint 2: !(app_isdir(outdir) <= 0)\n# Included because it constrains `outdir` via the call app_isdir(outdir).\n# Model app_isdir(outdir) as an uninterpreted function of outdir.\napp_isdir = Function('app_isdir', IntSort(), IntSort())\n# C: !(app_isdir(outdir) <= 0)  ==>  app_isdir(outdir) > 0\ns.add(Not(app_isdir(outdir) <= 0))\n\n# Check satisfiability\nprint(s.check())\nprint(s.model())\n```",
+    "final z3 script: def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, And, Function, IntSort, sat\n\n    # Base script constraints\n    outdir = Int('outdir')\n\n    # Constraint set 2 variables\n    app_isdir_ret = Int('app_isdir_ret')\n    req = Bool('req')\n    app_isdir = Function('app_isdir', IntSort(), IntSort())\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(outdir == 0)\n\n    # Constraint set 2, Constraint 1\n    s.add(Or(Not(And(outdir == 0, req)), Not(outdir == 0)))\n\n    # Constraint set 2, Constraint 2\n    s.add(Not(app_isdir(outdir) <= 0))\n\n    return s.check() == sat",
+    "step 1 z3 script: ```python\nsrc=Int('src')\ns.add(src == 0)\n```"
+  ],
+  "function_name_list": [
+    "OPENSSL_strlcpy"
+  ],
+  "function_body_list": [
+    "size_t OPENSSL_strlcpy(char *dst, const char *src, size_t size)\n{\n    size_t l = 0;\n    for (; size > 1 && *src; size--) {\n        *dst++ = *src++;\n        l++;\n    }\n    if (size)\n        *dst = CH_ZERO;\n    return l + strlen(src);\n}"
+  ],
+  "result": true
+}

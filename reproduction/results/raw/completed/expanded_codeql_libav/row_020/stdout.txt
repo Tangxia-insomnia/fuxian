@@ -1,0 +1,102 @@
+```python
+ref=Int('ref')
+s.add(ref == 0)
+```
+```json
+["!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++) || !(i = h->short_ref_count - 1; i >= 0; i--) || !(ref->frame_num == frame_num && (ref->reference & pic_structure))"]
+```
+```python
+from z3 import *
+
+# Declare variables referenced in the constraint
+# ref is a pointer to a struct; we model the fields accessed in the constraint
+ref_frame_num = Int('ref_frame_num')          # ref->frame_num
+ref_reference = BitVec('ref_reference', 32)   # ref->reference (bitmask)
+frame_num = Int('frame_num')                  # frame_num (parameter)
+pic_structure = BitVec('pic_structure', 32)   # pic_structure (bitmask)
+
+# The C constraint is a disjunction of negations of loop conditions:
+#   !(list = 0; list < sl->list_count; list++)
+#   || !(index = 0; index < sl->nb_ref_modifications[list]; index++)
+#   || !(i = h->short_ref_count - 1; i >= 0; i--)
+#   || !(ref->frame_num == frame_num && (ref->reference & pic_structure))
+#
+# In C, a for-loop condition "cond" is true iff the loop body executes.
+# The negation "!cond" means the loop does NOT execute (i.e., the loop
+# guard is false on entry). We model each negated loop guard as a boolean.
+#
+# The only branch that touches the specified variable `ref` is the last
+# conjunct: ref->frame_num == frame_num && (ref->reference & pic_structure).
+# The other three negated loop conditions do not reference `ref`, so per
+# the guideline "convert only constraints affecting the specified
+# conditions/variables", we keep them as unconstrained boolean symbols
+# (they can be true or false independently of `ref`).
+
+# Negated loop guards (unconstrained w.r.t. ref)
+not_list_loop = Bool('not_list_loop')      # !(list < sl->list_count)
+not_index_loop = Bool('not_index_loop')    # !(index < sl->nb_ref_modifications[list])
+not_i_loop = Bool('not_i_loop')            # !(i >= 0)
+
+# The ref-related conjunct: ref->frame_num == frame_num && (ref->reference & pic_structure)
+# In C, "ref->reference & pic_structure" is truthy iff the bitwise AND is nonzero.
+ref_matches = And(
+    ref_frame_num == frame_num,
+    (ref_reference & pic_structure) != 0
+)
+
+# Full constraint: disjunction of the four negated loop conditions
+constraint = Or(
+    not_list_loop,
+    not_index_loop,
+    not_i_loop,
+    Not(ref_matches)
+)
+
+# Solve / check satisfiability
+s = Solver()
+s.add(constraint)
+
+print("Constraint:", constraint)
+print("Result:", s.check())
+if s.check() == sat:
+    print("Model:", s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, BitVec, Bool, And, Or, Not, Solver, sat
+
+    # Base script constraints
+    ref = Int('ref')
+
+    # Variables from constraint set 2
+    ref_frame_num = Int('ref_frame_num')
+    ref_reference = BitVec('ref_reference', 32)
+    frame_num = Int('frame_num')
+    pic_structure = BitVec('pic_structure', 32)
+
+    # Negated loop guards (unconstrained w.r.t. ref)
+    not_list_loop = Bool('not_list_loop')
+    not_index_loop = Bool('not_index_loop')
+    not_i_loop = Bool('not_i_loop')
+
+    # ref-related conjunct
+    ref_matches = And(
+        ref_frame_num == frame_num,
+        (ref_reference & pic_structure) != 0
+    )
+
+    # Full constraint from set 2
+    constraint = Or(
+        not_list_loop,
+        not_index_loop,
+        not_i_loop,
+        Not(ref_matches)
+    )
+
+    s = Solver()
+    s.add(ref == 0)
+    s.add(constraint)
+
+    return s.check() == sat
+```
+goto result: True

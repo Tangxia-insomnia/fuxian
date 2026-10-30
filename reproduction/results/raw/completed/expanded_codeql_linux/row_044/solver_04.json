@@ -1,0 +1,14 @@
+{
+  "event_id": 4,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Define all variables as Int type\n    object_val = Int('object')\n    folio_test_slab = Int('folio_test_slab')\n    \n    # Constraint: object is NULL pointer (object == 0)\n    s.add(object_val == 0)\n    \n    # Constraint: folio_test_slab returns 0 (false)\n    s.add(folio_test_slab == 0)\n    \n    # Check satisfiability\n    result = s.check()\n    \n    if result == sat:\n        return True\n    elif result == unsat:\n        return False\n    else:\n        return False",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun object () Int)\n(declare-fun folio_test_slab () Int)\n(assert\n (= object 0))\n(assert\n (= folio_test_slab 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

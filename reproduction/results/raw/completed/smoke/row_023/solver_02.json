@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    fraggap = Int('fraggap')\n    skb_len = Int('skb_len')\n    maxfraglen = Int('maxfraglen')\n    skb_prev = Int('skb_prev')\n    \n    s = Solver()\n    \n    s.add(skb_prev == 0)\n    s.add(fraggap >= 0)\n    s.add(fraggap > 0)\n    s.add(fraggap == skb_len - maxfraglen)\n    s.add(skb_len > maxfraglen)\n    s.add(skb_len >= 0)\n    s.add(maxfraglen >= 0)\n    \n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun skb_prev () Int)\n(declare-fun fraggap () Int)\n(declare-fun maxfraglen () Int)\n(declare-fun skb_len () Int)\n(assert\n (= skb_prev 0))\n(assert\n (>= fraggap 0))\n(assert\n (> fraggap 0))\n(assert\n (= fraggap (- skb_len maxfraglen)))\n(assert\n (> skb_len maxfraglen))\n(assert\n (>= skb_len 0))\n(assert\n (>= maxfraglen 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

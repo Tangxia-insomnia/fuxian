@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, IntSort, Function, Solver, Not, Or\n\n    port = Int('port')\n    host = Int('host')\n    cctx = Int('cctx')\n    vpm  = Int('vpm')\n\n    opt_arg = Function('opt_arg', IntSort())\n    BIO_parse_hostserv = Function('BIO_parse_hostserv', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())\n    BIO_PARSE_PRIO_SERV = Int('BIO_PARSE_PRIO_SERV')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(port == 0)\n\n    # Constraint set 2 constraints\n    s.add(Not(BIO_parse_hostserv(opt_arg(0), 0, port, BIO_PARSE_PRIO_SERV) < 1))\n    s.add(Not(BIO_parse_hostserv(opt_arg(0), host, port, BIO_PARSE_PRIO_SERV) < 1))\n    s.add(Not(Or(port == 0, cctx == 0, vpm == 0)))\n\n    return s.check() == __import__('z3').sat",
+  "ok": false,
+  "error": "ValueError: ValueError: Unsupported generated-code operation"
+}

@@ -1,0 +1,68 @@
+```python
+st=Int('st')
+s.add(st == 0)
+```
+```json
+["!(i == s->nb_streams) || !(!st)", "!(i = 0; i < s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_DATA)"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints.
+# 'i' and 's->nb_streams' appear in the first constraint, so we model them as integers.
+i = Int('i')
+nb_streams = Int('nb_streams')
+
+# 'st' is a pointer-like variable; model it as an uninterpreted sort / integer handle.
+# We use a Bool to represent whether 'st' is non-null (st != 0).
+st_nonnull = Bool('st_nonnull')
+
+# 'codec_type' is a field of st->codecpar; model as an integer.
+codec_type = Int('codec_type')
+AVMEDIA_TYPE_DATA = 5  # typical enum value placeholder; adjust if needed
+
+s = Solver()
+
+# Constraint 1: !(i == s->nb_streams) || !(!st)
+# In C: if i == nb_streams then st must be non-null (since !(!st) means st != 0).
+# Converted: (i != nb_streams) OR (st != 0)
+s.add(Or(i != nb_streams, st_nonnull))
+
+# Constraint 2: !(i = 0; i < s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_DATA)
+# The first part is a for-loop header, not a boolean expression. Interpreted as the loop
+# condition being false, i.e., NOT (0 <= i < nb_streams). So the constraint becomes:
+#   (i < 0 OR i >= nb_streams) OR (codec_type != AVMEDIA_TYPE_DATA)
+s.add(Or(i < 0, i >= nb_streams, codec_type != AVMEDIA_TYPE_DATA))
+
+# Check satisfiability
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, sat
+
+    # Base script variables and constraints
+    st = Int('st')
+
+    # Variables from constraint set 2
+    i = Int('i')
+    nb_streams = Int('nb_streams')
+    st_nonnull = Bool('st_nonnull')
+    codec_type = Int('codec_type')
+    AVMEDIA_TYPE_DATA = 5
+
+    s = Solver()
+
+    # Base constraint
+    s.add(st == 0)
+
+    # Constraint set 2 - Constraint 1
+    s.add(Or(i != nb_streams, st_nonnull))
+
+    # Constraint set 2 - Constraint 2
+    s.add(Or(i < 0, i >= nb_streams, codec_type != AVMEDIA_TYPE_DATA))
+
+    return s.check() == sat
+```
+goto result: True

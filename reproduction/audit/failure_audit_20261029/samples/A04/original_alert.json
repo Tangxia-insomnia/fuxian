@@ -1,0 +1,45 @@
+{
+  "var_name": "saved_clone",
+  "function_name": "tcp_set_allowed_congestion_control",
+  "location": {
+    "file_path": "net/ipv4/tcp_cong.c",
+    "region": {
+      "startLine": 400,
+      "startColumn": 8,
+      "endColumn": 19
+    },
+    "context": {
+      "startLine": 398,
+      "endLine": 402,
+      "snippet": {
+        "text": "\tkfree(saved_clone);"
+      }
+    }
+  },
+  "function_code": "int tcp_set_allowed_congestion_control(char *val)\n{\n\tstruct tcp_congestion_ops *ca;\n\tchar *saved_clone, *clone, *name;\n\tint ret = 0;\n\n\tsaved_clone = clone = kstrdup(val, GFP_USER);\n\tif (!clone)\n\t\treturn -ENOMEM;\n\n\tspin_lock(&tcp_cong_list_lock);\n\t/* pass 1 check for bad entries */\n\twhile ((name = strsep(&clone, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tif (!ca) {\n\t\t\tret = -ENOENT;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\t/* pass 2 clear old values */\n\tlist_for_each_entry_rcu(ca, &tcp_cong_list, list)\n\t\tca->flags &= ~TCP_CONG_NON_RESTRICTED;\n\n\t/* pass 3 mark as allowed */\n\twhile ((name = strsep(&val, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tWARN_ON(!ca);\n\t\tif (ca)\n\t\t\tca->flags |= TCP_CONG_NON_RESTRICTED;\n\t}\nout:\n\tspin_unlock(&tcp_cong_list_lock);\n\tkfree(saved_clone);\n\n\treturn ret;\n}",
+  "function_list": [
+    "kfree",
+    "ZERO_OR_NULL_PTR",
+    "ZERO_SIZE_PTR"
+  ],
+  "result": 0,
+  "bug_line_constraints": [
+    {
+      "text": "\tkfree(saved_clone);",
+      "condition": [
+        "goto out"
+      ]
+    }
+  ],
+  "var_assign_conditions": [],
+  "pointer_null_postconditions": [],
+  "early_jump_constraints": [
+    {
+      "text": "return -ENOMEM;",
+      "condition": [
+        "if (!clone)"
+      ]
+    }
+  ],
+  "index": 24
+}

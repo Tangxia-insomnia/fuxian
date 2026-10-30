@@ -1,0 +1,45 @@
+{
+  "call_id": 214,
+  "sample_id": "NPD/codeql/kernel69:row=3:index=3",
+  "timestamp": "2026-10-26T00:47:27.042821+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(unlikely(!tun_info || !(tun_info->mode & IP_TUNNEL_INFO_TX) || ip_tunnel_info_af(tun_info) != AF_INET))']\n        Relevant conditions/variables: [], tun_info\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "440d32ff-60c3-4800-8b11-b704c3065807",
+  "usage": {
+    "prompt_tokens": 146,
+    "completion_tokens": 641,
+    "total_tokens": 787,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 146
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# tun_info is a pointer; model as an integer address (0 = NULL)\ntun_info = Int('tun_info')\n\n# Model the bitmask field tun_info->mode as an integer\ntun_info_mode = Int('tun_info_mode')\n\n# Model the address family returned by ip_tunnel_info_af(tun_info) as an integer\nip_tunnel_info_af = Int('ip_tunnel_info_af')\n\n# Constants\nIP_TUNNEL_INFO_TX = IntVal(1)  # bit flag value (nonzero)\nAF_INET = IntVal(2)           # AF_INET constant (nonzero, distinct from AF_INET6 etc.)\n\n# The C expression:\n#   !(unlikely(!tun_info || !(tun_info->mode & IP_TUNNEL_INFO_TX) || ip_tunnel_info_af(tun_info) != AF_INET))\n#\n# `unlikely(...)` is a branch-prediction hint only; it does not change the\n# truth value of the expression, so it is dropped.\n#\n# The outer `!` negates the whole disjunction. The constraint we want to\n# satisfy (i.e., the condition that must hold) is therefore the negation of\n# the inner disjunction, which by De Morgan becomes a conjunction:\n#\n#   tun_info != NULL\n#   AND (tun_info->mode & IP_TUNNEL_INFO_TX) != 0\n#   AND ip_tunnel_info_af(tun_info) == AF_INET\n#\n# Each conjunct is included because it is one of the disjuncts inside the\n# original `!(...)`; negating the disjunction forces every disjunct to be\n# false, i.e., each corresponding positive condition to be true.\n\ns = Solver()\n\n# 1) tun_info must be non-NULL (C: !tun_info is false)\ns.add(tun_info != 0)\n\n# 2) The TX bit must be set in tun_info->mode\n#    C: !(tun_info->mode & IP_TUNNEL_INFO_TX) is false\n#    i.e. (tun_info->mode & IP_TUNNEL_INFO_TX) != 0\ns.add((tun_info_mode & IP_TUNNEL_INFO_TX) != 0)\n\n# 3) The address family must equal AF_INET\n#    C: ip_tunnel_info_af(tun_info) != AF_INET is false\ns.add(ip_tunnel_info_af == AF_INET)\n\n# Check satisfiability and print a model\nif s.check() == sat:\n    m = s.model()\n    print(\"sat\")\n    print(\"tun_info =\", m[tun_info])\n    print(\"tun_info_mode =\", m[tun_info_mode])\n    print(\"ip_tunnel_info_af =\", m[ip_tunnel_info_af])\nelse:\n    print(s.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 3.509507499999927,
+  "cost_upper_bound_cny": 0.00542
+}

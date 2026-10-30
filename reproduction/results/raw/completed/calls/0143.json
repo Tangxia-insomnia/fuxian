@@ -1,0 +1,45 @@
+{
+  "call_id": 143,
+  "sample_id": "NPD/codeql/kernel69:row=45:index=71",
+  "timestamp": "2026-10-26T00:31:20.561711+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(mgmt->u.action.category == WLAN_CATEGORY_PUBLIC) || !(ies_len < 0)', '!(!sdata->u.mgd.associated || !ether_addr_equal(mgmt->bssid, sdata->vif.cfg.ap_addr))']\n        Relevant conditions/variables: [{'condition': 'if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)', 'line_number': 43}, {'condition': 'if (mgmt->u.action.category == WLAN_CATEGORY_PUBLIC)', 'line_number': 69}], elems\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "aac60e51-4a10-4cd0-81bd-b753a2f4cf83",
+  "usage": {
+    "prompt_tokens": 227,
+    "completion_tokens": 576,
+    "total_tokens": 803,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 227
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# ---------------------------------------------------------------------------\n# Variable declarations\n# ---------------------------------------------------------------------------\n# mgmt->u.action.category : the action category field of the management frame\n# (compared against WLAN_CATEGORY_PUBLIC in the C code).\nmgmt_u_action_category = Int('mgmt_u_action_category')\n\n# WLAN_CATEGORY_PUBLIC is a constant from the kernel headers (value 4).\nWLAN_CATEGORY_PUBLIC = 4\n\n# ies_len : length of the information elements buffer (signed int in C).\nies_len = Int('ies_len')\n\n# sdata->u.mgd.associated : boolean flag indicating the station is associated.\nsdata_u_mgd_associated = Bool('sdata_u_mgd_associated')\n\n# ether_addr_equal(mgmt->bssid, sdata->vif.cfg.ap_addr) : result of the\n# MAC-address comparison (true when the two addresses are equal).\nether_addr_equal_bssid_ap_addr = Bool('ether_addr_equal_bssid_ap_addr')\n\n# ---------------------------------------------------------------------------\n# Constraints\n# ---------------------------------------------------------------------------\nsolver = Solver()\n\n# Constraint 1:\n#   !(mgmt->u.action.category == WLAN_CATEGORY_PUBLIC) || !(ies_len < 0)\n# Included because it directly references mgmt->u.action.category, which is\n# the variable tested by the condition at line 69\n#   if (mgmt->u.action.category == WLAN_CATEGORY_PUBLIC)\n# The C expression is translated literally: !(A) || !(B) becomes\n# Not(A) Or Not(B).\nsolver.add(\n    Or(\n        Not(mgmt_u_action_category == WLAN_CATEGORY_PUBLIC),\n        Not(ies_len < 0)\n    )\n)\n\n# Constraint 2:\n#   !(!sdata->u.mgd.associated || !ether_addr_equal(mgmt->bssid, sdata->vif.cfg.ap_addr))\n# Included because it constrains the association state and BSSID/AP-address\n# equality, which are the variables used to decide whether the action frame\n# is processed (relevant to the action-frame path guarded at line 43).\n# C-style negation of a pointer/boolean is translated to a Z3 boolean Not.\nsolver.add(\n    Not(\n        Or(\n            Not(sdata_u_mgd_associated),\n            Not(ether_addr_equal_bssid_ap_addr)\n        )\n    )\n)\n\n# ---------------------------------------------------------------------------\n# Solve / report\n# ---------------------------------------------------------------------------\nif solver.check() == sat:\n    print(\"SAT\")\n    print(solver.model())\nelse:\n    print(\"UNSAT\")\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 3.4822269000001143,
+  "cost_upper_bound_cny": 0.005062
+}

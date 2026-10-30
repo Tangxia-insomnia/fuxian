@@ -1,0 +1,46 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "mpic_get_mcirq",
+      "var_name": "mpic",
+      "target": "return _mpic_get_one_irq(mpic, MPIC_INFO(CPU_MCACK));",
+      "code": "unsigned int mpic_get_mcirq(void)\n{\n\tstruct mpic *mpic = mpic_primary;\n\n\tBUG_ON(mpic == NULL);\n\n\treturn _mpic_get_one_irq(mpic, MPIC_INFO(CPU_MCACK));\n}",
+      "body_sha256": "d997da9f7848e60fd72a66e0e27aa5a7665be8ce434b77b1b88090894d1f99b1",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "return _mpic_get_one_irq(mpic, MPIC_INFO(CPU_MCACK));",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "unsigned int mpic_get_mcirq(void)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": []
+          },
+          {
+            "text": "return",
+            "condition": [
+              "mpic ==0"
+            ]
+          }
+        ],
+        "filter_function_code": "unsigned int mpic_get_mcirq(void)\n{\n\tstruct mpic *mpic = mpic_primary;\n\n\tBUG_ON(mpic == NULL);\n\n\treturn _mpic_get_one_irq(mpic, MPIC_INFO(CPU_MCACK));\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "unsigned int mpic_get_mcirq(void)\n{\n\tstruct mpic *mpic = mpic_primary;\n\n\tBUG_ON(mpic == NULL);\n\n\treturn _mpic_get_one_irq(mpic, MPIC_INFO(CPU_MCACK));\n}"
+  ]
+}

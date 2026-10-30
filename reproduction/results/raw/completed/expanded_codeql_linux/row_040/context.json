@@ -1,0 +1,48 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ieee80211_nan_func_match",
+      "var_name": "func",
+      "target": "\tmatch->cookie = func->cookie;",
+      "code": "void ieee80211_nan_func_match(struct ieee80211_vif *vif,\n\t\t\t      struct cfg80211_nan_match_params *match,\n\t\t\t      gfp_t gfp)\n{\n\tstruct ieee80211_sub_if_data *sdata = vif_to_sdata(vif);\n\tstruct cfg80211_nan_func *func;\n\n\tif (WARN_ON(vif->type != NL80211_IFTYPE_NAN))\n\t\treturn;\n\n\tspin_lock_bh(&sdata->u.nan.func_lock);\n\n\tfunc = idr_find(&sdata->u.nan.function_inst_ids,  match->inst_id);\n\tif (WARN_ON(!func)) {\n\t\tspin_unlock_bh(&sdata->u.nan.func_lock);\n\t\treturn;\n\t}\n\tmatch->cookie = func->cookie;\n\n\tspin_unlock_bh(&sdata->u.nan.func_lock);\n\n\tcfg80211_nan_match(ieee80211_vif_to_wdev(vif), match, gfp);\n}",
+      "body_sha256": "424b8797e091abad6e42e94d6c0e8ea478b4c4adc5ee0f178c71989ae6ed9a80",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tmatch->cookie = func->cookie;",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "void ieee80211_nan_func_match(struct ieee80211_vif *vif,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "WARN_ON(!func)"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "WARN_ON(vif->type != NL80211_IFTYPE_NAN)"
+            ]
+          }
+        ],
+        "filter_function_code": "void ieee80211_nan_func_match(struct ieee80211_vif *vif,\n\t\t\t      struct cfg80211_nan_match_params *match,\n\t\t\t      gfp_t gfp)\n{\n\tstruct ieee80211_sub_if_data *sdata = vif_to_sdata(vif);\n\tstruct cfg80211_nan_func *func;\n\n\tif (WARN_ON(vif->type != NL80211_IFTYPE_NAN))\n\t\treturn;\n\n\tspin_lock_bh(&sdata->u.nan.func_lock);\n\n\tfunc = idr_find(&sdata->u.nan.function_inst_ids,  match->inst_id);\n\tif (WARN_ON(!func)) {\n\t\tspin_unlock_bh(&sdata->u.nan.func_lock);\n\t\treturn;\n\t}\n\tmatch->cookie = func->cookie;\n\n\tspin_unlock_bh(&sdata->u.nan.func_lock);\n\n\tcfg80211_nan_match(ieee80211_vif_to_wdev(vif), match, gfp);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "void ieee80211_nan_func_match(struct ieee80211_vif *vif,\n\t\t\t      struct cfg80211_nan_match_params *match,\n\t\t\t      gfp_t gfp)\n{\n\tstruct ieee80211_sub_if_data *sdata = vif_to_sdata(vif);\n\tstruct cfg80211_nan_func *func;\n\n\tif (WARN_ON(vif->type != NL80211_IFTYPE_NAN))\n\t\treturn;\n\n\tspin_lock_bh(&sdata->u.nan.func_lock);\n\n\tfunc = idr_find(&sdata->u.nan.function_inst_ids,  match->inst_id);\n\tif (WARN_ON(!func)) {\n\t\tspin_unlock_bh(&sdata->u.nan.func_lock);\n\t\treturn;\n\t}\n\tmatch->cookie = func->cookie;\n\n\tspin_unlock_bh(&sdata->u.nan.func_lock);\n\n\tcfg80211_nan_match(ieee80211_vif_to_wdev(vif), match, gfp);\n}"
+  ]
+}

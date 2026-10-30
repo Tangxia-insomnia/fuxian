@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import (Solver, Int, Function, IntSort, BoolSort,\n                    And, Or, Not, sat)\n\n    # Base script variables and constraints\n    elems = Int('elems')\n\n    # Constraint set 2 variables\n    assoc_data = Int('assoc_data')\n    fils_kek_len = Int('fils_kek_len')\n    len_ = Int('len')\n    mgmt = Int('mgmt')\n    sdata = Int('sdata')\n\n    fils_decrypt_assoc_resp = Function(\n        'fils_decrypt_assoc_resp',\n        IntSort(), IntSort(), IntSort(), IntSort(), IntSort()\n    )\n    ether_addr_equal = Function(\n        'ether_addr_equal', IntSort(), IntSort(), BoolSort()\n    )\n    ap_addr = Function('ap_addr', IntSort(), IntSort())\n    bssid = Function('bssid', IntSort(), IntSort())\n    sa = Function('sa', IntSort(), IntSort())\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(elems == 0)\n\n    # Constraint 1\n    s.add(Not(And(fils_kek_len != 0,\n                  fils_decrypt_assoc_resp(sdata, mgmt, len_, assoc_data) < 0)))\n\n    # Constraint 2\n    s.add(Not(len_ < 24 + 6))\n\n    # Constraint 3\n    s.add(Not(Or(Not(ether_addr_equal(ap_addr(assoc_data), bssid(mgmt))),\n                 Not(ether_addr_equal(ap_addr(assoc_data), sa(mgmt))))))\n\n    # Constraint 4\n    s.add(Not(assoc_data == 0))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun elems () Int)\n(declare-fun fils_decrypt_assoc_resp (Int Int Int Int) Int)\n(declare-fun assoc_data () Int)\n(declare-fun len () Int)\n(declare-fun mgmt () Int)\n(declare-fun sdata () Int)\n(declare-fun fils_kek_len () Int)\n(declare-fun ether_addr_equal (Int Int) Bool)\n(declare-fun sa (Int) Int)\n(declare-fun ap_addr (Int) Int)\n(declare-fun bssid (Int) Int)\n(assert\n (= elems 0))\n(assert\n (let (($x33 (and (and (distinct fils_kek_len 0) true) (< (fils_decrypt_assoc_resp sdata mgmt len assoc_data) 0))))\n (not $x33)))\n(assert\n (not (< len 30)))\n(assert\n (let (($x57 (or (not (ether_addr_equal (ap_addr assoc_data) (bssid mgmt))) (not (ether_addr_equal (ap_addr assoc_data) (sa mgmt))))))\n (not $x57)))\n(assert\n (not (= assoc_data 0)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

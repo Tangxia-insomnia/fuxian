@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Or, And, sat\n\n    # Model pointer-like values as Int (0 == NULL)\n    crlnumberfile = Int('crlnumberfile')\n    crlnumber = Int('crlnumber')\n\n    s = Solver()\n\n    # Constraint: if crlnumberfile != NULL (i.e., != 0),\n    # then load_serial must return non-NULL (crlnumber != 0).\n    # Encoded as: (crlnumberfile == 0) Or (crlnumber != 0)\n    s.add(Or(crlnumberfile == 0, crlnumber != 0))\n\n    # Check satisfiability of the constraint set\n    result = s.check()\n\n    # Validation: constraints must be satisfiable\n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun crlnumber () Int)\n(declare-fun crlnumberfile () Int)\n(assert\n (let (($x8 (= crlnumberfile 0)))\n(or $x8 (and (distinct crlnumber 0) true))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

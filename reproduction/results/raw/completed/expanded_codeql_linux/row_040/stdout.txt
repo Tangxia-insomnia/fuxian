@@ -1,0 +1,51 @@
+```python
+func=Int('func')
+s.add(func == 0)
+```
+```json
+["!(WARN_ON(!func))"]
+```
+```python
+# Z3 script generated from C constraint: !(WARN_ON(!func))
+#
+# Analysis of the C expression:
+#   WARN_ON(x) is a kernel macro that evaluates its argument x.
+#   It returns true (non-zero) if x is true, and emits a warning.
+#   The outer '!' negates the result.
+#
+#   So: !(WARN_ON(!func))
+#     - Inner: !func  -> true when func is NULL (0)
+#     - WARN_ON(!func) -> true when func is NULL
+#     - Outer '!': true when func is NOT NULL
+#
+#   Semantically, this constraint asserts that 'func' must be non-NULL.
+#   (The WARN_ON side-effect of printing a warning is not modeled in Z3;
+#    only the boolean truth value matters for constraint solving.)
+#
+# Variable:
+#   func : pointer, modeled as an uninterpreted integer (0 == NULL)
+
+from z3 import *
+
+# 'func' is a pointer; model as an integer where 0 represents NULL.
+func = Int('func')
+
+s = Solver()
+
+# Constraint: !(WARN_ON(!func))  ==>  func != 0  (func is non-NULL)
+s.add(func != 0)
+
+# Check satisfiability and print a model
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    func = Int('func')
+    s = Solver()
+    s.add(func == 0)
+    s.add(func != 0)
+    return s.check() == sat
+```
+goto result: False

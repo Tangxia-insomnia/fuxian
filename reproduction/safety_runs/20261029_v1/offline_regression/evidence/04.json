@@ -1,0 +1,236 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/kernel69:row=12:index=24",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "saved_clone",
+    "function_name": "tcp_set_allowed_congestion_control",
+    "location": {
+      "file_path": "net/ipv4/tcp_cong.c",
+      "region": {
+        "startLine": 400,
+        "startColumn": 8,
+        "endColumn": 19
+      },
+      "context": {
+        "startLine": 398,
+        "endLine": 402,
+        "snippet": {
+          "text": "\tkfree(saved_clone);"
+        }
+      }
+    },
+    "function_code": "int tcp_set_allowed_congestion_control(char *val)\n{\n\tstruct tcp_congestion_ops *ca;\n\tchar *saved_clone, *clone, *name;\n\tint ret = 0;\n\n\tsaved_clone = clone = kstrdup(val, GFP_USER);\n\tif (!clone)\n\t\treturn -ENOMEM;\n\n\tspin_lock(&tcp_cong_list_lock);\n\t/* pass 1 check for bad entries */\n\twhile ((name = strsep(&clone, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tif (!ca) {\n\t\t\tret = -ENOENT;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\t/* pass 2 clear old values */\n\tlist_for_each_entry_rcu(ca, &tcp_cong_list, list)\n\t\tca->flags &= ~TCP_CONG_NON_RESTRICTED;\n\n\t/* pass 3 mark as allowed */\n\twhile ((name = strsep(&val, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tWARN_ON(!ca);\n\t\tif (ca)\n\t\t\tca->flags |= TCP_CONG_NON_RESTRICTED;\n\t}\nout:\n\tspin_unlock(&tcp_cong_list_lock);\n\tkfree(saved_clone);\n\n\treturn ret;\n}",
+    "function_list": [
+      "kfree",
+      "ZERO_OR_NULL_PTR",
+      "ZERO_SIZE_PTR"
+    ],
+    "bug_line_constraints": [
+      {
+        "text": "\tkfree(saved_clone);",
+        "condition": [
+          "goto out"
+        ]
+      }
+    ],
+    "var_assign_conditions": [],
+    "pointer_null_postconditions": [],
+    "early_jump_constraints": [
+      {
+        "text": "return -ENOMEM;",
+        "condition": [
+          "if (!clone)"
+        ]
+      }
+    ],
+    "index": 24
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "tcp_set_allowed_congestion_control",
+        "var_name": "saved_clone",
+        "target": "\tkfree(saved_clone);",
+        "code": "int tcp_set_allowed_congestion_control(char *val)\n{\n\tstruct tcp_congestion_ops *ca;\n\tchar *saved_clone, *clone, *name;\n\tint ret = 0;\n\n\tsaved_clone = clone = kstrdup(val, GFP_USER);\n\tif (!clone)\n\t\treturn -ENOMEM;\n\n\tspin_lock(&tcp_cong_list_lock);\n\t/* pass 1 check for bad entries */\n\twhile ((name = strsep(&clone, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tif (!ca) {\n\t\t\tret = -ENOENT;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\t/* pass 2 clear old values */\n\tlist_for_each_entry_rcu(ca, &tcp_cong_list, list)\n\t\tca->flags &= ~TCP_CONG_NON_RESTRICTED;\n\n\t/* pass 3 mark as allowed */\n\twhile ((name = strsep(&val, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tWARN_ON(!ca);\n\t\tif (ca)\n\t\t\tca->flags |= TCP_CONG_NON_RESTRICTED;\n\t}\nout:\n\tspin_unlock(&tcp_cong_list_lock);\n\tkfree(saved_clone);\n\n\treturn ret;\n}",
+        "body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "\tkfree(saved_clone);",
+              "condition": [
+                {
+                  "condition": "goto out",
+                  "line_number": 31
+                }
+              ]
+            }
+          ],
+          "target_conditions": [
+            {
+              "condition": "goto out",
+              "line_number": 31
+            }
+          ],
+          "variable_assignments": {
+            "text": "int tcp_set_allowed_congestion_control(char *val)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "out",
+              "condition": [
+                "(name = strsep(&clone, \" \")) && *name",
+                "!ca"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "!clone"
+              ]
+            }
+          ],
+          "filter_function_code": "int tcp_set_allowed_congestion_control(char *val)\n{\n\tstruct tcp_congestion_ops *ca;\n\tchar *saved_clone, *clone, *name;\n\tint ret = 0;\n\n\tsaved_clone = clone = kstrdup(val, GFP_USER);\n\tif (!clone)\n\t\treturn -ENOMEM;\n\n\tspin_lock(&tcp_cong_list_lock);\n\t/* pass 1 check for bad entries */\n\twhile ((name = strsep(&clone, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tif (!ca) {\n\t\t\tret = -ENOENT;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\t/* pass 2 clear old values */\n\tlist_for_each_entry_rcu(ca, &tcp_cong_list, list)\n\t\tca->flags &= ~TCP_CONG_NON_RESTRICTED;\n\n\t/* pass 3 mark as allowed */\n\twhile ((name = strsep(&val, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tWARN_ON(!ca);\n\t\tif (ca)\n\t\t\tca->flags |= TCP_CONG_NON_RESTRICTED;\n\t}\nout:\n\tspin_unlock(&tcp_cong_list_lock);\n\tkfree(saved_clone);\n\n\treturn ret;\n}"
+        }
+      },
+      {
+        "level": 1,
+        "function": "kfree",
+        "var_name": "object",
+        "target": "\t\tfree_large_kmalloc(folio, (void *)object);",
+        "code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}",
+        "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+        "sink_kind": "author_historical_macro_or_call_sink",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "\t\tfree_large_kmalloc(folio, (void *)object);",
+              "condition": [
+                {
+                  "condition": "if (unlikely(!folio_test_slab(folio)))",
+                  "line_number": 13
+                }
+              ]
+            }
+          ],
+          "target_conditions": [
+            {
+              "condition": "if (unlikely(!folio_test_slab(folio)))",
+              "line_number": 13
+            }
+          ],
+          "variable_assignments": {
+            "text": "void kfree(const void *object)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": [
+                "unlikely(ZERO_OR_NULL_PTR(object))"
+              ]
+            }
+          ],
+          "filter_function_code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "int tcp_set_allowed_congestion_control(char *val)\n{\n\tstruct tcp_congestion_ops *ca;\n\tchar *saved_clone, *clone, *name;\n\tint ret = 0;\n\n\tsaved_clone = clone = kstrdup(val, GFP_USER);\n\tif (!clone)\n\t\treturn -ENOMEM;\n\n\tspin_lock(&tcp_cong_list_lock);\n\t/* pass 1 check for bad entries */\n\twhile ((name = strsep(&clone, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tif (!ca) {\n\t\t\tret = -ENOENT;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\t/* pass 2 clear old values */\n\tlist_for_each_entry_rcu(ca, &tcp_cong_list, list)\n\t\tca->flags &= ~TCP_CONG_NON_RESTRICTED;\n\n\t/* pass 3 mark as allowed */\n\twhile ((name = strsep(&val, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tWARN_ON(!ca);\n\t\tif (ca)\n\t\t\tca->flags |= TCP_CONG_NON_RESTRICTED;\n\t}\nout:\n\tspin_unlock(&tcp_cong_list_lock);\n\tkfree(saved_clone);\n\n\treturn ret;\n}",
+      "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nsaved_clone=Int('saved_clone')\ns.add(saved_clone == 0)\n```",
+      "response_filter_goto: ```json\n[]\n```",
+      "step 1 z3 script: ```python\nfolio_test_slab=Int('folio_test_slab')\nobject=Int('object')\ns.add(folio_test_slab == 0)\ns.add(object == 0)\n```",
+      "step 2 analysis: ```python\ndef check_constraints():\n    # Variables\n    # object is NULL (ZERO_OR_NULL_PTR true) -> object == 0\n    # kfree returns early when object is NULL\n    # folio_test_slab is not evaluated in this path\n\n    object_ptr = 0  # object is NULL\n\n    # Constraint: object is NULL (ZERO_OR_NULL_PTR true)\n    # This means kfree returns early, so folio_test_slab is not evaluated\n    constraints = []\n\n    # ZERO_OR_NULL_PTR(object) is true -> object == 0\n    constraints.append(object_ptr == 0)\n\n    # Since object is NULL, kfree returns early.\n    # folio_test_slab is not evaluated in this path.\n    # No additional constraints needed beyond existing ones.\n\n    # Validate all constraints\n    for c in constraints:\n        if not c:\n            return False\n    return True\n```",
+      "step 2 z3 script: def check_constraints():\n    # Variables\n    # object is NULL (ZERO_OR_NULL_PTR true) -> object == 0\n    # kfree returns early when object is NULL\n    # folio_test_slab is not evaluated in this path\n\n    object_ptr = 0  # object is NULL\n\n    # Constraint: object is NULL (ZERO_OR_NULL_PTR true)\n    # This means kfree returns early, so folio_test_slab is not evaluated\n    constraints = []\n\n    # ZERO_OR_NULL_PTR(object) is true -> object == 0\n    constraints.append(object_ptr == 0)\n\n    # Since object is NULL, kfree returns early.\n    # folio_test_slab is not evaluated in this path.\n    # No additional constraints needed beyond existing ones.\n\n    # Validate all constraints\n    for c in constraints:\n        if not c:\n            return False\n    return True",
+      "fix step2 z3 script: def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n\n    # Variables\n    # object is NULL (ZERO_OR_NULL_PTR true) -> object == 0\n    # kfree returns early when object is NULL\n    # folio_test_slab is not evaluated in this path\n\n    object_ptr = Int('object_ptr')\n\n    s = Solver()\n\n    # Constraint: object is NULL (ZERO_OR_NULL_PTR true)\n    # This means kfree returns early, so folio_test_slab is not evaluated\n    s.add(object_ptr == 0)\n\n    # Since object is NULL, kfree returns early.\n    # folio_test_slab is not evaluated in this path.\n    # No additional constraints needed beyond existing ones.\n\n    result = s.check()\n    return result == sat",
+      "response_filter_goto: ```json\n[\"!(unlikely(ZERO_OR_NULL_PTR(object)))\"]\n```",
+      "z3 script: ```python\n# Z3 script generated from C constraints\n#\n# Original C constraint: !(unlikely(ZERO_OR_NULL_PTR(object)))\n#\n# Analysis:\n#   - ZERO_OR_NULL_PTR(x) is a kernel macro that evaluates to true when x is NULL\n#     or when x is a small value that could be a ZERO_SIZE_PTR (typically <= 4096).\n#     In practice, for verification purposes, we model it as: x == NULL (i.e., x == 0).\n#   - unlikely(...) is a branch-prediction hint; it has no semantic effect on the\n#     truth value of the expression, so it is dropped.\n#   - The outer '!' negates the check, so the constraint asserts that 'object'\n#     is NOT a zero-or-null pointer, i.e., object != NULL.\n#\n# Relevant condition (line 13): if (unlikely(!folio_test_slab(folio)))\n#   This condition does not directly constrain 'object'; it is included for\n#   context. The only variable we need to constrain is 'object'.\n#\n# Variable modeling:\n#   - 'object' is treated as an uninterpreted pointer-sized integer (BitVec 64).\n#   - NULL is represented as 0.\n\nfrom z3 import *\n\n# Declare 'object' as a 64-bit pointer-sized bitvector (unconstrained).\nobject = BitVec('object', 64)\n\n# Constraint derived from: !(unlikely(ZERO_OR_NULL_PTR(object)))\n#   ZERO_OR_NULL_PTR(object)  <=>  object == 0\n#   Negation:                    object != 0\n# This is the only constraint affecting 'object' from the given input.\nconstraint_object_not_null = (object != 0)\n\n# Solve / check satisfiability of the constraint set.\ns = Solver()\ns.add(constraint_object_not_null)\n\n# Print result and a sample model for inspection.\nprint(\"Constraints:\")\nprint(\"  object != 0   # from !(unlikely(ZERO_OR_NULL_PTR(object)))\")\nprint()\nprint(\"Check result:\", s.check())\nif s.check() == sat:\n    print(\"Model:\", s.model())\n```",
+      "final z3 script: def check_constraints():\n    from z3 import Solver, Int, BitVec, sat\n\n    # Base script variables and constraints\n    folio_test_slab = Int('folio_test_slab')\n    object = Int('object')\n\n    s = Solver()\n    s.add(folio_test_slab == 0)\n    s.add(object == 0)\n\n    # Constraint set 1: object_ptr is NULL (ZERO_OR_NULL_PTR true)\n    object_ptr = Int('object_ptr')\n    s.add(object_ptr == 0)\n\n    # Constraint set 2: object (as BitVec 64) must be non-null\n    object_bv = BitVec('object_bv', 64)\n    s.add(object_bv != 0)\n\n    result = s.check()\n    return result == sat"
+    ],
+    "function_name_list": [
+      "kfree"
+    ],
+    "function_body_list": [
+      "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+    ],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    saved_clone = Int('saved_clone')\n    s = Solver()\n    s.add(saved_clone == 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun saved_clone () Int)\n(assert\n (= saved_clone 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    {
+      "event_id": 2,
+      "level": 1,
+      "source": "def check_constraints():\n    # Variables\n    # object is NULL (ZERO_OR_NULL_PTR true) -> object == 0\n    # kfree returns early when object is NULL\n    # folio_test_slab is not evaluated in this path\n\n    object_ptr = 0  # object is NULL\n\n    # Constraint: object is NULL (ZERO_OR_NULL_PTR true)\n    # This means kfree returns early, so folio_test_slab is not evaluated\n    constraints = []\n\n    # ZERO_OR_NULL_PTR(object) is true -> object == 0\n    constraints.append(object_ptr == 0)\n\n    # Since object is NULL, kfree returns early.\n    # folio_test_slab is not evaluated in this path.\n    # No additional constraints needed beyond existing ones.\n\n    # Validate all constraints\n    for c in constraints:\n        if not c:\n            return False\n    return True",
+      "ok": false,
+      "error": "ValueError: ValueError: No actual Solver.check executed"
+    },
+    {
+      "event_id": 3,
+      "level": 1,
+      "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n\n    # Variables\n    # object is NULL (ZERO_OR_NULL_PTR true) -> object == 0\n    # kfree returns early when object is NULL\n    # folio_test_slab is not evaluated in this path\n\n    object_ptr = Int('object_ptr')\n\n    s = Solver()\n\n    # Constraint: object is NULL (ZERO_OR_NULL_PTR true)\n    # This means kfree returns early, so folio_test_slab is not evaluated\n    s.add(object_ptr == 0)\n\n    # Since object is NULL, kfree returns early.\n    # folio_test_slab is not evaluated in this path.\n    # No additional constraints needed beyond existing ones.\n\n    result = s.check()\n    return result == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun object_ptr () Int)\n(assert\n (= object_ptr 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    {
+      "event_id": 4,
+      "level": 1,
+      "source": "def check_constraints():\n    from z3 import Solver, Int, BitVec, sat\n\n    # Base script variables and constraints\n    folio_test_slab = Int('folio_test_slab')\n    object = Int('object')\n\n    s = Solver()\n    s.add(folio_test_slab == 0)\n    s.add(object == 0)\n\n    # Constraint set 1: object_ptr is NULL (ZERO_OR_NULL_PTR true)\n    object_ptr = Int('object_ptr')\n    s.add(object_ptr == 0)\n\n    # Constraint set 2: object (as BitVec 64) must be non-null\n    object_bv = BitVec('object_bv', 64)\n    s.add(object_bv != 0)\n\n    result = s.check()\n    return result == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun folio_test_slab () Int)\n(declare-fun object () Int)\n(declare-fun object_ptr () Int)\n(declare-fun object_bv () (_ BitVec 64))\n(assert\n (= folio_test_slab 0))\n(assert\n (= object 0))\n(assert\n (= object_ptr 0))\n(assert\n (and (distinct object_bv (_ bv0 64)) true))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": [
+    {
+      "code": "unresolved_prior_audit:LLM变量状态推理错误",
+      "evidence_ref": "audit/failure_audit_20261029/samples/A04/audit.md"
+    },
+    {
+      "code": "unresolved_prior_audit:SMT约束生成或求解错误",
+      "evidence_ref": "audit/failure_audit_20261029/samples/A04/audit.md"
+    }
+  ]
+}

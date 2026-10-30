@@ -1,0 +1,149 @@
+```python
+tb_IFLA_INET6_ADDR_GEN_MODE=Int('tb_IFLA_INET6_ADDR_GEN_MODE')
+dev=Int('dev')
+idev=Int('idev')
+s.add(tb_IFLA_INET6_ADDR_GEN_MODE == 1)
+s.add(dev == 1)
+s.add(idev == 0)
+```
+```python
+idev=Int('idev')
+tb_IFLA_INET6_ADDR_GEN_MODE=Int('tb_IFLA_INET6_ADDR_GEN_MODE')
+dev=Int('dev')
+
+s.add(idev == 0)
+s.add(tb_IFLA_INET6_ADDR_GEN_MODE == 1)
+```
+```python
+idev=Int('idev')
+dev=Int('dev')
+
+# idev is NULL (assumed)
+s.add(idev == 0)
+
+# At line 27: if (dev) - dev is a pointer, so it's either NULL (0) or non-NULL
+# Since idev is NULL, if dev were non-NULL, __in6_dev_get(dev) would return NULL
+# and the function would return -EAFNOSUPPORT before reaching line 27.
+# Therefore, to reach line 27, dev must be NULL (0).
+s.add(dev == 0)
+```
+```python
+# Additional constraints based on code analysis
+
+# At line 22: if (tb[IFLA_INET6_ADDR_GEN_MODE]) - already constrained to ==1 (true branch taken)
+# Inside this branch: mode = nla_get_u8(tb[IFLA_INET6_ADDR_GEN_MODE])
+# check_addr_gen_mode(mode) < 0 must be false to continue (function returns -EINVAL if < 0)
+# So check_addr_gen_mode(mode) >= 0, meaning the mode is valid
+mode=Int('mode')
+s.add(mode >= 0)
+s.add(mode <= 255)  # u8 range
+
+# At line 27: if (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)
+# dev == 1 (non-NULL) per existing constraint
+# idev == 0 (NULL) per existing constraint
+# check_stable_privacy is called with idev=NULL; to reach return 0, this check must not return < 0
+# Since idev is NULL, check_stable_privacy likely returns an error, but we model the
+# condition as: NOT (dev==1 AND check_stable_privacy < 0) to allow reaching return 0
+check_stable_privacy_ret=Int('check_stable_privacy_ret')
+s.add(check_stable_privacy_ret >= 0)  # must not be < 0 to avoid early return
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, And, sat
+    
+    s = Solver()
+    
+    # Variable definitions
+    mode = Int('mode')
+    check_stable_privacy_ret = Int('check_stable_privacy_ret')
+    
+    # Constraint: mode is u8 range and valid (check_addr_gen_mode(mode) >= 0)
+    s.add(mode >= 0)
+    s.add(mode <= 255)
+    
+    # Constraint: check_stable_privacy must not return < 0 to avoid early return
+    s.add(check_stable_privacy_ret >= 0)
+    
+    # Check satisfiability
+    result = s.check()
+    
+    return result == sat
+```
+dereference constraint: True
+```json
+["!(tb[IFLA_INET6_ADDR_GEN_MODE]) || !(check_addr_gen_mode(mode) < 0)", "!(dev) || !(!idev)"]
+```
+```python
+from z3 import *
+
+# Declarations for the variables involved in the constraints.
+# tb[IFLA_INET6_ADDR_GEN_MODE] is modeled as a boolean flag indicating
+# whether the attribute is present (non-NULL) in the netlink message.
+tb_IFLA_INET6_ADDR_GEN_MODE = Bool('tb_IFLA_INET6_ADDR_GEN_MODE')
+
+# mode is the value extracted from the attribute; modeled as an Int.
+mode = Int('mode')
+
+# check_addr_gen_mode(mode) < 0 is modeled as an uninterpreted predicate
+# since its exact semantics are not provided. We only need to know whether
+# it returns a negative value.
+check_addr_gen_mode_neg = Bool('check_addr_gen_mode_neg')
+
+# dev and idev are pointers; modeled as booleans (non-NULL == True).
+dev = Bool('dev')
+idev = Bool('idev')
+
+s = Solver()
+
+# Constraint 1: !(tb[IFLA_INET6_ADDR_GEN_MODE]) || !(check_addr_gen_mode(mode) < 0)
+# Included because it guards the condition `if (tb[IFLA_INET6_ADDR_GEN_MODE])`
+# at line 22: the attribute must be absent OR the mode check must not fail.
+s.add(Or(Not(tb_IFLA_INET6_ADDR_GEN_MODE), Not(check_addr_gen_mode_neg)))
+
+# Constraint 2: !(dev) || !(!idev)
+# Included because it guards the condition `if (dev)` at line 27:
+# if dev is non-NULL, then idev must also be non-NULL (i.e., !idev is false).
+s.add(Or(Not(dev), idev))
+
+# Print the resulting script's constraints for verification.
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, And, Or, Not, sat
+
+    # Variables from base script
+    tb_IFLA_INET6_ADDR_GEN_MODE = Int('tb_IFLA_INET6_ADDR_GEN_MODE')
+    dev = Int('dev')
+    idev = Int('idev')
+
+    # Variables from constraint set 1
+    mode = Int('mode')
+    check_stable_privacy_ret = Int('check_stable_privacy_ret')
+
+    # Variables from constraint set 2
+    tb_IFLA_INET6_ADDR_GEN_MODE_b = Bool('tb_IFLA_INET6_ADDR_GEN_MODE_b')
+    check_addr_gen_mode_neg = Bool('check_addr_gen_mode_neg')
+    dev_b = Bool('dev_b')
+    idev_b = Bool('idev_b')
+
+    s = Solver()
+
+    # Base script constraints
+    s.add(tb_IFLA_INET6_ADDR_GEN_MODE == 1)
+    s.add(dev == 1)
+    s.add(idev == 0)
+
+    # Constraint set 1
+    s.add(mode >= 0)
+    s.add(mode <= 255)
+    s.add(check_stable_privacy_ret >= 0)
+
+    # Constraint set 2
+    s.add(Or(Not(tb_IFLA_INET6_ADDR_GEN_MODE_b), Not(check_addr_gen_mode_neg)))
+    s.add(Or(Not(dev_b), idev_b))
+
+    result = s.check()
+    return result == sat
+```
+goto result: True

@@ -1,0 +1,45 @@
+{
+  "call_id": 542,
+  "sample_id": "NPD/codeql/libav:row=35:index=51",
+  "timestamp": "2026-10-26T00:54:26.919230+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static void swap_sample_fmts_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int format, bps;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_formats->nb_formats == 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    format = link->out_formats->formats[0];\n    bps    = av_get_bytes_per_sample(format);\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx = -1, best_score = INT_MIN;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_formats->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_formats->nb_formats; j++) {\n            int out_format = outlink->in_formats->formats[j];\n            int out_bps    = av_get_bytes_per_sample(out_format);\n            int score;\n\n            if (av_get_packed_sample_fmt(out_format) == format ||\n                av_get_planar_sample_fmt(out_format) == format) {\n                best_idx   = j;\n                break;\n            }\n\n            /* for s32 and float prefer double to prevent loss of information */\n            if (bps == 4 && out_bps == 8) {\n                best_idx = j;\n                break;\n            }\n\n            /* prefer closest higher or equal bps */\n            score = -abs(out_bps - bps);\n            if (out_bps >= bps)\n                score += INT_MAX/2;\n\n            if (score > best_score) {\n                best_score = score;\n                best_idx   = j;\n            }\n        }\n        av_assert0(best_idx >= 0);\n        FFSWAP(int, outlink->in_formats->formats[0],\n               outlink->in_formats->formats[best_idx]);\n    }\n}\n        - Target variables: [], link\n        - Constraints: ['!(i == filter->nb_inputs)', '!(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_formats->nb_formats == 1)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "28e40a93-96fb-4425-a31a-3db61bf639c9",
+  "usage": {
+    "prompt_tokens": 619,
+    "completion_tokens": 61,
+    "total_tokens": 680,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 619
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(i == filter->nb_inputs)\", \"!(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_formats->nb_formats == 1)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.8360051999998177,
+  "cost_upper_bound_cny": 0.001726
+}

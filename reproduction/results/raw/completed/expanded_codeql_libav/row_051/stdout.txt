@@ -1,0 +1,128 @@
+```python
+ast=Int('ast')
+s.add(ast == 0)
+```
+```json
+[
+  "!(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(ast->codecpar->channels <= 0)",
+  "!(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(!ast)",
+  "!(version == 2) || !(set_channels(avctx, ast, avio_rb32(pb)) < 0)",
+  "!(version == 2) || !(!ast)"
+]
+```
+```python
+from z3 import *
+
+# Declare variables used in the constraints
+# 'ast' is a pointer-like variable; model as an integer (0 = NULL, non-zero = valid)
+ast = Int('ast')
+
+# 'version' is an integer compared against 2
+version = Int('version')
+
+# 'avio_rb16(pb)' is a function call returning a 16-bit value; model as an uninterpreted int
+avio_rb16_pb = Int('avio_rb16_pb')
+
+# 'mv->nb_audio_tracks' is an integer field
+mv_nb_audio_tracks = Int('mv_nb_audio_tracks')
+
+# 'ast->codecpar->channels' is an integer field
+ast_codecpar_channels = Int('ast_codecpar_channels')
+
+# 'set_channels(avctx, ast, avio_rb32(pb))' returns an int; model as uninterpreted
+set_channels_ret = Int('set_channels_ret')
+
+# 'avio_rb32(pb)' is a function call returning a 32-bit value; model as uninterpreted int
+avio_rb32_pb = Int('avio_rb32_pb')
+
+s = Solver()
+
+# Constraint 1: !(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(ast->codecpar->channels <= 0)
+# Included because it references 'ast' (via ast->codecpar->channels) and constrains its behavior.
+# C semantics: !(x) means x == 0; !(a && b) means !(a && b); !(c <= 0) means c > 0.
+s.add(Or(
+    Not(And(version == 0, avio_rb16_pb == 3)),
+    mv_nb_audio_tracks == 0,
+    Not(ast_codecpar_channels <= 0)
+))
+
+# Constraint 2: !(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(!ast)
+# Included because it directly references 'ast' (as a pointer null-check).
+# !(!ast) means ast != 0 (i.e., ast is non-null).
+s.add(Or(
+    Not(And(version == 0, avio_rb16_pb == 3)),
+    mv_nb_audio_tracks == 0,
+    Not(ast == 0)
+))
+
+# Constraint 3: !(version == 2) || !(set_channels(avctx, ast, avio_rb32(pb)) < 0)
+# Included because it references 'ast' as an argument to set_channels.
+# !(version == 2) means version != 2; !(ret < 0) means ret >= 0.
+s.add(Or(
+    version != 2,
+    Not(set_channels_ret < 0)
+))
+
+# Constraint 4: !(version == 2) || !(!ast)
+# Included because it directly references 'ast' (null-check).
+# !(!ast) means ast != 0.
+s.add(Or(
+    version != 2,
+    Not(ast == 0)
+))
+
+# Check satisfiability and print result
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or, Not, And, sat
+
+    ast = Int('ast')
+    version = Int('version')
+    avio_rb16_pb = Int('avio_rb16_pb')
+    mv_nb_audio_tracks = Int('mv_nb_audio_tracks')
+    ast_codecpar_channels = Int('ast_codecpar_channels')
+    set_channels_ret = Int('set_channels_ret')
+    avio_rb32_pb = Int('avio_rb32_pb')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ast == 0)
+
+    # Constraint 1
+    s.add(Or(
+        Not(And(version == 0, avio_rb16_pb == 3)),
+        mv_nb_audio_tracks == 0,
+        Not(ast_codecpar_channels <= 0)
+    ))
+
+    # Constraint 2
+    s.add(Or(
+        Not(And(version == 0, avio_rb16_pb == 3)),
+        mv_nb_audio_tracks == 0,
+        Not(ast == 0)
+    ))
+
+    # Constraint 3
+    s.add(Or(
+        version != 2,
+        Not(set_channels_ret < 0)
+    ))
+
+    # Constraint 4
+    s.add(Or(
+        version != 2,
+        Not(ast == 0)
+    ))
+
+    return s.check() == sat
+```
+goto result: True
+```python
+st=Int('st')
+s.add(st == 0)
+```

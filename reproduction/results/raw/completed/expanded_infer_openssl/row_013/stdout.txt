@@ -1,0 +1,41 @@
+```python
+str=Int('str')
+s.add(str == 0)
+```
+Looking at the constraints and target variables:
+
+- Target variables: `[]`, `str`
+- Constraint: `!(subj) || !(!n)`
+
+**Step 1: Filter constraints affecting reachability**
+
+The constraint `!(subj) || !(!n)` simplifies to `!subj || n`. This is a guard on the branch:
+```c
+if (subj) {
+    X509_NAME *n = parse_name(subj, chtype, multirdn, "subject");
+    if (!n)
+        goto end;
+    ...
+}
+```
+
+This constraint involves `subj` and `n`, neither of which are target variables (`str` or the empty list `[]`).
+
+**Step 2: Include only constraints involving target variables**
+
+The constraint `!(subj) || !(!n)` does not reference `str` or `[]`. Therefore, it does not involve the target variables.
+
+**Step 3: Verify**
+
+- `subj` — not a target variable
+- `n` — not a target variable
+- `str` — not present in the constraint
+- `[]` — not present in the constraint
+
+The constraint is irrelevant to the reachability of the target variables.
+
+**Filtered constraints:**
+
+```json
+[]
+```

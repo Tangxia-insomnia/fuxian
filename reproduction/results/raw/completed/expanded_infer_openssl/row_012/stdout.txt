@@ -1,0 +1,46 @@
+```python
+result=Int('result')
+s.add(result == 0)
+```
+```json
+["!(matching_handlers == NULL)"]
+```
+```python
+# Z3 script generated from C constraint: !(matching_handlers == NULL)
+#
+# Reasoning:
+# - The C expression `!(matching_handlers == NULL)` asserts that the pointer
+#   `matching_handlers` is NOT NULL, i.e., it points to a valid object.
+# - In Z3 we model the pointer as an uninterpreted integer (address-like value),
+#   with 0 representing NULL (standard C convention).
+# - The constraint therefore becomes: matching_handlers != 0.
+# - No other conditions/variables were specified, so only this constraint is emitted.
+
+from z3 import *
+
+# Pointer modeled as an integer address; 0 == NULL
+matching_handlers = Int('matching_handlers')
+
+s = Solver()
+
+# Constraint: !(matching_handlers == NULL)  ==>  matching_handlers != 0
+s.add(matching_handlers != 0)
+
+# Check satisfiability and print a model (if any)
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+
+    result = Int('result')
+    matching_handlers = Int('matching_handlers')
+
+    s = Solver()
+    s.add(result == 0)
+    s.add(matching_handlers != 0)
+
+    return s.check() == sat
+```
+goto result: True

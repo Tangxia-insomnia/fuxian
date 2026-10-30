@@ -1,0 +1,45 @@
+{
+  "call_id": 164,
+  "sample_id": "NPD/codeql/kernel69:row=47:index=73",
+  "timestamp": "2026-10-26T00:32:04.197287+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: void ieee80211_process_neg_ttlm_req(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t    struct ieee80211_mgmt *mgmt, size_t len)\n{\n\tu8 dialog_token, direction[IEEE80211_TTLM_MAX_CNT] = {}, i;\n\tsize_t ies_len;\n\tenum ieee80211_neg_ttlm_res ttlm_res = NEG_TTLM_RES_ACCEPT;\n\tstruct ieee802_11_elems *elems = NULL;\n\tstruct ieee80211_neg_ttlm neg_ttlm = {};\n\n\tBUILD_BUG_ON(ARRAY_SIZE(direction) != ARRAY_SIZE(elems->ttlm));\n\n\tif (!ieee80211_vif_is_mld(&sdata->vif))\n\t\treturn;\n\n\tdialog_token = mgmt->u.action.u.ttlm_req.dialog_token;\n\ties_len  = len - offsetof(struct ieee80211_mgmt,\n\t\t\t\t  u.action.u.ttlm_req.variable);\n\telems = ieee802_11_parse_elems(mgmt->u.action.u.ttlm_req.variable,\n\t\t\t\t       ies_len, true, NULL);\n\tif (!elems) {\n\t\tttlm_res = NEG_TTLM_RES_REJECT;\n\t\tgoto out;\n\t}\n\n\tfor (i = 0; i < elems->ttlm_num; i++) {\n\t\tif (ieee80211_parse_neg_ttlm(sdata, elems->ttlm[i],\n\t\t\t\t\t     &neg_ttlm, &direction[i]) ||\n\t\t    (direction[i] == IEEE80211_TTLM_DIRECTION_BOTH &&\n\t\t     elems->ttlm_num != 1)) {\n\t\t\tttlm_res = NEG_TTLM_RES_REJECT;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\tif (!elems->ttlm_num ||\n\t    (elems->ttlm_num == 2 && direction[0] == direction[1])) {\n\t\tttlm_res = NEG_TTLM_RES_REJECT;\n\t\tgoto out;\n\t}\n\n\tfor (i = 0; i < IEEE80211_TTLM_NUM_TIDS; i++) {\n\t\tif ((neg_ttlm.downlink[i] &&\n\t\t     (neg_ttlm.downlink[i] & ~sdata->vif.valid_links)) ||\n\t\t    (neg_ttlm.uplink[i] &&\n\t\t     (neg_ttlm.uplink[i] & ~sdata->vif.valid_links))) {\n\t\t\tttlm_res = NEG_TTLM_RES_REJECT;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\tttlm_res = drv_can_neg_ttlm(sdata->local, sdata, &neg_ttlm);\n\n\tif (ttlm_res != NEG_TTLM_RES_ACCEPT)\n\t\tgoto out;\n\n\tieee80211_apply_neg_ttlm(sdata, neg_ttlm);\nout:\n\tkfree(elems);\n\tieee80211_send_neg_ttlm_res(sdata, ttlm_res, dialog_token, &neg_ttlm);\n}\n        - Target variables: [], elems\n        - Constraints: ['!(BUILD_if(ARRAY_SIZE(direction) != ARRAY_SIZE(elems->ttlm)))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "d4d94f8e-fddf-466f-b759-2dd652ed314a",
+  "usage": {
+    "prompt_tokens": 789,
+    "completion_tokens": 5,
+    "total_tokens": 794,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 789
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.7509214000001521,
+  "cost_upper_bound_cny": 0.001618
+}

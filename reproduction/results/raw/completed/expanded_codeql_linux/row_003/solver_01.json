@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, IntVal, Solver, sat\n\n    # Base script variables and constraints\n    tun_info = Int('tun_info')\n\n    # Constraint set 2 variables\n    tun_info_mode = Int('tun_info_mode')\n    ip_tunnel_info_af = Int('ip_tunnel_info_af')\n\n    # Constants\n    IP_TUNNEL_INFO_TX = IntVal(1)\n    AF_INET = IntVal(2)\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(tun_info == 0)\n\n    # Constraint set 2 constraints\n    s.add(tun_info != 0)\n    s.add((tun_info_mode & IP_TUNNEL_INFO_TX) != 0)\n    s.add(ip_tunnel_info_af == AF_INET)\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: TypeError: unsupported operand type(s) for &: 'ArithRef' and 'IntNumRef'"
+}

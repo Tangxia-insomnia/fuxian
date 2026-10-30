@@ -1,0 +1,209 @@
+```python
+new=Int('new')
+s.add(new == 0)
+```
+```json
+["!(optlen > 0) || !(unlikely(ipv6_optlen(new) > optlen))", "!(optlen > 0) || !(IS_ERR(new))"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# 'new' is a pointer (modeled as an integer address); 0 means NULL
+new = BitVec('new', 64)
+
+# 'optlen' is an integer length
+optlen = BitVec('optlen', 64)
+
+# 'ipv6_optlen(new)' is a function of the pointer; model as an uninterpreted function
+ipv6_optlen = Function('ipv6_optlen', BitVecSort(64), BitVecSort(64))
+
+# 'IS_ERR(new)' checks whether the pointer encodes an error value.
+# Model as an uninterpreted predicate over the pointer.
+IS_ERR = Function('IS_ERR', BitVecSort(64), BoolSort())
+
+# 'unlikely(x)' is a branch-prediction hint; it does not change the truth value of x.
+# So 'unlikely(ipv6_optlen(new) > optlen)' is equivalent to 'ipv6_optlen(new) > optlen'.
+
+s = Solver()
+
+# Constraint 1: !(optlen > 0) || !(unlikely(ipv6_optlen(new) > optlen))
+#   Included because it constrains 'new' (via ipv6_optlen(new)) and 'optlen'.
+#   C semantics: if optlen > 0 then we must NOT have ipv6_optlen(new) > optlen.
+#   i.e. optlen > 0  ==>  ipv6_optlen(new) <= optlen
+s.add(Or(Not(optlen > 0), Not(ipv6_optlen(new) > optlen)))
+
+# Constraint 2: !(optlen > 0) || !(IS_ERR(new))
+#   Included because it constrains 'new' (via IS_ERR(new)) and 'optlen'.
+#   C semantics: if optlen > 0 then 'new' must not be an error pointer.
+#   i.e. optlen > 0  ==>  !IS_ERR(new)
+s.add(Or(Not(optlen > 0), Not(IS_ERR(new))))
+
+# Print the resulting constraints
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, BitVec, Function, BitVecSort, BoolSort, Solver, Or, Not, sat
+
+    # Base script constraints
+    new_int = Int('new')
+    s = Solver()
+    s.add(new_int == 0)
+
+    # Constraint set 2 variables
+    new = BitVec('new', 64)
+    optlen = BitVec('optlen', 64)
+    ipv6_optlen = Function('ipv6_optlen', BitVecSort(64), BitVecSort(64))
+    IS_ERR = Function('IS_ERR', BitVecSort(64), BoolSort())
+
+    # Constraint 1
+    s.add(Or(Not(optlen > 0), Not(ipv6_optlen(new) > optlen)))
+
+    # Constraint 2
+    s.add(Or(Not(optlen > 0), Not(IS_ERR(new))))
+
+    return s.check() == sat
+```
+NameError: name 'Function' is not defined
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or, Not, sat
+
+    # Base script constraints
+    new = Int('new')
+    s = Solver()
+    s.add(new == 0)
+
+    # Constraint set 2 variables (modeled as Int per guidelines)
+    optlen = Int('optlen')
+    ipv6_optlen_new = Int('ipv6_optlen_new')
+    IS_ERR_new = Int('IS_ERR_new')
+
+    # Constraint 1: optlen > 0 ==> ipv6_optlen(new) <= optlen
+    s.add(Or(Not(optlen > 0), Not(ipv6_optlen_new > optlen)))
+
+    # Constraint 2: optlen > 0 ==> !IS_ERR(new)  (IS_ERR_new == 0 means not error)
+    s.add(Or(Not(optlen > 0), IS_ERR_new == 0))
+
+    return s.check() == sat
+```
+goto result: True
+```python
+folio_test_slab=Int('folio_test_slab')
+object=Int('object')
+s.add(folio_test_slab == 0)
+s.add(object == 0)
+```
+```python
+object=Int('object')
+folio_test_slab=Int('folio_test_slab')
+s.add(object==0)
+s.add(folio_test_slab==0)
+```
+```python
+# New constraints based on line-by-line simulation
+# Line 9: if (unlikely(ZERO_OR_NULL_PTR(object))) return;
+# Since object == 0, ZERO_OR_NULL_PTR is true, so function returns early
+# This means folio_test_slab is never actually evaluated (unreachable)
+# But per existing constraint, folio_test_slab == 0 is kept
+
+# Line 13: if (unlikely(!folio_test_slab(folio))) - condition is true when folio_test_slab == 0
+# Since folio_test_slab == 0, the branch is taken: free_large_kmalloc(folio, object); return;
+# No further constraints needed for slab/slab_cache paths (unreachable)
+
+# Additional constraint: object is NULL (already asserted), confirming early return path
+s.add(object == 0)
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat
+    
+    s = Solver()
+    
+    # Define variables with Int type (per guidelines)
+    object_ptr = Int('object_ptr')
+    folio_test_slab = Int('folio_test_slab')
+    
+    # Constraint: object is NULL (0), confirming early return path
+    s.add(object_ptr == 0)
+    
+    # Constraint: folio_test_slab == 0 (kept per existing constraint)
+    s.add(folio_test_slab == 0)
+    
+    # Line 9: ZERO_OR_NULL_PTR(object) is true when object == 0
+    # Early return happens, so folio_test_slab path is unreachable
+    # Model this as: if object_ptr == 0, then no further constraints apply
+    # (already captured by object_ptr == 0 assertion)
+    
+    # Line 13: !folio_test_slab(folio) is true when folio_test_slab == 0
+    # Branch taken: free_large_kmalloc(folio, object); return;
+    # No further constraints needed for slab/slab_cache paths
+    
+    # Check satisfiability
+    result = s.check()
+    
+    return result == sat
+```
+dereference constraint: True
+```json
+["!(unlikely(ZERO_OR_NULL_PTR(object)))"]
+```
+```python
+from z3 import *
+
+# Declare the pointer variable `object` as an integer address.
+# In C, `object` is a pointer; we model it as an integer (0 = NULL).
+object = Int('object')
+
+# Constraint: !(unlikely(ZERO_OR_NULL_PTR(object)))
+# ZERO_OR_NULL_PTR(x) is true when x is NULL or a small error-pointer value.
+# In the Linux kernel, ZERO_OR_NULL_PTR(x) is defined as:
+#     unlikely(!x || (unsigned long)(x) < PAGE_SIZE)
+# i.e., the pointer is NULL or its address is below PAGE_SIZE (typically 4096).
+# The C code asserts the negation: the pointer is neither NULL nor a low
+# error-pointer value. This is relevant to the condition
+# `if (unlikely(!folio_test_slab(folio)))` because `object` (the folio)
+# must be a valid, non-error pointer before it can be safely dereferenced
+# by folio_test_slab().
+PAGE_SIZE = 4096
+
+# Negation of ZERO_OR_NULL_PTR(object):
+#   object != 0  AND  (unsigned long)object >= PAGE_SIZE
+solver = Solver()
+solver.add(object != 0)
+solver.add(object >= PAGE_SIZE)
+
+# Check satisfiability and print the model (the script is executable).
+print(solver.check())
+if solver.check() == sat:
+    print(solver.model())
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, sat
+
+    # Variables from base script and constraint sets
+    folio_test_slab = Int('folio_test_slab')
+    object = Int('object')
+    object_ptr = Int('object_ptr')
+
+    s = Solver()
+
+    # --- Base script constraints ---
+    s.add(folio_test_slab == 0)
+    s.add(object == 0)
+
+    # --- Constraint set 1 constraints ---
+    s.add(object_ptr == 0)
+    s.add(folio_test_slab == 0)
+
+    # --- Constraint set 2 constraints ---
+    PAGE_SIZE = 4096
+    s.add(object != 0)
+    s.add(object >= PAGE_SIZE)
+
+    result = s.check()
+    return result == sat
+```
+goto result: False

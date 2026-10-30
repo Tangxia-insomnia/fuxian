@@ -1,0 +1,35 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "avio_enum_protocols",
+      "var_name": "p",
+      "target": "if (!*p) {",
+      "code": "const char *avio_enum_protocols(void **opaque, int output)\n{\n    const URLProtocol **p = *opaque;\n\n    p = p ? p + 1 : url_protocols;\n    *opaque = p;\n    if (!*p) {\n        *opaque = NULL;\n        return NULL;\n    }\n    if ((output && (*p)->url_write) || (!output && (*p)->url_read))\n        return (*p)->name;\n    return avio_enum_protocols(opaque, output);\n}",
+      "body_sha256": "45974914a8cf585c45197f521d7310220c609c0257926998216ffea0febb2086",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (!*p) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "const char *avio_enum_protocols(void **opaque, int output)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "const char *avio_enum_protocols(void **opaque, int output)\n{\n    const URLProtocol **p = *opaque;\n\n    p = p ? p + 1 : url_protocols;\n    *opaque = p;\n    if (!*p) {\n        *opaque = NULL;\n        return NULL;\n    }\n    if ((output && (*p)->url_write) || (!output && (*p)->url_read))\n        return (*p)->name;\n    return avio_enum_protocols(opaque, output);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "const char *avio_enum_protocols(void **opaque, int output)\n{\n    const URLProtocol **p = *opaque;\n\n    p = p ? p + 1 : url_protocols;\n    *opaque = p;\n    if (!*p) {\n        *opaque = NULL;\n        return NULL;\n    }\n    if ((output && (*p)->url_write) || (!output && (*p)->url_read))\n        return (*p)->name;\n    return avio_enum_protocols(opaque, output);\n}"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Not, And, sat\n    \n    s = Solver()\n    \n    # Define all variables with consistent Int types\n    group_type = Int('group_type')\n    IPV6_ADDR_ANY = Int('IPV6_ADDR_ANY')\n    idev = Int('idev')\n    ma = Int('ma')\n    mlh2 = Int('mlh2')\n    \n    # Constraint: group_type != IPV6_ADDR_ANY (entering else branch)\n    s.add(Not(group_type == IPV6_ADDR_ANY))\n    \n    # Constraint: idev must be valid (non-NULL)\n    s.add(idev != 0)\n    \n    # Constraint: ma must be valid (non-NULL)\n    s.add(ma != 0)\n    \n    # Constraint: mlh2 is NULL (potential NULL dereference)\n    s.add(mlh2 == 0)\n    \n    # Check satisfiability\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun IPV6_ADDR_ANY () Int)\n(declare-fun group_type () Int)\n(declare-fun idev () Int)\n(declare-fun ma () Int)\n(declare-fun mlh2 () Int)\n(assert\n (not (= group_type IPV6_ADDR_ANY)))\n(assert\n (and (distinct idev 0) true))\n(assert\n (and (distinct ma 0) true))\n(assert\n (= mlh2 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

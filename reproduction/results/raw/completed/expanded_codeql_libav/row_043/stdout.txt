@@ -1,0 +1,94 @@
+```python
+st=Int('st')
+s.add(st == 0)
+```
+```json
+["!(i == s->nb_streams) || !(!st)", "!(i = 0; i < s->nb_streams; i++) || !(!is_audio && st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) || !(flv_same_video_codec(st->codecpar, flags))", "!(i = 0; i < s->nb_streams; i++) || !(is_audio && st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) || !(flv_same_audio_codec(st->codecpar, flags))"]
+```
+```python
+from z3 import *
+
+# Declarations for the variables appearing in the constraints.
+# 'i' is the loop index, 's->nb_streams' is the number of streams,
+# 'st' is a pointer to a stream (modeled as an integer address; 0 == NULL),
+# 'is_audio' is a boolean flag, and the codec_type / codec comparison
+# results are modeled as uninterpreted booleans since their internals
+# are not part of the relevant conditions.
+
+i = Int('i')
+nb_streams = Int('s->nb_streams')
+st = Int('st')                 # pointer modeled as integer; 0 means NULL
+is_audio = Bool('is_audio')
+
+# Codec type equality predicates (opaque booleans)
+codec_type_is_video = Bool('st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO')
+codec_type_is_audio = Bool('st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO')
+
+# Codec comparison results (opaque booleans)
+flv_same_video_codec = Bool('flv_same_video_codec(st->codecpar, flags)')
+flv_same_audio_codec = Bool('flv_same_audio_codec(st->codecpar, flags)')
+
+s = Solver()
+
+# Constraint 1: !(i == s->nb_streams) || !(!st)
+# Included because it directly constrains 'st' (and 'i' / 's->nb_streams').
+# C semantics: !(!st) is true iff st != NULL.
+# So the constraint is: (i != s->nb_streams) OR (st == 0).
+s.add(Or(i != nb_streams, st == 0))
+
+# Constraint 2: !(i = 0; i < s->nb_streams; i++) || !(!is_audio && st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) || !(flv_same_video_codec(st->codecpar, flags))
+# Included because it references 'st' (via codec_type and flv_same_video_codec)
+# and 'is_audio'. The loop header is modeled as the loop-condition predicate
+# (i < s->nb_streams); the "!(...)" of the loop header means the loop is NOT
+# entered, i.e. i >= s->nb_streams.
+loop_cond = (i < nb_streams)
+# !(!is_audio && codec_type_is_video)  ==  is_audio || !codec_type_is_video
+not_video_branch = Or(is_audio, Not(codec_type_is_video))
+s.add(Or(Not(loop_cond), not_video_branch, Not(flv_same_video_codec)))
+
+# Constraint 3: !(i = 0; i < s->nb_streams; i++) || !(is_audio && st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) || !(flv_same_audio_codec(st->codecpar, flags))
+# Included because it references 'st' (via codec_type and flv_same_audio_codec)
+# and 'is_audio'.
+# !(is_audio && codec_type_is_audio)  ==  !is_audio || !codec_type_is_audio
+not_audio_branch = Or(Not(is_audio), Not(codec_type_is_audio))
+s.add(Or(Not(loop_cond), not_audio_branch, Not(flv_same_audio_codec)))
+
+# Print the resulting script's model check (sanity check)
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, sat
+
+    # Base script variables and constraints
+    st = Int('st')
+
+    # Constraint set 2 variables
+    i = Int('i')
+    nb_streams = Int('s->nb_streams')
+    is_audio = Bool('is_audio')
+    codec_type_is_video = Bool('st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO')
+    codec_type_is_audio = Bool('st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO')
+    flv_same_video_codec = Bool('flv_same_video_codec(st->codecpar, flags)')
+    flv_same_audio_codec = Bool('flv_same_audio_codec(st->codecpar, flags)')
+
+    s = Solver()
+
+    # Base constraint
+    s.add(st == 0)
+
+    # Constraint 1
+    s.add(Or(i != nb_streams, st == 0))
+
+    # Constraint 2
+    loop_cond = (i < nb_streams)
+    not_video_branch = Or(is_audio, Not(codec_type_is_video))
+    s.add(Or(Not(loop_cond), not_video_branch, Not(flv_same_video_codec)))
+
+    # Constraint 3
+    not_audio_branch = Or(Not(is_audio), Not(codec_type_is_audio))
+    s.add(Or(Not(loop_cond), not_audio_branch, Not(flv_same_audio_codec)))
+
+    return s.check() == sat
+```
+goto result: True

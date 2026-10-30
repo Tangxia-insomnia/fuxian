@@ -1,0 +1,28 @@
+[
+  {
+    "sample_id": "NPD/codeql/libav:row=3:index=8",
+    "label": 0,
+    "prediction": "keep",
+    "queries": [
+      {
+        "result": "sat",
+        "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun che () Int)\n(declare-fun TYPE_DSE () Int)\n(declare-fun elem_type () Int)\n(declare-fun TYPE_END () Int)\n(assert\n (= che 0))\n(assert\n (let (($x28 (= elem_type TYPE_END)))\n(or $x28 (>= elem_type TYPE_DSE) (and (distinct che 0) true))))\n(check-sat)\n"
+      }
+    ],
+    "evidence": "results/raw/completed/expanded_codeql_libav/row_003",
+    "note": "Satisfiable generated approximation is not a proof of faithful C semantics; no constraint rewriting performed"
+  },
+  {
+    "sample_id": "NPD/codeql/openssl:row=4:index=5",
+    "label": 1,
+    "prediction": "keep",
+    "queries": [
+      {
+        "result": "sat",
+        "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun alg () Int)\n(assert\n (= alg 0))\n(check-sat)\n"
+      }
+    ],
+    "evidence": "results/raw/completed/expanded_codeql_openssl/row_004",
+    "note": "Satisfiable generated approximation is not a proof of faithful C semantics; no constraint rewriting performed"
+  }
+]

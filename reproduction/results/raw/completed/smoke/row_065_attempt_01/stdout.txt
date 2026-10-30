@@ -1,0 +1,109 @@
+```python
+sta=Int('sta')
+s.add(sta == 0)
+```
+```json
+["!(WARN_ON_ONCE(!sta || !ap_sta))"]
+```
+```python
+# Z3 script generated from C constraint:
+#   !(WARN_ON_ONCE(!sta || !ap_sta))
+#
+# Reasoning:
+# - WARN_ON_ONCE(cond) is a kernel macro that evaluates its argument `cond`
+#   and returns the (boolean) result of that condition. It has no side
+#   effects on the constraint logic itself (it only emits a warning once).
+#   Therefore, for constraint-solving purposes, WARN_ON_ONCE(x) == x.
+# - The outer `!` negates the whole expression.
+# - Inside: `!sta || !ap_sta` in C means (sta == NULL) || (ap_sta == NULL).
+# - So the full constraint is: !( (sta == NULL) || (ap_sta == NULL) )
+#   which by De Morgan simplifies to: (sta != NULL) && (ap_sta != NULL).
+# - The relevant variable mentioned is `sta`; `ap_sta` is also referenced
+#   in the expression, so it must be modeled to preserve semantics.
+# - In Z3, pointers are modeled as integer addresses; NULL == 0.
+
+from z3 import *
+
+# Pointer variables (modeled as integer addresses; 0 == NULL)
+sta    = Int('sta')
+ap_sta = Int('ap_sta')
+
+s = Solver()
+
+# Constraint: !(WARN_ON_ONCE(!sta || !ap_sta))
+#   WARN_ON_ONCE(x) behaves as x for constraint purposes.
+#   !sta      -> sta == 0
+#   !ap_sta   -> ap_sta == 0
+#   !( (sta == 0) || (ap_sta == 0) )
+#   <=> (sta != 0) && (ap_sta != 0)
+s.add(Not(Or(sta == 0, ap_sta == 0)))
+
+# Equivalent simplified form (kept for clarity / verification):
+# s.add(And(sta != 0, ap_sta != 0))
+
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Not, Or, sat
+
+    # Base script variables and constraints
+    sta = Int('sta')
+
+    # Constraint set 2 variables
+    ap_sta = Int('ap_sta')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(sta == 0)
+
+    # Constraint set 2: !(WARN_ON_ONCE(!sta || !ap_sta))
+    # <=> (sta != 0) && (ap_sta != 0)
+    s.add(Not(Or(sta == 0, ap_sta == 0)))
+
+    return s.check() == sat
+```
+ImportError: __import__ not found
+```python
+def check_constraints():
+    from z3 import Int, Solver, Not, Or, sat
+
+    sta = Int('sta')
+    ap_sta = Int('ap_sta')
+
+    s = Solver()
+
+    s.add(sta == 0)
+    s.add(Not(Or(sta == 0, ap_sta == 0)))
+
+    return s.check() == sat
+```
+ImportError: __import__ not found
+def check_constraints():
+    from z3 import Int, Solver, Not, Or, sat
+
+    sta = Int('sta')
+    ap_sta = Int('ap_sta')
+
+    s = Solver()
+
+    s.add(sta == 0)
+    s.add(Not(Or(sta == 0, ap_sta == 0)))
+
+    return s.check() == sat
+ImportError: __import__ not found
+def check_constraints():
+    import z3
+
+    sta = z3.Int('sta')
+    ap_sta = z3.Int('ap_sta')
+
+    s = z3.Solver()
+
+    s.add(sta == 0)
+    s.add(z3.Not(z3.Or(sta == 0, ap_sta == 0)))
+
+    return s.check() == z3.sat
+ValueError: Generated code may only import z3

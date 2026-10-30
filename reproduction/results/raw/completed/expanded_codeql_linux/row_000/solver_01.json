@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Declare variables with consistent Int types\n    skb_prev = Int('skb_prev')\n    fraggap = Int('fraggap')\n    maxfraglen = Int('maxfraglen')\n    skb_len = Int('skb_len')\n    \n    # skb_prev == 0 means NULL pointer\n    # Constraint from code analysis: if skb_prev is NULL, fraggap = 0\n    s.add(Or(skb_prev != 0, fraggap == 0))\n    \n    # The original constraint Not(fraggap == 0) contradicts the above\n    # when skb_prev == 0. We keep the original constraint to check feasibility.\n    s.add(Not(fraggap == 0))\n    \n    # Additional constraint: skb_prev is NULL (from analysis)\n    s.add(skb_prev == 0)\n    \n    # Basic sanity constraints on lengths\n    s.add(maxfraglen >= 0)\n    s.add(skb_len >= 0)\n    \n    # If skb_prev is non-null, fraggap = skb_prev->len - maxfraglen\n    # (skb_prev->len represented by skb_len when skb_prev != 0)\n    s.add(Or(skb_prev == 0, fraggap == skb_len - maxfraglen))\n    \n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun fraggap () Int)\n(declare-fun skb_prev () Int)\n(declare-fun maxfraglen () Int)\n(declare-fun skb_len () Int)\n(assert\n (let (($x11 (= fraggap 0)))\n (or (and (distinct skb_prev 0) true) $x11)))\n(assert\n (let (($x11 (= fraggap 0)))\n (not $x11)))\n(assert\n (= skb_prev 0))\n(assert\n (>= maxfraglen 0))\n(assert\n (>= skb_len 0))\n(assert\n (let (($x30 (= skb_prev 0)))\n(or $x30 (= fraggap (- skb_len maxfraglen)))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,45 @@
+{
+  "call_id": 583,
+  "sample_id": "NPD/codeql/libav:row=47:index=78",
+  "timestamp": "2026-10-26T00:55:26.954236+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr)) || !(track->entry) || !(!stts_entries)', '!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr) || !(!stts_entries)']\n        Relevant conditions/variables: [], stts_entries\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "f70fa4f0-16a7-4bac-82fb-a5a057d089da",
+  "usage": {
+    "prompt_tokens": 183,
+    "completion_tokens": 419,
+    "total_tokens": 602,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 183
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# track->par->codec_type == AVMEDIA_TYPE_AUDIO  -> boolean flag\ncodec_type_is_audio = Bool('codec_type_is_audio')\n# !track->audio_vbr  -> boolean flag (audio_vbr is false)\naudio_vbr_is_false = Bool('audio_vbr_is_false')\n# track->entry  -> boolean flag (entry is non-null / truthy)\ntrack_entry = Bool('track_entry')\n# stts_entries  -> boolean flag (stts_entries is non-null / truthy)\nstts_entries = Bool('stts_entries')\n\n# Constraint 1:\n# !(!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr)) || !(track->entry) || !(!stts_entries)\n# Simplify: (codec_type_is_audio && audio_vbr_is_false) || !track_entry || stts_entries\n# Included because it references stts_entries (and the other relevant conditions).\nconstraint1 = Or(\n    And(codec_type_is_audio, audio_vbr_is_false),\n    Not(track_entry),\n    stts_entries\n)\n\n# Constraint 2:\n# !(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr) || !(!stts_entries)\n# Simplify: !(codec_type_is_audio && audio_vbr_is_false) || stts_entries\n# Included because it directly constrains stts_entries.\nconstraint2 = Or(\n    Not(And(codec_type_is_audio, audio_vbr_is_false)),\n    stts_entries\n)\n\n# Solve\ns = Solver()\ns.add(constraint1)\ns.add(constraint2)\n\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.045722100000603,
+  "cost_upper_bound_cny": 0.003718
+}

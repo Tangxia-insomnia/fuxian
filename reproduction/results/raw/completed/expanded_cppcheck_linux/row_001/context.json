@@ -1,0 +1,48 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "pcibios_reserve_legacy_regions",
+      "var_name": "res",
+      "target": "res->flags = IORESOURCE_IO;",
+      "code": "static void __init pcibios_reserve_legacy_regions(struct pci_bus *bus)\n{\n\tstruct pci_controller *hose = pci_bus_to_host(bus);\n\tresource_size_t\toffset;\n\tstruct resource *res, *pres;\n\tint i;\n\n\tpr_debug(\"Reserving legacy ranges for domain %04x\\n\", pci_domain_nr(bus));\n\n\t/* Check for IO */\n\tif (!(hose->io_resource.flags & IORESOURCE_IO))\n\t\tgoto no_io;\n\toffset = (unsigned long)hose->io_base_virt - _IO_BASE;\n\tres = kzalloc(sizeof(struct resource), GFP_KERNEL);\n\tBUG_ON(res == NULL);\n\tres->name = \"Legacy IO\";\n\tres->flags = IORESOURCE_IO;\n\tres->start = offset;\n\tres->end = (offset + 0xfff) & 0xfffffffful;\n\tpr_debug(\"Candidate legacy IO: %pR\\n\", res);\n\tif (request_resource(&hose->io_resource, res)) {\n\t\tprintk(KERN_DEBUG\n\t\t       \"PCI %04x:%02x Cannot reserve Legacy IO %pR\\n\",\n\t\t       pci_domain_nr(bus), bus->number, res);\n\t\tkfree(res);\n\t}\n\n no_io:\n\t/* Check for memory */\n\tfor (i = 0; i < 3; i++) {\n\t\tpres = &hose->mem_resources[i];\n\t\toffset = hose->mem_offset[i];\n\t\tif (!(pres->flags & IORESOURCE_MEM))\n\t\t\tcontinue;\n\t\tpr_debug(\"hose mem res: %pR\\n\", pres);\n\t\tif ((pres->start - offset) <= 0xa0000 &&\n\t\t    (pres->end - offset) >= 0xbffff)\n\t\t\tbreak;\n\t}\n\tif (i >= 3)\n\t\treturn;\n\tres = kzalloc(sizeof(struct resource), GFP_KERNEL);\n\tBUG_ON(res == NULL);\n\tres->name = \"Legacy VGA memory\";\n\tres->flags = IORESOURCE_MEM;\n\tres->start = 0xa0000 + offset;\n\tres->end = 0xbffff + offset;\n\tpr_debug(\"Candidate VGA memory: %pR\\n\", res);\n\tif (request_resource(pres, res)) {\n\t\tprintk(KERN_DEBUG\n\t\t       \"PCI %04x:%02x Cannot reserve VGA memory %pR\\n\",\n\t\t       pci_domain_nr(bus), bus->number, res);\n\t\tkfree(res);\n\t}\n}",
+      "body_sha256": "09fe8362151ed21f0c27514c878cfcb37c07cdba8ee337247be3f724d7fbbaa2",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "res->flags = IORESOURCE_IO;",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void __init pcibios_reserve_legacy_regions(struct pci_bus *bus)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "res ==0"
+            ]
+          },
+          {
+            "text": "no_io",
+            "condition": [
+              "!(hose->io_resource.flags & IORESOURCE_IO)"
+            ]
+          }
+        ],
+        "filter_function_code": "static void __init pcibios_reserve_legacy_regions(struct pci_bus *bus)\n{\n\tstruct pci_controller *hose = pci_bus_to_host(bus);\n\tresource_size_t\toffset;\n\tstruct resource *res, *pres;\n\tint i;\n\n\tpr_debug(\"Reserving legacy ranges for domain %04x\\n\", pci_domain_nr(bus));\n\n\t/* Check for IO */\n\tif (!(hose->io_resource.flags & IORESOURCE_IO))\n\t\tgoto no_io;\n\toffset = (unsigned long)hose->io_base_virt - _IO_BASE;\n\tres = kzalloc(sizeof(struct resource), GFP_KERNEL);\n\tBUG_ON(res == NULL);\n\tres->name = \"Legacy IO\";\n\tres->flags = IORESOURCE_IO;\n\tres->start = offset;\n\tres->end = (offset + 0xfff) & 0xfffffffful;\n\tpr_debug(\"Candidate legacy IO: %pR\\n\", res);\n\tif (request_resource(&hose->io_resource, res)) {\n\t\tprintk(KERN_DEBUG\n\t\t       \"PCI %04x:%02x Cannot reserve Legacy IO %pR\\n\",\n\t\t       pci_domain_nr(bus), bus->number, res);\n\t\tkfree(res);\n\t}\n\n no_io:\n\t/* Check for memory */\n\tfor (i = 0; i < 3; i++) {\n\t\tpres = &hose->mem_resources[i];\n\t\toffset = hose->mem_offset[i];\n\t\tif (!(pres->flags & IORESOURCE_MEM))\n\t\t\tcontinue;\n\t\tpr_debug(\"hose mem res: %pR\\n\", pres);\n\t\tif ((pres->start - offset) <= 0xa0000 &&\n\t\t    (pres->end - offset) >= 0xbffff)\n\t\t\tbreak;\n\t}\n\tif (i >= 3)\n\t\treturn;\n\tres = kzalloc(sizeof(struct resource), GFP_KERNEL);\n\tBUG_ON(res == NULL);\n\tres->name = \"Legacy VGA memory\";\n\tres->flags = IORESOURCE_MEM;\n\tres->start = 0xa0000 + offset;\n\tres->end = 0xbffff + offset;\n\tpr_debug(\"Candidate VGA memory: %pR\\n\", res);\n\tif (request_resource(pres, res)) {\n\t\tprintk(KERN_DEBUG\n\t\t       \"PCI %04x:%02x Cannot reserve VGA memory %pR\\n\",\n\t\t       pci_domain_nr(bus), bus->number, res);\n\t\tkfree(res);\n\t}\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void __init pcibios_reserve_legacy_regions(struct pci_bus *bus)\n{\n\tstruct pci_controller *hose = pci_bus_to_host(bus);\n\tresource_size_t\toffset;\n\tstruct resource *res, *pres;\n\tint i;\n\n\tpr_debug(\"Reserving legacy ranges for domain %04x\\n\", pci_domain_nr(bus));\n\n\t/* Check for IO */\n\tif (!(hose->io_resource.flags & IORESOURCE_IO))\n\t\tgoto no_io;\n\toffset = (unsigned long)hose->io_base_virt - _IO_BASE;\n\tres = kzalloc(sizeof(struct resource), GFP_KERNEL);\n\tBUG_ON(res == NULL);\n\tres->name = \"Legacy IO\";\n\tres->flags = IORESOURCE_IO;\n\tres->start = offset;\n\tres->end = (offset + 0xfff) & 0xfffffffful;\n\tpr_debug(\"Candidate legacy IO: %pR\\n\", res);\n\tif (request_resource(&hose->io_resource, res)) {\n\t\tprintk(KERN_DEBUG\n\t\t       \"PCI %04x:%02x Cannot reserve Legacy IO %pR\\n\",\n\t\t       pci_domain_nr(bus), bus->number, res);\n\t\tkfree(res);\n\t}\n\n no_io:\n\t/* Check for memory */\n\tfor (i = 0; i < 3; i++) {\n\t\tpres = &hose->mem_resources[i];\n\t\toffset = hose->mem_offset[i];\n\t\tif (!(pres->flags & IORESOURCE_MEM))\n\t\t\tcontinue;\n\t\tpr_debug(\"hose mem res: %pR\\n\", pres);\n\t\tif ((pres->start - offset) <= 0xa0000 &&\n\t\t    (pres->end - offset) >= 0xbffff)\n\t\t\tbreak;\n\t}\n\tif (i >= 3)\n\t\treturn;\n\tres = kzalloc(sizeof(struct resource), GFP_KERNEL);\n\tBUG_ON(res == NULL);\n\tres->name = \"Legacy VGA memory\";\n\tres->flags = IORESOURCE_MEM;\n\tres->start = 0xa0000 + offset;\n\tres->end = 0xbffff + offset;\n\tpr_debug(\"Candidate VGA memory: %pR\\n\", res);\n\tif (request_resource(pres, res)) {\n\t\tprintk(KERN_DEBUG\n\t\t       \"PCI %04x:%02x Cannot reserve VGA memory %pR\\n\",\n\t\t       pci_domain_nr(bus), bus->number, res);\n\t\tkfree(res);\n\t}\n}"
+  ]
+}

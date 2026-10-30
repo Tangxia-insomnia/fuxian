@@ -1,0 +1,186 @@
+```python
+ectx=Int('ectx')
+s.add(ectx == 0)
+```
+```json
+["!(check) || !(pctx == NULL)", "!(text) || !((pubin && EVP_PKEY_print_public(out, eckey, 0, NULL) <= 0) || (!pubin && EVP_PKEY_print_private(out, eckey, 0, NULL) <= 0))", "!(!(no_public)) || !(!EVP_PKEY_set_int_param(eckey, OSSL_PKEY_PARAM_EC_INCLUDE_PUBLIC, 1))", "!(no_public) || !(!EVP_PKEY_set_int_param(eckey, OSSL_PKEY_PARAM_EC_INCLUDE_PUBLIC, 0))", "!(asn1_encoding != NULL && !EVP_PKEY_set_utf8_string_param( eckey, OSSL_PKEY_PARAM_EC_ENCODING, asn1_encoding))", "!(point_format && !EVP_PKEY_set_utf8_string_param( eckey, OSSL_PKEY_PARAM_EC_POINT_CONVERSION_FORMAT, point_format))", "!(out == NULL)", "!(eckey == NULL)", "!(!app_passwd(passinarg, passoutarg, &passin, &passout))", "!(!opt_cipher(ciphername, &enc))", "!(!opt_check_rest_arg(NULL))", "!(!opt_provider(o))", "!(!opt_string(asn1_encoding, asn1_encoding_options))", "!(!opt_string(point_format, point_format_options))", "!(!opt_format(opt_arg(), OPT_FMT_PEMDER, &outformat))", "!(!opt_format(opt_arg(), OPT_FMT_ANY, &informat))"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints
+# ectx is the only relevant condition/variable mentioned.
+# We model it as a boolean flag indicating whether ectx is non-NULL/valid.
+ectx = Bool('ectx')
+
+# The input constraints do not directly reference ectx, but they are part of
+# the same control-flow guard chain. We include them as boolean flags so the
+# solver can reason about the combined condition. Each flag represents the
+# truth of the corresponding C expression.
+
+# !(check) || !(pctx == NULL)
+# Included: part of the guard chain; pctx NULL check.
+check = Bool('check')
+pctx_is_null = Bool('pctx_is_null')
+s1 = Or(Not(check), Not(pctx_is_null))
+
+# !(text) || !((pubin && EVP_PKEY_print_public(...) <= 0) ||
+#               (!pubin && EVP_PKEY_print_private(...) <= 0))
+# Included: guard on text printing; modeled with abstract flags.
+text = Bool('text')
+pubin = Bool('pubin')
+print_public_failed = Bool('print_public_failed')   # EVP_PKEY_print_public(...) <= 0
+print_private_failed = Bool('print_private_failed') # EVP_PKEY_print_private(...) <= 0
+s2 = Or(Not(text),
+        Not(Or(And(pubin, print_public_failed),
+               And(Not(pubin), print_private_failed))))
+
+# !(!(no_public)) || !(!EVP_PKEY_set_int_param(eckey, ..., 1))
+# Included: guard on no_public handling (set include_public = 1).
+no_public = Bool('no_public')
+set_include_public_1_ok = Bool('set_include_public_1_ok')
+s3 = Or(Not(Not(no_public)), Not(Not(set_include_public_1_ok)))
+
+# !(no_public) || !(!EVP_PKEY_set_int_param(eckey, ..., 0))
+# Included: guard on no_public handling (set include_public = 0).
+set_include_public_0_ok = Bool('set_include_public_0_ok')
+s4 = Or(Not(no_public), Not(Not(set_include_public_0_ok)))
+
+# !(asn1_encoding != NULL && !EVP_PKEY_set_utf8_string_param(...))
+# Included: guard on asn1_encoding parameter setting.
+asn1_encoding_nonnull = Bool('asn1_encoding_nonnull')
+set_asn1_encoding_ok = Bool('set_asn1_encoding_ok')
+s5 = Not(And(asn1_encoding_nonnull, Not(set_asn1_encoding_ok)))
+
+# !(point_format && !EVP_PKEY_set_utf8_string_param(...))
+# Included: guard on point_format parameter setting.
+point_format_nonnull = Bool('point_format_nonnull')
+set_point_format_ok = Bool('set_point_format_ok')
+s6 = Not(And(point_format_nonnull, Not(set_point_format_ok)))
+
+# !(out == NULL)
+# Included: out must be non-NULL.
+out_is_null = Bool('out_is_null')
+s7 = Not(out_is_null)
+
+# !(eckey == NULL)
+# Included: eckey must be non-NULL.
+eckey_is_null = Bool('eckey_is_null')
+s8 = Not(eckey_is_null)
+
+# !(!app_passwd(passinarg, passoutarg, &passin, &passout))
+# Included: app_passwd must succeed.
+app_passwd_ok = Bool('app_passwd_ok')
+s9 = Not(Not(app_passwd_ok))
+
+# !(!opt_cipher(ciphername, &enc))
+# Included: opt_cipher must succeed.
+opt_cipher_ok = Bool('opt_cipher_ok')
+s10 = Not(Not(opt_cipher_ok))
+
+# !(!opt_check_rest_arg(NULL))
+# Included: opt_check_rest_arg must succeed.
+opt_check_rest_arg_ok = Bool('opt_check_rest_arg_ok')
+s11 = Not(Not(opt_check_rest_arg_ok))
+
+# !(!opt_provider(o))
+# Included: opt_provider must succeed.
+opt_provider_ok = Bool('opt_provider_ok')
+s12 = Not(Not(opt_provider_ok))
+
+# !(!opt_string(asn1_encoding, asn1_encoding_options))
+# Included: opt_string for asn1_encoding must succeed.
+opt_string_asn1_ok = Bool('opt_string_asn1_ok')
+s13 = Not(Not(opt_string_asn1_ok))
+
+# !(!opt_string(point_format, point_format_options))
+# Included: opt_string for point_format must succeed.
+opt_string_point_ok = Bool('opt_string_point_ok')
+s14 = Not(Not(opt_string_point_ok))
+
+# !(!opt_format(opt_arg(), OPT_FMT_PEMDER, &outformat))
+# Included: opt_format for outformat must succeed.
+opt_format_out_ok = Bool('opt_format_out_ok')
+s15 = Not(Not(opt_format_out_ok))
+
+# !(!opt_format(opt_arg(), OPT_FMT_ANY, &informat))
+# Included: opt_format for informat must succeed.
+opt_format_in_ok = Bool('opt_format_in_ok')
+s16 = Not(Not(opt_format_in_ok))
+
+# Combine all constraints. The ectx variable is declared but not directly
+# constrained by the given expressions; it is kept for downstream use.
+solver = Solver()
+solver.add(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16)
+
+# Check satisfiability
+if solver.check() == sat:
+    print("SAT")
+    print(solver.model())
+else:
+    print("UNSAT")
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Or, Not, And, Solver, sat
+
+    # Base script constraints
+    ectx_int = Int('ectx_int')
+    s = Solver()
+    s.add(ectx_int == 0)
+
+    # Constraint set 2 variables
+    ectx = Bool('ectx')
+    check = Bool('check')
+    pctx_is_null = Bool('pctx_is_null')
+    text = Bool('text')
+    pubin = Bool('pubin')
+    print_public_failed = Bool('print_public_failed')
+    print_private_failed = Bool('print_private_failed')
+    no_public = Bool('no_public')
+    set_include_public_1_ok = Bool('set_include_public_1_ok')
+    set_include_public_0_ok = Bool('set_include_public_0_ok')
+    asn1_encoding_nonnull = Bool('asn1_encoding_nonnull')
+    set_asn1_encoding_ok = Bool('set_asn1_encoding_ok')
+    point_format_nonnull = Bool('point_format_nonnull')
+    set_point_format_ok = Bool('set_point_format_ok')
+    out_is_null = Bool('out_is_null')
+    eckey_is_null = Bool('eckey_is_null')
+    app_passwd_ok = Bool('app_passwd_ok')
+    opt_cipher_ok = Bool('opt_cipher_ok')
+    opt_check_rest_arg_ok = Bool('opt_check_rest_arg_ok')
+    opt_provider_ok = Bool('opt_provider_ok')
+    opt_string_asn1_ok = Bool('opt_string_asn1_ok')
+    opt_string_point_ok = Bool('opt_string_point_ok')
+    opt_format_out_ok = Bool('opt_format_out_ok')
+    opt_format_in_ok = Bool('opt_format_in_ok')
+
+    # Constraint set 2 expressions
+    s1 = Or(Not(check), Not(pctx_is_null))
+    s2 = Or(Not(text),
+            Not(Or(And(pubin, print_public_failed),
+                   And(Not(pubin), print_private_failed))))
+    s3 = Or(Not(Not(no_public)), Not(Not(set_include_public_1_ok)))
+    s4 = Or(Not(no_public), Not(Not(set_include_public_0_ok)))
+    s5 = Not(And(asn1_encoding_nonnull, Not(set_asn1_encoding_ok)))
+    s6 = Not(And(point_format_nonnull, Not(set_point_format_ok)))
+    s7 = Not(out_is_null)
+    s8 = Not(eckey_is_null)
+    s9 = Not(Not(app_passwd_ok))
+    s10 = Not(Not(opt_cipher_ok))
+    s11 = Not(Not(opt_check_rest_arg_ok))
+    s12 = Not(Not(opt_provider_ok))
+    s13 = Not(Not(opt_string_asn1_ok))
+    s14 = Not(Not(opt_string_point_ok))
+    s15 = Not(Not(opt_format_out_ok))
+    s16 = Not(Not(opt_format_in_ok))
+
+    s.add(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16)
+
+    return s.check() == sat
+```
+goto result: True
+```python
+ctx=Int('ctx')
+s.add(ctx == 0)
+```

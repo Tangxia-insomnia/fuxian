@@ -1,0 +1,45 @@
+{
+  "call_id": 424,
+  "sample_id": "NPD/codeql/libav:row=4:index=9",
+  "timestamp": "2026-10-26T00:52:07.241755+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int aac_decode_frame_int(AVCodecContext *avctx, void *data,\n                                int *got_frame_ptr, GetBitContext *gb)\n{\n    AACContext *ac = avctx->priv_data;\n    ChannelElement *che = NULL, *che_prev = NULL;\n    enum RawDataBlockType elem_type, elem_type_prev = TYPE_END;\n    int err, elem_id;\n    int samples = 0, multiplier, audio_found = 0, pce_found = 0;\n\n    ac->frame = data;\n\n    if (show_bits(gb, 12) == 0xfff) {\n        if ((err = parse_adts_frame_header(ac, gb)) < 0) {\n            av_log(avctx, AV_LOG_ERROR, \"Error decoding AAC frame header.\\n\");\n            goto fail;\n        }\n        if (ac->oc[1].m4ac.sampling_index > 12) {\n            av_log(ac->avctx, AV_LOG_ERROR, \"invalid sampling rate index %d\\n\", ac->oc[1].m4ac.sampling_index);\n            err = AVERROR_INVALIDDATA;\n            goto fail;\n        }\n    }\n\n    if (avctx->channels)\n        if ((err = frame_configure_elements(avctx)) < 0)\n            goto fail;\n\n    // The FF_PROFILE_AAC_* defines are all object_type - 1\n    // This may lead to an undefined profile being signaled\n    ac->avctx->profile = ac->oc[1].m4ac.object_type - 1;\n\n    ac->tags_mapped = 0;\n    // parse\n    while ((elem_type = get_bits(gb, 3)) != TYPE_END) {\n        elem_id = get_bits(gb, 4);\n\n        if (!avctx->channels && elem_type != TYPE_PCE) {\n            err = AVERROR_INVALIDDATA;\n            goto fail;\n        }\n\n        if (elem_type < TYPE_DSE) {\n            if (!(che=get_che(ac, elem_type, elem_id))) {\n                av_log(ac->avctx, AV_LOG_ERROR, \"channel element %d.%d is not allocated\\n\",\n                       elem_type, elem_id);\n                err = AVERROR_INVALIDDATA;\n                goto fail;\n            }\n            samples = 1024;\n        }\n\n        switch (elem_type) {\n\n        case TYPE_SCE:\n            err = decode_ics(ac, &che->ch[0], gb, 0, 0);\n            audio_found = 1;\n            break;\n\n        case TYPE_CPE:\n            err = decode_cpe(ac, gb, che);\n            audio_found = 1;\n            break;\n\n        case TYPE_CCE:\n            err = decode_cce(ac, gb, che);\n            break;\n\n        case TYPE_LFE:\n            err = decode_ics(ac, &che->ch[0], gb, 0, 0);\n            audio_found = 1;\n            break;\n\n        case TYPE_DSE:\n            err = skip_data_stream_element(ac, gb);\n            break;\n\n        case TYPE_PCE: {\n            uint8_t layout_map[MAX_ELEM_ID*4][3];\n            int tags;\n            push_output_configuration(ac);\n            tags = decode_pce(avctx, &ac->oc[1].m4ac, layout_map, gb);\n            if (tags < 0) {\n                err = tags;\n                break;\n            }\n            if (pce_found) {\n                av_log(avctx, AV_LOG_ERROR,\n                       \"Not evaluating a further program_config_element as this construct is dubious at best.\\n\");\n                pop_output_configuration(ac);\n            } else {\n                err = output_configure(ac, layout_map, tags, OC_TRIAL_PCE, 1);\n                pce_found = 1;\n            }\n            break;\n        }\n\n        case TYPE_FIL:\n            if (elem_id == 15)\n                elem_id += get_bits(gb, 8) - 1;\n            if (get_bits_left(gb) < 8 * elem_id) {\n                    av_log(avctx, AV_LOG_ERROR, overread_err);\n                    err = AVERROR_INVALIDDATA;\n                    goto fail;\n            }\n            while (elem_id > 0)\n                elem_id -= decode_extension_payload(ac, gb, elem_id, che_prev, elem_type_prev);\n            err = 0; /* FIXME */\n            break;\n\n        default:\n            err = AVERROR_BUG; /* should not happen, but keeps compiler happy */\n            break;\n        }\n\n        che_prev       = che;\n        elem_type_prev = elem_type;\n\n        if (err)\n            goto fail;\n\n        if (get_bits_left(gb) < 3) {\n            av_log(avctx, AV_LOG_ERROR, overread_err);\n            err = AVERROR_INVALIDDATA;\n            goto fail;\n        }\n    }\n\n    if (!avctx->channels) {\n        *got_frame_ptr = 0;\n        return 0;\n    }\n\n    spectral_to_sample(ac);\n\n    multiplier = (ac->oc[1].m4ac.sbr == 1) ? ac->oc[1].m4ac.ext_sample_rate > ac->oc[1].m4ac.sample_rate : 0;\n    samples <<= multiplier;\n\n    if (ac->oc[1].status && audio_found) {\n        avctx->sample_rate = ac->oc[1].m4ac.sample_rate << multiplier;\n        avctx->frame_size = samples;\n        ac->oc[1].status = OC_LOCKED;\n    }\n\n    if (samples) {\n        ac->frame->nb_samples = samples;\n        ac->frame->sample_rate = avctx->sample_rate;\n    }\n    *got_frame_ptr = !!samples;\n\n    return 0;\nfail:\n    pop_output_configuration(ac);\n    return err;\n}\n        - Target variables: [], che\n        - Constraints: ['!((elem_type = get_bits(gb, 3)) != TYPE_END)', '!((elem_type = get_bits(gb, 3)) != TYPE_END) || !(elem_type < TYPE_DSE) || !(!(che=get_che(ac, elem_type, elem_id)))', '!((elem_type = get_bits(gb, 3)) != TYPE_END) || !(!avctx->channels && elem_type != TYPE_PCE)', '!(avctx->channels) || !((err = frame_configure_elements(avctx)) < 0)', '!(show_bits(gb, 12) == 0xfff) || !(ac->oc[1].m4ac.sampling_index > 12)', '!(show_bits(gb, 12) == 0xfff) || !((err = parse_adts_frame_header(ac, gb)) < 0)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "d4a3c5f1-9b51-4c84-bdac-c93708630629",
+  "usage": {
+    "prompt_tokens": 1585,
+    "completion_tokens": 52,
+    "total_tokens": 1637,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 433
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!((elem_type = get_bits(gb, 3)) != TYPE_END) || !(elem_type < TYPE_DSE) || !(!(che=get_che(ac, elem_type, elem_id)))\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.9878972999995312,
+  "cost_upper_bound_cny": 0.003586
+}

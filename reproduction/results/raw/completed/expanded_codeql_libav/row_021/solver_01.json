@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, BitVec, Solver, Not, And, sat\n\n    # Base script variables and constraints\n    ref = Int('ref')\n\n    # Variables from constraint set 2\n    ref_frame_num = Int('ref_frame_num')\n    ref_reference = BitVec('ref_reference', 32)\n    frame_num = Int('frame_num')\n    pic_structure = BitVec('pic_structure', 32)\n\n    s = Solver()\n\n    # Base constraint\n    s.add(ref == 0)\n\n    # Constraint set 2: ref-related disjunct\n    ref_cond = Not(And(ref_frame_num == frame_num,\n                       (ref_reference & pic_structure) != 0))\n    s.add(ref_cond)\n\n    result = s.check() == sat\n    return result",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ref () Int)\n(declare-fun pic_structure () (_ BitVec 32))\n(declare-fun ref_reference () (_ BitVec 32))\n(declare-fun frame_num () Int)\n(declare-fun ref_frame_num () Int)\n(assert\n (= ref 0))\n(assert\n (let (($x29 (= ref_frame_num frame_num)))\n(not (and $x29 (and (distinct (bvand ref_reference pic_structure) (_ bv0 32)) true)))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,7 @@
+{
+  "event_id": 4,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver\n\n    ectx = Int('ectx')\n    outformat = Int('outformat')\n    FORMAT_PVK = Int('FORMAT_PVK')\n    set_params_result = Int('set_params_result')\n    num_encoders = Int('num_encoders')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(ectx == 0)\n\n    # Constraint set 2, constraint 1:\n    # !(outformat == FORMAT_PVK) || !(!OSSL_ENCODER_CTX_set_params(ectx, params))\n    # => (outformat != FORMAT_PVK) || (set_params_result != 0)\n    s.add((outformat != FORMAT_PVK) | (set_params_result != 0))\n\n    # Constraint set 2, constraint 2:\n    # !(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)\n    s.add(num_encoders != 0)\n\n    return s.check() == __import__('z3').sat",
+  "ok": false,
+  "error": "ValueError: ValueError: Unsupported generated-code operation"
+}

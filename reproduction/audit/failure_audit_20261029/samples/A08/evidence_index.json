@@ -1,0 +1,123 @@
+{
+  "audit_id": "A08",
+  "sample_id": "NPD/codeql/libav:row=13:index=20",
+  "selection_reason": "误报保留；正确参数名映射但循环条件丢失",
+  "selection": "purposive diagnostic; not random and not representative",
+  "label": 0,
+  "prediction": "keep",
+  "status": "success",
+  "error": null,
+  "source_status": "No explicit source location/complete SARIF codeFlow in published row; raw function_list/assignment hints preserved, not invented",
+  "sink": {
+    "file_path": "libavcodec/dnxhdenc.c",
+    "region": {
+      "startLine": 956,
+      "startColumn": 21,
+      "endColumn": 24
+    },
+    "context": {
+      "startLine": 954,
+      "endLine": 958,
+      "snippet": {
+        "text": "radix_sort_pass(tmp, data, size, buckets[0], 0);"
+      }
+    }
+  },
+  "saved_context_exists": true,
+  "function_chain": [
+    "radix_sort",
+    "radix_sort_pass"
+  ],
+  "final_attempt_call_ids": [
+    457,
+    458,
+    459,
+    460
+  ],
+  "earlier_attempt_call_ids_not_reused": [],
+  "solver_evidence": [
+    {
+      "file": "solver_01.json",
+      "level": 0,
+      "ok": true,
+      "error": null,
+      "feasible": true,
+      "query_results": [
+        "sat"
+      ]
+    },
+    {
+      "file": "solver_02.json",
+      "level": 1,
+      "ok": true,
+      "error": null,
+      "feasible": true,
+      "query_results": [
+        "sat"
+      ]
+    }
+  ],
+  "argument_parameter_mapping": [
+    {
+      "caller": "radix_sort",
+      "callee": "radix_sort_pass",
+      "statement": "radix_sort_pass(tmp, data, size, buckets[0], 0);",
+      "caller_tracked_variable": "tmp",
+      "recorded_callee_tracked_variable": "dst",
+      "callee_parameters": [
+        "dst",
+        "data",
+        "size",
+        "pass"
+      ],
+      "call_candidates": [
+        {
+          "name": "radix_sort_pass",
+          "arguments": [
+            "tmp",
+            "data",
+            "size",
+            "buckets[0]",
+            "0"
+          ],
+          "start": 0,
+          "end": 47,
+          "text": "radix_sort_pass(tmp, data, size, buckets[0], 0)"
+        }
+      ],
+      "audit_note": "Lexical positional check; not a new experiment and not proof of alias/value propagation",
+      "recomputed_tracked_parameter": "dst",
+      "parameter_name_matches_saved_frame": true,
+      "all_positional_pairs": [
+        {
+          "position_zero_based": 0,
+          "argument": "tmp",
+          "parameter": "dst"
+        },
+        {
+          "position_zero_based": 1,
+          "argument": "data",
+          "parameter": "data"
+        },
+        {
+          "position_zero_based": 2,
+          "argument": "size",
+          "parameter": "size"
+        },
+        {
+          "position_zero_based": 3,
+          "argument": "buckets[0]",
+          "parameter": "pass"
+        },
+        {
+          "position_zero_based": 4,
+          "argument": "0",
+          "parameter": null
+        }
+      ]
+    }
+  ],
+  "duration_seconds": 3.3899826000006215,
+  "cost_upper_bound_cny": 0.003422000000000036,
+  "missing_steps": []
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, And, sat\n\n    # Base script variables and constraints\n    vst_int = Int('vst')\n    s = Solver()\n    s.add(vst_int == 0)\n\n    # Variables from constraint set 2\n    version = Int('version')\n    avio_rb16_pb = Int('avio_rb16_pb')\n    nb_video_tracks = Int('nb_video_tracks')\n    vst = Bool('vst')\n\n    # Constraint 1\n    s.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),\n             nb_video_tracks == 0,\n             vst))\n\n    # Constraint 2\n    s.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),\n             nb_video_tracks <= 1))\n\n    # Constraint 3\n    s.add(Or(version != 2, vst))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun vst () Int)\n(declare-fun vst () Bool)\n(declare-fun nb_video_tracks () Int)\n(declare-fun avio_rb16_pb () Int)\n(declare-fun version () Int)\n(assert\n (= vst 0))\n(assert\n (let (($x34 (= nb_video_tracks 0)))\n (let (($x33 (not (and (= version 0) (= avio_rb16_pb 3)))))\n (or $x33 $x34 vst))))\n(assert\n (let (($x33 (not (and (= version 0) (= avio_rb16_pb 3)))))\n (or $x33 (<= nb_video_tracks 1))))\n(assert\n (or (and (distinct version 2) true) vst))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

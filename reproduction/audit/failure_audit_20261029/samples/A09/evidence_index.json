@@ -1,0 +1,79 @@
+{
+  "audit_id": "A09",
+  "sample_id": "NPD/codeql/kernel69:row=34:index=55",
+  "selection_reason": "真实缺陷保留对照",
+  "selection": "purposive diagnostic; not random and not representative",
+  "label": 1,
+  "prediction": "keep",
+  "status": "success",
+  "error": null,
+  "source_status": "No explicit source location/complete SARIF codeFlow in published row; raw function_list/assignment hints preserved, not invented",
+  "sink": {
+    "file_path": "net/ipv6/route.c",
+    "region": {
+      "startLine": 3606,
+      "startColumn": 6,
+      "endColumn": 10
+    },
+    "context": {
+      "startLine": 3604,
+      "endLine": 3608,
+      "snippet": {
+        "text": "\tif (idev->cnf.disable_ipv6) {"
+      }
+    }
+  },
+  "saved_context_exists": true,
+  "function_chain": [
+    "fib6_nh_init"
+  ],
+  "final_attempt_call_ids": [
+    49,
+    50,
+    51,
+    52,
+    53,
+    54
+  ],
+  "earlier_attempt_call_ids_not_reused": [
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+  ],
+  "solver_evidence": [
+    {
+      "file": "solver_01.json",
+      "level": 0,
+      "ok": false,
+      "error": "ValueError: ValueError: Unsupported generated-code operation",
+      "feasible": null,
+      "query_results": []
+    },
+    {
+      "file": "solver_02.json",
+      "level": 0,
+      "ok": false,
+      "error": "ValueError: NameError: name 'Function' is not defined",
+      "feasible": null,
+      "query_results": []
+    },
+    {
+      "file": "solver_03.json",
+      "level": 0,
+      "ok": true,
+      "error": null,
+      "feasible": true,
+      "query_results": [
+        "sat"
+      ]
+    }
+  ],
+  "argument_parameter_mapping": [],
+  "duration_seconds": 8.633778599999914,
+  "cost_upper_bound_cny": 0.02155000000000007,
+  "missing_steps": []
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, Implies, And, sat\n    \n    s = Solver()\n    \n    # Declare all variables as Int type\n    flags = Int('flags')\n    tsa_name = Int('tsa_name')\n    signer = Int('signer')\n    TS_VFY_SIGNER = Int('TS_VFY_SIGNER')\n    \n    # Constraint: TS_VFY_SIGNER is a flag constant (non-zero bitmask value)\n    s.add(TS_VFY_SIGNER != 0)\n    \n    # Constraint: flags is an int variable (ctx->flags), non-negative typical for bitmask\n    s.add(flags >= 0)\n    \n    # Constraint: signer remains NULL (0) throughout since it's initialized to NULL\n    s.add(signer == 0)\n    \n    # Condition: (flags & TS_VFY_SIGNER) != 0 AND tsa_name != 0\n    # Since Z3 Int doesn't support bitwise & directly, model the condition\n    # using a boolean flag representing whether the bit is set.\n    # We introduce a boolean condition variable to represent the branch.\n    cond = And(flags != 0, TS_VFY_SIGNER != 0, tsa_name != 0)\n    \n    # Constraint: tsa_name is non-null when condition true\n    s.add(Implies(cond, tsa_name != 0))\n    \n    # Constraint: flags has TS_VFY_SIGNER bit set (non-zero) when condition is true\n    s.add(Implies(cond, flags != 0))\n    \n    # Check satisfiability\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun TS_VFY_SIGNER () Int)\n(declare-fun flags () Int)\n(declare-fun signer () Int)\n(declare-fun tsa_name () Int)\n(assert\n (and (distinct TS_VFY_SIGNER 0) true))\n(assert\n (>= flags 0))\n(assert\n (= signer 0))\n(assert\n (let (($x33 (and (distinct tsa_name 0) true)))\n (let (($x10 (and (distinct TS_VFY_SIGNER 0) true)))\n (let (($x32 (and (distinct flags 0) true)))\n (let (($x34 (and $x32 $x10 $x33)))\n (=> $x34 $x33))))))\n(assert\n (let (($x32 (and (distinct flags 0) true)))\n(let (($x33 (and (distinct tsa_name 0) true)))\n(let (($x10 (and (distinct TS_VFY_SIGNER 0) true)))\n(let (($x34 (and $x32 $x10 $x33)))\n(=> $x34 $x32))))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

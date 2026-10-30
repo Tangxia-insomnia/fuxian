@@ -1,0 +1,42 @@
+```python
+window=Int('window')
+s.add(window == 0)
+```
+```json
+["!(window ==0)"]
+```
+```python
+from z3 import *
+
+# Declare variable 'window' as an integer (C-style variable)
+window = Int('window')
+
+# Constraint: !(window == 0)
+# In C, this is equivalent to window != 0.
+# Included because it directly constrains the variable 'window'.
+s = Solver()
+s.add(window != 0)
+
+# Check satisfiability and print result
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver
+    window = Int('window')
+    s = Solver()
+    s.add(window == 0)
+    s.add(window != 0)
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    window = Int('window')
+    s = Solver()
+    s.add(window == 0)
+    s.add(window != 0)
+    return s.check() == sat
+```
+goto result: False

@@ -1,0 +1,141 @@
+```python
+frame_flags=Int('frame_flags')
+DWARF_FRAME_CFA_REG_OFFSET=Int('DWARF_FRAME_CFA_REG_OFFSET')
+prev=Int('prev')
+reg=Int('reg')
+s.add(Implies(frame_flags == DWARF_FRAME_CFA_REG_OFFSET, prev != 0))
+s.add(reg == 0)
+```
+```python
+frame_flags=Int('frame_flags')
+prev=Int('prev')
+reg=Int('reg')
+DWARF_FRAME_CFA_REG_OFFSET=Int('DWARF_FRAME_CFA_REG_OFFSET')
+s.add(frame_flags == DWARF_FRAME_CFA_REG_OFFSET)
+s.add(prev != 0)
+s.add(reg == 0)
+```
+```python
+prev=Int('prev')
+reg=Int('reg')
+frame_flags=Int('frame_flags')
+DWARF_FRAME_CFA_REG_OFFSET=Int('DWARF_FRAME_CFA_REG_OFFSET')
+s.add(frame_flags == DWARF_FRAME_CFA_REG_OFFSET)
+s.add(prev != 0)
+s.add(reg == 0)
+```
+```python
+# Additional constraint: reg is NULL (pointer == 0) at the point of the if(prev) check
+s.add(reg == 0)
+
+# Additional constraint: prev is non-NULL (entering the if(prev) branch)
+s.add(prev != 0)
+
+# Additional constraint: frame->flags equals DWARF_FRAME_CFA_REG_OFFSET (switch case taken)
+s.add(frame_flags == DWARF_FRAME_CFA_REG_OFFSET)
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, And, sat
+    
+    s = Solver()
+    
+    # Define all variables as Int type
+    reg = Int('reg')
+    prev = Int('prev')
+    frame_flags = Int('frame_flags')
+    DWARF_FRAME_CFA_REG_OFFSET = Int('DWARF_FRAME_CFA_REG_OFFSET')
+    
+    # Additional constraint: reg is NULL (pointer == 0) at the point of the if(prev) check
+    s.add(reg == 0)
+    
+    # Additional constraint: prev is non-NULL (entering the if(prev) branch)
+    s.add(prev != 0)
+    
+    # Additional constraint: frame->flags equals DWARF_FRAME_CFA_REG_OFFSET (switch case taken)
+    s.add(frame_flags == DWARF_FRAME_CFA_REG_OFFSET)
+    
+    return s.check() == sat
+```
+dereference constraint: True
+```json
+["!(UNWINDER_if(reg->flags != DWARF_REG_OFFSET))", "!(UNWINDER_if(!reg))"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints.
+# 'reg' is a pointer; model it as an integer address (0 means NULL).
+reg = Int('reg')
+
+# 'reg->flags' is a field of the struct pointed to by reg.
+# Model it as an integer (bit-vector-like semantics not required here).
+reg_flags = Int('reg_flags')
+
+# DWARF_REG_OFFSET is a symbolic constant; model as an uninterpreted int.
+DWARF_REG_OFFSET = Int('DWARF_REG_OFFSET')
+
+# ---------------------------------------------------------------------------
+# Constraint 1: !(UNWINDER_if(reg->flags != DWARF_REG_OFFSET))
+# The UNWINDER_if(...) macro wraps a condition; negating it means the
+# condition must be false, i.e. reg->flags == DWARF_REG_OFFSET.
+# This constraint is included because it directly restricts reg->flags,
+# which is the variable tested at line 95 (frame->flags == DWARF_FRAME_CFA_REG_OFFSET
+# is the analogous check on the frame side; here we constrain the reg side).
+# ---------------------------------------------------------------------------
+s = Solver()
+s.add(reg_flags == DWARF_REG_OFFSET)
+
+# ---------------------------------------------------------------------------
+# Constraint 2: !(UNWINDER_if(!reg))
+# Negating UNWINDER_if(!reg) means !reg must be false, i.e. reg != 0.
+# This constraint is included because 'reg' is the pointer dereferenced in
+# constraint 1 (reg->flags) and is the variable referenced by the
+# 'if (prev)' style guard at line 96 — a non-null reg is required for the
+# dereference to be valid.
+# ---------------------------------------------------------------------------
+s.add(reg != 0)
+
+# ---------------------------------------------------------------------------
+# Note on line 95 / line 96 conditions:
+#   - 'if(frame->flags == DWARF_FRAME_CFA_REG_OFFSET)' (line 95) is a
+#     condition on 'frame', not on 'reg'. It is not directly constrained by
+#     the given C constraints, so no assertion is added for it.
+#   - 'if (prev)' (line 96) is a null-check on 'prev'. The given constraints
+#     do not mention 'prev', so no assertion is added for it either.
+# Only constraints that affect 'reg' and 'reg->flags' are encoded above.
+# ---------------------------------------------------------------------------
+
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, Implies, sat
+
+    # Variable declarations (merged from base script and constraint sets)
+    frame_flags = Int('frame_flags')
+    DWARF_FRAME_CFA_REG_OFFSET = Int('DWARF_FRAME_CFA_REG_OFFSET')
+    prev = Int('prev')
+    reg = Int('reg')
+    reg_flags = Int('reg_flags')
+    DWARF_REG_OFFSET = Int('DWARF_REG_OFFSET')
+
+    s = Solver()
+
+    # --- Base script constraints ---
+    s.add(Implies(frame_flags == DWARF_FRAME_CFA_REG_OFFSET, prev != 0))
+    s.add(reg == 0)
+
+    # --- Constraint set 1 ---
+    s.add(reg == 0)
+    s.add(prev != 0)
+    s.add(frame_flags == DWARF_FRAME_CFA_REG_OFFSET)
+
+    # --- Constraint set 2 ---
+    s.add(reg_flags == DWARF_REG_OFFSET)
+    s.add(reg != 0)
+
+    return s.check() == sat
+```
+goto result: False

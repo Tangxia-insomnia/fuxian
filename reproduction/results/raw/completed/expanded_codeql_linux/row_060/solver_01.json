@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, IntSort, Function, Solver\n    \n    skb = Int('skb')\n    rtap_len = Int('rtap_len')\n    skb_headroom = Function('skb_headroom', IntSort(), IntSort())\n    \n    s = Solver()\n    \n    # Base script constraint\n    s.add(skb == 0)\n    \n    # Constraint set 2: !(skb_headroom(skb) < rtap_len) => skb_headroom(skb) >= rtap_len\n    s.add(skb_headroom(skb) >= rtap_len)\n    \n    return s.check() == __import__('z3').sat",
+  "ok": false,
+  "error": "ValueError: ValueError: Unsupported generated-code operation"
+}

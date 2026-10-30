@@ -1,0 +1,45 @@
+{
+  "call_id": 994,
+  "sample_id": "NPD/cppcheck/linux:row=47:index=None",
+  "timestamp": "2026-10-26T01:05:39.967610+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static __init void pas_init_IRQ(void)\n{\n\tstruct device_node *np;\n\tstruct device_node *root, *mpic_node;\n\tunsigned long openpic_addr;\n\tconst unsigned int *opprop;\n\tint naddr, opplen;\n\tint mpic_flags;\n\tconst unsigned int *nmiprop;\n\tstruct mpic *mpic;\n\n\tmpic_node = NULL;\n\n\tfor_each_node_by_type(np, \"interrupt-controller\")\n\t\tif (of_device_is_compatible(np, \"open-pic\")) {\n\t\t\tmpic_node = np;\n\t\t\tbreak;\n\t\t}\n\tif (!mpic_node)\n\t\tfor_each_node_by_type(np, \"open-pic\") {\n\t\t\tmpic_node = np;\n\t\t\tbreak;\n\t\t}\n\tif (!mpic_node) {\n\t\tpr_err(\"Failed to locate the MPIC interrupt controller\\n\");\n\t\treturn;\n\t}\n\n\t/* Find address list in /platform-open-pic */\n\troot = of_find_node_by_path(\"/\");\n\tnaddr = of_n_addr_cells(root);\n\topprop = of_get_property(root, \"platform-open-pic\", &opplen);\n\tif (!opprop) {\n\t\tpr_err(\"No platform-open-pic property.\\n\");\n\t\tof_node_put(root);\n\t\treturn;\n\t}\n\topenpic_addr = of_read_number(opprop, naddr);\n\tpr_debug(\"OpenPIC addr: %lx\\n\", openpic_addr);\n\n\tmpic_flags = MPIC_LARGE_VECTORS | MPIC_NO_BIAS | MPIC_NO_RESET;\n\n\tnmiprop = of_get_property(mpic_node, \"nmi-source\", NULL);\n\tif (nmiprop)\n\t\tmpic_flags |= MPIC_ENABLE_MCK;\n\n\tmpic = mpic_alloc(mpic_node, openpic_addr,\n\t\t\t  mpic_flags, 0, 0, \"PASEMI-OPIC\");\n\tBUG_ON(!mpic);\n\n\tmpic_assign_isu(mpic, 0, mpic->paddr + 0x10000);\n\tmpic_init(mpic);\n\t/* The NMI/MCK source needs to be prio 15 */\n\tif (nmiprop) {\n\t\tnmi_virq = irq_create_mapping(NULL, *nmiprop);\n\t\tmpic_irq_set_priority(nmi_virq, 15);\n\t\tirq_set_irq_type(nmi_virq, IRQ_TYPE_EDGE_RISING);\n\t\tmpic_unmask_irq(irq_get_irq_data(nmi_virq));\n\t}\n\n\tnemo_init_IRQ(mpic);\n\n\tof_node_put(mpic_node);\n\tof_node_put(root);\n}\n        - Target variables: [], mpic\n        - Constraints: ['!(mpic ==0)', '!(!opprop)', '!(!mpic_node)', '!(!mpic_node) || !(np, \"open-pic\")', '!(np, \"interrupt-controller\") || !(of_device_is_compatible(np, \"open-pic\"))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "5a0e31d3-f3fc-4b2b-bf4c-055301c2c4cb",
+  "usage": {
+    "prompt_tokens": 730,
+    "completion_tokens": 12,
+    "total_tokens": 742,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 730
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(mpic ==0)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.553072599999723,
+  "cost_upper_bound_cny": 0.001556
+}

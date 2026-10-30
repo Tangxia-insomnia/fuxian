@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, BitVec, Solver, sat\n\n    # Base script constraints\n    movie_format_ctx = Int('movie_format_ctx')\n    s = Solver()\n    s.add(movie_format_ctx == 0)\n\n    # Constraint set 2: model avformat_open_input return value\n    movie_format_ctx_bv = BitVec('movie_format_ctx_bv', 64)\n    ret = Int('ret')\n    s.add(ret >= 0)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun movie_format_ctx () Int)\n(declare-fun ret () Int)\n(assert\n (= movie_format_ctx 0))\n(assert\n (>= ret 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

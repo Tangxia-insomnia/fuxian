@@ -1,0 +1,50 @@
+```python
+b=Int('b')
+s.add(b == 0)
+```
+Looking at the code and the given constraint:
+
+**Code analysis:**
+```c
+static int test_bn_output(int n)
+{
+    BIGNUM *b = NULL;
+
+    if (bn_output_tests[n] != NULL
+            && !TEST_true(BN_hex2bn(&b, bn_output_tests[n])))
+        return 0;
+    test_output_bignum(bn_output_tests[n], b);
+    BN_free(b);
+    return 1;
+}
+```
+
+**Given constraint:**
+```
+!(bn_output_tests[n] != NULL && !TEST_true(BN_hex2bn(&b, bn_output_tests[n])))
+```
+
+**Step 1: Filter constraints affecting reachability**
+
+The constraint is the negation of the `if` condition. This means the constraint describes the path where the `if` body is *not* taken (i.e., execution continues to `test_output_bignum`). This is a reachability constraint for the code after the `if`.
+
+**Step 2: Include only constraints involving target variables**
+
+Target variables: `[]` (empty) and `b`.
+
+- `bn_output_tests[n]` — not a target variable (it's an array element, not `b`).
+- `BN_hex2bn(&b, ...)` — involves `b` (via `&b`), so this part touches the target variable `b`.
+- `TEST_true(...)` — wraps the call involving `b`.
+
+The constraint does involve `b` through `BN_hex2bn(&b, bn_output_tests[n])`. So it should be kept.
+
+**Step 3: Verify filtered constraints step by step**
+
+- The constraint `!(A && !B)` where `A = (bn_output_tests[n] != NULL)` and `B = TEST_true(BN_hex2bn(&b, bn_output_tests[n]))`.
+- By De Morgan: `!A || B` = `bn_output_tests[n] == NULL || TEST_true(BN_hex2bn(&b, bn_output_tests[n]))`.
+- This involves `b` (through `BN_hex2bn(&b, ...)`), so it is retained.
+
+**Filtered constraints:**
+```json
+["!(bn_output_tests[n] != NULL && !TEST_true(BN_hex2bn(&b, bn_output_tests[n])))"]
+```

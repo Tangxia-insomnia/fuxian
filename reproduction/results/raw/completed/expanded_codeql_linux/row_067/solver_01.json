@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, BitVec, Solver, sat\n    \n    # Base script constraints\n    sband_int = Int('sband_int')\n    sband = BitVec('sband', 64)\n    \n    solver = Solver()\n    \n    # Base constraint: sband == 0 (from base script, using Int)\n    solver.add(sband_int == 0)\n    \n    # Constraint set 2: !(WARN_ON_ONCE(!sband)) => sband != 0\n    solver.add(sband != 0)\n    \n    return solver.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sband_int () Int)\n(declare-fun sband () (_ BitVec 64))\n(assert\n (= sband_int 0))\n(assert\n (and (distinct sband (_ bv0 64)) true))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

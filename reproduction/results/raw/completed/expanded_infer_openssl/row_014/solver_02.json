@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n\n    s = Solver()\n\n    # Base script constraint\n    sc = Int('sc')\n    s.add(sc == 0)\n\n    # Constraint set 2: model SSL_CONNECTION_FROM_CONST_SSL and NULL check\n    # Model pointer-like values as Int (0 represents NULL)\n    ssl = Int('ssl')\n    sc_ptr = Int('sc_ptr')\n\n    # Uninterpreted function modeled as an Int-valued variable\n    SSL_CONNECTION_FROM_CONST_SSL = Int('SSL_CONNECTION_FROM_CONST_SSL')\n\n    # Constraint: sc_ptr == SSL_CONNECTION_FROM_CONST_SSL(ssl)\n    s.add(sc_ptr == SSL_CONNECTION_FROM_CONST_SSL)\n\n    # Constraint: !(sc_ptr == NULL)  =>  sc_ptr != 0\n    s.add(sc_ptr != 0)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sc () Int)\n(declare-fun SSL_CONNECTION_FROM_CONST_SSL () Int)\n(declare-fun sc_ptr () Int)\n(assert\n (= sc 0))\n(assert\n (= sc_ptr SSL_CONNECTION_FROM_CONST_SSL))\n(assert\n (and (distinct sc_ptr 0) true))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

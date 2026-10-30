@@ -1,0 +1,104 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "sox_read_header",
+      "var_name": "comment",
+      "target": "if (avio_read(pb, comment, comment_size) != comment_size) {",
+      "code": "static int sox_read_header(AVFormatContext *s)\n{\n    AVIOContext *pb = s->pb;\n    unsigned header_size, comment_size;\n    double sample_rate, sample_rate_frac;\n    AVStream *st;\n\n    st = avformat_new_stream(s, NULL);\n    if (!st)\n        return AVERROR(ENOMEM);\n\n    st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;\n\n    if (avio_rl32(pb) == SOX_TAG) {\n        st->codecpar->codec_id = AV_CODEC_ID_PCM_S32LE;\n        header_size         = avio_rl32(pb);\n        avio_skip(pb, 8); /* sample count */\n        sample_rate         = av_int2double(avio_rl64(pb));\n        st->codecpar->channels = avio_rl32(pb);\n        comment_size        = avio_rl32(pb);\n    } else {\n        st->codecpar->codec_id = AV_CODEC_ID_PCM_S32BE;\n        header_size         = avio_rb32(pb);\n        avio_skip(pb, 8); /* sample count */\n        sample_rate         = av_int2double(avio_rb64(pb));\n        st->codecpar->channels = avio_rb32(pb);\n        comment_size        = avio_rb32(pb);\n    }\n\n    if (comment_size > 0xFFFFFFFFU - SOX_FIXED_HDR - 4U) {\n        av_log(s, AV_LOG_ERROR, \"invalid comment size (%u)\\n\", comment_size);\n        return -1;\n    }\n\n    if (sample_rate <= 0 || sample_rate > INT_MAX) {\n        av_log(s, AV_LOG_ERROR, \"invalid sample rate (%f)\\n\", sample_rate);\n        return -1;\n    }\n\n    sample_rate_frac = sample_rate - floor(sample_rate);\n    if (sample_rate_frac)\n        av_log(s, AV_LOG_WARNING,\n               \"truncating fractional part of sample rate (%f)\\n\",\n               sample_rate_frac);\n\n    if ((header_size + 4) & 7 || header_size < SOX_FIXED_HDR + comment_size\n        || st->codecpar->channels > 65535) /* Reserve top 16 bits */ {\n        av_log(s, AV_LOG_ERROR, \"invalid header\\n\");\n        return -1;\n    }\n\n    if (comment_size && comment_size < UINT_MAX) {\n        char *comment = av_malloc(comment_size+1);\n        if (avio_read(pb, comment, comment_size) != comment_size) {\n            av_freep(&comment);\n            return AVERROR(EIO);\n        }\n        comment[comment_size] = 0;\n\n        av_dict_set(&s->metadata, \"comment\", comment,\n                               AV_DICT_DONT_STRDUP_VAL);\n    }\n\n    avio_skip(pb, header_size - SOX_FIXED_HDR - comment_size);\n\n    st->codecpar->sample_rate           = sample_rate;\n    st->codecpar->bits_per_coded_sample = 32;\n    st->codecpar->bit_rate              = st->codecpar->sample_rate *\n                                          st->codecpar->bits_per_coded_sample *\n                                          st->codecpar->channels;\n    st->codecpar->block_align           = st->codecpar->bits_per_coded_sample *\n                                          st->codecpar->channels / 8;\n\n    avpriv_set_pts_info(st, 64, 1, st->codecpar->sample_rate);\n\n    return 0;\n}",
+      "body_sha256": "53a7b6235ba79ef80dce301f1378b471ecae06b5fb53e4716628b996b3ba10ac",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (avio_read(pb, comment, comment_size) != comment_size) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int sox_read_header(AVFormatContext *s)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "(header_size + 4) & 7 || header_size < SOX_FIXED_HDR + comment_size || st->codecpar->channels > 65535"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "sample_rate <= 0 || sample_rate > INT_MAX"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "comment_size > 0xFFFFFFFFU - SOX_FIXED_HDR - 4U"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!st"
+            ]
+          }
+        ],
+        "filter_function_code": "static int sox_read_header(AVFormatContext *s)\n{\n    AVIOContext *pb = s->pb;\n    unsigned header_size, comment_size;\n    double sample_rate, sample_rate_frac;\n    AVStream *st;\n\n    st = avformat_new_stream(s, NULL);\n    if (!st)\n        return AVERROR(ENOMEM);\n\n    st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;\n\n    if (avio_rl32(pb) == SOX_TAG) {\n        st->codecpar->codec_id = AV_CODEC_ID_PCM_S32LE;\n        header_size         = avio_rl32(pb);\n        avio_skip(pb, 8); /* sample count */\n        sample_rate         = av_int2double(avio_rl64(pb));\n        st->codecpar->channels = avio_rl32(pb);\n        comment_size        = avio_rl32(pb);\n    } else {\n        st->codecpar->codec_id = AV_CODEC_ID_PCM_S32BE;\n        header_size         = avio_rb32(pb);\n        avio_skip(pb, 8); /* sample count */\n        sample_rate         = av_int2double(avio_rb64(pb));\n        st->codecpar->channels = avio_rb32(pb);\n        comment_size        = avio_rb32(pb);\n    }\n\n    if (comment_size > 0xFFFFFFFFU - SOX_FIXED_HDR - 4U) {\n        av_log(s, AV_LOG_ERROR, \"invalid comment size (%u)\\n\", comment_size);\n        return -1;\n    }\n\n    if (sample_rate <= 0 || sample_rate > INT_MAX) {\n        av_log(s, AV_LOG_ERROR, \"invalid sample rate (%f)\\n\", sample_rate);\n        return -1;\n    }\n\n    sample_rate_frac = sample_rate - floor(sample_rate);\n    if (sample_rate_frac)\n        av_log(s, AV_LOG_WARNING,\n               \"truncating fractional part of sample rate (%f)\\n\",\n               sample_rate_frac);\n\n    if ((header_size + 4) & 7 || header_size < SOX_FIXED_HDR + comment_size\n        || st->codecpar->channels > 65535) /* Reserve top 16 bits */ {\n        av_log(s, AV_LOG_ERROR, \"invalid header\\n\");\n        return -1;\n    }\n\n    if (comment_size && comment_size < UINT_MAX) {\n        char *comment = av_malloc(comment_size+1);\n        if (avio_read(pb, comment, comment_size) != comment_size) {\n            av_freep(&comment);\n            return AVERROR(EIO);\n        }\n        comment[comment_size] = 0;\n\n        av_dict_set(&s->metadata, \"comment\", comment,\n                               AV_DICT_DONT_STRDUP_VAL);\n    }\n\n    avio_skip(pb, header_size - SOX_FIXED_HDR - comment_size);\n\n    st->codecpar->sample_rate           = sample_rate;\n    st->codecpar->bits_per_coded_sample = 32;\n    st->codecpar->bit_rate              = st->codecpar->sample_rate *\n                                          st->codecpar->bits_per_coded_sample *\n                                          st->codecpar->channels;\n    st->codecpar->block_align           = st->codecpar->bits_per_coded_sample *\n                                          st->codecpar->channels / 8;\n\n    avpriv_set_pts_info(st, 64, 1, st->codecpar->sample_rate);\n\n    return 0;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "avio_read",
+      "var_name": "buf",
+      "target": "            memcpy(buf, s->buf_ptr, len);",
+      "code": "int avio_read(AVIOContext *s, unsigned char *buf, int size)\n{\n    int len, size1;\n\n    size1 = size;\n    while (size > 0) {\n        len = s->buf_end - s->buf_ptr;\n        if (len > size)\n            len = size;\n        if (len == 0 || s->write_flag) {\n            if(size > s->buffer_size && !s->update_checksum){\n                if(s->read_packet)\n                    len = s->read_packet(s->opaque, buf, size);\n                if (len <= 0) {\n                    /* do not modify buffer if EOF reached so that a seek back can\n                    be done without rereading data */\n                    s->eof_reached = 1;\n                    if(len<0)\n                        s->error= len;\n                    break;\n                } else {\n                    s->pos += len;\n                    size -= len;\n                    buf += len;\n                    s->buf_ptr = s->buffer;\n                    s->buf_end = s->buffer/* + len*/;\n                }\n            } else {\n                fill_buffer(s);\n                len = s->buf_end - s->buf_ptr;\n                if (len == 0)\n                    break;\n            }\n        } else {\n            memcpy(buf, s->buf_ptr, len);\n            buf += len;\n            s->buf_ptr += len;\n            size -= len;\n        }\n    }\n    if (size1 == size) {\n        if (s->error)         return s->error;\n        if (s->eof_reached)   return AVERROR_EOF;\n    }\n    return size1 - size;\n}",
+      "body_sha256": "d5eda666ed94bd3bce31b9a531d9ae5b5cdb53f54c5dc94b97ec772df8b8aee2",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "            memcpy(buf, s->buf_ptr, len);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "int avio_read(AVIOContext *s, unsigned char *buf, int size)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "break",
+            "condition": [
+              "size > 0",
+              "len == 0 || s->write_flag",
+              "!(size > s->buffer_size && !s->update_checksum)",
+              "len == 0"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "size > 0",
+              "len == 0 || s->write_flag",
+              "size > s->buffer_size && !s->update_checksum",
+              "len <= 0"
+            ]
+          }
+        ],
+        "filter_function_code": "int avio_read(AVIOContext *s, unsigned char *buf, int size)\n{\n    int len, size1;\n\n    size1 = size;\n    while (size > 0) {\n        len = s->buf_end - s->buf_ptr;\n        if (len > size)\n            len = size;\n        if (len == 0 || s->write_flag) {\n            if(size > s->buffer_size && !s->update_checksum){\n                if(s->read_packet)\n                    len = s->read_packet(s->opaque, buf, size);\n                if (len <= 0) {\n                    /* do not modify buffer if EOF reached so that a seek back can\n                    be done without rereading data */\n                    s->eof_reached = 1;\n                    if(len<0)\n                        s->error= len;\n                    break;\n                } else {\n                    s->pos += len;\n                    size -= len;\n                    buf += len;\n                    s->buf_ptr = s->buffer;\n                    s->buf_end = s->buffer/* + len*/;\n                }\n            } else {\n                fill_buffer(s);\n                len = s->buf_end - s->buf_ptr;\n                if (len == 0)\n                    break;\n            }\n        } else {\n            memcpy(buf, s->buf_ptr, len);\n            buf += len;\n            s->buf_ptr += len;\n            size -= len;\n        }\n    }\n    if (size1 == size) {\n        if (s->error)         return s->error;\n        if (s->eof_reached)   return AVERROR_EOF;\n    }\n    return size1 - size;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int sox_read_header(AVFormatContext *s)\n{\n    AVIOContext *pb = s->pb;\n    unsigned header_size, comment_size;\n    double sample_rate, sample_rate_frac;\n    AVStream *st;\n\n    st = avformat_new_stream(s, NULL);\n    if (!st)\n        return AVERROR(ENOMEM);\n\n    st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;\n\n    if (avio_rl32(pb) == SOX_TAG) {\n        st->codecpar->codec_id = AV_CODEC_ID_PCM_S32LE;\n        header_size         = avio_rl32(pb);\n        avio_skip(pb, 8); /* sample count */\n        sample_rate         = av_int2double(avio_rl64(pb));\n        st->codecpar->channels = avio_rl32(pb);\n        comment_size        = avio_rl32(pb);\n    } else {\n        st->codecpar->codec_id = AV_CODEC_ID_PCM_S32BE;\n        header_size         = avio_rb32(pb);\n        avio_skip(pb, 8); /* sample count */\n        sample_rate         = av_int2double(avio_rb64(pb));\n        st->codecpar->channels = avio_rb32(pb);\n        comment_size        = avio_rb32(pb);\n    }\n\n    if (comment_size > 0xFFFFFFFFU - SOX_FIXED_HDR - 4U) {\n        av_log(s, AV_LOG_ERROR, \"invalid comment size (%u)\\n\", comment_size);\n        return -1;\n    }\n\n    if (sample_rate <= 0 || sample_rate > INT_MAX) {\n        av_log(s, AV_LOG_ERROR, \"invalid sample rate (%f)\\n\", sample_rate);\n        return -1;\n    }\n\n    sample_rate_frac = sample_rate - floor(sample_rate);\n    if (sample_rate_frac)\n        av_log(s, AV_LOG_WARNING,\n               \"truncating fractional part of sample rate (%f)\\n\",\n               sample_rate_frac);\n\n    if ((header_size + 4) & 7 || header_size < SOX_FIXED_HDR + comment_size\n        || st->codecpar->channels > 65535) /* Reserve top 16 bits */ {\n        av_log(s, AV_LOG_ERROR, \"invalid header\\n\");\n        return -1;\n    }\n\n    if (comment_size && comment_size < UINT_MAX) {\n        char *comment = av_malloc(comment_size+1);\n        if (avio_read(pb, comment, comment_size) != comment_size) {\n            av_freep(&comment);\n            return AVERROR(EIO);\n        }\n        comment[comment_size] = 0;\n\n        av_dict_set(&s->metadata, \"comment\", comment,\n                               AV_DICT_DONT_STRDUP_VAL);\n    }\n\n    avio_skip(pb, header_size - SOX_FIXED_HDR - comment_size);\n\n    st->codecpar->sample_rate           = sample_rate;\n    st->codecpar->bits_per_coded_sample = 32;\n    st->codecpar->bit_rate              = st->codecpar->sample_rate *\n                                          st->codecpar->bits_per_coded_sample *\n                                          st->codecpar->channels;\n    st->codecpar->block_align           = st->codecpar->bits_per_coded_sample *\n                                          st->codecpar->channels / 8;\n\n    avpriv_set_pts_info(st, 64, 1, st->codecpar->sample_rate);\n\n    return 0;\n}",
+    "int avio_read(AVIOContext *s, unsigned char *buf, int size)\n{\n    int len, size1;\n\n    size1 = size;\n    while (size > 0) {\n        len = s->buf_end - s->buf_ptr;\n        if (len > size)\n            len = size;\n        if (len == 0 || s->write_flag) {\n            if(size > s->buffer_size && !s->update_checksum){\n                if(s->read_packet)\n                    len = s->read_packet(s->opaque, buf, size);\n                if (len <= 0) {\n                    /* do not modify buffer if EOF reached so that a seek back can\n                    be done without rereading data */\n                    s->eof_reached = 1;\n                    if(len<0)\n                        s->error= len;\n                    break;\n                } else {\n                    s->pos += len;\n                    size -= len;\n                    buf += len;\n                    s->buf_ptr = s->buffer;\n                    s->buf_end = s->buffer/* + len*/;\n                }\n            } else {\n                fill_buffer(s);\n                len = s->buf_end - s->buf_ptr;\n                if (len == 0)\n                    break;\n            }\n        } else {\n            memcpy(buf, s->buf_ptr, len);\n            buf += len;\n            s->buf_ptr += len;\n            size -= len;\n        }\n    }\n    if (size1 == size) {\n        if (s->error)         return s->error;\n        if (s->eof_reached)   return AVERROR_EOF;\n    }\n    return size1 - size;\n}"
+  ]
+}

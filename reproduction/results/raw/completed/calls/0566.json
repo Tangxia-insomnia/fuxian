@@ -1,0 +1,45 @@
+{
+  "call_id": 566,
+  "sample_id": "NPD/codeql/libav:row=43:index=73",
+  "timestamp": "2026-10-26T00:54:59.416454+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(i == s->nb_streams) || !(!st)', '!(i = 0; i < s->nb_streams; i++) || !(!is_audio && st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) || !(flv_same_video_codec(st->codecpar, flags))', '!(i = 0; i < s->nb_streams; i++) || !(is_audio && st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) || !(flv_same_audio_codec(st->codecpar, flags))']\n        Relevant conditions/variables: [], st\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "ab5b51c2-f696-4f0a-a465-71646ec04de4",
+  "usage": {
+    "prompt_tokens": 243,
+    "completion_tokens": 826,
+    "total_tokens": 1069,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 243
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declarations for the variables appearing in the constraints.\n# 'i' is the loop index, 's->nb_streams' is the number of streams,\n# 'st' is a pointer to a stream (modeled as an integer address; 0 == NULL),\n# 'is_audio' is a boolean flag, and the codec_type / codec comparison\n# results are modeled as uninterpreted booleans since their internals\n# are not part of the relevant conditions.\n\ni = Int('i')\nnb_streams = Int('s->nb_streams')\nst = Int('st')                 # pointer modeled as integer; 0 means NULL\nis_audio = Bool('is_audio')\n\n# Codec type equality predicates (opaque booleans)\ncodec_type_is_video = Bool('st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO')\ncodec_type_is_audio = Bool('st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO')\n\n# Codec comparison results (opaque booleans)\nflv_same_video_codec = Bool('flv_same_video_codec(st->codecpar, flags)')\nflv_same_audio_codec = Bool('flv_same_audio_codec(st->codecpar, flags)')\n\ns = Solver()\n\n# Constraint 1: !(i == s->nb_streams) || !(!st)\n# Included because it directly constrains 'st' (and 'i' / 's->nb_streams').\n# C semantics: !(!st) is true iff st != NULL.\n# So the constraint is: (i != s->nb_streams) OR (st == 0).\ns.add(Or(i != nb_streams, st == 0))\n\n# Constraint 2: !(i = 0; i < s->nb_streams; i++) || !(!is_audio && st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) || !(flv_same_video_codec(st->codecpar, flags))\n# Included because it references 'st' (via codec_type and flv_same_video_codec)\n# and 'is_audio'. The loop header is modeled as the loop-condition predicate\n# (i < s->nb_streams); the \"!(...)\" of the loop header means the loop is NOT\n# entered, i.e. i >= s->nb_streams.\nloop_cond = (i < nb_streams)\n# !(!is_audio && codec_type_is_video)  ==  is_audio || !codec_type_is_video\nnot_video_branch = Or(is_audio, Not(codec_type_is_video))\ns.add(Or(Not(loop_cond), not_video_branch, Not(flv_same_video_codec)))\n\n# Constraint 3: !(i = 0; i < s->nb_streams; i++) || !(is_audio && st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) || !(flv_same_audio_codec(st->codecpar, flags))\n# Included because it references 'st' (via codec_type and flv_same_audio_codec)\n# and 'is_audio'.\n# !(is_audio && codec_type_is_audio)  ==  !is_audio || !codec_type_is_audio\nnot_audio_branch = Or(Not(is_audio), Not(codec_type_is_audio))\ns.add(Or(Not(loop_cond), not_audio_branch, Not(flv_same_audio_codec)))\n\n# Print the resulting script's model check (sanity check)\nprint(s.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 3.7754271000003428,
+  "cost_upper_bound_cny": 0.007094
+}

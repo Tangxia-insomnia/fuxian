@@ -1,0 +1,165 @@
+[
+  {
+    "archive_member": "ref.bib",
+    "saved_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_build_search_repair_plan\\search\\paper_source_excerpts\\ref.bib",
+    "member_sha256": "730a906e0b12ab8e504e4e262fd8c77d15de65c8ce1f67d286e50859fc8572f1",
+    "line_hits": [
+      [
+        1586,
+        "@ArtifactSoftware{R,"
+      ],
+      [
+        1595,
+        "@ArtifactDataset{UMassCitations,"
+      ],
+      [
+        1665,
+        " url = {https://github.com/elastic/elasticsearch},"
+      ],
+      [
+        2534,
+        " url = {https://github.com/libav/libav/tree/master},"
+      ],
+      [
+        2545,
+        "@online{codeql,"
+      ],
+      [
+        2546,
+        " url = {https://codeql.github.com/},"
+      ],
+      [
+        2547,
+        "    title={CodeQL},"
+      ],
+      [
+        2552,
+        " url = {https://elixir.bootlin.com/linux/v6.9.6/source},"
+      ],
+      [
+        2553,
+        "    title={Linux-kernel 6.9.6},"
+      ],
+      [
+        2558,
+        " url = {https://github.com/openssl/openssl/tree/master},"
+      ]
+    ]
+  },
+  {
+    "archive_member": "section/intro.tex",
+    "saved_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_build_search_repair_plan\\search\\paper_source_excerpts\\section\\intro.tex",
+    "member_sha256": "6a15f332fe7ae86793700b6aa27c8e068e05339b842af30feb7d376323c0235a",
+    "line_hits": [
+      [
+        3,
+        "Static bug analyzers play a crucial role in ensuring software security, reliability, and maintainability. They help identify potential bugs early in the development process by scanning the codebase without extensive program execution~\\cite{cai2023place,cai2022peahen,cai2021canary,shi2020conquering,shi2018pinpoint,sui2012static,vassallo2020developers,yan2018spatio}. Popular analyzers like GitHub CodeQL~\\cite{codeql}, Facebook Infer~\\cite{infer}, and CppCheck~\\cite{cppcheck} are widely used for industrial bug detection. Their analysis of many bug types (\\eg{} null pointer dereference and use-after-free) typically follows a standardized approach: identifying sources (\\ie{} potential origins of issues) and sinks (\\ie{} locations where issues manifest) based on predefined rules, then checking whether a feasible execution path exists from sources to sinks. If such a path is found, the tools flag a potential bug."
+      ]
+    ]
+  },
+  {
+    "archive_member": "section/background.tex",
+    "saved_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_build_search_repair_plan\\search\\paper_source_excerpts\\section\\background.tex",
+    "member_sha256": "73b3d014c7b8b1e48d7857b4426651049fb55526ac45d18e0a53fddda370792f",
+    "line_hits": [
+      [
+        26,
+        "However, traditional static analysis tools like CodeQL and Infer often incorporate over-approximation during contextual analysis, so as to reduce the complexity of path feasibility validation. As a result, there are high false positive rates in their reported bug alarms in practice.     "
+      ],
+      [
+        35,
+        "We present two examples to further illustrate the challenges of validating path feasibility, which lead to false positives in the NPD bug reported by CodeQL on the Linux kernel. "
+      ],
+      [
+        38,
+        "Figure~\\ref{fig:example2} presents a false positive reported by CodeQL. In this example,  the green-highlighted sections involve value assignments and constraint validation for the two \\textit{bool} variables \\textit{connected} and \\textit{md}. According to the constraint in Line 34, we can deduce that only when the target pointer \\textit{tun\\_info} is \\textbf{not} \\NULL, both \\textit{connected} and \\textit{md} are \\textit{TRUE} (Lines 36 and 37). Based on the constraint in Line 102, only if both \\textit{connected} and \\textit{md} are \\textit{TRUE}, can the dereference operation (the sink) at Line 105 potentially be executed. According to both constraints, it is clear that no feasible path exists to reach the sink, and thus no NPD occurs. Beyond these green-highlighted sections, the example also involves numerous preceding and succeeding conditional constraints (highlighted in orange). Only by comprehensively cascading these constraints and analyzing the potential execution paths,  can accurate path feasibility validation be achieved and false positives be eliminated. Such a high complexity is prevalent in real-world software systems, which often involve intricate function call chains and deeply nested conditional structures, making path feasibility analysis even  challenging."
+      ],
+      [
+        42,
+        "In addition to the source-to-sink function call trace, precise path feasibility analysis requires reasoning numerous variable values and function call return values, further complicating the analysis process. Figure~\\ref{fig:example1} illustrates a false positive resulting from complex contextual analysis. In Line 3 of the second function in the trace, \\textit{consume\\_skb} correctly performs a null check on the target pointer \\textit{skb} by invoking \\textit{skb\\_unref}, which returns \\textit{false} when \\textit{skb} is null. This causes the program to \\textit{return} early, preventing the null pointer from propagating to the sink. Notably, Figure~\\ref{fig:example1} only reveals the minimal contextual information (highlighted in green) necessary for the manual inspection to identify the false positive. Existing LLM-based approaches would consider a broader set of contextual function calls (highlighted in orange), significantly increasing the complexity of context-sensitive analysis. Furthermore, due to the intricacies of the Linux kernel, this analysis incorporates not only function calls but also macro definitions and built-in GCC compiler functions, presenting additional challenges for traditional symbolic execution techniques."
+      ]
+    ]
+  },
+  {
+    "archive_member": "section/evaluation/rq1.tex",
+    "saved_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_build_search_repair_plan\\search\\paper_source_excerpts\\section\\evaluation\\rq1.tex",
+    "member_sha256": "72c2dd55b697a9c20e2d79fd3b4fe37b85aa8d09a060e1ee4b24c10333ff99d4",
+    "line_hits": [
+      [
+        15,
+        "Among three analyzers, \\app{} demonstrates the greatest advantage in eliminating false positives from CodeQL (with a FPR\\_R improvement of 97.2\\% - 129.0\\%). This improvement is attributed to CodeQL's relatively comprehensive null pointer check rules, which lead to more complex false positives, such as the complex constraint cascade (\\eg{} Example-1 in Section~\\ref{sec:example}), and requires more extensive context analysis. Specifically, 44\\% of CodeQL cases involve context analysis, whereas only 0.29\\% and 0.36\\% of cases from cppcheck and infer involve context analysis, respectively."
+      ]
+    ]
+  },
+  {
+    "archive_member": "section/related.tex",
+    "saved_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_build_search_repair_plan\\search\\paper_source_excerpts\\section\\related.tex",
+    "member_sha256": "a27e910be3fcfa3c2e66015c4edb6aeaad07a291fa0cbf11f578117d57c4c41b",
+    "line_hits": [
+      [
+        5,
+        "Currently, substantial efforts have been made to combine LLMs with static analysis to enhance detection capabilities. Li et al.\\cite{li2023hitchhikers} propose a framework that integrates UBITect with LLMs to detect Use-Before-Initialization (UBI) bugs in the Linux kernel; Sun et al.~\\cite{sun2023gpt} employ LLMs to assist static analysis in identifying logic vulnerabilities in smart contracts. Li et al.~\\cite{li2024llm} propose IRIS, which systematically combines LLMs with the static analysis tool CodeQL to conduct the first whole-repository reasoning approach for comprehensive vulnerability detection. Wen et al.~\\cite{llm4sa} present LLM4SA, which utilizes LLMs to process bug warning reports from various static analysis tools, leveraging domain knowledge of LLMs to reduce false positives."
+      ]
+    ]
+  },
+  {
+    "archive_member": "section/benchmark.tex",
+    "saved_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_build_search_repair_plan\\search\\paper_source_excerpts\\section\\benchmark.tex",
+    "member_sha256": "bdf0c5b7fe9458ae250ca3c4c903fdb133c8bc816428ae616bb2616437dd4245",
+    "line_hits": [
+      [
+        9,
+        "\\textbf{Static Analyzers.} We use three state-of-the-art static analyzers: CodeQL~\\cite{codeql}, Infer~\\cite{infer}, and CppCheck~\\cite{cppcheck}. "
+      ]
+    ]
+  },
+  {
+    "archive_member": "table/rq1_result.tex",
+    "saved_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_build_search_repair_plan\\search\\paper_source_excerpts\\table\\rq1_result.tex",
+    "member_sha256": "19332bcaae30464b4a5596b6d487f1c3d567d48bf64cb5617486aea14396adb5",
+    "line_hits": [
+      [
+        40,
+        "        \\multirow{3}{*}{CodeQL}& \\app{} & \\textbf{0.75}  & \\textbf{0.97} & \\textbf{0.71} &\\textbf{0.42} &\\textbf{0.91}  \\\\"
+      ]
+    ]
+  },
+  {
+    "archive_member": "table/command.tex",
+    "saved_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_build_search_repair_plan\\search\\paper_source_excerpts\\table\\command.tex",
+    "member_sha256": "52e2c68f49a68a520069d1f199b2aafb258e3cc5da336cccb5482f39c9b1fb4f",
+    "line_hits": [
+      [
+        10,
+        "        \\multirow{3}{*}{NPD}& CodeQL & MissingNullTest.ql; %path: codeql/cpp/ql/src/Critical/MissingNullTest.ql"
+      ],
+      [
+        15,
+        "        \\multirow{1}{*}{UAF}& CodeQL &  UseAfterFree.ql"
+      ],
+      [
+        19,
+        "        \\multirow{1}{*}{BOF}& CodeQL & OverflowBuffer.ql %path: cpp/ql/src/Security/CWE/CWE-119/OverflowBuffer.ql"
+      ]
+    ]
+  },
+  {
+    "archive_member": "table/benchmark.tex",
+    "saved_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_build_search_repair_plan\\search\\paper_source_excerpts\\table\\benchmark.tex",
+    "member_sha256": "55bef9fe1a259423dfb6ceab543666ee9c89a242a56c68571fd994c4c79c1859",
+    "line_hits": [
+      [
+        12,
+        "        \\multirow{3}{*}{NPD}& CodeQL &  70 (22) & 50 (8) & 57 (2) & 177 (32) \\\\"
+      ],
+      [
+        16,
+        "        \\multirow{1}{*}{UAF}& CodeQL & 16 (0) & 9 (0) & / & 25 (0)  \\\\\\hline "
+      ],
+      [
+        18,
+        "        \\multirow{1}{*}{BOF}& CodeQL & /  & 42 (0) & / & 42 (0) \\\\\\hline "
+      ]
+    ]
+  }
+]

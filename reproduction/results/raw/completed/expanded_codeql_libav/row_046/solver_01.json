@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, String, StringVal, Bool, Not, And, Or, Solver, sat\n\n    # Base script constraints\n    times = Int('times')\n\n    # Constraint set 2 variables\n    str_val = String('str_val')\n    KEYFRAMES_TIMESTAMP_TAG = StringVal(\"KEYFRAMES_TIMESTAMP_TAG\")\n    avio_tell_lt = Bool('avio_tell_lt')\n    amf_get_string_gt0 = Bool('amf_get_string_gt0')\n\n    s = Solver()\n\n    # Base constraint\n    s.add(times == 0)\n\n    # Constraint set 2 clauses\n    clause1 = Not(And(avio_tell_lt, amf_get_string_gt0))\n    clause2 = Not(And(str_val == KEYFRAMES_TIMESTAMP_TAG, times == 0))\n    clause3 = Not(times == 0)\n    constraint = Or(clause1, clause2, clause3)\n    s.add(constraint)\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: NameError: name 'String' is not defined"
+}

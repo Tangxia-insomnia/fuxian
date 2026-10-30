@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not\n\n    # Base script variables and constraints\n    dev = Int('dev')\n\n    # Variables from constraint set 2\n    dev_flags = Int('dev_flags')\n    cfg_fc_flags = Int('cfg_fc_flags')\n    cfg_fc_ifindex = Int('cfg_fc_ifindex')\n    cfg_fc_ignore_dev_down = Bool('cfg_fc_ignore_dev_down')\n    idev = Int('idev')\n    idev_cnf_disable_ipv6 = Bool('idev_cnf_disable_ipv6')\n    net_loopback_dev = Int('net_loopback_dev')\n    fib6_is_reject = Bool('fib6_is_reject')\n    addr_type = Int('addr_type')\n\n    # Constants\n    RTNH_F_ONLINK = 1\n    IFF_UP = 1\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(dev == 0)\n\n    # Constraint 1\n    s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, dev != 0))\n\n    # Constraint 2\n    s.add(Or(cfg_fc_ifindex == 0, dev != 0))\n\n    # Constraint 3\n    s.add(Or(Not(fib6_is_reject), dev == net_loopback_dev, idev != 0))\n\n    # Constraint 4\n    s.add(Or((cfg_fc_flags & RTNH_F_ONLINK) == 0, (dev_flags & IFF_UP) != 0))\n\n    # Constraint 6\n    s.add(Or((dev_flags & IFF_UP) != 0, cfg_fc_ignore_dev_down))\n\n    # Constraint 7\n    s.add(dev != 0)\n\n    return s.check() == __import__('z3').sat",
+  "ok": false,
+  "error": "ValueError: ValueError: Unsupported generated-code operation"
+}

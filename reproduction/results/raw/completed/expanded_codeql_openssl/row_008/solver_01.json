@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, BitVec, Solver, Or, sat\n\n    # Base script variables and constraints\n    cms_int = Int('cms_int')\n    s = Solver()\n    s.add(cms_int == 0)\n\n    # Constraint set 2 variables\n    operation = BitVec('operation', 32)\n    cms = BitVec('cms', 64)\n    srcms = BitVec('srcms', 64)\n\n    # SMIME_* constants\n    SMIME_SIGNERS      = 0x0001\n    SMIME_SIGN         = 0x0002\n    SMIME_ENCRYPT      = 0x0004\n    SMIME_IP           = 0x0008\n    SMIME_SIGN_RECEIPT = 0x0010\n\n    # Constraint 1\n    s.add(Or(\n        (operation & SMIME_SIGNERS) == 0,\n        operation != SMIME_SIGN,\n        cms != 0\n    ))\n\n    # Constraint 2\n    s.add(Or(\n        operation != SMIME_ENCRYPT,\n        cms != 0\n    ))\n\n    # Constraint 3\n    s.add(Or(\n        (operation & SMIME_IP) == 0,\n        cms != 0\n    ))\n\n    # Constraint 4\n    s.add(Or(\n        operation != SMIME_SIGN_RECEIPT,\n        srcms != 0\n    ))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun cms_int () Int)\n(declare-fun cms () (_ BitVec 64))\n(declare-fun operation () (_ BitVec 32))\n(declare-fun srcms () (_ BitVec 64))\n(assert\n (= cms_int 0))\n(assert\n (let (($x35 (and (distinct cms (_ bv0 64)) true)))\n (or (= (bvand operation (_ bv1 32)) (_ bv0 32)) (and (distinct operation (_ bv2 32)) true) $x35)))\n(assert\n (let (($x35 (and (distinct cms (_ bv0 64)) true)))\n (or (and (distinct operation (_ bv4 32)) true) $x35)))\n(assert\n (let (($x35 (and (distinct cms (_ bv0 64)) true)))\n (or (= (bvand operation (_ bv8 32)) (_ bv0 32)) $x35)))\n(assert\n (or (and (distinct operation (_ bv16 32)) true) (and (distinct srcms (_ bv0 64)) true)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

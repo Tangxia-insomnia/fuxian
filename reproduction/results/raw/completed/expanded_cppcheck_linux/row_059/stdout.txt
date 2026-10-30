@@ -1,0 +1,63 @@
+```python
+mpic=Int('mpic')
+s.add(mpic == 0)
+```
+Let's go through the task step by step.
+
+**Step 1 – Understand the code and constraints**
+
+The code:
+
+```c
+unsigned int mpic_get_mcirq(void)
+{
+    struct mpic *mpic = mpic_primary;
+
+    BUG_ON(mpic == NULL);
+
+    return _mpic_get_one_irq(mpic, MPIC_INFO(CPU_MCACK));
+}
+```
+
+- `mpic` is assigned from `mpic_primary`.
+- `BUG_ON(mpic == NULL)` means execution stops if `mpic == NULL`.
+- After that, `mpic` is used in `_mpic_get_one_irq`.
+
+**Given constraints:**  
+`['!(mpic ==0)']` — this means `mpic != 0` (i.e., `mpic` is not NULL).
+
+**Target variables:** `[], mpic` — the list is empty plus `mpic`. So the only target variable is `mpic`.
+
+---
+
+**Step 2 – Filter constraints affecting reachability**
+
+The constraint `!(mpic == 0)` is exactly the condition enforced by `BUG_ON(mpic == NULL)`.  
+If this constraint is violated, the program aborts (BUG). So for normal reachability to the return statement, this constraint must hold.
+
+Thus, this constraint affects reachability.
+
+---
+
+**Step 3 – Include only constraints involving target variables**
+
+Target variable is `mpic`. The constraint `!(mpic == 0)` involves `mpic`. So it should be included.
+
+---
+
+**Step 4 – Verify filtered constraints step by step**
+
+- Constraint: `!(mpic == 0)`  
+- Does it involve `mpic`? Yes.  
+- Does it affect reachability? Yes, because if `mpic == 0`, `BUG_ON` triggers and the return is not reached.  
+- So it stays.
+
+No other constraints are given, so the filtered list is just this one.
+
+---
+
+**Final JSON output:**
+
+```json
+["!(mpic ==0)"]
+```

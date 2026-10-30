@@ -1,0 +1,111 @@
+```python
+sc=Int('sc')
+s.add(sc == 0)
+```
+```json
+["!((sc = SSL_CONNECTION_FROM_CONST_SSL(ssl)) == NULL)"]
+```
+```python
+# Z3 script converting C constraint to Z3
+# Original C constraint: !((sc = SSL_CONNECTION_FROM_CONST_SSL(ssl)) == NULL)
+#
+# Analysis:
+#   - SSL_CONNECTION_FROM_CONST_SSL(ssl) is a macro/function that returns a pointer
+#     (SSL_CONNECTION*) derived from the SSL object. In Z3 we model its result as
+#     an uninterpreted function returning an uninterpreted sort (pointer-like).
+#   - The assignment `sc = ...` binds `sc` to that returned pointer.
+#   - The comparison `(... == NULL)` checks whether the returned pointer is NULL.
+#   - The outer `!` negates it, so the constraint asserts the pointer is NOT NULL.
+#   - Therefore the effective constraint on `sc` is: sc != NULL.
+#
+# We model NULL as a distinguished constant of the pointer sort, and
+# SSL_CONNECTION_FROM_CONST_SSL as an uninterpreted function from SSL to pointer.
+
+from z3 import *
+
+# Sort representing SSL objects (opaque)
+SSL = DeclareSort('SSL')
+
+# Sort representing SSL_CONNECTION pointers (opaque)
+SSL_CONNECTION = DeclareSort('SSL_CONNECTION')
+
+# NULL pointer constant
+NULL = Const('NULL', SSL_CONNECTION)
+
+# Uninterpreted function modeling the macro SSL_CONNECTION_FROM_CONST_SSL(ssl)
+SSL_CONNECTION_FROM_CONST_SSL = Function(
+    'SSL_CONNECTION_FROM_CONST_SSL', SSL, SSL_CONNECTION
+)
+
+# The SSL object referenced in the original expression
+ssl = Const('ssl', SSL)
+
+# The variable `sc` (result of the assignment)
+sc = Const('sc', SSL_CONNECTION)
+
+s = Solver()
+
+# Constraint 1: sc equals the pointer returned by SSL_CONNECTION_FROM_CONST_SSL(ssl).
+# This captures the assignment `sc = SSL_CONNECTION_FROM_CONST_SSL(ssl)`.
+s.add(sc == SSL_CONNECTION_FROM_CONST_SSL(ssl))
+
+# Constraint 2: the negated NULL check, i.e. !(sc == NULL)  <=>  sc != NULL.
+# This is the actual assertion enforced by the original C expression.
+s.add(sc != NULL)
+
+# Check satisfiability and print result
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, DeclareSort, Const, Function, sat
+
+    # Base script constraints
+    sc_int = Int('sc')
+    s = Solver()
+    s.add(sc_int == 0)
+
+    # Constraint set 2: model SSL_CONNECTION_FROM_CONST_SSL and NULL check
+    SSL = DeclareSort('SSL')
+    SSL_CONNECTION = DeclareSort('SSL_CONNECTION')
+    NULL = Const('NULL', SSL_CONNECTION)
+    SSL_CONNECTION_FROM_CONST_SSL = Function(
+        'SSL_CONNECTION_FROM_CONST_SSL', SSL, SSL_CONNECTION
+    )
+    ssl = Const('ssl', SSL)
+    sc_ptr = Const('sc', SSL_CONNECTION)
+
+    s.add(sc_ptr == SSL_CONNECTION_FROM_CONST_SSL(ssl))
+    s.add(sc_ptr != NULL)
+
+    return s.check() == sat
+```
+NameError: name 'DeclareSort' is not defined
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+
+    s = Solver()
+
+    # Base script constraint
+    sc = Int('sc')
+    s.add(sc == 0)
+
+    # Constraint set 2: model SSL_CONNECTION_FROM_CONST_SSL and NULL check
+    # Model pointer-like values as Int (0 represents NULL)
+    ssl = Int('ssl')
+    sc_ptr = Int('sc_ptr')
+
+    # Uninterpreted function modeled as an Int-valued variable
+    SSL_CONNECTION_FROM_CONST_SSL = Int('SSL_CONNECTION_FROM_CONST_SSL')
+
+    # Constraint: sc_ptr == SSL_CONNECTION_FROM_CONST_SSL(ssl)
+    s.add(sc_ptr == SSL_CONNECTION_FROM_CONST_SSL)
+
+    # Constraint: !(sc_ptr == NULL)  =>  sc_ptr != 0
+    s.add(sc_ptr != 0)
+
+    return s.check() == sat
+```
+goto result: True

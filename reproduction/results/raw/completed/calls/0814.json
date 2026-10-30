@@ -1,0 +1,45 @@
+{
+  "call_id": 814,
+  "sample_id": "NPD/codeql/openssl:row=37:index=39",
+  "timestamp": "2026-10-26T01:01:16.913127+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(rawin) || !((mctx = EVP_MD_CTX_new()) == NULL)']\n        Relevant conditions/variables: [], mctx\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "6f3d626a-c46d-4d4f-b0bf-82812c39b809",
+  "usage": {
+    "prompt_tokens": 127,
+    "completion_tokens": 297,
+    "total_tokens": 424,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 127
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# mctx: pointer returned by EVP_MD_CTX_new(); modeled as an integer address (0 = NULL)\nmctx = Int('mctx')\n\n# rawin: boolean flag (its value is not constrained here, only used in the guard)\nrawin = Bool('rawin')\n\ns = Solver()\n\n# Original C constraint: !(rawin) || !((mctx = EVP_MD_CTX_new()) == NULL)\n#\n# Interpretation:\n#   - The assignment `mctx = EVP_MD_CTX_new()` is modeled by treating `mctx`\n#     as the (nondeterministic) result of the call.\n#   - `(mctx == NULL)` becomes `mctx == 0`.\n#   - `!(...)` becomes `Not(...)`.\n#   - `||` becomes `Or(...)`.\n#\n# The constraint says: either `rawin` is false, OR the newly created context\n# is non-NULL. In other words, if `rawin` is true, then `mctx` must be non-NULL.\ns.add(Or(Not(rawin), Not(mctx == 0)))\n\n# Check satisfiability and print a model\nif s.check() == sat:\n    print(\"sat\")\n    print(s.model())\nelse:\n    print(\"unsat\")\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.9227890000001935,
+  "cost_upper_bound_cny": 0.00263
+}

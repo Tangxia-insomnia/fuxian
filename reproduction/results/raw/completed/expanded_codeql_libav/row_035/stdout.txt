@@ -1,0 +1,79 @@
+```python
+link=Int('link')
+s.add(link == 0)
+```
+```json
+["!(i == filter->nb_inputs)", "!(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_formats->nb_formats == 1)"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints.
+# 'i' is the loop index used in the C constraints.
+i = Int('i')
+# 'filter->nb_inputs' is the number of inputs of the filter.
+nb_inputs = Int('nb_inputs')
+# 'link->type' represents the media type of the link (AVMEDIA_TYPE_AUDIO is a constant).
+link_type = Int('link_type')
+# 'link->out_formats->nb_formats' is the number of output formats.
+nb_formats = Int('nb_formats')
+
+# Constant for AVMEDIA_TYPE_AUDIO (from FFmpeg, value is 1).
+AVMEDIA_TYPE_AUDIO = 1
+
+# Constraint 1: !(i == filter->nb_inputs)
+# Included because it directly references 'i' and 'filter->nb_inputs',
+# which are part of the loop/condition logic being modeled.
+c1 = Not(i == nb_inputs)
+
+# Constraint 2: !(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_formats->nb_formats == 1)
+# The first part is a C for-loop header, which is not a boolean expression.
+# In the context of the constraint, the loop condition is 'i < filter->nb_inputs'.
+# The negation of the loop (i.e., loop not executing / condition false) is modeled as
+# Not(i < nb_inputs). The second part negates the conjunction of link type and format count.
+loop_cond = i < nb_inputs
+link_cond = And(link_type == AVMEDIA_TYPE_AUDIO, nb_formats == 1)
+c2 = Or(Not(loop_cond), Not(link_cond))
+
+# Create solver and add constraints.
+s = Solver()
+s.add(c1)
+s.add(c2)
+
+# Check satisfiability and print result.
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Not, And, Or, sat
+
+    # Base script variables and constraints
+    link = Int('link')
+
+    # Constraint set 2 variables
+    i = Int('i')
+    nb_inputs = Int('nb_inputs')
+    link_type = Int('link_type')
+    nb_formats = Int('nb_formats')
+
+    AVMEDIA_TYPE_AUDIO = 1
+
+    s = Solver()
+
+    # Base constraint
+    s.add(link == 0)
+
+    # Constraint set 2 constraints
+    c1 = Not(i == nb_inputs)
+    loop_cond = i < nb_inputs
+    link_cond = And(link_type == AVMEDIA_TYPE_AUDIO, nb_formats == 1)
+    c2 = Or(Not(loop_cond), Not(link_cond))
+
+    s.add(c1)
+    s.add(c2)
+
+    return s.check() == sat
+```
+goto result: True

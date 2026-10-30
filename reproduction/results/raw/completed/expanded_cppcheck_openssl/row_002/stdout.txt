@@ -1,0 +1,39 @@
+```python
+p=Int('p')
+s.add(p == 0)
+```
+```json
+["!(p == NULL)"]
+```
+```python
+from z3 import *
+
+# Declare pointer variable p as a bit-vector (64-bit address)
+p = BitVec('p', 64)
+
+# Constraint: !(p == NULL)
+# In C, NULL is typically 0. The expression !(p == NULL) means p is not NULL,
+# i.e., p != 0. This is included because it directly constrains variable p.
+s = Solver()
+s.add(p != 0)
+
+# Check satisfiability and print result
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, BitVec, sat
+    
+    s = Solver()
+    
+    # Base script constraints
+    p_int = Int('p')
+    s.add(p_int == 0)
+    
+    # Constraint set 2 constraints
+    p_bv = BitVec('p', 64)
+    s.add(p_bv != 0)
+    
+    return s.check() == sat
+```
+goto result: True

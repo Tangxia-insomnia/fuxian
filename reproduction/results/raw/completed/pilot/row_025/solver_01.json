@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, BitVec, Function, BitVecSort, BoolSort, Solver, Or, Not, sat\n\n    # Base script constraints\n    new_int = Int('new')\n    s = Solver()\n    s.add(new_int == 0)\n\n    # Constraint set 2 variables\n    new = BitVec('new', 64)\n    optlen = BitVec('optlen', 64)\n    ipv6_optlen = Function('ipv6_optlen', BitVecSort(64), BitVecSort(64))\n    IS_ERR = Function('IS_ERR', BitVecSort(64), BoolSort())\n\n    # Constraint 1\n    s.add(Or(Not(optlen > 0), Not(ipv6_optlen(new) > optlen)))\n\n    # Constraint 2\n    s.add(Or(Not(optlen > 0), Not(IS_ERR(new))))\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: NameError: name 'Function' is not defined"
+}

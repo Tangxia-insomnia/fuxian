@@ -1,0 +1,43 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "hw_device_match_by_codec",
+      "var_name": "config",
+      "target": "if (!(config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX))",
+      "code": "static HWDevice *hw_device_match_by_codec(const AVCodec *codec)\n{\n    const AVCodecHWConfig *config;\n    HWDevice *dev;\n    int i;\n    for (i = 0;; i++) {\n        config = avcodec_get_hw_config(codec, i);\n        if (!config)\n            return NULL;\n        if (!(config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX))\n            continue;\n        dev = hw_device_get_by_type(config->device_type);\n        if (dev)\n            return dev;\n    }\n}",
+      "body_sha256": "d224237d2c677ca935b6c2b2c59042776ca33227a287e33492807da4e5881e26",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (!(config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX))",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static HWDevice *hw_device_match_by_codec(const AVCodec *codec)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "i = 0;; i++",
+              "!config"
+            ]
+          }
+        ],
+        "filter_function_code": "static HWDevice *hw_device_match_by_codec(const AVCodec *codec)\n{\n    const AVCodecHWConfig *config;\n    HWDevice *dev;\n    int i;\n    for (i = 0;; i++) {\n        config = avcodec_get_hw_config(codec, i);\n        if (!config)\n            return NULL;\n        if (!(config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX))\n            continue;\n        dev = hw_device_get_by_type(config->device_type);\n        if (dev)\n            return dev;\n    }\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static HWDevice *hw_device_match_by_codec(const AVCodec *codec)\n{\n    const AVCodecHWConfig *config;\n    HWDevice *dev;\n    int i;\n    for (i = 0;; i++) {\n        config = avcodec_get_hw_config(codec, i);\n        if (!config)\n            return NULL;\n        if (!(config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX))\n            continue;\n        dev = hw_device_get_by_type(config->device_type);\n        if (dev)\n            return dev;\n    }\n}"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Function, IntSort, Solver\n    \n    ectx = Int('ectx')\n    num_encoders = Function('OSSL_ENCODER_CTX_get_num_encoders', IntSort(), IntSort())\n    \n    s = Solver()\n    s.add(ectx == 0)\n    s.add(num_encoders(ectx) != 0)\n    \n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ectx () Int)\n(declare-fun OSSL_ENCODER_CTX_get_num_encoders (Int) Int)\n(assert\n (= ectx 0))\n(assert\n (let ((?x25 (OSSL_ENCODER_CTX_get_num_encoders ectx)))\n(and (distinct ?x25 0) true)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

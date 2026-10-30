@@ -1,0 +1,45 @@
+{
+  "call_id": 90,
+  "sample_id": "NPD/codeql/kernel69:row=16:index=34",
+  "timestamp": "2026-10-26T00:29:54.601921+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(tb[IFLA_INET6_ADDR_GEN_MODE]) || !(check_addr_gen_mode(mode) < 0)', '!(dev) || !(!idev)']\n        Relevant conditions/variables: [{'condition': 'if (tb[IFLA_INET6_ADDR_GEN_MODE])', 'line_number': 22}, {'condition': 'if (dev)', 'line_number': 27}], idev\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "4e190640-1223-4c45-81e9-c3724860d113",
+  "usage": {
+    "prompt_tokens": 188,
+    "completion_tokens": 404,
+    "total_tokens": 592,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 188
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declarations for the variables involved in the constraints.\n# tb[IFLA_INET6_ADDR_GEN_MODE] is modeled as a boolean flag indicating\n# whether the attribute is present (non-NULL) in the netlink message.\ntb_IFLA_INET6_ADDR_GEN_MODE = Bool('tb_IFLA_INET6_ADDR_GEN_MODE')\n\n# mode is the value extracted from the attribute; modeled as an Int.\nmode = Int('mode')\n\n# check_addr_gen_mode(mode) < 0 is modeled as an uninterpreted predicate\n# since its exact semantics are not provided. We only need to know whether\n# it returns a negative value.\ncheck_addr_gen_mode_neg = Bool('check_addr_gen_mode_neg')\n\n# dev and idev are pointers; modeled as booleans (non-NULL == True).\ndev = Bool('dev')\nidev = Bool('idev')\n\ns = Solver()\n\n# Constraint 1: !(tb[IFLA_INET6_ADDR_GEN_MODE]) || !(check_addr_gen_mode(mode) < 0)\n# Included because it guards the condition `if (tb[IFLA_INET6_ADDR_GEN_MODE])`\n# at line 22: the attribute must be absent OR the mode check must not fail.\ns.add(Or(Not(tb_IFLA_INET6_ADDR_GEN_MODE), Not(check_addr_gen_mode_neg)))\n\n# Constraint 2: !(dev) || !(!idev)\n# Included because it guards the condition `if (dev)` at line 27:\n# if dev is non-NULL, then idev must also be non-NULL (i.e., !idev is false).\ns.add(Or(Not(dev), idev))\n\n# Print the resulting script's constraints for verification.\nprint(s)\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.6980874999999287,
+  "cost_upper_bound_cny": 0.003608
+}

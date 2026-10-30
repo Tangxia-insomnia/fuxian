@@ -1,0 +1,45 @@
+{
+  "call_id": 487,
+  "sample_id": "NPD/codeql/libav:row=21:index=28",
+  "timestamp": "2026-10-26T00:53:07.274259+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: int ff_h264_build_ref_list(const H264Context *h, H264SliceContext *sl)\n{\n    int list, index, pic_structure;\n\n    print_short_term(h);\n    print_long_term(h);\n\n    h264_initialise_ref_list(h, sl);\n\n    for (list = 0; list < sl->list_count; list++) {\n        int pred = sl->curr_pic_num;\n\n        for (index = 0; index < sl->nb_ref_modifications[list]; index++) {\n            unsigned int modification_of_pic_nums_idc = sl->ref_modifications[list][index].op;\n            unsigned int                          val = sl->ref_modifications[list][index].val;\n            unsigned int pic_id;\n            int i;\n            H264Picture *ref = NULL;\n\n            switch (modification_of_pic_nums_idc) {\n            case 0:\n            case 1: {\n                const unsigned int abs_diff_pic_num = val + 1;\n                int frame_num;\n\n                if (abs_diff_pic_num > sl->max_pic_num) {\n                    av_log(h->avctx, AV_LOG_ERROR,\n                           \"abs_diff_pic_num overflow\\n\");\n                    return AVERROR_INVALIDDATA;\n                }\n\n                if (modification_of_pic_nums_idc == 0)\n                    pred -= abs_diff_pic_num;\n                else\n                    pred += abs_diff_pic_num;\n                pred &= sl->max_pic_num - 1;\n\n                frame_num = pic_num_extract(h, pred, &pic_structure);\n\n                for (i = h->short_ref_count - 1; i >= 0; i--) {\n                    ref = h->short_ref[i];\n                    assert(ref->reference);\n                    assert(!ref->long_ref);\n                    if (ref->frame_num == frame_num &&\n                        (ref->reference & pic_structure))\n                        break;\n                }\n                if (i >= 0)\n                    ref->pic_id = pred;\n                break;\n            }\n            case 2: {\n                int long_idx;\n                pic_id = val; // long_term_pic_idx\n\n                long_idx = pic_num_extract(h, pic_id, &pic_structure);\n\n                if (long_idx > 31) {\n                    av_log(h->avctx, AV_LOG_ERROR,\n                           \"long_term_pic_idx overflow\\n\");\n                    return AVERROR_INVALIDDATA;\n                }\n                ref = h->long_ref[long_idx];\n                assert(!(ref && !ref->reference));\n                if (ref && (ref->reference & pic_structure)) {\n                    ref->pic_id = pic_id;\n                    assert(ref->long_ref);\n                    i = 0;\n                } else {\n                    i = -1;\n                }\n                break;\n            }\n            }\n\n            if (i < 0) {\n                av_log(h->avctx, AV_LOG_ERROR,\n                       \"reference picture missing during reorder\\n\");\n                memset(&sl->ref_list[list][index], 0, sizeof(sl->ref_list[0][0])); // FIXME\n            } else {\n                for (i = index; i + 1 < sl->ref_count[list]; i++) {\n                    if (sl->ref_list[list][i].parent &&\n                        ref->long_ref == sl->ref_list[list][i].parent->long_ref &&\n                        ref->pic_id   == sl->ref_list[list][i].pic_id)\n                        break;\n                }\n                for (; i > index; i--) {\n                    sl->ref_list[list][i] = sl->ref_list[list][i - 1];\n                }\n                ref_from_h264pic(&sl->ref_list[list][index], ref);\n                if (FIELD_PICTURE(h)) {\n                    pic_as_field(&sl->ref_list[list][index], pic_structure);\n                }\n            }\n        }\n    }\n    for (list = 0; list < sl->list_count; list++) {\n        for (index = 0; index < sl->ref_count[list]; index++) {\n            if (!sl->ref_list[list][index].parent) {\n                av_log(h->avctx, AV_LOG_ERROR, \"Missing reference picture\\n\");\n                if (index == 0 || h->avctx->err_recognition & AV_EF_EXPLODE)\n                    return AVERROR_INVALIDDATA;\n                else\n                    sl->ref_list[list][index] = sl->ref_list[list][index - 1];\n            }\n        }\n    }\n\n    if (FRAME_MBAFF(h))\n        h264_fill_mbaff_ref_list(sl);\n\n    return 0;\n}\n        - Target variables: [], ref\n        - Constraints: ['!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++)', '!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++) || !(long_idx > 31)', '!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++)', '!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++) || !(i = h->short_ref_count - 1; i >= 0; i--) || !(ref->frame_num == frame_num && (ref->reference & pic_structure))', '!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++) || !(abs_diff_pic_num > sl->max_pic_num)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "48c31802-fdc7-40ea-a248-61b099e9607a",
+  "usage": {
+    "prompt_tokens": 1327,
+    "completion_tokens": 83,
+    "total_tokens": 1410,
+    "prompt_tokens_details": {
+      "cached_tokens": 896
+    },
+    "prompt_cache_hit_tokens": 896,
+    "prompt_cache_miss_tokens": 431
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++) || !(i = h->short_ref_count - 1; i >= 0; i--) || !(ref->frame_num == frame_num && (ref->reference & pic_structure))\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.9194775999994818,
+  "cost_upper_bound_cny": 0.003318
+}

@@ -1,0 +1,7 @@
+{
+  "event_id": 4,
+  "level": 0,
+  "source": "def check_constraints():\n    import z3\n\n    sta = z3.Int('sta')\n    ap_sta = z3.Int('ap_sta')\n\n    s = z3.Solver()\n\n    s.add(sta == 0)\n    s.add(z3.Not(z3.Or(sta == 0, ap_sta == 0)))\n\n    return s.check() == z3.sat",
+  "ok": false,
+  "error": "ValueError: ValueError: Generated code may only import z3"
+}

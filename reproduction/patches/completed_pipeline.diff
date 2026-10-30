@@ -1,0 +1,209 @@
+--- upstream/llm4pfa/feasibility_analysis_pipeline.py
++++ completed_function_bodies.py
+@@ -1,40 +1,3 @@
+-import json
+-import pdb
+-
+-from util.path_util import PathUtil
+-from util.data_utils import DataUtils
+-from LLM4Detection.agent_simple import tool_utils
+-from LLM4Detection.agent_simple.tool_definion import tools
+-from tqdm import tqdm
+-from z3 import *
+-from util import extract_util_plus
+-from LLM4Detection.agent.tool_utils import is_direct_dereference, extract_function_name, \
+-    get_dereferenced_locations_plus, get_param_name
+-from LLM4Detection.agent_simple.prompt_template import Prompt
+-from LLM4Detection.baseline_models.model import ModelFactory
+-
+-import re
+-
+-code_data_path = PathUtil.codeql_result_data("kernel69_nullpointer_process", "json")
+-code_context_path = PathUtil.codeql_result_data("kernel69_nullpointer_gpt4omini_dataflow_function_cache_1017", "json")
+-constraints_path = PathUtil.codeql_result_data("kernel69_nullpointer_gpt4omini_constrain_cache_1010", "json")
+-output_path = PathUtil.output("codeql_linux_nullpointer_qwen_124_8", "json")
+-func_body_cache_path = PathUtil.processed_data(f"function_cache_gpt-4omini_linux", "json")
+-result_memory_cache_path = PathUtil.processed_data(f"result_memory_cache", "json")
+-codeql_dereferenced_cache = PathUtil.codeql_dereferenced_cache()
+-
+-function_cache = DataUtils.get_cache(func_body_cache_path)
+-result_memory_cache = DataUtils.get_cache(result_memory_cache_path)
+-code_context_info = DataUtils.load_json(code_context_path)
+-
+-prompt = Prompt()
+-
+-start_num = 0
+-end_num = 70
+-model_name = "gpt"
+-
+-model = ModelFactory._models[model_name]()
+-
+ def get_context_function_body_with_tool(tool_call, function_name_list, function_body_list):
+     function_name = tool_call.function.name
+     function_args = json.loads(tool_call.function.arguments)
+@@ -164,10 +127,11 @@
+     goto_label = ""               
+     z3_constraints = ""
+ 
+-    for item_constraint in target_conditions:
++    # Completion fix: do not remove items while iterating; label is text.
++    for item_constraint in list(target_conditions):
+         if "goto" in item_constraint["condition"] or "return" in item_constraint["condition"]:
+             target_conditions.remove(item_constraint)
+-            goto_label = item_constraint
++            goto_label = item_constraint["condition"].removeprefix("goto ").strip()
+ 
+         
+     # generate z3 template
+@@ -181,7 +145,7 @@
+ 
+     # symbolic range reasoning with LLM
+ 
+-    target_conditions = [item for item in target_conditions if "while" not in item]
++    target_conditions = [item for item in target_conditions if "while" not in item["condition"]]
+ 
+     if target_conditions != []:
+         for item_constraint in target_conditions:
+@@ -245,8 +209,7 @@
+         while (cnt <= 3):
+             cnt += 1
+             try:
+-                exec(final_response, globals())
+-                result = check_constraints()
++                result = solve_z3(final_response)
+                 print("dereference constraint:", result)
+                 if not result:
+                     gpt_result = {
+@@ -265,6 +228,8 @@
+             except Exception as e:
+                 print(e)
+                 # pdb.set_trace()
++                if cnt >= 4:
++                    raise RuntimeError("Z3 repair attempts exhausted: " + str(e)) from e
+                 messages.append({"role": "assistant", "content": final_response})
+                 messages.append({"role": "user", "content": prompt.re_generate_prompt(str(e))})
+                 final_response = get_answer_from_model_without_tool(messages, model_name)
+@@ -343,10 +308,7 @@
+         while (cnt <= 3):
+             cnt += 1
+             try:
+-                exec(final_response, globals())
+-                # pdb.set_trace()
+-                # 调用函数
+-                result = check_constraints()
++                result = solve_z3(final_response)
+                 print("goto result:", result)
+                 # pdb.set_trace()
+ 
+@@ -365,32 +327,26 @@
+             except Exception as e:
+                 print(e)
+                 # pdb.set_trace()
++                if cnt >= 4:
++                    raise RuntimeError("Z3 repair attempts exhausted: " + str(e)) from e
+                 messages.append({"role": "assistant", "content": final_response})
+                 messages.append({"role": "user", "content": prompt.re_generate_prompt(str(e))})
+                 final_response = get_answer_from_model_without_tool(messages, model_name)
+                 final_response = process_final_response(final_response)
+                 response_list.append("fix final z3 script: " + final_response)
+ 
+-    # get next function information in the call trace
+-
+-    try:
+-        new_function_name = extract_function_name(var_name, loc_text)
+-        # if new_function_name in result_memory_cache:
+-
+-        new_function_body = code_context_info[original_index]["function_call"][level + 1]
+-
+-        function_body_list.append(new_function_body)
+-        function_name_list.append(new_function_name)
+-
+-    except Exception as e:
+-        gpt_result = {
+-            "response": response_list,
+-            "function_name_list": function_name_list,
+-            "function_body_list": function_body_list,
+-            "result": True
+-        }
+-
+-        return gpt_result
++    # Completion fix: even an unconstrained path must execute its base SMT query.
++    if target_conditions == [] and early_jump_constraints_list == []:
++        solve_base_query(response_message_target)
++
++    # Explicit recovered chain end; missing context is never silently feasible.
++    next_info = get_next_frame(original_index, level)
++    if next_info is None:
++        return {"response": response_list, "function_name_list": function_name_list,
++                "function_body_list": function_body_list, "result": True}
++    new_function_name, new_function_body = next_info
++    function_body_list.append(new_function_body)
++    function_name_list.append(new_function_name)
+ 
+     # get new sink point in the next function
+ 
+@@ -417,14 +373,14 @@
+         return gpt_result
+ 
+ 
+-    args = extract_function_arguments(new_function_name)
++    args = extract_function_arguments(loc_text)
+     if var_name in args:
+         args.remove(var_name)
+     new_target_condition = []
+     new_early_jump_constraints = []
+     for item in args:
+         for con1 in target_conditions:
+-            if item in con1:
++            if item in con1["condition"]:
+                 new_target_condition.append(con1)
+         for con2 in early_jump_constraints_list:
+             if item in con2:
+@@ -432,47 +388,3 @@
+ 
+     return data_flow_analysis_pipeline(inner_var_name, deref_line, new_function_body, response_list,function_name_list, function_body_list,target_index,file_path,derefere_cache, new_target_condition, new_early_jump_constraints, level+1, idx,original_index)
+ 
+-def detect_pipeline():
+-    code_data = DataUtils.load_json(code_data_path)
+-    constraints_data = DataUtils.load_json(constraints_path)
+-
+-    gpt_result = []
+-
+-    if PathUtil.exists(output_path):
+-        gpt_result = DataUtils.load_json(output_path)
+-
+-    if PathUtil.exists(codeql_dereferenced_cache):
+-        derefere_cache = DataUtils.load_json(codeql_dereferenced_cache)
+-
+-    cnt = start_num
+-    for item in tqdm(code_data[start_num:end_num]):
+-
+-        try:
+-            function_name_list = []
+-            function_body_list = []
+-            response_list = []
+-            var_name = item['var_name']
+-            loc_text = item["location"]["context"]["snippet"]["text"]
+-            target_index = item["location"]["region"]["startLine"]
+-            file_path = "/home/zqc/ozy/project/BDCodeQL/linux-6.9.6/" + item["location"]["file_path"]
+-            code_snippet = item["function_code"]
+-            original_index = cnt
+-
+-            response = data_flow_analysis_pipeline(var_name, loc_text, code_snippet, response_list, function_name_list,function_body_list, target_index, file_path, derefere_cache,constraints_data[cnt]["target_conditions"], constraints_data[cnt]["early_jump_constraints"], 0, cnt,original_index)
+-            cnt += 1
+-
+-        except Exception as e:
+-            print(e)
+-            response = {}
+-            response["result"] = str(e)
+-            cnt += 1
+-        response["code_snippet"] = code_snippet
+-        response["var_name"] = var_name
+-        response["loc_text"] = loc_text
+-        response["index"] = cnt-1
+-        gpt_result.append(response)
+-        DataUtils.save_json(output_path, gpt_result)
+-
+-
+-if __name__ == '__main__':
+-    detect_pipeline()

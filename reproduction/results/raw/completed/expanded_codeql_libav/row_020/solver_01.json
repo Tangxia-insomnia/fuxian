@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, BitVec, Bool, And, Or, Not, Solver, sat\n\n    # Base script constraints\n    ref = Int('ref')\n\n    # Variables from constraint set 2\n    ref_frame_num = Int('ref_frame_num')\n    ref_reference = BitVec('ref_reference', 32)\n    frame_num = Int('frame_num')\n    pic_structure = BitVec('pic_structure', 32)\n\n    # Negated loop guards (unconstrained w.r.t. ref)\n    not_list_loop = Bool('not_list_loop')\n    not_index_loop = Bool('not_index_loop')\n    not_i_loop = Bool('not_i_loop')\n\n    # ref-related conjunct\n    ref_matches = And(\n        ref_frame_num == frame_num,\n        (ref_reference & pic_structure) != 0\n    )\n\n    # Full constraint from set 2\n    constraint = Or(\n        not_list_loop,\n        not_index_loop,\n        not_i_loop,\n        Not(ref_matches)\n    )\n\n    s = Solver()\n    s.add(ref == 0)\n    s.add(constraint)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ref () Int)\n(declare-fun pic_structure () (_ BitVec 32))\n(declare-fun ref_reference () (_ BitVec 32))\n(declare-fun frame_num () Int)\n(declare-fun ref_frame_num () Int)\n(declare-fun not_i_loop () Bool)\n(declare-fun not_index_loop () Bool)\n(declare-fun not_list_loop () Bool)\n(assert\n (= ref 0))\n(assert\n (let (($x13 (= ref_frame_num frame_num)))\n(let (($x17 (and $x13 (and (distinct (bvand ref_reference pic_structure) (_ bv0 32)) true))))\n(or not_list_loop not_index_loop not_i_loop (not $x17)))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

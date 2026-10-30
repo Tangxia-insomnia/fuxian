@@ -1,0 +1,35 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "avi_write_idx1",
+      "var_name": "ie",
+      "target": "avio_wl32(pb, ie->flags);",
+      "code": "static int avi_write_idx1(AVFormatContext *s)\n{\n    AVIOContext *pb = s->pb;\n    AVIContext *avi = s->priv_data;\n    int64_t idx_chunk;\n    int i;\n    char tag[5];\n\n    if (pb->seekable & AVIO_SEEKABLE_NORMAL) {\n        AVIStream *avist;\n        AVIIentry *ie = 0, *tie;\n        int empty, stream_id = -1;\n\n        idx_chunk = ff_start_tag(pb, \"idx1\");\n        for (i = 0; i < s->nb_streams; i++) {\n            avist        = s->streams[i]->priv_data;\n            avist->entry = 0;\n        }\n\n        do {\n            empty = 1;\n            for (i = 0; i < s->nb_streams; i++) {\n                avist = s->streams[i]->priv_data;\n                if (avist->indexes.entry <= avist->entry)\n                    continue;\n\n                tie = avi_get_ientry(&avist->indexes, avist->entry);\n                if (empty || tie->pos < ie->pos) {\n                    ie        = tie;\n                    stream_id = i;\n                }\n                empty = 0;\n            }\n            if (!empty) {\n                avist = s->streams[stream_id]->priv_data;\n                avi_stream2fourcc(tag, stream_id,\n                                  s->streams[stream_id]->codecpar->codec_type);\n                ffio_wfourcc(pb, tag);\n                avio_wl32(pb, ie->flags);\n                avio_wl32(pb, ie->pos);\n                avio_wl32(pb, ie->len);\n                avist->entry++;\n            }\n        } while (!empty);\n        ff_end_tag(pb, idx_chunk);\n\n        avi_write_counters(s, avi->riff_id);\n    }\n    return 0;\n}",
+      "body_sha256": "191791bd2b9d8d74c4a9ae5d3b62d65ce7a130ffd4943881e868c4d1a5bcecca",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "avio_wl32(pb, ie->flags);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int avi_write_idx1(AVFormatContext *s)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static int avi_write_idx1(AVFormatContext *s)\n{\n    AVIOContext *pb = s->pb;\n    AVIContext *avi = s->priv_data;\n    int64_t idx_chunk;\n    int i;\n    char tag[5];\n\n    if (pb->seekable & AVIO_SEEKABLE_NORMAL) {\n        AVIStream *avist;\n        AVIIentry *ie = 0, *tie;\n        int empty, stream_id = -1;\n\n        idx_chunk = ff_start_tag(pb, \"idx1\");\n        for (i = 0; i < s->nb_streams; i++) {\n            avist        = s->streams[i]->priv_data;\n            avist->entry = 0;\n        }\n\n        do {\n            empty = 1;\n            for (i = 0; i < s->nb_streams; i++) {\n                avist = s->streams[i]->priv_data;\n                if (avist->indexes.entry <= avist->entry)\n                    continue;\n\n                tie = avi_get_ientry(&avist->indexes, avist->entry);\n                if (empty || tie->pos < ie->pos) {\n                    ie        = tie;\n                    stream_id = i;\n                }\n                empty = 0;\n            }\n            if (!empty) {\n                avist = s->streams[stream_id]->priv_data;\n                avi_stream2fourcc(tag, stream_id,\n                                  s->streams[stream_id]->codecpar->codec_type);\n                ffio_wfourcc(pb, tag);\n                avio_wl32(pb, ie->flags);\n                avio_wl32(pb, ie->pos);\n                avio_wl32(pb, ie->len);\n                avist->entry++;\n            }\n        } while (!empty);\n        ff_end_tag(pb, idx_chunk);\n\n        avi_write_counters(s, avi->riff_id);\n    }\n    return 0;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int avi_write_idx1(AVFormatContext *s)\n{\n    AVIOContext *pb = s->pb;\n    AVIContext *avi = s->priv_data;\n    int64_t idx_chunk;\n    int i;\n    char tag[5];\n\n    if (pb->seekable & AVIO_SEEKABLE_NORMAL) {\n        AVIStream *avist;\n        AVIIentry *ie = 0, *tie;\n        int empty, stream_id = -1;\n\n        idx_chunk = ff_start_tag(pb, \"idx1\");\n        for (i = 0; i < s->nb_streams; i++) {\n            avist        = s->streams[i]->priv_data;\n            avist->entry = 0;\n        }\n\n        do {\n            empty = 1;\n            for (i = 0; i < s->nb_streams; i++) {\n                avist = s->streams[i]->priv_data;\n                if (avist->indexes.entry <= avist->entry)\n                    continue;\n\n                tie = avi_get_ientry(&avist->indexes, avist->entry);\n                if (empty || tie->pos < ie->pos) {\n                    ie        = tie;\n                    stream_id = i;\n                }\n                empty = 0;\n            }\n            if (!empty) {\n                avist = s->streams[stream_id]->priv_data;\n                avi_stream2fourcc(tag, stream_id,\n                                  s->streams[stream_id]->codecpar->codec_type);\n                ffio_wfourcc(pb, tag);\n                avio_wl32(pb, ie->flags);\n                avio_wl32(pb, ie->pos);\n                avio_wl32(pb, ie->len);\n                avist->entry++;\n            }\n        } while (!empty);\n        ff_end_tag(pb, idx_chunk);\n\n        avi_write_counters(s, avi->riff_id);\n    }\n    return 0;\n}"
+  ]
+}

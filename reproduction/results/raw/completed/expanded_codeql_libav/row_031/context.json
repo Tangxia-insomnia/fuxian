@@ -1,0 +1,43 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "vp8_find_free_buffer",
+      "var_name": "frame",
+      "target": "if (frame->tf.f->buf[0])",
+      "code": "static VP8Frame *vp8_find_free_buffer(VP8Context *s)\n{\n    VP8Frame *frame = NULL;\n    int i;\n\n    // find a free buffer\n    for (i = 0; i < 5; i++)\n        if (&s->frames[i] != s->framep[VP56_FRAME_CURRENT]  &&\n            &s->frames[i] != s->framep[VP56_FRAME_PREVIOUS] &&\n            &s->frames[i] != s->framep[VP56_FRAME_GOLDEN]   &&\n            &s->frames[i] != s->framep[VP56_FRAME_GOLDEN2]) {\n            frame = &s->frames[i];\n            break;\n        }\n    if (i == 5) {\n        av_log(s->avctx, AV_LOG_FATAL, \"Ran out of free frames!\\n\");\n        abort();\n    }\n    if (frame->tf.f->buf[0])\n        vp8_release_frame(s, frame);\n\n    return frame;\n}",
+      "body_sha256": "de96a5619b2919eab1a9eb266dcafe4c1d6ba0d4503f52373a1d782d70d75017",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (frame->tf.f->buf[0])",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static VP8Frame *vp8_find_free_buffer(VP8Context *s)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "break",
+            "condition": [
+              "i = 0; i < 5; i++",
+              "&s->frames[i] != s->framep[VP56_FRAME_CURRENT]  && &s->frames[i] != s->framep[VP56_FRAME_PREVIOUS] && &s->frames[i] != s->framep[VP56_FRAME_GOLDEN]   && &s->frames[i] != s->framep[VP56_FRAME_GOLDEN2]"
+            ]
+          }
+        ],
+        "filter_function_code": "static VP8Frame *vp8_find_free_buffer(VP8Context *s)\n{\n    VP8Frame *frame = NULL;\n    int i;\n\n    // find a free buffer\n    for (i = 0; i < 5; i++)\n        if (&s->frames[i] != s->framep[VP56_FRAME_CURRENT]  &&\n            &s->frames[i] != s->framep[VP56_FRAME_PREVIOUS] &&\n            &s->frames[i] != s->framep[VP56_FRAME_GOLDEN]   &&\n            &s->frames[i] != s->framep[VP56_FRAME_GOLDEN2]) {\n            frame = &s->frames[i];\n            break;\n        }\n    if (i == 5) {\n        av_log(s->avctx, AV_LOG_FATAL, \"Ran out of free frames!\\n\");\n        abort();\n    }\n    if (frame->tf.f->buf[0])\n        vp8_release_frame(s, frame);\n\n    return frame;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static VP8Frame *vp8_find_free_buffer(VP8Context *s)\n{\n    VP8Frame *frame = NULL;\n    int i;\n\n    // find a free buffer\n    for (i = 0; i < 5; i++)\n        if (&s->frames[i] != s->framep[VP56_FRAME_CURRENT]  &&\n            &s->frames[i] != s->framep[VP56_FRAME_PREVIOUS] &&\n            &s->frames[i] != s->framep[VP56_FRAME_GOLDEN]   &&\n            &s->frames[i] != s->framep[VP56_FRAME_GOLDEN2]) {\n            frame = &s->frames[i];\n            break;\n        }\n    if (i == 5) {\n        av_log(s->avctx, AV_LOG_FATAL, \"Ran out of free frames!\\n\");\n        abort();\n    }\n    if (frame->tf.f->buf[0])\n        vp8_release_frame(s, frame);\n\n    return frame;\n}"
+  ]
+}

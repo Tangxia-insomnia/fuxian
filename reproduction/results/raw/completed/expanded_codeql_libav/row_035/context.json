@@ -1,0 +1,49 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "swap_sample_fmts_on_filter",
+      "var_name": "link",
+      "target": "format = link->out_formats->formats[0];",
+      "code": "static void swap_sample_fmts_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int format, bps;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_formats->nb_formats == 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    format = link->out_formats->formats[0];\n    bps    = av_get_bytes_per_sample(format);\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx = -1, best_score = INT_MIN;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_formats->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_formats->nb_formats; j++) {\n            int out_format = outlink->in_formats->formats[j];\n            int out_bps    = av_get_bytes_per_sample(out_format);\n            int score;\n\n            if (av_get_packed_sample_fmt(out_format) == format ||\n                av_get_planar_sample_fmt(out_format) == format) {\n                best_idx   = j;\n                break;\n            }\n\n            /* for s32 and float prefer double to prevent loss of information */\n            if (bps == 4 && out_bps == 8) {\n                best_idx = j;\n                break;\n            }\n\n            /* prefer closest higher or equal bps */\n            score = -abs(out_bps - bps);\n            if (out_bps >= bps)\n                score += INT_MAX/2;\n\n            if (score > best_score) {\n                best_score = score;\n                best_idx   = j;\n            }\n        }\n        av_assert0(best_idx >= 0);\n        FFSWAP(int, outlink->in_formats->formats[0],\n               outlink->in_formats->formats[best_idx]);\n    }\n}",
+      "body_sha256": "2680e5982eaf997a0ccab4c4a0450f691328e7437b52501788f82e7fcbca8b38",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "format = link->out_formats->formats[0];",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void swap_sample_fmts_on_filter(AVFilterContext *filter)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "i == filter->nb_inputs"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "i = 0; i < filter->nb_inputs; i++",
+              "link->type == AVMEDIA_TYPE_AUDIO && link->out_formats->nb_formats == 1"
+            ]
+          }
+        ],
+        "filter_function_code": "static void swap_sample_fmts_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int format, bps;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_formats->nb_formats == 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    format = link->out_formats->formats[0];\n    bps    = av_get_bytes_per_sample(format);\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx = -1, best_score = INT_MIN;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_formats->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_formats->nb_formats; j++) {\n            int out_format = outlink->in_formats->formats[j];\n            int out_bps    = av_get_bytes_per_sample(out_format);\n            int score;\n\n            if (av_get_packed_sample_fmt(out_format) == format ||\n                av_get_planar_sample_fmt(out_format) == format) {\n                best_idx   = j;\n                break;\n            }\n\n            /* for s32 and float prefer double to prevent loss of information */\n            if (bps == 4 && out_bps == 8) {\n                best_idx = j;\n                break;\n            }\n\n            /* prefer closest higher or equal bps */\n            score = -abs(out_bps - bps);\n            if (out_bps >= bps)\n                score += INT_MAX/2;\n\n            if (score > best_score) {\n                best_score = score;\n                best_idx   = j;\n            }\n        }\n        av_assert0(best_idx >= 0);\n        FFSWAP(int, outlink->in_formats->formats[0],\n               outlink->in_formats->formats[best_idx]);\n    }\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void swap_sample_fmts_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int format, bps;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_formats->nb_formats == 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    format = link->out_formats->formats[0];\n    bps    = av_get_bytes_per_sample(format);\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx = -1, best_score = INT_MIN;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_formats->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_formats->nb_formats; j++) {\n            int out_format = outlink->in_formats->formats[j];\n            int out_bps    = av_get_bytes_per_sample(out_format);\n            int score;\n\n            if (av_get_packed_sample_fmt(out_format) == format ||\n                av_get_planar_sample_fmt(out_format) == format) {\n                best_idx   = j;\n                break;\n            }\n\n            /* for s32 and float prefer double to prevent loss of information */\n            if (bps == 4 && out_bps == 8) {\n                best_idx = j;\n                break;\n            }\n\n            /* prefer closest higher or equal bps */\n            score = -abs(out_bps - bps);\n            if (out_bps >= bps)\n                score += INT_MAX/2;\n\n            if (score > best_score) {\n                best_score = score;\n                best_idx   = j;\n            }\n        }\n        av_assert0(best_idx >= 0);\n        FFSWAP(int, outlink->in_formats->formats[0],\n               outlink->in_formats->formats[best_idx]);\n    }\n}"
+  ]
+}

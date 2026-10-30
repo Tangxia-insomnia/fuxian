@@ -1,0 +1,45 @@
+{
+  "call_id": 477,
+  "sample_id": "NPD/codeql/libav:row=18:index=25",
+  "timestamp": "2026-10-26T00:52:56.155067+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int epic_decode_tile(ePICContext *dc, uint8_t *out, int tile_height,\n                            int tile_width, int stride)\n{\n    int x, y;\n    uint32_t pix;\n    uint32_t *curr_row = NULL, *above_row = NULL, *above2_row;\n\n    for (y = 0; y < tile_height; y++, out += stride) {\n        above2_row = above_row;\n        above_row  = curr_row;\n        curr_row   = (uint32_t *) out;\n\n        for (x = 0, dc->next_run_pos = 0; x < tile_width;) {\n            if (dc->els_ctx.err)\n                return AVERROR_INVALIDDATA; // bail out in the case of ELS overflow\n\n            pix = curr_row[x - 1]; // get W pixel\n\n            if (y >= 1 && x >= 2 &&\n                pix != curr_row[x - 2]  && pix != above_row[x - 1] &&\n                pix != above_row[x - 2] && pix != above_row[x] &&\n                !epic_cache_entries_for_pixel(&dc->hash, pix)) {\n                curr_row[x] = epic_decode_pixel_pred(dc, x, y, curr_row, above_row);\n                x++;\n            } else {\n                int got_pixel, run;\n                dc->stack_pos = 0; // empty stack\n\n                if (y < 2 || x < 2 || x == tile_width - 1) {\n                    run       = 1;\n                    got_pixel = epic_handle_edges(dc, x, y, curr_row, above_row, &pix);\n                } else\n                    got_pixel = epic_decode_run_length(dc, x, y, tile_width,\n                                                       curr_row, above_row,\n                                                       above2_row, &pix, &run);\n\n                if (!got_pixel && !epic_predict_from_NW_NE(dc, x, y, run,\n                                                           tile_width, curr_row,\n                                                           above_row, &pix)) {\n                    uint32_t ref_pix = curr_row[x - 1];\n                    if (!x || !epic_decode_from_cache(dc, ref_pix, &pix)) {\n                        pix = epic_decode_pixel_pred(dc, x, y, curr_row, above_row);\n                        if (x) {\n                            int ret = epic_add_pixel_to_cache(&dc->hash,\n                                                              ref_pix,\n                                                              pix);\n                            if (ret)\n                                return ret;\n                        }\n                    }\n                }\n                for (; run > 0; x++, run--)\n                    curr_row[x] = pix;\n            }\n        }\n    }\n\n    return 0;\n}\n        - Target variables: [], above2_row\n        - Constraints: ['!(y = 0; y < tile_height; y++, out += stride) || !(x = 0, dc->next_run_pos = 0; x < tile_width;) || !(dc->els_ctx.err)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "eeec7854-c788-436f-b168-0dc892f4b6ed",
+  "usage": {
+    "prompt_tokens": 720,
+    "completion_tokens": 5,
+    "total_tokens": 725,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 336
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.5955900000008114,
+  "cost_upper_bound_cny": 0.00148
+}

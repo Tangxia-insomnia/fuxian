@@ -1,0 +1,14 @@
+{
+  "event_id": 3,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n\n    # Base script constraints\n    ectx = Int('ectx')\n    s = Solver()\n    s.add(ectx == 0)\n\n    # Constraint set 2: model get_num_encoders(ectx) as an Int variable\n    # since DeclareSort is not available; use an Int to represent the return value\n    get_num_encoders = Int('OSSL_ENCODER_CTX_get_num_encoders')\n    s.add(get_num_encoders != 0)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ectx () Int)\n(declare-fun OSSL_ENCODER_CTX_get_num_encoders () Int)\n(assert\n (= ectx 0))\n(assert\n (and (distinct OSSL_ENCODER_CTX_get_num_encoders 0) true))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

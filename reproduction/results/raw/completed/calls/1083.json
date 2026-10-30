@@ -1,0 +1,45 @@
+{
+  "call_id": 1083,
+  "sample_id": "NPD/cppcheck/libav:row=8:index=None",
+  "timestamp": "2026-10-26T01:07:05.427339+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int tcp_open(URLContext *h, const char *uri, int flags)\n{\n    struct addrinfo hints = { 0 }, *ai, *cur_ai;\n    int port, fd = -1;\n    TCPContext *s = h->priv_data;\n    const char *p;\n    char buf[256];\n    int ret;\n    char hostname[1024],proto[1024],path[1024];\n    char portstr[10];\n\n    av_url_split(proto, sizeof(proto), NULL, 0, hostname, sizeof(hostname),\n        &port, path, sizeof(path), uri);\n    if (strcmp(proto, \"tcp\"))\n        return AVERROR(EINVAL);\n    if (port <= 0 || port >= 65536) {\n        av_log(h, AV_LOG_ERROR, \"Port missing in uri\\n\");\n        return AVERROR(EINVAL);\n    }\n    p = strchr(uri, '?');\n    if (p) {\n        if (av_find_info_tag(buf, sizeof(buf), \"listen\", p))\n            s->listen = 1;\n        if (av_find_info_tag(buf, sizeof(buf), \"timeout\", p)) {\n            s->timeout = strtol(buf, NULL, 10) * 100;\n        }\n        if (av_find_info_tag(buf, sizeof(buf), \"listen_timeout\", p)) {\n            s->listen_timeout = strtol(buf, NULL, 10);\n        }\n    }\n    if (!s->timeout)\n        s->timeout = h->rw_timeout ? h->rw_timeout / 1000 : 10000;\n    if (h->rw_timeout && s->listen_timeout < 0)\n        s->listen_timeout = h->rw_timeout / 1000;\n    hints.ai_family = AF_UNSPEC;\n    hints.ai_socktype = SOCK_STREAM;\n    snprintf(portstr, sizeof(portstr), \"%d\", port);\n    if (s->listen)\n        hints.ai_flags |= AI_PASSIVE;\n    if (!hostname[0])\n        ret = getaddrinfo(NULL, portstr, &hints, &ai);\n    else\n        ret = getaddrinfo(hostname, portstr, &hints, &ai);\n    if (ret) {\n        av_log(h, AV_LOG_ERROR,\n               \"Failed to resolve hostname %s: %s\\n\",\n               hostname, gai_strerror(ret));\n        return AVERROR(EIO);\n    }\n\n    cur_ai = ai;\n\n    if (s->listen) {\n        while (cur_ai && fd < 0) {\n            fd = ff_socket(cur_ai->ai_family,\n                           cur_ai->ai_socktype,\n                           cur_ai->ai_protocol);\n            if (fd < 0) {\n                ret = ff_neterrno();\n                cur_ai = cur_ai->ai_next;\n            }\n        }\n        if (fd < 0)\n            goto fail1;\n\n        if ((ret = ff_listen_bind(fd, cur_ai->ai_addr, cur_ai->ai_addrlen,\n                                  s->listen_timeout, h)) < 0) {\n            goto fail1;\n        }\n        fd = ret;\n    } else {\n        ret = ff_connect_parallel(ai, s->timeout, 3, h, &fd, NULL, NULL);\n        if (ret < 0)\n            goto fail1;\n    }\n\n    h->is_streamed = 1;\n    s->fd = fd;\n    freeaddrinfo(ai);\n    return 0;\n\n fail1:\n    if (fd >= 0)\n        closesocket(fd);\n    freeaddrinfo(ai);\n    return ret;\n}\n        - Target variables: [], cur_ai\n        - Constraints: ['!(s->listen) || !(fd < 0)', '!(ret)', '!(port <= 0 || port >= 65536)', '!(strcmp(proto, \"tcp\"))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "f8792258-76d0-42d1-898d-3919039df991",
+  "usage": {
+    "prompt_tokens": 947,
+    "completion_tokens": 5,
+    "total_tokens": 952,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 947
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.3792983000003005,
+  "cost_upper_bound_cny": 0.001934
+}

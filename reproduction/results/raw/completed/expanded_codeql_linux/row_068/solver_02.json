@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, Or, sat\n\n    # Variable definitions\n    action_code = Int('action_code')\n    WLAN_TDLS_SETUP_RESPONSE = Int('WLAN_TDLS_SETUP_RESPONSE')\n    sta = Int('sta')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(Or(action_code != WLAN_TDLS_SETUP_RESPONSE, sta == 0))\n\n    # Constraint set 1\n    s.add(sta == 0)\n    s.add(action_code == WLAN_TDLS_SETUP_RESPONSE)\n\n    # Constraint set 2\n    s.add(Or(action_code != WLAN_TDLS_SETUP_RESPONSE, sta != 0))\n\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sta () Int)\n(declare-fun WLAN_TDLS_SETUP_RESPONSE () Int)\n(declare-fun action_code () Int)\n(assert\n (let (($x10 (= sta 0)))\n (let (($x8 (and (distinct action_code WLAN_TDLS_SETUP_RESPONSE) true)))\n (or $x8 $x10))))\n(assert\n (= sta 0))\n(assert\n (= action_code WLAN_TDLS_SETUP_RESPONSE))\n(assert\n (let (($x8 (and (distinct action_code WLAN_TDLS_SETUP_RESPONSE) true)))\n(or $x8 (and (distinct sta 0) true))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

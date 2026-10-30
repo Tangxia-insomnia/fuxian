@@ -1,0 +1,60 @@
+[
+  {
+    "caller": "radix_sort",
+    "callee": "radix_sort_pass",
+    "statement": "radix_sort_pass(tmp, data, size, buckets[0], 0);",
+    "caller_tracked_variable": "tmp",
+    "recorded_callee_tracked_variable": "dst",
+    "callee_parameters": [
+      "dst",
+      "data",
+      "size",
+      "pass"
+    ],
+    "call_candidates": [
+      {
+        "name": "radix_sort_pass",
+        "arguments": [
+          "tmp",
+          "data",
+          "size",
+          "buckets[0]",
+          "0"
+        ],
+        "start": 0,
+        "end": 47,
+        "text": "radix_sort_pass(tmp, data, size, buckets[0], 0)"
+      }
+    ],
+    "audit_note": "Lexical positional check; not a new experiment and not proof of alias/value propagation",
+    "recomputed_tracked_parameter": "dst",
+    "parameter_name_matches_saved_frame": true,
+    "all_positional_pairs": [
+      {
+        "position_zero_based": 0,
+        "argument": "tmp",
+        "parameter": "dst"
+      },
+      {
+        "position_zero_based": 1,
+        "argument": "data",
+        "parameter": "data"
+      },
+      {
+        "position_zero_based": 2,
+        "argument": "size",
+        "parameter": "size"
+      },
+      {
+        "position_zero_based": 3,
+        "argument": "buckets[0]",
+        "parameter": "pass"
+      },
+      {
+        "position_zero_based": 4,
+        "argument": "0",
+        "parameter": null
+      }
+    ]
+  }
+]

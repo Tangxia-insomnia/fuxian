@@ -1,0 +1,49 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "swap_samplerates_on_filter",
+      "var_name": "link",
+      "target": "sample_rate = link->out_samplerates->formats[0];",
+      "code": "static void swap_samplerates_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int sample_rate;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_samplerates->nb_formats== 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    sample_rate = link->out_samplerates->formats[0];\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx, best_diff = INT_MAX;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_samplerates->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_samplerates->nb_formats; j++) {\n            int diff = abs(sample_rate - outlink->in_samplerates->formats[j]);\n\n            if (diff < best_diff) {\n                best_diff = diff;\n                best_idx  = j;\n            }\n        }\n        FFSWAP(int, outlink->in_samplerates->formats[0],\n               outlink->in_samplerates->formats[best_idx]);\n    }\n}",
+      "body_sha256": "dc02806958d2ec4a1e1e7df9384ebfdcefe60795df29254539189ff3c4750a27",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "sample_rate = link->out_samplerates->formats[0];",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void swap_samplerates_on_filter(AVFilterContext *filter)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "i == filter->nb_inputs"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "i = 0; i < filter->nb_inputs; i++",
+              "link->type == AVMEDIA_TYPE_AUDIO && link->out_samplerates->nb_formats== 1"
+            ]
+          }
+        ],
+        "filter_function_code": "static void swap_samplerates_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int sample_rate;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_samplerates->nb_formats== 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    sample_rate = link->out_samplerates->formats[0];\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx, best_diff = INT_MAX;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_samplerates->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_samplerates->nb_formats; j++) {\n            int diff = abs(sample_rate - outlink->in_samplerates->formats[j]);\n\n            if (diff < best_diff) {\n                best_diff = diff;\n                best_idx  = j;\n            }\n        }\n        FFSWAP(int, outlink->in_samplerates->formats[0],\n               outlink->in_samplerates->formats[best_idx]);\n    }\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void swap_samplerates_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int sample_rate;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_samplerates->nb_formats== 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    sample_rate = link->out_samplerates->formats[0];\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx, best_diff = INT_MAX;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_samplerates->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_samplerates->nb_formats; j++) {\n            int diff = abs(sample_rate - outlink->in_samplerates->formats[j]);\n\n            if (diff < best_diff) {\n                best_diff = diff;\n                best_idx  = j;\n            }\n        }\n        FFSWAP(int, outlink->in_samplerates->formats[0],\n               outlink->in_samplerates->formats[best_idx]);\n    }\n}"
+  ]
+}

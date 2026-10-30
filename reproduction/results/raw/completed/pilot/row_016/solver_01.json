@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, And, sat\n    \n    s = Solver()\n    \n    # Variable definitions\n    mode = Int('mode')\n    check_stable_privacy_ret = Int('check_stable_privacy_ret')\n    \n    # Constraint: mode is u8 range and valid (check_addr_gen_mode(mode) >= 0)\n    s.add(mode >= 0)\n    s.add(mode <= 255)\n    \n    # Constraint: check_stable_privacy must not return < 0 to avoid early return\n    s.add(check_stable_privacy_ret >= 0)\n    \n    # Check satisfiability\n    result = s.check()\n    \n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun mode () Int)\n(declare-fun check_stable_privacy_ret () Int)\n(assert\n (>= mode 0))\n(assert\n (<= mode 255))\n(assert\n (>= check_stable_privacy_ret 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

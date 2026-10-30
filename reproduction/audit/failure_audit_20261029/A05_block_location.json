@@ -1,0 +1,26 @@
+{
+  "note": "repo.prepare succeeds; engine.prepare additionally scans conditions and blocks. This is not a demonstrated parameter-position error.",
+  "chain_transition_parameter_check": "sta",
+  "condition_preflight_diagnostic": [
+    {
+      "frame": 0,
+      "function": "ieee80211_mgd_probe_ap_send",
+      "tracked": "sta",
+      "condition": {
+        "condition": "if (dst)",
+        "line_number": 29
+      },
+      "called_function": null
+    },
+    {
+      "frame": 0,
+      "function": "ieee80211_mgd_probe_ap_send",
+      "tracked": "sta",
+      "condition": {
+        "condition": "if (!WARN_ON(!sta))",
+        "line_number": 31
+      },
+      "error": "ContextUnavailable: Tracked value passed via an unsupported compound argument"
+    }
+  ]
+}

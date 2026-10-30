@@ -1,0 +1,45 @@
+{
+  "call_id": 210,
+  "sample_id": "NPD/codeql/kernel69:row=2:index=2",
+  "timestamp": "2026-10-26T00:47:17.598685+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(!rt) || !(IS_ERR(rt))', '!(ip_tunnel_encap(skb, &tunnel->encap, &protocol, &fl4) < 0)', '!(!(tun_info && (tun_info->mode & IP_TUNNEL_INFO_TX) && ip_tunnel_info_af(tun_info) == AF_INET && tun_info->key.u.ipv4.dst) && !(payload_protocol == htons(ETH_P_IP)) && !(payload_protocol == htons(ETH_P_IPV6)))', '!(payload_protocol == htons(ETH_P_IPV6)) || !(do_tx_error_icmp)', '!(payload_protocol == htons(ETH_P_IPV6)) || !(!neigh)', '!(dst == 0) || !(!skb_dst(skb))']\n        Relevant conditions/variables: [{'condition': 'if (!rt)', 'line_number': 111}, {'condition': 'if (use_cache)', 'line_number': 118}], tun_info\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "dfe4ea30-6999-489b-9a39-0aa1ea4604ea",
+  "usage": {
+    "prompt_tokens": 334,
+    "completion_tokens": 1180,
+    "total_tokens": 1514,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 334
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# ---------------------------------------------------------------------------\n# Variable declarations\n# ---------------------------------------------------------------------------\n# rt: pointer returned by a route lookup (e.g. ip_route_output_flow).\n#     Modeled as an uninterpreted integer; 0 means NULL.\nrt = Int('rt')\n\n# IS_ERR(rt): Linux kernel macro that returns true when the pointer value\n#             falls in the error-pointer range (i.e. (unsigned long)ptr >= -4095).\n#             Modeled as an uninterpreted boolean predicate over rt.\nIS_ERR = Function('IS_ERR', IntSort(), BoolSort())\n\n# use_cache: boolean flag controlling whether the cached route is used.\nuse_cache = Bool('use_cache')\n\n# tun_info: tunnel metadata pointer (may be NULL).\ntun_info = Int('tun_info')\n\n# ip_tunnel_encap(...) return value; < 0 indicates failure.\nip_tunnel_encap_ret = Int('ip_tunnel_encap_ret')\n\n# payload_protocol: protocol of the payload (network byte order).\npayload_protocol = Int('payload_protocol')\n\n# htons(ETH_P_IP) and htons(ETH_P_IPV6) as integer constants.\nETH_P_IP = IntVal(0x0800)\nETH_P_IPV6 = IntVal(0x86DD)\n\n# do_tx_error_icmp: boolean flag.\ndo_tx_error_icmp = Bool('do_tx_error_icmp')\n\n# neigh: neighbor entry pointer (may be NULL).\nneigh = Int('neigh')\n\n# dst: destination pointer (may be NULL).\ndst = Int('dst')\n\n# skb_dst(skb): returns the dst attached to the skb (may be NULL).\nskb_dst = Int('skb_dst')\n\n# ---------------------------------------------------------------------------\n# Constraint 1: !(!rt) || !(IS_ERR(rt))\n#   C meaning: rt != NULL  ==>  !IS_ERR(rt)\n#   Relevant to condition `if (!rt)` at line 111: ensures that when rt is\n#   non-NULL it is a valid (non-error) pointer, so the `!rt` branch is the\n#   only path where rt is treated as absent.\n# ---------------------------------------------------------------------------\ns1 = Or(rt == 0, Not(IS_ERR(rt)))\n\n# ---------------------------------------------------------------------------\n# Constraint 2: !(ip_tunnel_encap(...) < 0)\n#   C meaning: ip_tunnel_encap_ret >= 0\n#   Included because the tunnel encap call must succeed for the code path\n#   that reaches the `if (!rt)` / `if (use_cache)` checks to be valid.\n# ---------------------------------------------------------------------------\ns2 = ip_tunnel_encap_ret >= 0\n\n# ---------------------------------------------------------------------------\n# Constraint 3:\n#   !(!(tun_info && (tun_info->mode & IP_TUNNEL_INFO_TX) &&\n#       ip_tunnel_info_af(tun_info) == AF_INET &&\n#       tun_info->key.u.ipv4.dst) &&\n#     !(payload_protocol == htons(ETH_P_IP)) &&\n#     !(payload_protocol == htons(ETH_P_IPV6)))\n#   C meaning: the negated conjunction must be false, i.e. the conjunction\n#   must hold: tun_info is non-NULL, TX mode set, AF_INET, has ipv4 dst,\n#   AND payload_protocol is neither ETH_P_IP nor ETH_P_IPV6.\n#   Relevant because tun_info is one of the tracked variables.\n# ---------------------------------------------------------------------------\n# Abstract the compound tun_info predicate as a single boolean since the\n# internal fields are not otherwise constrained here.\ntun_info_ok = Bool('tun_info_ok')\ns3 = And(\n    tun_info_ok,\n    payload_protocol != ETH_P_IP,\n    payload_protocol != ETH_P_IPV6,\n)\n\n# ---------------------------------------------------------------------------\n# Constraint 4: !(payload_protocol == htons(ETH_P_IPV6)) || !(do_tx_error_icmp)\n#   C meaning: payload_protocol != ETH_P_IPV6  OR  !do_tx_error_icmp\n# ---------------------------------------------------------------------------\ns4 = Or(payload_protocol != ETH_P_IPV6, Not(do_tx_error_icmp))\n\n# ---------------------------------------------------------------------------\n# Constraint 5: !(payload_protocol == htons(ETH_P_IPV6)) || !(!neigh)\n#   C meaning: payload_protocol != ETH_P_IPV6  OR  neigh != NULL\n# ---------------------------------------------------------------------------\ns5 = Or(payload_protocol != ETH_P_IPV6, neigh != 0)\n\n# ---------------------------------------------------------------------------\n# Constraint 6: !(dst == 0) || !(!skb_dst(skb))\n#   C meaning: dst != NULL  ==>  skb_dst != NULL\n# ---------------------------------------------------------------------------\ns6 = Or(dst != 0, skb_dst != 0)\n\n# ---------------------------------------------------------------------------\n# Solve\n# ---------------------------------------------------------------------------\nsolver = Solver()\nsolver.add(s1, s2, s3, s4, s5, s6)\n\nif solver.check() == sat:\n    print(\"SAT\")\n    print(solver.model())\nelse:\n    print(\"UNSAT\")\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 5.157327699999769,
+  "cost_upper_bound_cny": 0.010108
+}

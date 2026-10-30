@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Not, And, sat\n\n    # --- Variables from base script ---\n    link = Int('link')\n\n    # --- Variables from constraint set 2 ---\n    link_type = Int('link_type')\n    link_out_channel_layouts_nb_channel_layouts = Int(\n        'link_out_channel_layouts_nb_channel_layouts'\n    )\n    AVMEDIA_TYPE_AUDIO = Int('AVMEDIA_TYPE_AUDIO')\n\n    s = Solver()\n\n    # --- Base script constraint ---\n    s.add(link == 0)\n\n    # --- Constraint set 2 constraint ---\n    s.add(Not(And(\n        link_type == AVMEDIA_TYPE_AUDIO,\n        link_out_channel_layouts_nb_channel_layouts == 1\n    )))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun link () Int)\n(declare-fun link_out_channel_layouts_nb_channel_layouts () Int)\n(declare-fun AVMEDIA_TYPE_AUDIO () Int)\n(declare-fun link_type () Int)\n(assert\n (= link 0))\n(assert\n (let (($x31 (and (= link_type AVMEDIA_TYPE_AUDIO) (= link_out_channel_layouts_nb_channel_layouts 1))))\n(not $x31)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

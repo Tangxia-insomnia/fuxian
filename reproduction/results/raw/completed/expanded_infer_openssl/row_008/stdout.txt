@@ -1,0 +1,89 @@
+```python
+rh_item=Int('rh_item')
+s.add(rh_item == 0)
+```
+```json
+["!(rh_item == item) || !(item->next_by_srt_blinded != NULL) || !(!srtm_check_lh(srtm, srtm->items_rev))"]
+```
+```python
+# Z3 script converting the C constraint to SMT-LIB via Z3 Python API
+#
+# Original C constraint:
+#   !(rh_item == item) || !(item->next_by_srt_blinded != NULL) || !(!srtm_check_lh(srtm, srtm->items_rev))
+#
+# Relevant variables/conditions: rh_item
+#
+# Notes on conversion:
+#   - The constraint is a disjunction of three negated sub-conditions.
+#   - Only `rh_item` is a named relevant variable; the other terms involve
+#     pointer dereferences and a function call (srtm_check_lh) that cannot be
+#     modeled directly in Z3. We therefore introduce uninterpreted boolean
+#     predicates to represent them, preserving the logical structure.
+#   - C-style pointer comparisons are converted to boolean predicates:
+#       item->next_by_srt_blinded != NULL  ->  next_by_srt_blinded_nonnull
+#       srtm_check_lh(srtm, srtm->items_rev) -> srtm_check_lh_result
+#   - `!(rh_item == item)` is modeled as `rh_item != item` where `item` is
+#     treated as an uninterpreted symbolic value (since only rh_item is
+#     specified as relevant, `item` is kept as an opaque symbol).
+
+from z3 import *
+
+# --- Declarations ---
+# rh_item: the relevant condition/variable (modeled as an uninterpreted Int)
+rh_item = Int('rh_item')
+
+# item: the value rh_item is compared against (opaque symbol)
+item = Int('item')
+
+# Boolean abstraction for `item->next_by_srt_blinded != NULL`
+next_by_srt_blinded_nonnull = Bool('next_by_srt_blinded_nonnull')
+
+# Boolean abstraction for `srtm_check_lh(srtm, srtm->items_rev)`
+srtm_check_lh_result = Bool('srtm_check_lh_result')
+
+# --- Solver ---
+s = Solver()
+
+# Constraint:
+#   !(rh_item == item) || !(item->next_by_srt_blinded != NULL) || !(!srtm_check_lh(...))
+# which simplifies to:
+#   (rh_item != item) || !next_by_srt_blinded_nonnull || srtm_check_lh_result
+#
+# Included because it is the sole constraint referencing the relevant
+# variable `rh_item`.
+s.add(Or(
+    rh_item != item,                    # !(rh_item == item)
+    Not(next_by_srt_blinded_nonnull),   # !(item->next_by_srt_blinded != NULL)
+    srtm_check_lh_result                # !(!srtm_check_lh(...))
+))
+
+# --- Output ---
+print(s)
+print("Check:", s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, sat
+
+    # --- Declarations ---
+    rh_item = Int('rh_item')
+    item = Int('item')
+    next_by_srt_blinded_nonnull = Bool('next_by_srt_blinded_nonnull')
+    srtm_check_lh_result = Bool('srtm_check_lh_result')
+
+    # --- Solver ---
+    s = Solver()
+
+    # Base constraint
+    s.add(rh_item == 0)
+
+    # Constraint set 2
+    s.add(Or(
+        rh_item != item,
+        Not(next_by_srt_blinded_nonnull),
+        srtm_check_lh_result
+    ))
+
+    return s.check() == sat
+```
+goto result: True

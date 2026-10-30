@@ -1,0 +1,172 @@
+```python
+yuv_line=Int('yuv_line')
+s.add(yuv_line == 0)
+```
+```json
+["!(is_yuv) || !(!yuv_line)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# is_yuv: boolean flag indicating YUV format
+# yuv_line: pointer-like variable; in C, !yuv_line means yuv_line == 0 (NULL)
+is_yuv = Bool('is_yuv')
+yuv_line = Int('yuv_line')  # modeled as integer; 0 represents NULL
+
+# Constraint: !(is_yuv) || !(!yuv_line)
+# In C: !is_yuv || !(!yuv_line)
+#   !is_yuv        -> Not(is_yuv)
+#   !yuv_line      -> yuv_line == 0
+#   !(!yuv_line)   -> Not(yuv_line == 0)  i.e. yuv_line != 0
+# So the constraint is: (Not(is_yuv)) Or (yuv_line != 0)
+# This is included because it is the only constraint affecting the specified variables.
+solver = Solver()
+solver.add(Or(Not(is_yuv), yuv_line != 0))
+
+# Check satisfiability and print result
+print(solver.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not
+    
+    # Variables from base script and constraint set 2
+    yuv_line = Int('yuv_line')
+    is_yuv = Bool('is_yuv')
+    
+    solver = Solver()
+    
+    # Base script constraint
+    solver.add(yuv_line == 0)
+    
+    # Constraint set 2 constraint
+    solver.add(Or(Not(is_yuv), yuv_line != 0))
+    
+    return solver.check() == sat
+```
+goto result: True
+```python
+src=Int('src')
+s.add(src == 0)
+```
+Let's go through this step by step.
+
+**Step 1 – Understanding the code and target variables**
+
+We have the function `encode_strip` with a `switch` on `compr`.  
+Target variables given: `[]` (empty) and `src`.
+
+The constraints given are:
+1. `!(check_size(s, n))`
+2. `!(compress(dst, &zlen, src, n) != Z_OK)`
+
+**Step 2 – Filter constraints affecting reachability**
+
+- Constraint 1: `!(check_size(s, n))` — This appears in the `TIFF_RAW` case. If `check_size` returns true, the function returns early with `AVERROR(EINVAL)`. So to reach `memcpy(dst, src, n)`, we need `check_size(s, n)` to be false, i.e., `!(check_size(s, n))` must hold. This affects reachability of the `memcpy` line, which uses `src`.
+
+- Constraint 2: `!(compress(dst, &zlen, src, n) != Z_OK)` — This is in the `TIFF_DEFLATE`/`TIFF_ADOBE_DEFLATE` case. If `compress` fails (returns not `Z_OK`), the function returns early. To reach `return zlen;`, we need `compress(...) == Z_OK`, i.e., `!(compress(...) != Z_OK)`. This also involves `src` as an argument.
+
+Both constraints involve `src` (directly or indirectly as an argument to functions that use it). The target list includes `src`, so both constraints are relevant to `src`'s reachability in their respective branches.
+
+**Step 3 – Include only constraints involving target variables**
+
+- Constraint 1 involves `src`? Indirectly: `check_size(s, n)` doesn't take `src`, but it's a guard before `memcpy(dst, src, n)`. The constraint is about reaching the line that uses `src`. Since `src` is a target variable, and this constraint controls whether we reach the `src` usage, it's relevant.
+
+- Constraint 2 involves `src` directly as an argument to `compress`. So it's relevant.
+
+Both constraints involve target variable `src` (directly or as a guard for its use).
+
+**Step 4 – Verify filtered constraints step by step**
+
+- Constraint 1: `!(check_size(s, n))` — needed to avoid early return in `TIFF_RAW` case before `memcpy(dst, src, n)`. This is a reachability condition for `src` usage. ✅ Keep.
+
+- Constraint 2: `!(compress(dst, &zlen, src, n) != Z_OK)` — needed to avoid early return in deflate cases before `return zlen;`. `src` is passed to `compress`. This is a reachability condition for `src` usage. ✅ Keep.
+
+No constraints are filtered out because both involve `src` (directly or as a guard for its use).
+
+**Final filtered constraints:**
+
+```json
+["!(check_size(s, n))", "!(compress(dst, &zlen, src, n) != Z_OK)"]
+```
+```python
+from z3 import *
+
+# Declare variables used in the constraints
+# src: pointer to source buffer (modeled as an integer address)
+src = Int('src')
+
+# n: size of the source buffer (modeled as an integer)
+n = Int('n')
+
+# dst: pointer to destination buffer (modeled as an integer address)
+dst = Int('dst')
+
+# zlen: output length from compression (modeled as an integer)
+zlen = Int('zlen')
+
+# check_size(s, n): modeled as an uninterpreted boolean predicate
+# Returns True if size check passes for buffer s with length n
+check_size = Function('check_size', IntSort(), IntSort(), BoolSort())
+
+# compress(dst, &zlen, src, n): modeled as an uninterpreted function
+# Returns an integer status code (e.g., Z_OK == 0)
+compress = Function('compress', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())
+
+# Z_OK constant (zlib success code)
+Z_OK = 0
+
+# Constraint 1: !(check_size(s, n))
+# Included because it directly constrains the size-check condition on the source buffer.
+# In C, !(expr) means the expression evaluates to false (0).
+# Here we assert that check_size(src, n) is false.
+solver = Solver()
+solver.add(Not(check_size(src, n)))
+
+# Constraint 2: !(compress(dst, &zlen, src, n) != Z_OK)
+# Included because it constrains the compression result on the source buffer.
+# In C, !(x != Z_OK) is equivalent to (x == Z_OK).
+# We model &zlen as passing zlen by reference; here we treat zlen as an
+# output variable whose value is determined by the compress call.
+solver.add(compress(dst, zlen, src, n) == Z_OK)
+
+# Check satisfiability and print the model
+if solver.check() == sat:
+    print("SAT")
+    print(solver.model())
+else:
+    print("UNSAT")
+```
+```python
+def check_constraints():
+    from z3 import Int, IntSort, BoolSort, Function, Solver, Not, sat
+
+    # Base script variables and constraints
+    src = Int('src')
+
+    # Constraint set 2 variables
+    n = Int('n')
+    dst = Int('dst')
+    zlen = Int('zlen')
+
+    # Uninterpreted functions
+    check_size = Function('check_size', IntSort(), IntSort(), BoolSort())
+    compress = Function('compress', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())
+
+    Z_OK = 0
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(src == 0)
+
+    # Constraint set 2, constraint 1
+    s.add(Not(check_size(src, n)))
+
+    # Constraint set 2, constraint 2
+    s.add(compress(dst, zlen, src, n) == Z_OK)
+
+    return s.check() == sat
+```
+goto result: True

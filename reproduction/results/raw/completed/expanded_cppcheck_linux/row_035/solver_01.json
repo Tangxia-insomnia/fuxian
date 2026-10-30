@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    \n    s = Solver()\n    \n    # Variable declarations\n    np = Int('np')\n    hbase = Int('hbase')\n    htab_address = Int('htab_address')\n    htab_size_bytes = Int('htab_size_bytes')\n    hend = Int('hend')\n    \n    # Constraint: np is a valid (non-NULL) axon device node pointer\n    s.add(np != 0)\n    \n    # Existing constraint: hbase == 0 (kept from original script)\n    s.add(hbase == 0)\n    \n    # Constraint: htab_address must be non-NULL (derived from __pa(htab_address))\n    s.add(htab_address != 0)\n    \n    # Branch condition: hbase is non-zero in this branch\n    s.add(hbase != 0)\n    \n    # Constraint: hend = hbase + htab_size_bytes\n    s.add(hend == hbase + htab_size_bytes)\n    \n    # Check satisfiability\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun np () Int)\n(declare-fun hbase () Int)\n(declare-fun htab_address () Int)\n(declare-fun htab_size_bytes () Int)\n(declare-fun hend () Int)\n(assert\n (and (distinct np 0) true))\n(assert\n (= hbase 0))\n(assert\n (and (distinct htab_address 0) true))\n(assert\n (and (distinct hbase 0) true))\n(assert\n (= hend (+ hbase htab_size_bytes)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

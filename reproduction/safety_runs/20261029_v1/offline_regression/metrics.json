@@ -1,0 +1,262 @@
+{
+  "audit": {
+    "guarded": {
+      "sample_count": 10,
+      "dataset_label_status": "published_labels_not_independently_verified",
+      "confusion_matrix": {
+        "rows": [
+          "published_false_alarm",
+          "published_real_bug"
+        ],
+        "columns": [
+          "FILTER",
+          "KEEP",
+          "UNKNOWN"
+        ],
+        "values": [
+          [
+            0,
+            0,
+            7
+          ],
+          [
+            0,
+            0,
+            3
+          ]
+        ]
+      },
+      "unverified_or_missing_label_count": 0,
+      "unverified_or_missing_label_verdicts": {},
+      "false_alarm_count": 7,
+      "real_bug_count": 3,
+      "operational_real_bug_retention_rate": 1.0,
+      "explicit_keep_real_bug_rate": 0.0,
+      "unknown_real_bug_rate": 1.0,
+      "real_bug_deletion_rate": 0.0,
+      "real_bug_deletion_cases": [],
+      "false_positive_filter_rate": 0.0,
+      "unknown_count": 10,
+      "unknown_rate": 1.0,
+      "auto_filter_count": 0,
+      "auto_filter_evidence": [],
+      "positive_class": "published_false_alarm_to_filter",
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "undefined_metric_policy": "precision/F1 null when no positive prediction; not perfect performance",
+      "original_execution_success_count": 7,
+      "original_execution_success_rate": 0.7,
+      "mean_original_final_attempt_seconds": 6.370119259999865,
+      "mean_offline_gate_seconds": 0.0017633200004638638,
+      "historical_final_attempt_api_calls": 42,
+      "historical_final_attempt_cost_upper_cny": 0.1639859999999994,
+      "new_model_calls": 0,
+      "new_api_cost_cny": 0,
+      "retention_meaning": "KEEP+UNKNOWN means alert not deleted; not proof of semantic detection, completeness, or generalization"
+    },
+    "baseline": {
+      "confusion_matrix": [
+        [
+          1,
+          3,
+          3
+        ],
+        [
+          2,
+          1,
+          0
+        ]
+      ],
+      "columns": [
+        "filter",
+        "keep",
+        "unclassified"
+      ],
+      "sample_count": 10,
+      "false_alarm_count": 7,
+      "real_bug_count": 3,
+      "real_bug_deletion_cases": [
+        "NPD/codeql/kernel69:row=10:index=22",
+        "NPD/codeql/kernel69:row=11:index=23"
+      ],
+      "note": "Historical unclassified did not define a deletion action. Do not equate missing prediction with deleted bug."
+    },
+    "verdict_counts": {
+      "UNKNOWN": 10
+    }
+  },
+  "holdout": {
+    "guarded": {
+      "sample_count": 20,
+      "dataset_label_status": "published_labels_not_independently_verified",
+      "confusion_matrix": {
+        "rows": [
+          "published_false_alarm",
+          "published_real_bug"
+        ],
+        "columns": [
+          "FILTER",
+          "KEEP",
+          "UNKNOWN"
+        ],
+        "values": [
+          [
+            0,
+            8,
+            4
+          ],
+          [
+            0,
+            7,
+            1
+          ]
+        ]
+      },
+      "unverified_or_missing_label_count": 0,
+      "unverified_or_missing_label_verdicts": {},
+      "false_alarm_count": 12,
+      "real_bug_count": 8,
+      "operational_real_bug_retention_rate": 1.0,
+      "explicit_keep_real_bug_rate": 0.875,
+      "unknown_real_bug_rate": 0.125,
+      "real_bug_deletion_rate": 0.0,
+      "real_bug_deletion_cases": [],
+      "false_positive_filter_rate": 0.0,
+      "unknown_count": 5,
+      "unknown_rate": 0.25,
+      "auto_filter_count": 0,
+      "auto_filter_evidence": [],
+      "positive_class": "published_false_alarm_to_filter",
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "undefined_metric_policy": "precision/F1 null when no positive prediction; not perfect performance",
+      "original_execution_success_count": 18,
+      "original_execution_success_rate": 0.9,
+      "mean_original_final_attempt_seconds": 5.799593295000022,
+      "mean_offline_gate_seconds": 0.0022373049996531336,
+      "historical_final_attempt_api_calls": 84,
+      "historical_final_attempt_cost_upper_cny": 0.26400199999999896,
+      "new_model_calls": 0,
+      "new_api_cost_cny": 0,
+      "retention_meaning": "KEEP+UNKNOWN means alert not deleted; not proof of semantic detection, completeness, or generalization"
+    },
+    "baseline": {
+      "confusion_matrix": [
+        [
+          1,
+          9,
+          2
+        ],
+        [
+          0,
+          8,
+          0
+        ]
+      ],
+      "columns": [
+        "filter",
+        "keep",
+        "unclassified"
+      ],
+      "sample_count": 20,
+      "false_alarm_count": 12,
+      "real_bug_count": 8,
+      "real_bug_deletion_cases": [],
+      "note": "Historical unclassified did not define a deletion action. Do not equate missing prediction with deleted bug."
+    },
+    "verdict_counts": {
+      "KEEP": 15,
+      "UNKNOWN": 5
+    }
+  },
+  "combined": {
+    "guarded": {
+      "sample_count": 30,
+      "dataset_label_status": "published_labels_not_independently_verified",
+      "confusion_matrix": {
+        "rows": [
+          "published_false_alarm",
+          "published_real_bug"
+        ],
+        "columns": [
+          "FILTER",
+          "KEEP",
+          "UNKNOWN"
+        ],
+        "values": [
+          [
+            0,
+            8,
+            11
+          ],
+          [
+            0,
+            7,
+            4
+          ]
+        ]
+      },
+      "unverified_or_missing_label_count": 0,
+      "unverified_or_missing_label_verdicts": {},
+      "false_alarm_count": 19,
+      "real_bug_count": 11,
+      "operational_real_bug_retention_rate": 1.0,
+      "explicit_keep_real_bug_rate": 0.6363636363636364,
+      "unknown_real_bug_rate": 0.36363636363636365,
+      "real_bug_deletion_rate": 0.0,
+      "real_bug_deletion_cases": [],
+      "false_positive_filter_rate": 0.0,
+      "unknown_count": 15,
+      "unknown_rate": 0.5,
+      "auto_filter_count": 0,
+      "auto_filter_evidence": [],
+      "positive_class": "published_false_alarm_to_filter",
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "undefined_metric_policy": "precision/F1 null when no positive prediction; not perfect performance",
+      "original_execution_success_count": 25,
+      "original_execution_success_rate": 0.8333333333333334,
+      "mean_original_final_attempt_seconds": 5.989768616666637,
+      "mean_offline_gate_seconds": 0.002079309999923377,
+      "historical_final_attempt_api_calls": 126,
+      "historical_final_attempt_cost_upper_cny": 0.42798799999999837,
+      "new_model_calls": 0,
+      "new_api_cost_cny": 0,
+      "retention_meaning": "KEEP+UNKNOWN means alert not deleted; not proof of semantic detection, completeness, or generalization"
+    },
+    "baseline": {
+      "confusion_matrix": [
+        [
+          2,
+          12,
+          5
+        ],
+        [
+          2,
+          9,
+          0
+        ]
+      ],
+      "columns": [
+        "filter",
+        "keep",
+        "unclassified"
+      ],
+      "sample_count": 30,
+      "false_alarm_count": 19,
+      "real_bug_count": 11,
+      "real_bug_deletion_cases": [
+        "NPD/codeql/kernel69:row=10:index=22",
+        "NPD/codeql/kernel69:row=11:index=23"
+      ],
+      "note": "Historical unclassified did not define a deletion action. Do not equate missing prediction with deleted bug."
+    },
+    "verdict_counts": {
+      "UNKNOWN": 15,
+      "KEEP": 15
+    }
+  }
+}

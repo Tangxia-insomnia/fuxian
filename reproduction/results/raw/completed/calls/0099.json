@@ -1,0 +1,45 @@
+{
+  "call_id": 99,
+  "sample_id": "NPD/codeql/kernel69:row=25:index=44",
+  "timestamp": "2026-10-26T00:30:07.010341+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int ipv6_set_opt_hdr(struct sock *sk, int optname, sockptr_t optval,\n\t\tint optlen)\n{\n\tstruct ipv6_pinfo *np = inet6_sk(sk);\n\tstruct ipv6_opt_hdr *new = NULL;\n\tstruct net *net = sock_net(sk);\n\tstruct ipv6_txoptions *opt;\n\tint err;\n\n\t/* hop-by-hop / destination options are privileged option */\n\tif (optname != IPV6_RTHDR && !sockopt_ns_capable(net->user_ns, CAP_NET_RAW))\n\t\treturn -EPERM;\n\n\t/* remove any sticky options header with a zero option\n\t * length, per RFC3542.\n\t */\n\tif (optlen > 0) {\n\t\tif (sockptr_is_null(optval))\n\t\t\treturn -EINVAL;\n\t\tif (optlen < sizeof(struct ipv6_opt_hdr) ||\n\t\t    optlen & 0x7 ||\n\t\t    optlen > 8 * 255)\n\t\t\treturn -EINVAL;\n\n\t\tnew = memdup_sockptr(optval, optlen);\n\t\tif (IS_ERR(new))\n\t\t\treturn PTR_ERR(new);\n\t\tif (unlikely(ipv6_optlen(new) > optlen)) {\n\t\t\tkfree(new);\n\t\t\treturn -EINVAL;\n\t\t}\n\t}\n\n\topt = rcu_dereference_protected(np->opt, lockdep_sock_is_held(sk));\n\topt = ipv6_renew_options(sk, opt, optname, new);\n\tkfree(new);\n\tif (IS_ERR(opt))\n\t\treturn PTR_ERR(opt);\n\n\t/* routing header option needs extra check */\n\terr = -EINVAL;\n\tif (optname == IPV6_RTHDR && opt && opt->srcrt) {\n\t\tstruct ipv6_rt_hdr *rthdr = opt->srcrt;\n\t\tswitch (rthdr->type) {\n#if IS_ENABLED(CONFIG_IPV6_MIP6)\n\t\tcase IPV6_SRCRT_TYPE_2:\n\t\t\tif (rthdr->hdrlen != 2 || rthdr->segments_left != 1)\n\t\t\t\tgoto sticky_done;\n\t\t\tbreak;\n#endif\n\t\tcase IPV6_SRCRT_TYPE_4:\n\t\t{\n\t\t\tstruct ipv6_sr_hdr *srh =\n\t\t\t\t(struct ipv6_sr_hdr *)opt->srcrt;\n\n\t\t\tif (!seg6_validate_srh(srh, optlen, false))\n\t\t\t\tgoto sticky_done;\n\t\t\tbreak;\n\t\t}\n\t\tdefault:\n\t\t\tgoto sticky_done;\n\t\t}\n\t}\n\n\terr = 0;\n\topt = ipv6_update_options(sk, opt);\nsticky_done:\n\tif (opt) {\n\t\tatomic_sub(opt->tot_len, &sk->sk_omem_alloc);\n\t\ttxopt_put(opt);\n\t}\n\treturn err;\n}\n        - Target variables: [], new\n        - Constraints: ['!(optlen > 0) || !(unlikely(ipv6_optlen(new) > optlen))', '!(optlen > 0) || !(IS_ERR(new))', '!(optlen > 0) || !(optlen < sizeof(struct ipv6_opt_hdr) || optlen & 0x7 || optlen > 8 * 255)', '!(optlen > 0) || !(sockptr_is_null(optval))', '!(optname != IPV6_RTHDR && !sockopt_ns_capable(net->user_ns, CAP_NET_RAW))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "e9768dbb-6f14-4048-bb74-3338d2e2880e",
+  "usage": {
+    "prompt_tokens": 870,
+    "completion_tokens": 48,
+    "total_tokens": 918,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 870
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(optlen > 0) || !(unlikely(ipv6_optlen(new) > optlen))\", \"!(optlen > 0) || !(IS_ERR(new))\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.718010200000208,
+  "cost_upper_bound_cny": 0.002124
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Implies, sat\n\n    # Base script variables and constraints\n    passwds = Int('passwds')\n\n    # Constraint set 2 variables\n    in_ptr = Int('in')\n    passed_salt = Int('passed_salt')\n    in_noverify = Bool('in_noverify')\n    do_passwd_ret = Bool('do_passwd_ret')\n    evp_read_pw_string_ret = Int('evp_read_pw_string_ret')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(passwds == 0)\n\n    # Constraint set 2 constraints\n    s.add(Implies(in_ptr != 0, do_passwd_ret))\n    s.add(Implies(in_ptr != 0, evp_read_pw_string_ret == 0))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun passwds () Int)\n(declare-fun do_passwd_ret () Bool)\n(declare-fun in () Int)\n(declare-fun evp_read_pw_string_ret () Int)\n(assert\n (= passwds 0))\n(assert\n (let (($x30 (and (distinct in 0) true)))\n (=> $x30 do_passwd_ret)))\n(assert\n (let (($x35 (= evp_read_pw_string_ret 0)))\n(let (($x30 (and (distinct in 0) true)))\n(=> $x30 $x35))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

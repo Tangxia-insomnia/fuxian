@@ -1,0 +1,45 @@
+{
+  "call_id": 724,
+  "sample_id": "NPD/codeql/openssl:row=15:index=16",
+  "timestamp": "2026-10-26T00:59:08.052093+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(check) || !(pctx == NULL)', '!(text) || !((pubin && EVP_PKEY_print_public(out, eckey, 0, NULL) <= 0) || (!pubin && EVP_PKEY_print_private(out, eckey, 0, NULL) <= 0))', '!(!(no_public)) || !(!EVP_PKEY_set_int_param(eckey, OSSL_PKEY_PARAM_EC_INCLUDE_PUBLIC, 1))', '!(no_public) || !(!EVP_PKEY_set_int_param(eckey, OSSL_PKEY_PARAM_EC_INCLUDE_PUBLIC, 0))', '!(asn1_encoding != NULL && !EVP_PKEY_set_utf8_string_param( eckey, OSSL_PKEY_PARAM_EC_ENCODING, asn1_encoding))', '!(point_format && !EVP_PKEY_set_utf8_string_param( eckey, OSSL_PKEY_PARAM_EC_POINT_CONVERSION_FORMAT, point_format))', '!(out == NULL)', '!(eckey == NULL)', '!(!app_passwd(passinarg, passoutarg, &passin, &passout))', '!(!opt_cipher(ciphername, &enc))', '!(!opt_check_rest_arg(NULL))', '!(!opt_provider(o))', '!(!opt_string(asn1_encoding, asn1_encoding_options))', '!(!opt_string(point_format, point_format_options))', '!(!opt_format(opt_arg(), OPT_FMT_PEMDER, &outformat))', '!(!opt_format(opt_arg(), OPT_FMT_ANY, &informat))']\n        Relevant conditions/variables: [], ectx\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "4e6964a2-d4cc-47c6-8433-fa18caa4c5b3",
+  "usage": {
+    "prompt_tokens": 483,
+    "completion_tokens": 272,
+    "total_tokens": 755,
+    "prompt_tokens_details": {
+      "cached_tokens": 256
+    },
+    "prompt_cache_hit_tokens": 256,
+    "prompt_cache_miss_tokens": 227
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables relevant to the constraints\n# ectx is the only relevant condition/variable mentioned.\n# We model it as a boolean flag indicating whether ectx is non-NULL/valid.\nectx = Bool('ectx')\n\n# The provided constraints do not reference ectx directly.\n# They reference: check, pctx, text, pubin, out, eckey, no_public,\n# asn1_encoding, point_format, passinarg, passoutarg, passin, passout,\n# ciphername, enc, o, outformat, informat, opt_arg().\n#\n# Since none of the constraints mention ectx, and the guideline says to\n# convert only constraints affecting the specified conditions/variables,\n# there are no constraints to translate that affect ectx.\n#\n# We still emit a well-formed Z3 script. The solver is trivially satisfiable\n# because no constraints restrict ectx.\n\ns = Solver()\n\n# No constraints affect ectx, so nothing is added here.\n# (If ectx were referenced, we would add e.g.:\n#   s.add(Implies(ectx, ...))  # with a comment explaining the C constraint)\n\n# Check satisfiability (trivially sat)\nprint(s.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.377633099999912,
+  "cost_upper_bound_cny": 0.003142
+}

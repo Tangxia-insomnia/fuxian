@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Or, sat\n\n    cms = Int('cms')\n    operation = Int('operation')\n\n    SMIME_ENCRYPT = 1\n    SMIME_IP = 2\n\n    s = Solver()\n\n    # Base constraint\n    s.add(cms == 0)\n\n    # Constraint 1: !(operation == SMIME_ENCRYPT) || !(cms == NULL)\n    s.add(Or(operation != SMIME_ENCRYPT, cms != 0))\n\n    # Constraint 2: !(operation & SMIME_IP) || !(cms == NULL)\n    # Replace bitwise & with Z3-compatible expression using modulo arithmetic\n    # (operation & SMIME_IP) == 0  <=>  operation % 4 < 2\n    s.add(Or(operation % 4 < 2, cms != 0))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun cms () Int)\n(declare-fun operation () Int)\n(assert\n (= cms 0))\n(assert\n (let (($x28 (and (distinct cms 0) true)))\n (or (and (distinct operation 1) true) $x28)))\n(assert\n (let (($x28 (and (distinct cms 0) true)))\n(or (< (mod operation 4) 2) $x28)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

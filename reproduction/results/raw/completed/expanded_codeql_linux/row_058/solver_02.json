@@ -1,0 +1,7 @@
+{
+  "event_id": 2,
+  "level": 1,
+  "source": "def check_constraints():\n    # Variables: object pointer (Int), kfree return value (Int)\n    # Constraint: object is NULL (ZERO_OR_NULL_PTR true) => object == 0\n    # kfree returns early when object is NULL, so no additional constraints needed.\n    object_ptr = 0  # object is NULL\n    kfree_return = 0  # kfree returns early (void, no meaningful return)\n\n    # Validate: object is NULL\n    if object_ptr != 0:\n        return False\n\n    # folio_test_slab is not evaluated in this path; no constraint needed.\n    return True",
+  "ok": false,
+  "error": "ValueError: ValueError: No actual Solver.check executed"
+}

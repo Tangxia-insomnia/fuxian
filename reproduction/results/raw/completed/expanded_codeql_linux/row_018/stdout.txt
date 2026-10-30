@@ -1,0 +1,109 @@
+```python
+fib6_ref=Int('fib6_ref')
+fn=Int('fn')
+fn_flags=Int('fn_flags')
+leaf=Int('leaf')
+rt=Int('rt')
+new_leaf=Int('new_leaf')
+
+s.add(fib6_ref != 1)
+s.add(fn != 0)
+s.add(Or(Not(fn_flags & 1 == 1), leaf != rt))
+s.add(new_leaf == 0)
+```
+```python
+rt_fib6_ref=Int('rt_fib6_ref')
+fn=Int('fn')
+fn_flags=Int('fn_flags')
+leaf=Int('leaf')
+rt=Int('rt')
+new_leaf=Int('new_leaf')
+RTN_RTINFO=Int('RTN_RTINFO')
+
+s.add(rt_fib6_ref != 1)
+s.add(fn != 0)
+s.add(Not(And(fn_flags & RTN_RTINFO == 0, leaf == rt)) == False)
+s.add(new_leaf == 0)
+```
+```python
+fn_flags=Int('fn_flags')
+RTN_RTINFO=Int('RTN_RTINFO')
+leaf=Int('leaf')
+rt=Int('rt')
+new_leaf=Int('new_leaf')
+
+# Condition: !(fn->fn_flags & RTN_RTINFO) && leaf == rt
+# !(x) is true when (fn_flags & RTN_RTINFO) == 0
+s.add(fn_flags & RTN_RTINFO == 0)
+s.add(leaf == rt)
+
+# Assume pointer new_leaf is NULL
+s.add(new_leaf == 0)
+```
+```python
+# Additional constraints based on line-by-line symbolic execution
+
+# Line 12: if (refcount_read(&rt->fib6_ref) != 1) - entering the branch
+# (already covered by fib6_ref != 1, but adding explicit form)
+s.add(fib6_ref != 1)
+
+# Line 19: while (fn) - loop condition true, fn is non-null
+s.add(fn != 0)
+
+# Line 23: if (!(fn->fn_flags & RTN_RTINFO) && leaf == rt)
+# RTN_RTINFO is a flag bit; assume it equals 1 (typical flag value)
+RTN_RTINFO=Int('RTN_RTINFO')
+s.add(RTN_RTINFO == 1)
+
+# !(fn->fn_flags & RTN_RTINFO) means the bitwise AND result is 0
+s.add(fn_flags & RTN_RTINFO == 0)
+
+# leaf == rt
+s.add(leaf == rt)
+
+# Assume pointer new_leaf is NULL (as per task instruction)
+s.add(new_leaf == 0)
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, And, sat
+
+    s = Solver()
+
+    # Declare all variables as Int to avoid NameError / type mismatches
+    fib6_ref = Int('fib6_ref')
+    fn = Int('fn')
+    fn_flags = Int('fn_flags')
+    RTN_RTINFO = Int('RTN_RTINFO')
+    leaf = Int('leaf')
+    rt = Int('rt')
+    new_leaf = Int('new_leaf')
+
+    # Line 12: if (refcount_read(&rt->fib6_ref) != 1) - entering the branch
+    s.add(fib6_ref != 1)
+
+    # Line 19: while (fn) - loop condition true, fn is non-null
+    s.add(fn != 0)
+
+    # RTN_RTINFO flag bit value
+    s.add(RTN_RTINFO == 1)
+
+    # Line 23: !(fn->fn_flags & RTN_RTINFO) means bitwise AND result is 0
+    # Use Z3 bitwise AND on Int via BitVec conversion is not allowed here;
+    # instead model the masked-bit condition directly as an Int constraint.
+    # Since RTN_RTINFO == 1, (fn_flags & 1) == 0 is equivalent to fn_flags being even.
+    s.add(fn_flags % 2 == 0)
+
+    # leaf == rt
+    s.add(leaf == rt)
+
+    # Assume pointer new_leaf is NULL
+    s.add(new_leaf == 0)
+
+    return s.check() == sat
+```
+dereference constraint: True
+```python
+f6i=Int('f6i')
+s.add(f6i == 0)
+```

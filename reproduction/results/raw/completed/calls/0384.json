@@ -1,0 +1,45 @@
+{
+  "call_id": 384,
+  "sample_id": "NPD/codeql/kernel69:row=61:index=91",
+  "timestamp": "2026-10-26T00:51:11.406631+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a Z3 constraint solver expert, optimize the following script for correctness and reliability.\n\n        Input Z3 script: # Additional constraints for the switch case at line 73\n# The switch is on u16_get_bits(info->status_data, IEEE80211_STATUS_TYPE_MASK)\n# case IEEE80211_STATUS_TYPE_SMPS: - the masked value equals SMPS type\n# IEEE80211_STATUS_TYPE_SMPS is the case being matched, so the extracted bits equal that type value\ns.add(u16_get_bits_result == 1)\n\n# sdata is NULL (assumed per task), so ieee80211_handle_smps_status is called with NULL sdata\n# This means the SMPS status handler receives a NULL sdata pointer\ns.add(sdata == 0)\n\n# info->status_data is non-zero (already constrained), and its masked bits equal SMPS type\n# This implies status_data has the SMPS type bits set\ns.add(info_status_data != 0)\n\n        Optimization requirements:\n        1. Check and fix syntax errors\n        2. Prevent NameError issues by ensuring all variables are defined\n        3. Ensure consistent variable types throughout\n        4. Fix any TypeError issues, especially for:\n        - Unsupported operations between ArithRef types\n        - Proper handling of bitwise operations\n\n        Additional guidelines:\n        \nImportant guidelines for generating Z3 scripts:\n1. Variable Type Guidelines:\n   - Prefer Int type over Bool type\n   - Default to Int type for unknown variables\n   - Convert !ptr to ptr==0 for Int variables\n   \n2. Boolean Representation:\n   - Represent False as Int variable == 0\n   - Represent True as Int variable == 1\n   \n3. Critical Rules:\n   - Use And, Or, Not instead of &, |, ! operators\n   - Avoid assigning Int values to Bool variables\n   - Convert !ptr or Not(ptr) to ptr==0 only\n   \n4. Constraint Guidelines:\n   - Prefer using ==1 or ==0 over inequality operators\n   - Skip constraints for uncertain value ranges\n   - Only interpret function returns when names clearly indicate meaning\n\n\n        Output requirements:\n        1. Generate a check_constraints() function\n        2. Function must return boolean validation result\n        3. Return ONLY the function code without imports\n        4. Ensure code is directly executable\n\n        Function signature:\n        def check_constraints():\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "8160260e-948f-4cc1-af75-5a51e68b45a4",
+  "usage": {
+    "prompt_tokens": 509,
+    "completion_tokens": 299,
+    "total_tokens": 808,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 509
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\ndef check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Define all variables as Int type\n    u16_get_bits_result = Int('u16_get_bits_result')\n    sdata = Int('sdata')\n    info_status_data = Int('info_status_data')\n    \n    # Constraint: masked bits equal SMPS type value (1)\n    s.add(u16_get_bits_result == 1)\n    \n    # Constraint: sdata is NULL (represented as 0 for Int)\n    s.add(sdata == 0)\n    \n    # Constraint: info->status_data is non-zero\n    s.add(info_status_data != 0)\n    \n    # Additional consistency: the masked result should be derivable from status_data\n    # Since u16_get_bits extracts bits from status_data, and result is 1,\n    # status_data must have the SMPS type bits set (bit 0 in typical encoding)\n    # We model this as: (info_status_data & mask) == 1, but since we can't\n    # reliably model the mask, we ensure status_data has bit 0 set\n    s.add(info_status_data % 2 == 1)\n    \n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.7305317000000286,
+  "cost_upper_bound_cny": 0.00341
+}

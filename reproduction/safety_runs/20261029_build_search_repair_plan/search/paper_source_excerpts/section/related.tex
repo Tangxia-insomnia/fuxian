@@ -1,0 +1,13 @@
+\section{Related Work}
+
+
+\parabf{Integrating LLMs with Static Analysis for Bug Detection.}
+Currently, substantial efforts have been made to combine LLMs with static analysis to enhance detection capabilities. Li et al.\cite{li2023hitchhikers} propose a framework that integrates UBITect with LLMs to detect Use-Before-Initialization (UBI) bugs in the Linux kernel; Sun et al.~\cite{sun2023gpt} employ LLMs to assist static analysis in identifying logic vulnerabilities in smart contracts. Li et al.~\cite{li2024llm} propose IRIS, which systematically combines LLMs with the static analysis tool CodeQL to conduct the first whole-repository reasoning approach for comprehensive vulnerability detection. Wen et al.~\cite{llm4sa} present LLM4SA, which utilizes LLMs to process bug warning reports from various static analysis tools, leveraging domain knowledge of LLMs to reduce false positives.
+Wang et al.~\cite{wang2023boosting} propose InferROI, which employs LLMs to infer resource-oriented intentions (e.g., acquisition, release, and reachability validation) in code, combined with a two-stage static analysis approach to inspect control-flow paths for potential resource leak detection.
+
+\parabf{LLMs for Program Analysis.}
+Shahandashti et al.~\cite{shahandashti2024program} investigate the application of LLMs in both static and dynamic program slicing, utilizing advanced prompting techniques such as few-shot learning and chain-of-thought reasoning.
+Wang et al.~\cite{llmdfa} introduce LLMDFA, the first LLM-powered dataflow analysis framework, which decomposes the problem into three components: source/sink extraction, dataflow summarization, and path feasibility validation.
+Subsequently, they further propose LLMSAN~\cite{wang2024sanitizing}, which leverages few-shot chain-of-thought prompting to guide LLMs in emitting data-flow paths, with validation performed through program-property decomposition.
+
+To the best of our knowledge, no prior studies have performed the iterative decomposition of complex program analysis tasks or fine-grained symbolic range reasoning. Moreover, our approach utilizes the self-planning capabilities of LLM agents to automate the iterative analysis of deeply nested functions. This effectively mitigates the path explosion problem inherent in complex inter-procedural path feasibility analysis, which existing studies have struggled to address efficiently.

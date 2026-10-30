@@ -1,0 +1,147 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 2,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ieee80211_sta_rx_queued_mgmt",
+      "var_name": "elems",
+      "target": "\t\t\tkfree(elems);",
+      "code": "void ieee80211_sta_rx_queued_mgmt(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t  struct sk_buff *skb)\n{\n\tstruct ieee80211_link_data *link = &sdata->deflink;\n\tstruct ieee80211_rx_status *rx_status;\n\tstruct ieee80211_mgmt *mgmt;\n\tu16 fc;\n\tint ies_len;\n\n\tlockdep_assert_wiphy(sdata->local->hw.wiphy);\n\n\trx_status = (struct ieee80211_rx_status *) skb->cb;\n\tmgmt = (struct ieee80211_mgmt *) skb->data;\n\tfc = le16_to_cpu(mgmt->frame_control);\n\n\tif (rx_status->link_valid) {\n\t\tlink = sdata_dereference(sdata->link[rx_status->link_id],\n\t\t\t\t\t sdata);\n\t\tif (!link)\n\t\t\treturn;\n\t}\n\n\tswitch (fc & IEEE80211_FCTL_STYPE) {\n\tcase IEEE80211_STYPE_BEACON:\n\t\tieee80211_rx_mgmt_beacon(link, (void *)mgmt,\n\t\t\t\t\t skb->len, rx_status);\n\t\tbreak;\n\tcase IEEE80211_STYPE_PROBE_RESP:\n\t\tieee80211_rx_mgmt_probe_resp(link, skb);\n\t\tbreak;\n\tcase IEEE80211_STYPE_AUTH:\n\t\tieee80211_rx_mgmt_auth(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_DEAUTH:\n\t\tieee80211_rx_mgmt_deauth(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_DISASSOC:\n\t\tieee80211_rx_mgmt_disassoc(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_ASSOC_RESP:\n\tcase IEEE80211_STYPE_REASSOC_RESP:\n\t\tieee80211_rx_mgmt_assoc_resp(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_ACTION:\n\t\tif (!sdata->u.mgd.associated ||\n\t\t    !ether_addr_equal(mgmt->bssid, sdata->vif.cfg.ap_addr))\n\t\t\tbreak;\n\n\t\tif (mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT) {\n\t\t\tstruct ieee802_11_elems *elems;\n\n\t\t\ties_len = skb->len -\n\t\t\t\t  offsetof(struct ieee80211_mgmt,\n\t\t\t\t\t   u.action.u.chan_switch.variable);\n\n\t\t\tif (ies_len < 0)\n\t\t\t\tbreak;\n\n\t\t\t/* CSA IE cannot be overridden, no need for BSSID */\n\t\t\telems = ieee802_11_parse_elems(\n\t\t\t\t\tmgmt->u.action.u.chan_switch.variable,\n\t\t\t\t\ties_len, true, NULL);\n\n\t\t\tif (elems && !elems->parse_error)\n\t\t\t\tieee80211_sta_process_chanswitch(link,\n\t\t\t\t\t\t\t\t rx_status->mactime,\n\t\t\t\t\t\t\t\t rx_status->device_timestamp,\n\t\t\t\t\t\t\t\t elems, false);\n\t\t\tkfree(elems);\n\t\t} else if (mgmt->u.action.category == WLAN_CATEGORY_PUBLIC) {\n\t\t\tstruct ieee802_11_elems *elems;\n\n\t\t\ties_len = skb->len -\n\t\t\t\t  offsetof(struct ieee80211_mgmt,\n\t\t\t\t\t   u.action.u.ext_chan_switch.variable);\n\n\t\t\tif (ies_len < 0)\n\t\t\t\tbreak;\n\n\t\t\t/*\n\t\t\t * extended CSA IE can't be overridden, no need for\n\t\t\t * BSSID\n\t\t\t */\n\t\t\telems = ieee802_11_parse_elems(\n\t\t\t\t\tmgmt->u.action.u.ext_chan_switch.variable,\n\t\t\t\t\ties_len, true, NULL);\n\n\t\t\tif (elems && !elems->parse_error) {\n\t\t\t\t/* for the handling code pretend it was an IE */\n\t\t\t\telems->ext_chansw_ie =\n\t\t\t\t\t&mgmt->u.action.u.ext_chan_switch.data;\n\n\t\t\t\tieee80211_sta_process_chanswitch(link,\n\t\t\t\t\t\t\t\t rx_status->mactime,\n\t\t\t\t\t\t\t\t rx_status->device_timestamp,\n\t\t\t\t\t\t\t\t elems, false);\n\t\t\t}\n\n\t\t\tkfree(elems);\n\t\t}\n\t\tbreak;\n\t}\n}",
+      "body_sha256": "f0076f0a79e0882a711832d8ae4b5ec34c216584a10fe35a4340609dfbaed064",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\t\tkfree(elems);",
+            "condition": [
+              {
+                "condition": "if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)",
+                "line_number": 43
+              },
+              {
+                "condition": "if (mgmt->u.action.category == WLAN_CATEGORY_PUBLIC)",
+                "line_number": 69
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)",
+            "line_number": 43
+          },
+          {
+            "condition": "if (mgmt->u.action.category == WLAN_CATEGORY_PUBLIC)",
+            "line_number": 69
+          }
+        ],
+        "variable_assignments": {
+          "text": "void ieee80211_sta_rx_queued_mgmt(struct ieee80211_sub_if_data *sdata,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "break",
+            "condition": [
+              "mgmt->u.action.category == WLAN_CATEGORY_PUBLIC",
+              "ies_len < 0"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT",
+              "ies_len < 0"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "!sdata->u.mgd.associated || !ether_addr_equal(mgmt->bssid, sdata->vif.cfg.ap_addr)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "return",
+            "condition": [
+              "rx_status->link_valid",
+              "!link"
+            ]
+          }
+        ],
+        "filter_function_code": "void ieee80211_sta_rx_queued_mgmt(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t  struct sk_buff *skb)\n{\n\tstruct ieee80211_link_data *link = &sdata->deflink;\n\tstruct ieee80211_rx_status *rx_status;\n\tstruct ieee80211_mgmt *mgmt;\n\tu16 fc;\n\tint ies_len;\n\n\tlockdep_assert_wiphy(sdata->local->hw.wiphy);\n\n\trx_status = (struct ieee80211_rx_status *) skb->cb;\n\tmgmt = (struct ieee80211_mgmt *) skb->data;\n\tfc = le16_to_cpu(mgmt->frame_control);\n\n\tif (rx_status->link_valid) {\n\t\tlink = sdata_dereference(sdata->link[rx_status->link_id],\n\t\t\t\t\t sdata);\n\t\tif (!link)\n\t\t\treturn;\n\t}\n\n\tswitch (fc & IEEE80211_FCTL_STYPE) {\n\tcase IEEE80211_STYPE_BEACON:\n\t\tieee80211_rx_mgmt_beacon(link, (void *)mgmt,\n\t\t\t\t\t skb->len, rx_status);\n\t\tbreak;\n\tcase IEEE80211_STYPE_PROBE_RESP:\n\t\tieee80211_rx_mgmt_probe_resp(link, skb);\n\t\tbreak;\n\tcase IEEE80211_STYPE_AUTH:\n\t\tieee80211_rx_mgmt_auth(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_DEAUTH:\n\t\tieee80211_rx_mgmt_deauth(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_DISASSOC:\n\t\tieee80211_rx_mgmt_disassoc(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_ASSOC_RESP:\n\tcase IEEE80211_STYPE_REASSOC_RESP:\n\t\tieee80211_rx_mgmt_assoc_resp(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_ACTION:\n\t\tif (!sdata->u.mgd.associated ||\n\t\t    !ether_addr_equal(mgmt->bssid, sdata->vif.cfg.ap_addr))\n\t\t\tbreak;\n\n\t\tif (mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT) {\n\t\t\tstruct ieee802_11_elems *elems;\n\n\t\t\ties_len = skb->len -\n\t\t\t\t  offsetof(struct ieee80211_mgmt,\n\t\t\t\t\t   u.action.u.chan_switch.variable);\n\n\t\t\tif (ies_len < 0)\n\t\t\t\tbreak;\n\n\t\t\t/* CSA IE cannot be overridden, no need for BSSID */\n\t\t\telems = ieee802_11_parse_elems(\n\t\t\t\t\tmgmt->u.action.u.chan_switch.variable,\n\t\t\t\t\ties_len, true, NULL);\n\n\t\t\tif (elems && !elems->parse_error)\n\t\t\t\tieee80211_sta_process_chanswitch(link,\n\t\t\t\t\t\t\t\t rx_status->mactime,\n\t\t\t\t\t\t\t\t rx_status->device_timestamp,\n\t\t\t\t\t\t\t\t elems, false);\n\t\t\tkfree(elems);\n\t\t} else if (mgmt->u.action.category == WLAN_CATEGORY_PUBLIC) {\n\t\t\tstruct ieee802_11_elems *elems;\n\n\t\t\ties_len = skb->len -\n\t\t\t\t  offsetof(struct ieee80211_mgmt,\n\t\t\t\t\t   u.action.u.ext_chan_switch.variable);\n\n\t\t\tif (ies_len < 0)\n\t\t\t\tbreak;\n\n\t\t\t/*\n\t\t\t * extended CSA IE can't be overridden, no need for\n\t\t\t * BSSID\n\t\t\t */\n\t\t\telems = ieee802_11_parse_elems(\n\t\t\t\t\tmgmt->u.action.u.ext_chan_switch.variable,\n\t\t\t\t\ties_len, true, NULL);\n\n\t\t\tif (elems && !elems->parse_error) {\n\t\t\t\t/* for the handling code pretend it was an IE */\n\t\t\t\telems->ext_chansw_ie =\n\t\t\t\t\t&mgmt->u.action.u.ext_chan_switch.data;\n\n\t\t\t\tieee80211_sta_process_chanswitch(link,\n\t\t\t\t\t\t\t\t rx_status->mactime,\n\t\t\t\t\t\t\t\t rx_status->device_timestamp,\n\t\t\t\t\t\t\t\t elems, false);\n\t\t\t}\n\n\t\t\tkfree(elems);\n\t\t}\n\t\tbreak;\n\t}\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "kfree",
+      "var_name": "object",
+      "target": "\t\tfree_large_kmalloc(folio, (void *)object);",
+      "code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}",
+      "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\tfree_large_kmalloc(folio, (void *)object);",
+            "condition": [
+              {
+                "condition": "if (unlikely(!folio_test_slab(folio)))",
+                "line_number": 13
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (unlikely(!folio_test_slab(folio)))",
+            "line_number": 13
+          }
+        ],
+        "variable_assignments": {
+          "text": "void kfree(const void *object)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "unlikely(ZERO_OR_NULL_PTR(object))"
+            ]
+          }
+        ],
+        "filter_function_code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "void ieee80211_sta_rx_queued_mgmt(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t  struct sk_buff *skb)\n{\n\tstruct ieee80211_link_data *link = &sdata->deflink;\n\tstruct ieee80211_rx_status *rx_status;\n\tstruct ieee80211_mgmt *mgmt;\n\tu16 fc;\n\tint ies_len;\n\n\tlockdep_assert_wiphy(sdata->local->hw.wiphy);\n\n\trx_status = (struct ieee80211_rx_status *) skb->cb;\n\tmgmt = (struct ieee80211_mgmt *) skb->data;\n\tfc = le16_to_cpu(mgmt->frame_control);\n\n\tif (rx_status->link_valid) {\n\t\tlink = sdata_dereference(sdata->link[rx_status->link_id],\n\t\t\t\t\t sdata);\n\t\tif (!link)\n\t\t\treturn;\n\t}\n\n\tswitch (fc & IEEE80211_FCTL_STYPE) {\n\tcase IEEE80211_STYPE_BEACON:\n\t\tieee80211_rx_mgmt_beacon(link, (void *)mgmt,\n\t\t\t\t\t skb->len, rx_status);\n\t\tbreak;\n\tcase IEEE80211_STYPE_PROBE_RESP:\n\t\tieee80211_rx_mgmt_probe_resp(link, skb);\n\t\tbreak;\n\tcase IEEE80211_STYPE_AUTH:\n\t\tieee80211_rx_mgmt_auth(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_DEAUTH:\n\t\tieee80211_rx_mgmt_deauth(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_DISASSOC:\n\t\tieee80211_rx_mgmt_disassoc(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_ASSOC_RESP:\n\tcase IEEE80211_STYPE_REASSOC_RESP:\n\t\tieee80211_rx_mgmt_assoc_resp(sdata, mgmt, skb->len);\n\t\tbreak;\n\tcase IEEE80211_STYPE_ACTION:\n\t\tif (!sdata->u.mgd.associated ||\n\t\t    !ether_addr_equal(mgmt->bssid, sdata->vif.cfg.ap_addr))\n\t\t\tbreak;\n\n\t\tif (mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT) {\n\t\t\tstruct ieee802_11_elems *elems;\n\n\t\t\ties_len = skb->len -\n\t\t\t\t  offsetof(struct ieee80211_mgmt,\n\t\t\t\t\t   u.action.u.chan_switch.variable);\n\n\t\t\tif (ies_len < 0)\n\t\t\t\tbreak;\n\n\t\t\t/* CSA IE cannot be overridden, no need for BSSID */\n\t\t\telems = ieee802_11_parse_elems(\n\t\t\t\t\tmgmt->u.action.u.chan_switch.variable,\n\t\t\t\t\ties_len, true, NULL);\n\n\t\t\tif (elems && !elems->parse_error)\n\t\t\t\tieee80211_sta_process_chanswitch(link,\n\t\t\t\t\t\t\t\t rx_status->mactime,\n\t\t\t\t\t\t\t\t rx_status->device_timestamp,\n\t\t\t\t\t\t\t\t elems, false);\n\t\t\tkfree(elems);\n\t\t} else if (mgmt->u.action.category == WLAN_CATEGORY_PUBLIC) {\n\t\t\tstruct ieee802_11_elems *elems;\n\n\t\t\ties_len = skb->len -\n\t\t\t\t  offsetof(struct ieee80211_mgmt,\n\t\t\t\t\t   u.action.u.ext_chan_switch.variable);\n\n\t\t\tif (ies_len < 0)\n\t\t\t\tbreak;\n\n\t\t\t/*\n\t\t\t * extended CSA IE can't be overridden, no need for\n\t\t\t * BSSID\n\t\t\t */\n\t\t\telems = ieee802_11_parse_elems(\n\t\t\t\t\tmgmt->u.action.u.ext_chan_switch.variable,\n\t\t\t\t\ties_len, true, NULL);\n\n\t\t\tif (elems && !elems->parse_error) {\n\t\t\t\t/* for the handling code pretend it was an IE */\n\t\t\t\telems->ext_chansw_ie =\n\t\t\t\t\t&mgmt->u.action.u.ext_chan_switch.data;\n\n\t\t\t\tieee80211_sta_process_chanswitch(link,\n\t\t\t\t\t\t\t\t rx_status->mactime,\n\t\t\t\t\t\t\t\t rx_status->device_timestamp,\n\t\t\t\t\t\t\t\t elems, false);\n\t\t\t}\n\n\t\t\tkfree(elems);\n\t\t}\n\t\tbreak;\n\t}\n}",
+    "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+  ]
+}

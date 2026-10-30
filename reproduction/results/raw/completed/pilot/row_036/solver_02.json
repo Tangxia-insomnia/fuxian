@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, sat, And, Or, Not\n\n    s = Solver()\n\n    # --- Base script constraints ---\n    oif = Int('oif')\n    saddr = Int('saddr')\n    nh = Int('nh')\n    s.add(Or(Not(oif == 0), saddr == 0))\n    s.add(nh == 0)\n\n    # --- Constraint set 1 ---\n    f6i_nh = Int('f6i_nh')\n    s.add(f6i_nh == 0)\n    s.add(nh == f6i_nh)\n    s.add(nh == 0)\n\n    fib_nh_flags = Int('fib_nh_flags')\n    RTNH_F_DEAD = Int('RTNH_F_DEAD')\n    nh_flags_and_dead = Int('nh_flags_and_dead')\n    s.add(nh_flags_and_dead == 0)\n    s.add(nh == 0)\n\n    # --- Constraint set 2 ---\n    ipv6_addr_any_saddr = Bool('ipv6_addr_any_saddr')\n    f6i_nh_nonnull = Bool('f6i_nh_nonnull')\n    nexthop_is_blackhole = Bool('nexthop_is_blackhole')\n\n    cond_line7 = And(oif == 0, ipv6_addr_any_saddr)\n\n    constraint = Or(\n        Not(cond_line7),\n        Not(f6i_nh_nonnull),\n        Not(nexthop_is_blackhole)\n    )\n    s.add(constraint)\n\n    # --- Consistency link between Int nh and Bool f6i_nh_nonnull ---\n    s.add(f6i_nh_nonnull == (f6i_nh != 0))\n\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun saddr () Int)\n(declare-fun oif () Int)\n(declare-fun nh () Int)\n(declare-fun f6i_nh () Int)\n(declare-fun nh_flags_and_dead () Int)\n(declare-fun nexthop_is_blackhole () Bool)\n(declare-fun f6i_nh_nonnull () Bool)\n(declare-fun ipv6_addr_any_saddr () Bool)\n(assert\n (or (not (= oif 0)) (= saddr 0)))\n(assert\n (= nh 0))\n(assert\n (= f6i_nh 0))\n(assert\n (= nh f6i_nh))\n(assert\n (= nh 0))\n(assert\n (= nh_flags_and_dead 0))\n(assert\n (= nh 0))\n(assert\n (or (not (and (= oif 0) ipv6_addr_any_saddr)) (not f6i_nh_nonnull) (not nexthop_is_blackhole)))\n(assert\n (= f6i_nh_nonnull (and (distinct f6i_nh 0) true)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

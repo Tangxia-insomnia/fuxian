@@ -1,0 +1,198 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "passwd_main",
+      "var_name": "passwds",
+      "target": "} while (*passwds != NULL);",
+      "code": "int passwd_main(int argc, char **argv)\n{\n    BIO *in = NULL;\n    char *infile = NULL, *salt = NULL, *passwd = NULL, **passwds = NULL;\n    char *salt_malloc = NULL, *passwd_malloc = NULL, *prog;\n    OPTION_CHOICE o;\n    int in_stdin = 0, pw_source_defined = 0;\n#ifndef OPENSSL_NO_UI_CONSOLE\n    int in_noverify = 0;\n#endif\n    int passed_salt = 0, quiet = 0, table = 0, reverse = 0;\n    int ret = 1;\n    passwd_modes mode = passwd_unset;\n    size_t passwd_malloc_size = 0;\n    size_t pw_maxlen = 256; /* arbitrary limit, should be enough for most\n                             * passwords */\n\n    prog = opt_init(argc, argv, passwd_options);\n    while ((o = opt_next()) != OPT_EOF) {\n        switch (o) {\n        case OPT_EOF:\n        case OPT_ERR:\n opthelp:\n            BIO_printf(bio_err, \"%s: Use -help for summary.\\n\", prog);\n            goto end;\n        case OPT_HELP:\n            opt_help(passwd_options);\n            ret = 0;\n            goto end;\n        case OPT_IN:\n            if (pw_source_defined)\n                goto opthelp;\n            infile = opt_arg();\n            pw_source_defined = 1;\n            break;\n        case OPT_NOVERIFY:\n#ifndef OPENSSL_NO_UI_CONSOLE\n            in_noverify = 1;\n#endif\n            break;\n        case OPT_QUIET:\n            quiet = 1;\n            break;\n        case OPT_TABLE:\n            table = 1;\n            break;\n        case OPT_REVERSE:\n            reverse = 1;\n            break;\n        case OPT_1:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_md5;\n            break;\n        case OPT_5:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_sha256;\n            break;\n        case OPT_6:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_sha512;\n            break;\n        case OPT_APR1:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_apr1;\n            break;\n        case OPT_AIXMD5:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_aixmd5;\n            break;\n        case OPT_SALT:\n            passed_salt = 1;\n            salt = opt_arg();\n            break;\n        case OPT_STDIN:\n            if (pw_source_defined)\n                goto opthelp;\n            in_stdin = 1;\n            pw_source_defined = 1;\n            break;\n        case OPT_R_CASES:\n            if (!opt_rand(o))\n                goto end;\n            break;\n        case OPT_PROV_CASES:\n            if (!opt_provider(o))\n                goto end;\n            break;\n        }\n    }\n\n    /* All remaining arguments are the password text */\n    argc = opt_num_rest();\n    argv = opt_rest();\n    if (*argv != NULL) {\n        if (pw_source_defined)\n            goto opthelp;\n        pw_source_defined = 1;\n        passwds = argv;\n    }\n\n    if (!app_RAND_load())\n        goto end;\n\n    if (mode == passwd_unset) {\n        /* use default */\n        mode = passwd_md5;\n    }\n\n    if (infile != NULL && in_stdin) {\n        BIO_printf(bio_err, \"%s: Can't combine -in and -stdin\\n\", prog);\n        goto end;\n    }\n\n    if (infile != NULL || in_stdin) {\n        /*\n         * If in_stdin is true, we know that infile is NULL, and that\n         * bio_open_default() will give us back an alias for stdin.\n         */\n        in = bio_open_default(infile, 'r', FORMAT_TEXT);\n        if (in == NULL)\n            goto end;\n    }\n\n    if (passwds == NULL) {\n        /* no passwords on the command line */\n\n        passwd_malloc_size = pw_maxlen + 2;\n        /* longer than necessary so that we can warn about truncation */\n        passwd = passwd_malloc =\n            app_malloc(passwd_malloc_size, \"password buffer\");\n    }\n\n    if ((in == NULL) && (passwds == NULL)) {\n        /*\n         * we use the following method to make sure what\n         * in the 'else' section is always compiled, to\n         * avoid rot of not-frequently-used code.\n         */\n        if (1) {\n#ifndef OPENSSL_NO_UI_CONSOLE\n            /* build a null-terminated list */\n            static char *passwds_static[2] = { NULL, NULL };\n\n            passwds = passwds_static;\n            if (in == NULL) {\n                if (EVP_read_pw_string\n                    (passwd_malloc, passwd_malloc_size, \"Password: \",\n                     !(passed_salt || in_noverify)) != 0)\n                    goto end;\n            }\n            passwds[0] = passwd_malloc;\n        } else {\n#endif\n            BIO_printf(bio_err, \"password required\\n\");\n            goto end;\n        }\n    }\n\n    if (in == NULL) {\n        assert(passwds != NULL);\n        assert(*passwds != NULL);\n\n        do {                    /* loop over list of passwords */\n            passwd = *passwds++;\n            if (!do_passwd(passed_salt, &salt, &salt_malloc, passwd, bio_out,\n                           quiet, table, reverse, pw_maxlen, mode))\n                goto end;\n        } while (*passwds != NULL);\n    } else {\n        /* in != NULL */\n        int done;\n\n        assert(passwd != NULL);\n        do {\n            int r = BIO_gets(in, passwd, pw_maxlen + 1);\n            if (r > 0) {\n                char *c = (strchr(passwd, '\\n'));\n                if (c != NULL) {\n                    *c = 0;     /* truncate at newline */\n                } else {\n                    /* ignore rest of line */\n                    char trash[BUFSIZ];\n                    do\n                        r = BIO_gets(in, trash, sizeof(trash));\n                    while ((r > 0) && (!strchr(trash, '\\n')));\n                }\n\n                if (!do_passwd\n                    (passed_salt, &salt, &salt_malloc, passwd, bio_out, quiet,\n                     table, reverse, pw_maxlen, mode))\n                    goto end;\n            }\n            done = (r <= 0);\n        } while (!done);\n    }\n    ret = 0;\n\n end:\n#if 0\n    ERR_print_errors(bio_err);\n#endif\n    OPENSSL_free(salt_malloc);\n    OPENSSL_free(passwd_malloc);\n    BIO_free(in);\n    return ret;\n}",
+      "body_sha256": "f7eb60e2892bd7f5c825874a090b60e704450bb7f615526bb67099bd9b18f4d1",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "} while (*passwds != NULL);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "int passwd_main(int argc, char **argv)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "end",
+            "condition": [
+              "in == NULL",
+              "!do_passwd(passed_salt, &salt, &salt_malloc, passwd, bio_out, quiet, table, reverse, pw_maxlen, mode)"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": [
+              "in == NULL",
+              "EVP_read_pw_string (passwd_malloc, passwd_malloc_size, \"Password: \", !(passed_salt || in_noverify)) != 0"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "infile != NULL || in_stdin",
+              "in == NULL"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "infile != NULL && in_stdin"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "!app_RAND_load()"
+            ]
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "*argv != NULL",
+              "pw_source_defined"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": [
+              "!opt_provider(o)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": [
+              "!opt_rand(o)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "pw_source_defined"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "mode != passwd_unset"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "mode != passwd_unset"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "mode != passwd_unset"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "mode != passwd_unset"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "mode != passwd_unset"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "pw_source_defined"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": []
+          }
+        ],
+        "filter_function_code": "int passwd_main(int argc, char **argv)\n{\n    BIO *in = NULL;\n    char *infile = NULL, *salt = NULL, *passwd = NULL, **passwds = NULL;\n    char *salt_malloc = NULL, *passwd_malloc = NULL, *prog;\n    OPTION_CHOICE o;\n    int in_stdin = 0, pw_source_defined = 0;\n#ifndef OPENSSL_NO_UI_CONSOLE\n    int in_noverify = 0;\n#endif\n    int passed_salt = 0, quiet = 0, table = 0, reverse = 0;\n    int ret = 1;\n    passwd_modes mode = passwd_unset;\n    size_t passwd_malloc_size = 0;\n    size_t pw_maxlen = 256; /* arbitrary limit, should be enough for most\n                             * passwords */\n\n    prog = opt_init(argc, argv, passwd_options);\n    while ((o = opt_next()) != OPT_EOF) {\n        switch (o) {\n        case OPT_EOF:\n        case OPT_ERR:\n opthelp:\n            BIO_printf(bio_err, \"%s: Use -help for summary.\\n\", prog);\n            goto end;\n        case OPT_HELP:\n            opt_help(passwd_options);\n            ret = 0;\n            goto end;\n        case OPT_IN:\n            if (pw_source_defined)\n                goto opthelp;\n            infile = opt_arg();\n            pw_source_defined = 1;\n            break;\n        case OPT_NOVERIFY:\n#ifndef OPENSSL_NO_UI_CONSOLE\n            in_noverify = 1;\n#endif\n            break;\n        case OPT_QUIET:\n            quiet = 1;\n            break;\n        case OPT_TABLE:\n            table = 1;\n            break;\n        case OPT_REVERSE:\n            reverse = 1;\n            break;\n        case OPT_1:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_md5;\n            break;\n        case OPT_5:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_sha256;\n            break;\n        case OPT_6:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_sha512;\n            break;\n        case OPT_APR1:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_apr1;\n            break;\n        case OPT_AIXMD5:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_aixmd5;\n            break;\n        case OPT_SALT:\n            passed_salt = 1;\n            salt = opt_arg();\n            break;\n        case OPT_STDIN:\n            if (pw_source_defined)\n                goto opthelp;\n            in_stdin = 1;\n            pw_source_defined = 1;\n            break;\n        case OPT_R_CASES:\n            if (!opt_rand(o))\n                goto end;\n            break;\n        case OPT_PROV_CASES:\n            if (!opt_provider(o))\n                goto end;\n            break;\n        }\n    }\n\n    /* All remaining arguments are the password text */\n    argc = opt_num_rest();\n    argv = opt_rest();\n    if (*argv != NULL) {\n        if (pw_source_defined)\n            goto opthelp;\n        pw_source_defined = 1;\n        passwds = argv;\n    }\n\n    if (!app_RAND_load())\n        goto end;\n\n    if (mode == passwd_unset) {\n        /* use default */\n        mode = passwd_md5;\n    }\n\n    if (infile != NULL && in_stdin) {\n        BIO_printf(bio_err, \"%s: Can't combine -in and -stdin\\n\", prog);\n        goto end;\n    }\n\n    if (infile != NULL || in_stdin) {\n        /*\n         * If in_stdin is true, we know that infile is NULL, and that\n         * bio_open_default() will give us back an alias for stdin.\n         */\n        in = bio_open_default(infile, 'r', FORMAT_TEXT);\n        if (in == NULL)\n            goto end;\n    }\n\n    if (passwds == NULL) {\n        /* no passwords on the command line */\n\n        passwd_malloc_size = pw_maxlen + 2;\n        /* longer than necessary so that we can warn about truncation */\n        passwd = passwd_malloc =\n            app_malloc(passwd_malloc_size, \"password buffer\");\n    }\n\n    if ((in == NULL) && (passwds == NULL)) {\n        /*\n         * we use the following method to make sure what\n         * in the 'else' section is always compiled, to\n         * avoid rot of not-frequently-used code.\n         */\n        if (1) {\n#ifndef OPENSSL_NO_UI_CONSOLE\n            /* build a null-terminated list */\n            static char *passwds_static[2] = { NULL, NULL };\n\n            passwds = passwds_static;\n            if (in == NULL) {\n                if (EVP_read_pw_string\n                    (passwd_malloc, passwd_malloc_size, \"Password: \",\n                     !(passed_salt || in_noverify)) != 0)\n                    goto end;\n            }\n            passwds[0] = passwd_malloc;\n        } else {\n#endif\n            BIO_printf(bio_err, \"password required\\n\");\n            goto end;\n        }\n    }\n\n    if (in == NULL) {\n        assert(passwds != NULL);\n        assert(*passwds != NULL);\n\n        do {                    /* loop over list of passwords */\n            passwd = *passwds++;\n            if (!do_passwd(passed_salt, &salt, &salt_malloc, passwd, bio_out,\n                           quiet, table, reverse, pw_maxlen, mode))\n                goto end;\n        } while (*passwds != NULL);\n    } else {\n        /* in != NULL */\n        int done;\n\n        assert(passwd != NULL);\n        do {\n            int r = BIO_gets(in, passwd, pw_maxlen + 1);\n            if (r > 0) {\n                char *c = (strchr(passwd, '\\n'));\n                if (c != NULL) {\n                    *c = 0;     /* truncate at newline */\n                } else {\n                    /* ignore rest of line */\n                    char trash[BUFSIZ];\n                    do\n                        r = BIO_gets(in, trash, sizeof(trash));\n                    while ((r > 0) && (!strchr(trash, '\\n')));\n                }\n\n                if (!do_passwd\n                    (passed_salt, &salt, &salt_malloc, passwd, bio_out, quiet,\n                     table, reverse, pw_maxlen, mode))\n                    goto end;\n            }\n            done = (r <= 0);\n        } while (!done);\n    }\n    ret = 0;\n\n end:\n#if 0\n    ERR_print_errors(bio_err);\n#endif\n    OPENSSL_free(salt_malloc);\n    OPENSSL_free(passwd_malloc);\n    BIO_free(in);\n    return ret;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "int passwd_main(int argc, char **argv)\n{\n    BIO *in = NULL;\n    char *infile = NULL, *salt = NULL, *passwd = NULL, **passwds = NULL;\n    char *salt_malloc = NULL, *passwd_malloc = NULL, *prog;\n    OPTION_CHOICE o;\n    int in_stdin = 0, pw_source_defined = 0;\n#ifndef OPENSSL_NO_UI_CONSOLE\n    int in_noverify = 0;\n#endif\n    int passed_salt = 0, quiet = 0, table = 0, reverse = 0;\n    int ret = 1;\n    passwd_modes mode = passwd_unset;\n    size_t passwd_malloc_size = 0;\n    size_t pw_maxlen = 256; /* arbitrary limit, should be enough for most\n                             * passwords */\n\n    prog = opt_init(argc, argv, passwd_options);\n    while ((o = opt_next()) != OPT_EOF) {\n        switch (o) {\n        case OPT_EOF:\n        case OPT_ERR:\n opthelp:\n            BIO_printf(bio_err, \"%s: Use -help for summary.\\n\", prog);\n            goto end;\n        case OPT_HELP:\n            opt_help(passwd_options);\n            ret = 0;\n            goto end;\n        case OPT_IN:\n            if (pw_source_defined)\n                goto opthelp;\n            infile = opt_arg();\n            pw_source_defined = 1;\n            break;\n        case OPT_NOVERIFY:\n#ifndef OPENSSL_NO_UI_CONSOLE\n            in_noverify = 1;\n#endif\n            break;\n        case OPT_QUIET:\n            quiet = 1;\n            break;\n        case OPT_TABLE:\n            table = 1;\n            break;\n        case OPT_REVERSE:\n            reverse = 1;\n            break;\n        case OPT_1:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_md5;\n            break;\n        case OPT_5:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_sha256;\n            break;\n        case OPT_6:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_sha512;\n            break;\n        case OPT_APR1:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_apr1;\n            break;\n        case OPT_AIXMD5:\n            if (mode != passwd_unset)\n                goto opthelp;\n            mode = passwd_aixmd5;\n            break;\n        case OPT_SALT:\n            passed_salt = 1;\n            salt = opt_arg();\n            break;\n        case OPT_STDIN:\n            if (pw_source_defined)\n                goto opthelp;\n            in_stdin = 1;\n            pw_source_defined = 1;\n            break;\n        case OPT_R_CASES:\n            if (!opt_rand(o))\n                goto end;\n            break;\n        case OPT_PROV_CASES:\n            if (!opt_provider(o))\n                goto end;\n            break;\n        }\n    }\n\n    /* All remaining arguments are the password text */\n    argc = opt_num_rest();\n    argv = opt_rest();\n    if (*argv != NULL) {\n        if (pw_source_defined)\n            goto opthelp;\n        pw_source_defined = 1;\n        passwds = argv;\n    }\n\n    if (!app_RAND_load())\n        goto end;\n\n    if (mode == passwd_unset) {\n        /* use default */\n        mode = passwd_md5;\n    }\n\n    if (infile != NULL && in_stdin) {\n        BIO_printf(bio_err, \"%s: Can't combine -in and -stdin\\n\", prog);\n        goto end;\n    }\n\n    if (infile != NULL || in_stdin) {\n        /*\n         * If in_stdin is true, we know that infile is NULL, and that\n         * bio_open_default() will give us back an alias for stdin.\n         */\n        in = bio_open_default(infile, 'r', FORMAT_TEXT);\n        if (in == NULL)\n            goto end;\n    }\n\n    if (passwds == NULL) {\n        /* no passwords on the command line */\n\n        passwd_malloc_size = pw_maxlen + 2;\n        /* longer than necessary so that we can warn about truncation */\n        passwd = passwd_malloc =\n            app_malloc(passwd_malloc_size, \"password buffer\");\n    }\n\n    if ((in == NULL) && (passwds == NULL)) {\n        /*\n         * we use the following method to make sure what\n         * in the 'else' section is always compiled, to\n         * avoid rot of not-frequently-used code.\n         */\n        if (1) {\n#ifndef OPENSSL_NO_UI_CONSOLE\n            /* build a null-terminated list */\n            static char *passwds_static[2] = { NULL, NULL };\n\n            passwds = passwds_static;\n            if (in == NULL) {\n                if (EVP_read_pw_string\n                    (passwd_malloc, passwd_malloc_size, \"Password: \",\n                     !(passed_salt || in_noverify)) != 0)\n                    goto end;\n            }\n            passwds[0] = passwd_malloc;\n        } else {\n#endif\n            BIO_printf(bio_err, \"password required\\n\");\n            goto end;\n        }\n    }\n\n    if (in == NULL) {\n        assert(passwds != NULL);\n        assert(*passwds != NULL);\n\n        do {                    /* loop over list of passwords */\n            passwd = *passwds++;\n            if (!do_passwd(passed_salt, &salt, &salt_malloc, passwd, bio_out,\n                           quiet, table, reverse, pw_maxlen, mode))\n                goto end;\n        } while (*passwds != NULL);\n    } else {\n        /* in != NULL */\n        int done;\n\n        assert(passwd != NULL);\n        do {\n            int r = BIO_gets(in, passwd, pw_maxlen + 1);\n            if (r > 0) {\n                char *c = (strchr(passwd, '\\n'));\n                if (c != NULL) {\n                    *c = 0;     /* truncate at newline */\n                } else {\n                    /* ignore rest of line */\n                    char trash[BUFSIZ];\n                    do\n                        r = BIO_gets(in, trash, sizeof(trash));\n                    while ((r > 0) && (!strchr(trash, '\\n')));\n                }\n\n                if (!do_passwd\n                    (passed_salt, &salt, &salt_malloc, passwd, bio_out, quiet,\n                     table, reverse, pw_maxlen, mode))\n                    goto end;\n            }\n            done = (r <= 0);\n        } while (!done);\n    }\n    ret = 0;\n\n end:\n#if 0\n    ERR_print_errors(bio_err);\n#endif\n    OPENSSL_free(salt_malloc);\n    OPENSSL_free(passwd_malloc);\n    BIO_free(in);\n    return ret;\n}"
+  ]
+}

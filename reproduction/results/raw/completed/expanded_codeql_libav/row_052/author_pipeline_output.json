@@ -1,0 +1,16 @@
+{
+  "response": [
+    "step 1 z3 script: ```python\nvst=Int('vst')\ns.add(vst == 0)\n```",
+    "response_filter_goto: ```json\n[\"!(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks) || !(!vst)\", \"!(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks > 1)\", \"!(version == 2) || !(!vst)\"]\n```",
+    "z3 script: ```python\nfrom z3 import *\n\n# Declare variables appearing in the constraints.\n# - version: integer (compared to 2)\n# - avio_rb16(pb): modeled as an integer (return value of the function call)\n# - mv->nb_video_tracks: integer (compared to 0 and 1)\n# - vst: pointer-like boolean (used with !vst, i.e., vst == 0 / NULL)\nversion = Int('version')\navio_rb16_pb = Int('avio_rb16_pb')\nnb_video_tracks = Int('nb_video_tracks')\nvst = Bool('vst')\n\ns = Solver()\n\n# Constraint 1: !(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks) || !(!vst)\n#   C: !(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks) || !(!vst)\n#   - !version  -> version == 0\n#   - !(mv->nb_video_tracks) -> nb_video_tracks == 0\n#   - !(!vst)   -> vst (i.e., vst != 0)\ns.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),\n         nb_video_tracks == 0,\n         vst))\n\n# Constraint 2: !(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks > 1)\n#   - !(mv->nb_video_tracks > 1) -> nb_video_tracks <= 1\ns.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),\n         nb_video_tracks <= 1))\n\n# Constraint 3: !(version == 2) || !(!vst)\n#   - !(version == 2) -> version != 2\n#   - !(!vst)         -> vst\ns.add(Or(version != 2, vst))\n\nprint(s)\n```",
+    "final z3 script: def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, And, sat\n\n    # Base script variables and constraints\n    vst_int = Int('vst')\n    s = Solver()\n    s.add(vst_int == 0)\n\n    # Variables from constraint set 2\n    version = Int('version')\n    avio_rb16_pb = Int('avio_rb16_pb')\n    nb_video_tracks = Int('nb_video_tracks')\n    vst = Bool('vst')\n\n    # Constraint 1\n    s.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),\n             nb_video_tracks == 0,\n             vst))\n\n    # Constraint 2\n    s.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),\n             nb_video_tracks <= 1))\n\n    # Constraint 3\n    s.add(Or(version != 2, vst))\n\n    return s.check() == sat",
+    "step 1 z3 script: ```python\nst=Int('st')\ns.add(st == 0)\n```"
+  ],
+  "function_name_list": [
+    "read_index"
+  ],
+  "function_body_list": [
+    "static void read_index(AVIOContext *pb, AVStream *st)\n{\n    uint64_t timestamp = 0;\n    int i;\n    for (i = 0; i < st->nb_frames; i++) {\n        uint32_t pos  = avio_rb32(pb);\n        uint32_t size = avio_rb32(pb);\n        avio_skip(pb, 8);\n        av_add_index_entry(st, pos, timestamp, size, 0, AVINDEX_KEYFRAME);\n        if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {\n            timestamp += size / (st->codecpar->channels * 2);\n        } else {\n            timestamp++;\n        }\n    }\n}"
+  ],
+  "result": true
+}

@@ -1,0 +1,45 @@
+{
+  "call_id": 530,
+  "sample_id": "NPD/codeql/libav:row=30:index=38",
+  "timestamp": "2026-10-26T00:54:13.867697+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(check_size(s, n))', '!(compress(dst, &zlen, src, n) != Z_OK)']\n        Relevant conditions/variables: [], src\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "2038395d-7d45-4552-be2b-9828c6f815a0",
+  "usage": {
+    "prompt_tokens": 130,
+    "completion_tokens": 448,
+    "total_tokens": 578,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 130
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables used in the constraints\n# src: pointer to source buffer (modeled as an integer address)\nsrc = Int('src')\n\n# n: size of the source buffer (modeled as an integer)\nn = Int('n')\n\n# dst: pointer to destination buffer (modeled as an integer address)\ndst = Int('dst')\n\n# zlen: output length from compression (modeled as an integer)\nzlen = Int('zlen')\n\n# check_size(s, n): modeled as an uninterpreted boolean predicate\n# Returns True if size check passes for buffer s with length n\ncheck_size = Function('check_size', IntSort(), IntSort(), BoolSort())\n\n# compress(dst, &zlen, src, n): modeled as an uninterpreted function\n# Returns an integer status code (e.g., Z_OK == 0)\ncompress = Function('compress', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())\n\n# Z_OK constant (zlib success code)\nZ_OK = 0\n\n# Constraint 1: !(check_size(s, n))\n# Included because it directly constrains the size-check condition on the source buffer.\n# In C, !(expr) means the expression evaluates to false (0).\n# Here we assert that check_size(src, n) is false.\nsolver = Solver()\nsolver.add(Not(check_size(src, n)))\n\n# Constraint 2: !(compress(dst, &zlen, src, n) != Z_OK)\n# Included because it constrains the compression result on the source buffer.\n# In C, !(x != Z_OK) is equivalent to (x == Z_OK).\n# We model &zlen as passing zlen by reference; here we treat zlen as an\n# output variable whose value is determined by the compress call.\nsolver.add(compress(dst, zlen, src, n) == Z_OK)\n\n# Check satisfiability and print the model\nif solver.check() == sat:\n    print(\"SAT\")\n    print(solver.model())\nelse:\n    print(\"UNSAT\")\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.782882100000279,
+  "cost_upper_bound_cny": 0.003844
+}

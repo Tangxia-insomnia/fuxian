@@ -1,0 +1,45 @@
+{
+  "call_id": 1152,
+  "sample_id": "NPD/infer/openssl:row=6:index=None",
+  "timestamp": "2026-10-26T01:08:28.390333+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int test_handshake_secrets(void)\n{\n    SSL_CTX *ctx = NULL;\n    SSL *ssl = NULL;\n    SSL_CONNECTION *s;\n    int ret = 0;\n    size_t hashsize;\n    unsigned char out_master_secret[EVP_MAX_MD_SIZE];\n    size_t master_secret_length;\n\n    ctx = SSL_CTX_new(TLS_method());\n    if (!TEST_ptr(ctx))\n        goto err;\n\n    ssl = SSL_new(ctx);\n    if (!TEST_ptr(ssl) || !TEST_ptr(s = SSL_CONNECTION_FROM_SSL_ONLY(ssl)))\n        goto err;\n\n    s->session = SSL_SESSION_new();\n    if (!TEST_ptr(s->session))\n        goto err;\n\n    if (!TEST_true(tls13_generate_secret(s, ssl_handshake_md(s), NULL, NULL, 0,\n                                         (unsigned char *)&s->early_secret))) {\n        TEST_info(\"Early secret generation failed\");\n        goto err;\n    }\n\n    if (!TEST_mem_eq(s->early_secret, sizeof(early_secret),\n                     early_secret, sizeof(early_secret))) {\n        TEST_info(\"Early secret does not match\");\n        goto err;\n    }\n\n    if (!TEST_true(tls13_generate_handshake_secret(s, ecdhe_secret,\n                                                   sizeof(ecdhe_secret)))) {\n        TEST_info(\"Handshake secret generation failed\");\n        goto err;\n    }\n\n    if (!TEST_mem_eq(s->handshake_secret, sizeof(handshake_secret),\n                     handshake_secret, sizeof(handshake_secret)))\n        goto err;\n\n    hashsize = EVP_MD_get_size(ssl_handshake_md(s));\n    if (!TEST_size_t_eq(sizeof(client_hts), hashsize))\n        goto err;\n    if (!TEST_size_t_eq(sizeof(client_hts_key), KEYLEN))\n        goto err;\n    if (!TEST_size_t_eq(sizeof(client_hts_iv), IVLEN))\n        goto err;\n\n    if (!TEST_true(test_secret(s, s->handshake_secret,\n                               (unsigned char *)client_hts_label,\n                               strlen(client_hts_label), client_hts,\n                               client_hts_key, client_hts_iv))) {\n        TEST_info(\"Client handshake secret test failed\");\n        goto err;\n    }\n\n    if (!TEST_size_t_eq(sizeof(server_hts), hashsize))\n        goto err;\n    if (!TEST_size_t_eq(sizeof(server_hts_key), KEYLEN))\n        goto err;\n    if (!TEST_size_t_eq(sizeof(server_hts_iv), IVLEN))\n        goto err;\n\n    if (!TEST_true(test_secret(s, s->handshake_secret,\n                               (unsigned char *)server_hts_label,\n                               strlen(server_hts_label), server_hts,\n                               server_hts_key, server_hts_iv))) {\n        TEST_info(\"Server handshake secret test failed\");\n        goto err;\n    }\n\n    /*\n     * Ensure the mocked out ssl_handshake_hash() returns the full handshake\n     * hash.\n     */\n    full_hash = 1;\n\n    if (!TEST_true(tls13_generate_master_secret(s, out_master_secret,\n                                                s->handshake_secret, hashsize,\n                                                &master_secret_length))) {\n        TEST_info(\"Master secret generation failed\");\n        goto err;\n    }\n\n    if (!TEST_mem_eq(out_master_secret, master_secret_length,\n                     master_secret, sizeof(master_secret))) {\n        TEST_info(\"Master secret does not match\");\n        goto err;\n    }\n\n    if (!TEST_size_t_eq(sizeof(client_ats), hashsize))\n        goto err;\n    if (!TEST_size_t_eq(sizeof(client_ats_key), KEYLEN))\n        goto err;\n    if (!TEST_size_t_eq(sizeof(client_ats_iv), IVLEN))\n        goto err;\n\n    if (!TEST_true(test_secret(s, out_master_secret,\n                               (unsigned char *)client_ats_label,\n                               strlen(client_ats_label), client_ats,\n                               client_ats_key, client_ats_iv))) {\n        TEST_info(\"Client application data secret test failed\");\n        goto err;\n    }\n\n    if (!TEST_size_t_eq(sizeof(server_ats), hashsize))\n        goto err;\n    if (!TEST_size_t_eq(sizeof(server_ats_key), KEYLEN))\n        goto err;\n    if (!TEST_size_t_eq(sizeof(server_ats_iv), IVLEN))\n        goto err;\n\n    if (!TEST_true(test_secret(s, out_master_secret,\n                               (unsigned char *)server_ats_label,\n                               strlen(server_ats_label), server_ats,\n                               server_ats_key, server_ats_iv))) {\n        TEST_info(\"Server application data secret test failed\");\n        goto err;\n    }\n\n    ret = 1;\n err:\n    SSL_free(ssl);\n    SSL_CTX_free(ctx);\n    return ret;\n}\n        - Target variables: [], s\n        - Constraints: ['!(!TEST_ptr(ssl) || !TEST_ptr(s = SSL_CONNECTION_FROM_SSL_ONLY(ssl)))', '!(!TEST_ptr(ctx))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "2fa86743-7ea7-47e7-a852-ebe6cca41dac",
+  "usage": {
+    "prompt_tokens": 1189,
+    "completion_tokens": 32,
+    "total_tokens": 1221,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1189
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(!TEST_ptr(ssl) || !TEST_ptr(s = SSL_CONNECTION_FROM_SSL_ONLY(ssl)))\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.7923415000004752,
+  "cost_upper_bound_cny": 0.002634
+}

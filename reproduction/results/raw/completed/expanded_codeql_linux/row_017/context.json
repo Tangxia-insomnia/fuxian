@@ -1,0 +1,35 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ipv6_route_native_seq_show",
+      "var_name": "fib6_nh",
+      "target": "\tif (fib6_nh->fib_nh_gw_family) {",
+      "code": "static int ipv6_route_native_seq_show(struct seq_file *seq, void *v)\n{\n\tstruct fib6_info *rt = v;\n\tstruct ipv6_route_iter *iter = seq->private;\n\tstruct fib6_nh *fib6_nh = rt->fib6_nh;\n\tunsigned int flags = rt->fib6_flags;\n\tconst struct net_device *dev;\n\n\tif (rt->nh)\n\t\tfib6_nh = nexthop_fib6_nh(rt->nh);\n\n\tseq_printf(seq, \"%pi6 %02x \", &rt->fib6_dst.addr, rt->fib6_dst.plen);\n\n#ifdef CONFIG_IPV6_SUBTREES\n\tseq_printf(seq, \"%pi6 %02x \", &rt->fib6_src.addr, rt->fib6_src.plen);\n#else\n\tseq_puts(seq, \"00000000000000000000000000000000 00 \");\n#endif\n\tif (fib6_nh->fib_nh_gw_family) {\n\t\tflags |= RTF_GATEWAY;\n\t\tseq_printf(seq, \"%pi6\", &fib6_nh->fib_nh_gw6);\n\t} else {\n\t\tseq_puts(seq, \"00000000000000000000000000000000\");\n\t}\n\n\tdev = fib6_nh->fib_nh_dev;\n\tseq_printf(seq, \" %08x %08x %08x %08x %8s\\n\",\n\t\t   rt->fib6_metric, refcount_read(&rt->fib6_ref), 0,\n\t\t   flags, dev ? dev->name : \"\");\n\titer->w.leaf = NULL;\n\treturn 0;\n}",
+      "body_sha256": "93ca160d4d293117f2064e48065d5d6b75956d177744cf0a5ea2fdbd518ab120",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tif (fib6_nh->fib_nh_gw_family) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int ipv6_route_native_seq_show(struct seq_file *seq, void *v)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static int ipv6_route_native_seq_show(struct seq_file *seq, void *v)\n{\n\tstruct fib6_info *rt = v;\n\tstruct ipv6_route_iter *iter = seq->private;\n\tstruct fib6_nh *fib6_nh = rt->fib6_nh;\n\tunsigned int flags = rt->fib6_flags;\n\tconst struct net_device *dev;\n\n\tif (rt->nh)\n\t\tfib6_nh = nexthop_fib6_nh(rt->nh);\n\n\tseq_printf(seq, \"%pi6 %02x \", &rt->fib6_dst.addr, rt->fib6_dst.plen);\n\n#ifdef CONFIG_IPV6_SUBTREES\n\tseq_printf(seq, \"%pi6 %02x \", &rt->fib6_src.addr, rt->fib6_src.plen);\n#else\n\tseq_puts(seq, \"00000000000000000000000000000000 00 \");\n#endif\n\tif (fib6_nh->fib_nh_gw_family) {\n\t\tflags |= RTF_GATEWAY;\n\t\tseq_printf(seq, \"%pi6\", &fib6_nh->fib_nh_gw6);\n\t} else {\n\t\tseq_puts(seq, \"00000000000000000000000000000000\");\n\t}\n\n\tdev = fib6_nh->fib_nh_dev;\n\tseq_printf(seq, \" %08x %08x %08x %08x %8s\\n\",\n\t\t   rt->fib6_metric, refcount_read(&rt->fib6_ref), 0,\n\t\t   flags, dev ? dev->name : \"\");\n\titer->w.leaf = NULL;\n\treturn 0;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int ipv6_route_native_seq_show(struct seq_file *seq, void *v)\n{\n\tstruct fib6_info *rt = v;\n\tstruct ipv6_route_iter *iter = seq->private;\n\tstruct fib6_nh *fib6_nh = rt->fib6_nh;\n\tunsigned int flags = rt->fib6_flags;\n\tconst struct net_device *dev;\n\n\tif (rt->nh)\n\t\tfib6_nh = nexthop_fib6_nh(rt->nh);\n\n\tseq_printf(seq, \"%pi6 %02x \", &rt->fib6_dst.addr, rt->fib6_dst.plen);\n\n#ifdef CONFIG_IPV6_SUBTREES\n\tseq_printf(seq, \"%pi6 %02x \", &rt->fib6_src.addr, rt->fib6_src.plen);\n#else\n\tseq_puts(seq, \"00000000000000000000000000000000 00 \");\n#endif\n\tif (fib6_nh->fib_nh_gw_family) {\n\t\tflags |= RTF_GATEWAY;\n\t\tseq_printf(seq, \"%pi6\", &fib6_nh->fib_nh_gw6);\n\t} else {\n\t\tseq_puts(seq, \"00000000000000000000000000000000\");\n\t}\n\n\tdev = fib6_nh->fib_nh_dev;\n\tseq_printf(seq, \" %08x %08x %08x %08x %8s\\n\",\n\t\t   rt->fib6_metric, refcount_read(&rt->fib6_ref), 0,\n\t\t   flags, dev ? dev->name : \"\");\n\titer->w.leaf = NULL;\n\treturn 0;\n}"
+  ]
+}

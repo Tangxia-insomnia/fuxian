@@ -1,0 +1,43 @@
+```python
+bn_ctx=Int('bn_ctx')
+s.add(bn_ctx == 0)
+```
+```python
+ctx=Int('ctx')
+s.add(ctx == 0)
+```
+```json
+["!(ctx == NULL)"]
+```
+```python
+# Z3 script generated from C constraints
+# Relevant variables: ctx
+# Constraint: !(ctx == NULL)  ->  ctx != NULL (i.e., ctx != 0)
+
+from z3 import *
+
+# Declare ctx as an integer representing a pointer address.
+# In C, NULL is typically 0, so we model the pointer as a BitVec/Int.
+ctx = Int('ctx')
+
+# Constraint: !(ctx == NULL)
+# Included because the original C code asserts that ctx is not NULL.
+# C-style "!(ctx == NULL)" is equivalent to "ctx != 0".
+s = Solver()
+s.add(ctx != 0)
+
+# Check satisfiability and print a model
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    ctx = Int('ctx')
+    s = Solver()
+    s.add(ctx == 0)
+    s.add(ctx != 0)
+    return s.check() == sat
+```
+goto result: False

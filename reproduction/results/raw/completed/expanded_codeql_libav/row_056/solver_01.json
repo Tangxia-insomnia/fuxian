@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, IntVal, Solver, Or, Not, And, sat\n    \n    st = Int('st')\n    tag = Int('tag')\n    i = Int('i')\n    nb_streams = Int('nb_streams')\n    codec_id = Int('codec_id')\n    codec_type = Int('codec_type')\n    st_id = Int('st_id')\n    ch_id = Int('ch_id')\n    \n    TAG_JPEG2 = IntVal(0)\n    TAG_STREAMBLOCK = IntVal(1)\n    TAG_VIDEOFRAME = IntVal(2)\n    TAG_STREAMHEAD = IntVal(3)\n    TAG_STREAMHEAD2 = IntVal(4)\n    TAG_VIDEOSTREAM = IntVal(5)\n    \n    AV_CODEC_ID_MJPEG = IntVal(10)\n    AVMEDIA_TYPE_AUDIO = IntVal(20)\n    AVMEDIA_TYPE_VIDEO = IntVal(21)\n    \n    s = Solver()\n    \n    s.add(st == 0)\n    \n    s.add(Or(tag != TAG_JPEG2,\n             Not(And(codec_id == AV_CODEC_ID_MJPEG, st_id == -2))))\n    \n    s.add(Or(tag != TAG_STREAMBLOCK,\n             Not(And(codec_type == AVMEDIA_TYPE_AUDIO, st_id == -1))))\n    \n    s.add(Or(tag != TAG_VIDEOFRAME,\n             Not(And(codec_type == AVMEDIA_TYPE_VIDEO, st_id == ch_id))))\n    \n    s.add(Or(Not(Or(tag == TAG_STREAMHEAD, tag == TAG_STREAMHEAD2)),\n             Not(And(codec_type == AVMEDIA_TYPE_AUDIO, st_id == -1))))\n    \n    s.add(Or(tag != TAG_VIDEOSTREAM,\n             Not(And(codec_type == AVMEDIA_TYPE_VIDEO, st_id == ch_id))))\n    \n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun st () Int)\n(declare-fun st_id () Int)\n(declare-fun codec_id () Int)\n(declare-fun tag () Int)\n(declare-fun codec_type () Int)\n(declare-fun ch_id () Int)\n(assert\n (= st 0))\n(assert\n (or (and (distinct 0 tag) true) (not (and (= 10 codec_id) (= st_id (- 2))))))\n(assert\n (let (($x60 (not (and (= 20 codec_type) (= st_id (- 1))))))\n (or (and (distinct 1 tag) true) $x60)))\n(assert\n (let (($x74 (not (and (= 21 codec_type) (= st_id ch_id)))))\n (or (and (distinct 2 tag) true) $x74)))\n(assert\n (let (($x60 (not (and (= 20 codec_type) (= st_id (- 1))))))\n (or (not (or (= 3 tag) (= 4 tag))) $x60)))\n(assert\n (let (($x74 (not (and (= 21 codec_type) (= st_id ch_id)))))\n(or (and (distinct 5 tag) true) $x74)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

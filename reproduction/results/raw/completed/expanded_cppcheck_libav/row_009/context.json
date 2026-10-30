@@ -1,0 +1,52 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "probe_codec",
+      "var_name": "pkt",
+      "target": "av_log2(pd->buf_size) != av_log2(pd->buf_size - pkt->size)) {",
+      "code": "static int probe_codec(AVFormatContext *s, AVStream *st, const AVPacket *pkt)\n{\n    if (st->codecpar->codec_id == AV_CODEC_ID_PROBE) {\n        AVProbeData *pd = &st->probe_data;\n        av_log(s, AV_LOG_DEBUG, \"probing stream %d\\n\", st->index);\n        --st->probe_packets;\n\n        if (pkt) {\n            int err;\n            if ((err = av_reallocp(&pd->buf, pd->buf_size + pkt->size +\n                                   AVPROBE_PADDING_SIZE)) < 0)\n                return err;\n            memcpy(pd->buf + pd->buf_size, pkt->data, pkt->size);\n            pd->buf_size += pkt->size;\n            memset(pd->buf + pd->buf_size, 0, AVPROBE_PADDING_SIZE);\n        } else {\n            st->probe_packets = 0;\n            if (!pd->buf_size) {\n                av_log(s, AV_LOG_ERROR,\n                       \"nothing to probe for stream %d\\n\", st->index);\n                return 0;\n            }\n        }\n\n        if (!st->probe_packets ||\n            av_log2(pd->buf_size) != av_log2(pd->buf_size - pkt->size)) {\n            set_codec_from_probe_data(s, st, pd, st->probe_packets > 0\n                                                 ? AVPROBE_SCORE_MAX / 4 : 0);\n            if (st->codecpar->codec_id != AV_CODEC_ID_PROBE) {\n                pd->buf_size = 0;\n                av_freep(&pd->buf);\n                av_log(s, AV_LOG_DEBUG, \"probed stream %d\\n\", st->index);\n            }\n        }\n    }\n    return 0;\n}",
+      "body_sha256": "7154bdf0504be1bb96213173342c8d8a98981d29efd99ac3b604f7d122bebed5",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "av_log2(pd->buf_size) != av_log2(pd->buf_size - pkt->size)) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int probe_codec(AVFormatContext *s, AVStream *st, const AVPacket *pkt)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "st->codecpar->codec_id == AV_CODEC_ID_PROBE",
+              "!(pkt)",
+              "!pd->buf_size"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "st->codecpar->codec_id == AV_CODEC_ID_PROBE",
+              "pkt",
+              "(err = av_reallocp(&pd->buf, pd->buf_size + pkt->size + AVPROBE_PADDING_SIZE)) < 0"
+            ]
+          }
+        ],
+        "filter_function_code": "static int probe_codec(AVFormatContext *s, AVStream *st, const AVPacket *pkt)\n{\n    if (st->codecpar->codec_id == AV_CODEC_ID_PROBE) {\n        AVProbeData *pd = &st->probe_data;\n        av_log(s, AV_LOG_DEBUG, \"probing stream %d\\n\", st->index);\n        --st->probe_packets;\n\n        if (pkt) {\n            int err;\n            if ((err = av_reallocp(&pd->buf, pd->buf_size + pkt->size +\n                                   AVPROBE_PADDING_SIZE)) < 0)\n                return err;\n            memcpy(pd->buf + pd->buf_size, pkt->data, pkt->size);\n            pd->buf_size += pkt->size;\n            memset(pd->buf + pd->buf_size, 0, AVPROBE_PADDING_SIZE);\n        } else {\n            st->probe_packets = 0;\n            if (!pd->buf_size) {\n                av_log(s, AV_LOG_ERROR,\n                       \"nothing to probe for stream %d\\n\", st->index);\n                return 0;\n            }\n        }\n\n        if (!st->probe_packets ||\n            av_log2(pd->buf_size) != av_log2(pd->buf_size - pkt->size)) {\n            set_codec_from_probe_data(s, st, pd, st->probe_packets > 0\n                                                 ? AVPROBE_SCORE_MAX / 4 : 0);\n            if (st->codecpar->codec_id != AV_CODEC_ID_PROBE) {\n                pd->buf_size = 0;\n                av_freep(&pd->buf);\n                av_log(s, AV_LOG_DEBUG, \"probed stream %d\\n\", st->index);\n            }\n        }\n    }\n    return 0;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int probe_codec(AVFormatContext *s, AVStream *st, const AVPacket *pkt)\n{\n    if (st->codecpar->codec_id == AV_CODEC_ID_PROBE) {\n        AVProbeData *pd = &st->probe_data;\n        av_log(s, AV_LOG_DEBUG, \"probing stream %d\\n\", st->index);\n        --st->probe_packets;\n\n        if (pkt) {\n            int err;\n            if ((err = av_reallocp(&pd->buf, pd->buf_size + pkt->size +\n                                   AVPROBE_PADDING_SIZE)) < 0)\n                return err;\n            memcpy(pd->buf + pd->buf_size, pkt->data, pkt->size);\n            pd->buf_size += pkt->size;\n            memset(pd->buf + pd->buf_size, 0, AVPROBE_PADDING_SIZE);\n        } else {\n            st->probe_packets = 0;\n            if (!pd->buf_size) {\n                av_log(s, AV_LOG_ERROR,\n                       \"nothing to probe for stream %d\\n\", st->index);\n                return 0;\n            }\n        }\n\n        if (!st->probe_packets ||\n            av_log2(pd->buf_size) != av_log2(pd->buf_size - pkt->size)) {\n            set_codec_from_probe_data(s, st, pd, st->probe_packets > 0\n                                                 ? AVPROBE_SCORE_MAX / 4 : 0);\n            if (st->codecpar->codec_id != AV_CODEC_ID_PROBE) {\n                pd->buf_size = 0;\n                av_freep(&pd->buf);\n                av_log(s, AV_LOG_DEBUG, \"probed stream %d\\n\", st->index);\n            }\n        }\n    }\n    return 0;\n}"
+  ]
+}

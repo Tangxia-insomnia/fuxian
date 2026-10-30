@@ -1,0 +1,99 @@
+```python
+ctx=Int('ctx')
+s.add(ctx == 0)
+```
+Looking at the constraints and target variables `[]` (empty) and `ctx`:
+
+**Step 1: Filter constraints affecting reachability**
+
+The target variables are `ctx` (and an empty list). I need to find constraints that involve `ctx`.
+
+Let me examine each constraint:
+
+1. `!(ptype == V_ASN1_OBJECT)` - no `ctx`, doesn't affect `ctx` reachability directly
+2. `!(ptype == V_ASN1_OBJECT) || !(EVP_PKEY_paramgen(pctx, &pkey) <= 0)` - no `ctx`
+3. `!(ptype == V_ASN1_OBJECT) || !(OBJ_obj2txt(...) <= 0 || EVP_PKEY_CTX_set_group_name(...) <= 0)` - no `ctx`
+4. `!(ptype == V_ASN1_OBJECT) || !(pctx == NULL || EVP_PKEY_paramgen_init(pctx) <= 0)` - no `ctx`
+5. `!(ptype == V_ASN1_SEQUENCE)` - no `ctx`
+6. `!(ptype == V_ASN1_SEQUENCE) || !(!OSSL_DECODER_from_data(ctx, &pm, &pmlen))` - **involves `ctx`**
+7. `!(ptype == V_ASN1_SEQUENCE) || !(ctx == NULL)` - **involves `ctx`**
+
+**Step 2: Include only constraints involving target variables**
+
+Constraints 6 and 7 involve `ctx`.
+
+**Step 3: Verify filtered constraints step by step**
+
+Constraint 6: `!(ptype == V_ASN1_SEQUENCE) || !(!OSSL_DECODER_from_data(ctx, &pm, &pmlen))`
+- This says: either ptype is not SEQUENCE, OR OSSL_DECODER_from_data succeeds (returns true, so `!OSSL_DECODER_from_data` is false, so `!(!...)` is true).
+- This is the path condition where `ctx` is used in `OSSL_DECODER_from_data`. It's relevant to `ctx` reachability since `ctx` must be non-NULL and valid here.
+
+Constraint 7: `!(ptype == V_ASN1_SEQUENCE) || !(ctx == NULL)`
+- This says: either ptype is not SEQUENCE, OR ctx is not NULL.
+- This ensures `ctx` is non-NULL when used in the SEQUENCE branch (after the `if (ctx == NULL) goto err;` check).
+
+Both constraints are valid and involve `ctx`.
+
+```json
+["!(ptype == V_ASN1_SEQUENCE) || !(!OSSL_DECODER_from_data(ctx, &pm, &pmlen))", "!(ptype == V_ASN1_SEQUENCE) || !(ctx == NULL)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# ctx: pointer (modeled as an integer address; 0 means NULL)
+ctx = Int('ctx')
+
+# ptype: integer type tag (V_ASN1_SEQUENCE is a constant; we model it symbolically)
+ptype = Int('ptype')
+V_ASN1_SEQUENCE = Int('V_ASN1_SEQUENCE')
+
+# OSSL_DECODER_from_data return value: modeled as a boolean (true = success/nonzero)
+# The C expression !OSSL_DECODER_from_data(...) is true when the call fails.
+decoder_from_data_ok = Bool('decoder_from_data_ok')
+
+s = Solver()
+
+# Constraint 1:
+#   !(ptype == V_ASN1_SEQUENCE) || !(!OSSL_DECODER_from_data(ctx, &pm, &pmlen))
+# Simplifies to: ptype != V_ASN1_SEQUENCE || OSSL_DECODER_from_data(...) succeeds
+# Included because it constrains ptype (and the decoder call outcome) which
+# gates the code path under analysis.
+s.add(Or(ptype != V_ASN1_SEQUENCE, decoder_from_data_ok))
+
+# Constraint 2:
+#   !(ptype == V_ASN1_SEQUENCE) || !(ctx == NULL)
+# Simplifies to: ptype != V_ASN1_SEQUENCE || ctx != 0
+# Included because it constrains ctx (must be non-NULL when ptype is SEQUENCE).
+s.add(Or(ptype != V_ASN1_SEQUENCE, ctx != 0))
+
+# Check satisfiability and print model
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, sat
+
+    # Base script variables and constraints
+    ctx = Int('ctx')
+
+    # Constraint set 2 variables
+    ptype = Int('ptype')
+    V_ASN1_SEQUENCE = Int('V_ASN1_SEQUENCE')
+    decoder_from_data_ok = Bool('decoder_from_data_ok')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ctx == 0)
+
+    # Constraint set 2, constraint 1
+    s.add(Or(ptype != V_ASN1_SEQUENCE, decoder_from_data_ok))
+
+    # Constraint set 2, constraint 2
+    s.add(Or(ptype != V_ASN1_SEQUENCE, ctx != 0))
+
+    return s.check() == sat
+```
+goto result: True

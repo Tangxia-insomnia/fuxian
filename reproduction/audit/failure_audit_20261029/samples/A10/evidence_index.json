@@ -1,0 +1,61 @@
+{
+  "audit_id": "A10",
+  "sample_id": "NPD/codeql/kernel69:row=65:index=95",
+  "selection_reason": "误报过滤对照",
+  "selection": "purposive diagnostic; not random and not representative",
+  "label": 0,
+  "prediction": "filter",
+  "status": "success",
+  "error": null,
+  "source_status": "No explicit source location/complete SARIF codeFlow in published row; raw function_list/assignment hints preserved, not invented",
+  "sink": {
+    "file_path": "net/mac80211/tdls.c",
+    "region": {
+      "startLine": 614,
+      "startColumn": 2,
+      "endColumn": 5
+    },
+    "context": {
+      "startLine": 612,
+      "endLine": 616,
+      "snippet": {
+        "text": "\tsta->tdls_chandef = link->conf->chanreq.oper;"
+      }
+    }
+  },
+  "saved_context_exists": true,
+  "function_chain": [
+    "ieee80211_tdls_add_setup_cfm_ies"
+  ],
+  "final_attempt_call_ids": [
+    59,
+    60,
+    61,
+    62
+  ],
+  "earlier_attempt_call_ids_not_reused": [
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40
+  ],
+  "solver_evidence": [
+    {
+      "file": "solver_01.json",
+      "level": 0,
+      "ok": true,
+      "error": null,
+      "feasible": false,
+      "query_results": [
+        "unsat"
+      ]
+    }
+  ],
+  "argument_parameter_mapping": [],
+  "duration_seconds": 6.102742000000035,
+  "cost_upper_bound_cny": 0.009494000000000002,
+  "missing_steps": []
+}

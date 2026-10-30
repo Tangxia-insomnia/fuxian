@@ -1,0 +1,82 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "hls_read_packet",
+      "var_name": "minvar",
+      "target": "} else if (var->cur_seq_no == minvar->cur_seq_no) {",
+      "code": "static int hls_read_packet(AVFormatContext *s, AVPacket *pkt)\n{\n    HLSContext *c = s->priv_data;\n    int ret, i, minvariant = -1;\n\n    if (c->first_packet) {\n        recheck_discard_flags(s, 1);\n        c->first_packet = 0;\n    }\n\nstart:\n    c->end_of_segment = 0;\n    for (i = 0; i < c->n_variants; i++) {\n        struct variant *var = c->variants[i];\n        /* Make sure we've got one buffered packet from each open variant\n         * stream */\n        if (var->needed && !var->pkt.data) {\n            while (1) {\n                int64_t ts_diff;\n                AVStream *st;\n                ret = av_read_frame(var->ctx, &var->pkt);\n                if (ret < 0) {\n                    if (!var->pb.eof_reached)\n                        return ret;\n                    reset_packet(&var->pkt);\n                    break;\n                } else {\n                    if (c->first_timestamp == AV_NOPTS_VALUE &&\n                        var->pkt.dts       != AV_NOPTS_VALUE)\n                        c->first_timestamp = av_rescale_q(var->pkt.dts,\n                            var->ctx->streams[var->pkt.stream_index]->time_base,\n                            AV_TIME_BASE_Q);\n                }\n\n                if (c->seek_timestamp == AV_NOPTS_VALUE)\n                    break;\n\n                if (var->pkt.dts == AV_NOPTS_VALUE) {\n                    c->seek_timestamp = AV_NOPTS_VALUE;\n                    break;\n                }\n\n                st = var->ctx->streams[var->pkt.stream_index];\n                ts_diff = av_rescale_rnd(var->pkt.dts, AV_TIME_BASE,\n                                         st->time_base.den, AV_ROUND_DOWN) -\n                          c->seek_timestamp;\n                if (ts_diff >= 0 && (c->seek_flags  & AVSEEK_FLAG_ANY ||\n                                     var->pkt.flags & AV_PKT_FLAG_KEY)) {\n                    c->seek_timestamp = AV_NOPTS_VALUE;\n                    break;\n                }\n                av_packet_unref(&var->pkt);\n                reset_packet(&var->pkt);\n            }\n        }\n        /* Check if this stream still is on an earlier segment number, or\n         * has the packet with the lowest dts */\n        if (var->pkt.data) {\n            struct variant *minvar = minvariant < 0 ?\n                                     NULL : c->variants[minvariant];\n            if (minvariant < 0 || var->cur_seq_no < minvar->cur_seq_no) {\n                minvariant = i;\n            } else if (var->cur_seq_no == minvar->cur_seq_no) {\n                int64_t dts     =    var->pkt.dts;\n                int64_t mindts  = minvar->pkt.dts;\n                AVStream *st    =    var->ctx->streams[var->pkt.stream_index];\n                AVStream *minst = minvar->ctx->streams[minvar->pkt.stream_index];\n\n                if (dts == AV_NOPTS_VALUE) {\n                    minvariant = i;\n                } else if (mindts != AV_NOPTS_VALUE) {\n                    if (st->start_time    != AV_NOPTS_VALUE)\n                        dts    -= st->start_time;\n                    if (minst->start_time != AV_NOPTS_VALUE)\n                        mindts -= minst->start_time;\n\n                    if (av_compare_ts(dts, st->time_base,\n                                      mindts, minst->time_base) < 0)\n                        minvariant = i;\n                }\n            }\n        }\n    }\n    if (c->end_of_segment) {\n        if (recheck_discard_flags(s, 0))\n            goto start;\n    }\n    /* If we got a packet, return it */\n    if (minvariant >= 0) {\n        *pkt = c->variants[minvariant]->pkt;\n        pkt->stream_index += c->variants[minvariant]->stream_offset;\n        reset_packet(&c->variants[minvariant]->pkt);\n        return 0;\n    }\n    return AVERROR_EOF;\n}",
+      "body_sha256": "d72af0eaa222abbceb1c16963480208f7a7ed847becc3e5769f285e9de5b064a",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "} else if (var->cur_seq_no == minvar->cur_seq_no) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int hls_read_packet(AVFormatContext *s, AVPacket *pkt)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "break",
+            "condition": [
+              "i = 0; i < c->n_variants; i++",
+              "var->needed && !var->pkt.data",
+              "1",
+              "ts_diff >= 0 && (c->seek_flags  & AVSEEK_FLAG_ANY || var->pkt.flags & AV_PKT_FLAG_KEY)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "i = 0; i < c->n_variants; i++",
+              "var->needed && !var->pkt.data",
+              "1",
+              "var->pkt.dts == AV_NOPTS_VALUE"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "i = 0; i < c->n_variants; i++",
+              "var->needed && !var->pkt.data",
+              "1",
+              "c->seek_timestamp == AV_NOPTS_VALUE"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "i = 0; i < c->n_variants; i++",
+              "var->needed && !var->pkt.data",
+              "1",
+              "ret < 0"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "i = 0; i < c->n_variants; i++",
+              "var->needed && !var->pkt.data",
+              "1",
+              "ret < 0",
+              "!var->pb.eof_reached"
+            ]
+          }
+        ],
+        "filter_function_code": "static int hls_read_packet(AVFormatContext *s, AVPacket *pkt)\n{\n    HLSContext *c = s->priv_data;\n    int ret, i, minvariant = -1;\n\n    if (c->first_packet) {\n        recheck_discard_flags(s, 1);\n        c->first_packet = 0;\n    }\n\nstart:\n    c->end_of_segment = 0;\n    for (i = 0; i < c->n_variants; i++) {\n        struct variant *var = c->variants[i];\n        /* Make sure we've got one buffered packet from each open variant\n         * stream */\n        if (var->needed && !var->pkt.data) {\n            while (1) {\n                int64_t ts_diff;\n                AVStream *st;\n                ret = av_read_frame(var->ctx, &var->pkt);\n                if (ret < 0) {\n                    if (!var->pb.eof_reached)\n                        return ret;\n                    reset_packet(&var->pkt);\n                    break;\n                } else {\n                    if (c->first_timestamp == AV_NOPTS_VALUE &&\n                        var->pkt.dts       != AV_NOPTS_VALUE)\n                        c->first_timestamp = av_rescale_q(var->pkt.dts,\n                            var->ctx->streams[var->pkt.stream_index]->time_base,\n                            AV_TIME_BASE_Q);\n                }\n\n                if (c->seek_timestamp == AV_NOPTS_VALUE)\n                    break;\n\n                if (var->pkt.dts == AV_NOPTS_VALUE) {\n                    c->seek_timestamp = AV_NOPTS_VALUE;\n                    break;\n                }\n\n                st = var->ctx->streams[var->pkt.stream_index];\n                ts_diff = av_rescale_rnd(var->pkt.dts, AV_TIME_BASE,\n                                         st->time_base.den, AV_ROUND_DOWN) -\n                          c->seek_timestamp;\n                if (ts_diff >= 0 && (c->seek_flags  & AVSEEK_FLAG_ANY ||\n                                     var->pkt.flags & AV_PKT_FLAG_KEY)) {\n                    c->seek_timestamp = AV_NOPTS_VALUE;\n                    break;\n                }\n                av_packet_unref(&var->pkt);\n                reset_packet(&var->pkt);\n            }\n        }\n        /* Check if this stream still is on an earlier segment number, or\n         * has the packet with the lowest dts */\n        if (var->pkt.data) {\n            struct variant *minvar = minvariant < 0 ?\n                                     NULL : c->variants[minvariant];\n            if (minvariant < 0 || var->cur_seq_no < minvar->cur_seq_no) {\n                minvariant = i;\n            } else if (var->cur_seq_no == minvar->cur_seq_no) {\n                int64_t dts     =    var->pkt.dts;\n                int64_t mindts  = minvar->pkt.dts;\n                AVStream *st    =    var->ctx->streams[var->pkt.stream_index];\n                AVStream *minst = minvar->ctx->streams[minvar->pkt.stream_index];\n\n                if (dts == AV_NOPTS_VALUE) {\n                    minvariant = i;\n                } else if (mindts != AV_NOPTS_VALUE) {\n                    if (st->start_time    != AV_NOPTS_VALUE)\n                        dts    -= st->start_time;\n                    if (minst->start_time != AV_NOPTS_VALUE)\n                        mindts -= minst->start_time;\n\n                    if (av_compare_ts(dts, st->time_base,\n                                      mindts, minst->time_base) < 0)\n                        minvariant = i;\n                }\n            }\n        }\n    }\n    if (c->end_of_segment) {\n        if (recheck_discard_flags(s, 0))\n            goto start;\n    }\n    /* If we got a packet, return it */\n    if (minvariant >= 0) {\n        *pkt = c->variants[minvariant]->pkt;\n        pkt->stream_index += c->variants[minvariant]->stream_offset;\n        reset_packet(&c->variants[minvariant]->pkt);\n        return 0;\n    }\n    return AVERROR_EOF;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int hls_read_packet(AVFormatContext *s, AVPacket *pkt)\n{\n    HLSContext *c = s->priv_data;\n    int ret, i, minvariant = -1;\n\n    if (c->first_packet) {\n        recheck_discard_flags(s, 1);\n        c->first_packet = 0;\n    }\n\nstart:\n    c->end_of_segment = 0;\n    for (i = 0; i < c->n_variants; i++) {\n        struct variant *var = c->variants[i];\n        /* Make sure we've got one buffered packet from each open variant\n         * stream */\n        if (var->needed && !var->pkt.data) {\n            while (1) {\n                int64_t ts_diff;\n                AVStream *st;\n                ret = av_read_frame(var->ctx, &var->pkt);\n                if (ret < 0) {\n                    if (!var->pb.eof_reached)\n                        return ret;\n                    reset_packet(&var->pkt);\n                    break;\n                } else {\n                    if (c->first_timestamp == AV_NOPTS_VALUE &&\n                        var->pkt.dts       != AV_NOPTS_VALUE)\n                        c->first_timestamp = av_rescale_q(var->pkt.dts,\n                            var->ctx->streams[var->pkt.stream_index]->time_base,\n                            AV_TIME_BASE_Q);\n                }\n\n                if (c->seek_timestamp == AV_NOPTS_VALUE)\n                    break;\n\n                if (var->pkt.dts == AV_NOPTS_VALUE) {\n                    c->seek_timestamp = AV_NOPTS_VALUE;\n                    break;\n                }\n\n                st = var->ctx->streams[var->pkt.stream_index];\n                ts_diff = av_rescale_rnd(var->pkt.dts, AV_TIME_BASE,\n                                         st->time_base.den, AV_ROUND_DOWN) -\n                          c->seek_timestamp;\n                if (ts_diff >= 0 && (c->seek_flags  & AVSEEK_FLAG_ANY ||\n                                     var->pkt.flags & AV_PKT_FLAG_KEY)) {\n                    c->seek_timestamp = AV_NOPTS_VALUE;\n                    break;\n                }\n                av_packet_unref(&var->pkt);\n                reset_packet(&var->pkt);\n            }\n        }\n        /* Check if this stream still is on an earlier segment number, or\n         * has the packet with the lowest dts */\n        if (var->pkt.data) {\n            struct variant *minvar = minvariant < 0 ?\n                                     NULL : c->variants[minvariant];\n            if (minvariant < 0 || var->cur_seq_no < minvar->cur_seq_no) {\n                minvariant = i;\n            } else if (var->cur_seq_no == minvar->cur_seq_no) {\n                int64_t dts     =    var->pkt.dts;\n                int64_t mindts  = minvar->pkt.dts;\n                AVStream *st    =    var->ctx->streams[var->pkt.stream_index];\n                AVStream *minst = minvar->ctx->streams[minvar->pkt.stream_index];\n\n                if (dts == AV_NOPTS_VALUE) {\n                    minvariant = i;\n                } else if (mindts != AV_NOPTS_VALUE) {\n                    if (st->start_time    != AV_NOPTS_VALUE)\n                        dts    -= st->start_time;\n                    if (minst->start_time != AV_NOPTS_VALUE)\n                        mindts -= minst->start_time;\n\n                    if (av_compare_ts(dts, st->time_base,\n                                      mindts, minst->time_base) < 0)\n                        minvariant = i;\n                }\n            }\n        }\n    }\n    if (c->end_of_segment) {\n        if (recheck_discard_flags(s, 0))\n            goto start;\n    }\n    /* If we got a packet, return it */\n    if (minvariant >= 0) {\n        *pkt = c->variants[minvariant]->pkt;\n        pkt->stream_index += c->variants[minvariant]->stream_offset;\n        reset_packet(&c->variants[minvariant]->pkt);\n        return 0;\n    }\n    return AVERROR_EOF;\n}"
+  ]
+}

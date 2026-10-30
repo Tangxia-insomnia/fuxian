@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat, Not\n\n    # Base script variables and constraints\n    elems = Int('elems')\n    s = Solver()\n    s.add(elems == 0)\n\n    # Constraint set 2 variables and constraints\n    skb_len = Int('skb_len')\n    baselen = Int('baselen')\n    s.add(Not(skb_len < baselen))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun elems () Int)\n(declare-fun baselen () Int)\n(declare-fun skb_len () Int)\n(assert\n (= elems 0))\n(assert\n (not (< skb_len baselen)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

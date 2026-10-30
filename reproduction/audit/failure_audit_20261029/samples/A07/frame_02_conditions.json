@@ -1,0 +1,21 @@
+{
+  "bug_line_constraints": [
+    {
+      "text": "    return req->req_info.pubkey;",
+      "condition": []
+    }
+  ],
+  "target_conditions": [],
+  "variable_assignments": {
+    "text": "X509_PUBKEY *X509_REQ_get_X509_PUBKEY(X509_REQ *req)",
+    "condition": []
+  },
+  "variable_non_empty": [],
+  "early_jump_constraints": [
+    {
+      "text": "return",
+      "condition": []
+    }
+  ],
+  "filter_function_code": "X509_PUBKEY *X509_REQ_get_X509_PUBKEY(X509_REQ *req)\n{\n    return req->req_info.pubkey;\n}"
+}

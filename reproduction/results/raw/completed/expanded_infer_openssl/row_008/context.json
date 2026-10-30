@@ -1,0 +1,44 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "srtm_remove_from_rev",
+      "var_name": "rh_item",
+      "target": "for (; rh_item->next_by_srt_blinded != item;",
+      "code": "static int srtm_remove_from_rev(QUIC_SRTM *srtm, SRTM_ITEM *item)\n{\n    SRTM_ITEM *rh_item;\n\n    rh_item = lh_SRTM_ITEM_retrieve(srtm->items_rev, item);\n    assert(rh_item != NULL);\n    if (rh_item == item) {\n        /*\n         * Change lhash to point to item after this one, or remove the entry if\n         * this is the last one.\n         */\n        if (item->next_by_srt_blinded != NULL) {\n            lh_SRTM_ITEM_insert(srtm->items_rev, item->next_by_srt_blinded);\n            if (!srtm_check_lh(srtm, srtm->items_rev))\n                return 0;\n        } else {\n            lh_SRTM_ITEM_delete(srtm->items_rev, item);\n        }\n    } else {\n        /* Find our entry in the SRT list */\n        for (; rh_item->next_by_srt_blinded != item;\n               rh_item = rh_item->next_by_srt_blinded);\n        rh_item->next_by_srt_blinded = item->next_by_srt_blinded;\n    }\n\n    return 1;\n}",
+      "body_sha256": "2f2018a6f2b16370c3d239c29bd782ee4f9f1245f858c783a0e69dad45adcbf4",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "for (; rh_item->next_by_srt_blinded != item;",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int srtm_remove_from_rev(QUIC_SRTM *srtm, SRTM_ITEM *item)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "rh_item == item",
+              "item->next_by_srt_blinded != NULL",
+              "!srtm_check_lh(srtm, srtm->items_rev)"
+            ]
+          }
+        ],
+        "filter_function_code": "static int srtm_remove_from_rev(QUIC_SRTM *srtm, SRTM_ITEM *item)\n{\n    SRTM_ITEM *rh_item;\n\n    rh_item = lh_SRTM_ITEM_retrieve(srtm->items_rev, item);\n    assert(rh_item != NULL);\n    if (rh_item == item) {\n        /*\n         * Change lhash to point to item after this one, or remove the entry if\n         * this is the last one.\n         */\n        if (item->next_by_srt_blinded != NULL) {\n            lh_SRTM_ITEM_insert(srtm->items_rev, item->next_by_srt_blinded);\n            if (!srtm_check_lh(srtm, srtm->items_rev))\n                return 0;\n        } else {\n            lh_SRTM_ITEM_delete(srtm->items_rev, item);\n        }\n    } else {\n        /* Find our entry in the SRT list */\n        for (; rh_item->next_by_srt_blinded != item;\n               rh_item = rh_item->next_by_srt_blinded);\n        rh_item->next_by_srt_blinded = item->next_by_srt_blinded;\n    }\n\n    return 1;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int srtm_remove_from_rev(QUIC_SRTM *srtm, SRTM_ITEM *item)\n{\n    SRTM_ITEM *rh_item;\n\n    rh_item = lh_SRTM_ITEM_retrieve(srtm->items_rev, item);\n    assert(rh_item != NULL);\n    if (rh_item == item) {\n        /*\n         * Change lhash to point to item after this one, or remove the entry if\n         * this is the last one.\n         */\n        if (item->next_by_srt_blinded != NULL) {\n            lh_SRTM_ITEM_insert(srtm->items_rev, item->next_by_srt_blinded);\n            if (!srtm_check_lh(srtm, srtm->items_rev))\n                return 0;\n        } else {\n            lh_SRTM_ITEM_delete(srtm->items_rev, item);\n        }\n    } else {\n        /* Find our entry in the SRT list */\n        for (; rh_item->next_by_srt_blinded != item;\n               rh_item = rh_item->next_by_srt_blinded);\n        rh_item->next_by_srt_blinded = item->next_by_srt_blinded;\n    }\n\n    return 1;\n}"
+  ]
+}

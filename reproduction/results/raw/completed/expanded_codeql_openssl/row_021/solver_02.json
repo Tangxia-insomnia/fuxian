@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, And, Or, Not, sat\n\n    # Base script constraints\n    cmd = Int('cmd')\n    s = Solver()\n    s.add(cmd == 0)\n\n    # Constraint set 2: modeled with Int since String is unavailable\n    # Model cmd as an Int; represent presence of ':' via a symbolic Int flag\n    # Since we cannot use String, we conservatively keep the base constraint only\n    # and encode the disjunction using Int-based flags.\n    has_colon = Int('has_colon')\n    colon_index = Int('colon_index')\n\n    # has_colon == 0 means ':' not present (arg == NULL)\n    # has_colon == 1 means ':' present with colon_index <= 254\n    s.add(Or(has_colon == 0, And(has_colon == 1, colon_index <= 254)))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun cmd () Int)\n(declare-fun colon_index () Int)\n(declare-fun has_colon () Int)\n(assert\n (= cmd 0))\n(assert\n (or (= has_colon 0) (and (= has_colon 1) (<= colon_index 254))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

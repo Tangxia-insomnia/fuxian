@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    pcr_st = Int('pcr_st')\n    s = Solver()\n    s.add(pcr_st == 0)\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun pcr_st () Int)\n(assert\n (= pcr_st 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

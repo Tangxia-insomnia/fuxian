@@ -1,0 +1,164 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ip_route_output_key_hash_rcu",
+      "var_name": "dev_out",
+      "target": "\trth = __mkroute_output(res, fl4, orig_oif, dev_out, flags);",
+      "code": "struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,\n\t\t\t\t\t    struct fib_result *res,\n\t\t\t\t\t    const struct sk_buff *skb)\n{\n\tstruct net_device *dev_out = NULL;\n\tint orig_oif = fl4->flowi4_oif;\n\tunsigned int flags = 0;\n\tstruct rtable *rth;\n\tint err;\n\n\tif (fl4->saddr) {\n\t\tif (ipv4_is_multicast(fl4->saddr) ||\n\t\t    ipv4_is_lbcast(fl4->saddr) ||\n\t\t    ipv4_is_zeronet(fl4->saddr)) {\n\t\t\trth = ERR_PTR(-EINVAL);\n\t\t\tgoto out;\n\t\t}\n\n\t\trth = ERR_PTR(-ENETUNREACH);\n\n\t\t/* I removed check for oif == dev_out->oif here.\n\t\t * It was wrong for two reasons:\n\t\t * 1. ip_dev_find(net, saddr) can return wrong iface, if saddr\n\t\t *    is assigned to multiple interfaces.\n\t\t * 2. Moreover, we are allowed to send packets with saddr\n\t\t *    of another iface. --ANK\n\t\t */\n\n\t\tif (fl4->flowi4_oif == 0 &&\n\t\t    (ipv4_is_multicast(fl4->daddr) ||\n\t\t     ipv4_is_lbcast(fl4->daddr))) {\n\t\t\t/* It is equivalent to inet_addr_type(saddr) == RTN_LOCAL */\n\t\t\tdev_out = __ip_dev_find(net, fl4->saddr, false);\n\t\t\tif (!dev_out)\n\t\t\t\tgoto out;\n\n\t\t\t/* Special hack: user can direct multicasts\n\t\t\t * and limited broadcast via necessary interface\n\t\t\t * without fiddling with IP_MULTICAST_IF or IP_PKTINFO.\n\t\t\t * This hack is not just for fun, it allows\n\t\t\t * vic,vat and friends to work.\n\t\t\t * They bind socket to loopback, set ttl to zero\n\t\t\t * and expect that it will work.\n\t\t\t * From the viewpoint of routing cache they are broken,\n\t\t\t * because we are not allowed to build multicast path\n\t\t\t * with loopback source addr (look, routing cache\n\t\t\t * cannot know, that ttl is zero, so that packet\n\t\t\t * will not leave this host and route is valid).\n\t\t\t * Luckily, this hack is good workaround.\n\t\t\t */\n\n\t\t\tfl4->flowi4_oif = dev_out->ifindex;\n\t\t\tgoto make_route;\n\t\t}\n\n\t\tif (!(fl4->flowi4_flags & FLOWI_FLAG_ANYSRC)) {\n\t\t\t/* It is equivalent to inet_addr_type(saddr) == RTN_LOCAL */\n\t\t\tif (!__ip_dev_find(net, fl4->saddr, false))\n\t\t\t\tgoto out;\n\t\t}\n\t}\n\n\n\tif (fl4->flowi4_oif) {\n\t\tdev_out = dev_get_by_index_rcu(net, fl4->flowi4_oif);\n\t\trth = ERR_PTR(-ENODEV);\n\t\tif (!dev_out)\n\t\t\tgoto out;\n\n\t\t/* RACE: Check return value of inet_select_addr instead. */\n\t\tif (!(dev_out->flags & IFF_UP) || !__in_dev_get_rcu(dev_out)) {\n\t\t\trth = ERR_PTR(-ENETUNREACH);\n\t\t\tgoto out;\n\t\t}\n\t\tif (ipv4_is_local_multicast(fl4->daddr) ||\n\t\t    ipv4_is_lbcast(fl4->daddr) ||\n\t\t    fl4->flowi4_proto == IPPROTO_IGMP) {\n\t\t\tif (!fl4->saddr)\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      RT_SCOPE_LINK);\n\t\t\tgoto make_route;\n\t\t}\n\t\tif (!fl4->saddr) {\n\t\t\tif (ipv4_is_multicast(fl4->daddr))\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      fl4->flowi4_scope);\n\t\t\telse if (!fl4->daddr)\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      RT_SCOPE_HOST);\n\t\t}\n\t}\n\n\tif (!fl4->daddr) {\n\t\tfl4->daddr = fl4->saddr;\n\t\tif (!fl4->daddr)\n\t\t\tfl4->daddr = fl4->saddr = htonl(INADDR_LOOPBACK);\n\t\tdev_out = net->loopback_dev;\n\t\tfl4->flowi4_oif = LOOPBACK_IFINDEX;\n\t\tres->type = RTN_LOCAL;\n\t\tflags |= RTCF_LOCAL;\n\t\tgoto make_route;\n\t}\n\n\terr = fib_lookup(net, fl4, res, 0);\n\tif (err) {\n\t\tres->fi = NULL;\n\t\tres->table = NULL;\n\t\tif (fl4->flowi4_oif &&\n\t\t    (ipv4_is_multicast(fl4->daddr) || !fl4->flowi4_l3mdev)) {\n\t\t\t/* Apparently, routing tables are wrong. Assume,\n\t\t\t * that the destination is on link.\n\t\t\t *\n\t\t\t * WHY? DW.\n\t\t\t * Because we are allowed to send to iface\n\t\t\t * even if it has NO routes and NO assigned\n\t\t\t * addresses. When oif is specified, routing\n\t\t\t * tables are looked up with only one purpose:\n\t\t\t * to catch if destination is gatewayed, rather than\n\t\t\t * direct. Moreover, if MSG_DONTROUTE is set,\n\t\t\t * we send packet, ignoring both routing tables\n\t\t\t * and ifaddr state. --ANK\n\t\t\t *\n\t\t\t *\n\t\t\t * We could make it even if oif is unknown,\n\t\t\t * likely IPv6, but we do not.\n\t\t\t */\n\n\t\t\tif (fl4->saddr == 0)\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      RT_SCOPE_LINK);\n\t\t\tres->type = RTN_UNICAST;\n\t\t\tgoto make_route;\n\t\t}\n\t\trth = ERR_PTR(err);\n\t\tgoto out;\n\t}\n\n\tif (res->type == RTN_LOCAL) {\n\t\tif (!fl4->saddr) {\n\t\t\tif (res->fi->fib_prefsrc)\n\t\t\t\tfl4->saddr = res->fi->fib_prefsrc;\n\t\t\telse\n\t\t\t\tfl4->saddr = fl4->daddr;\n\t\t}\n\n\t\t/* L3 master device is the loopback for that domain */\n\t\tdev_out = l3mdev_master_dev_rcu(FIB_RES_DEV(*res)) ? :\n\t\t\tnet->loopback_dev;\n\n\t\t/* make sure orig_oif points to fib result device even\n\t\t * though packet rx/tx happens over loopback or l3mdev\n\t\t */\n\t\torig_oif = FIB_RES_OIF(*res);\n\n\t\tfl4->flowi4_oif = dev_out->ifindex;\n\t\tflags |= RTCF_LOCAL;\n\t\tgoto make_route;\n\t}\n\n\tfib_select_path(net, res, fl4, skb);\n\n\tdev_out = FIB_RES_DEV(*res);\n\nmake_route:\n\trth = __mkroute_output(res, fl4, orig_oif, dev_out, flags);\n\nout:\n\treturn rth;\n}",
+      "body_sha256": "2239010cbcdd46d7c79a231dad00376ca53a983e13082e1e2aaf1c20b8f75f21",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\trth = __mkroute_output(res, fl4, orig_oif, dev_out, flags);",
+            "condition": [
+              {
+                "condition": "goto make_route",
+                "line_number": 163
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "goto make_route",
+            "line_number": 163
+          }
+        ],
+        "variable_assignments": {
+          "text": "struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "make_route",
+            "condition": [
+              "res->type == RTN_LOCAL"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "err"
+            ]
+          },
+          {
+            "text": "make_route",
+            "condition": [
+              "err",
+              "fl4->flowi4_oif && (ipv4_is_multicast(fl4->daddr) || !fl4->flowi4_l3mdev)"
+            ]
+          },
+          {
+            "text": "make_route",
+            "condition": [
+              "!fl4->daddr"
+            ]
+          },
+          {
+            "text": "make_route",
+            "condition": [
+              "fl4->flowi4_oif",
+              "ipv4_is_local_multicast(fl4->daddr) || ipv4_is_lbcast(fl4->daddr) || fl4->flowi4_proto == IPPROTO_IGMP"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "fl4->flowi4_oif",
+              "!(dev_out->flags & IFF_UP) || !__in_dev_get_rcu(dev_out)"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "fl4->flowi4_oif",
+              "!dev_out"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "fl4->saddr",
+              "!(fl4->flowi4_flags & FLOWI_FLAG_ANYSRC)",
+              "!__ip_dev_find(net, fl4->saddr, false)"
+            ]
+          },
+          {
+            "text": "make_route",
+            "condition": [
+              "fl4->saddr",
+              "fl4->flowi4_oif == 0 && (ipv4_is_multicast(fl4->daddr) || ipv4_is_lbcast(fl4->daddr))"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "fl4->saddr",
+              "fl4->flowi4_oif == 0 && (ipv4_is_multicast(fl4->daddr) || ipv4_is_lbcast(fl4->daddr))",
+              "!dev_out"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "fl4->saddr",
+              "ipv4_is_multicast(fl4->saddr) || ipv4_is_lbcast(fl4->saddr) || ipv4_is_zeronet(fl4->saddr)"
+            ]
+          }
+        ],
+        "filter_function_code": "struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,\n\t\t\t\t\t    struct fib_result *res,\n\t\t\t\t\t    const struct sk_buff *skb)\n{\n\tstruct net_device *dev_out = NULL;\n\tint orig_oif = fl4->flowi4_oif;\n\tunsigned int flags = 0;\n\tstruct rtable *rth;\n\tint err;\n\n\tif (fl4->saddr) {\n\t\tif (ipv4_is_multicast(fl4->saddr) ||\n\t\t    ipv4_is_lbcast(fl4->saddr) ||\n\t\t    ipv4_is_zeronet(fl4->saddr)) {\n\t\t\trth = ERR_PTR(-EINVAL);\n\t\t\tgoto out;\n\t\t}\n\n\t\trth = ERR_PTR(-ENETUNREACH);\n\n\t\t/* I removed check for oif == dev_out->oif here.\n\t\t * It was wrong for two reasons:\n\t\t * 1. ip_dev_find(net, saddr) can return wrong iface, if saddr\n\t\t *    is assigned to multiple interfaces.\n\t\t * 2. Moreover, we are allowed to send packets with saddr\n\t\t *    of another iface. --ANK\n\t\t */\n\n\t\tif (fl4->flowi4_oif == 0 &&\n\t\t    (ipv4_is_multicast(fl4->daddr) ||\n\t\t     ipv4_is_lbcast(fl4->daddr))) {\n\t\t\t/* It is equivalent to inet_addr_type(saddr) == RTN_LOCAL */\n\t\t\tdev_out = __ip_dev_find(net, fl4->saddr, false);\n\t\t\tif (!dev_out)\n\t\t\t\tgoto out;\n\n\t\t\t/* Special hack: user can direct multicasts\n\t\t\t * and limited broadcast via necessary interface\n\t\t\t * without fiddling with IP_MULTICAST_IF or IP_PKTINFO.\n\t\t\t * This hack is not just for fun, it allows\n\t\t\t * vic,vat and friends to work.\n\t\t\t * They bind socket to loopback, set ttl to zero\n\t\t\t * and expect that it will work.\n\t\t\t * From the viewpoint of routing cache they are broken,\n\t\t\t * because we are not allowed to build multicast path\n\t\t\t * with loopback source addr (look, routing cache\n\t\t\t * cannot know, that ttl is zero, so that packet\n\t\t\t * will not leave this host and route is valid).\n\t\t\t * Luckily, this hack is good workaround.\n\t\t\t */\n\n\t\t\tfl4->flowi4_oif = dev_out->ifindex;\n\t\t\tgoto make_route;\n\t\t}\n\n\t\tif (!(fl4->flowi4_flags & FLOWI_FLAG_ANYSRC)) {\n\t\t\t/* It is equivalent to inet_addr_type(saddr) == RTN_LOCAL */\n\t\t\tif (!__ip_dev_find(net, fl4->saddr, false))\n\t\t\t\tgoto out;\n\t\t}\n\t}\n\n\n\tif (fl4->flowi4_oif) {\n\t\tdev_out = dev_get_by_index_rcu(net, fl4->flowi4_oif);\n\t\trth = ERR_PTR(-ENODEV);\n\t\tif (!dev_out)\n\t\t\tgoto out;\n\n\t\t/* RACE: Check return value of inet_select_addr instead. */\n\t\tif (!(dev_out->flags & IFF_UP) || !__in_dev_get_rcu(dev_out)) {\n\t\t\trth = ERR_PTR(-ENETUNREACH);\n\t\t\tgoto out;\n\t\t}\n\t\tif (ipv4_is_local_multicast(fl4->daddr) ||\n\t\t    ipv4_is_lbcast(fl4->daddr) ||\n\t\t    fl4->flowi4_proto == IPPROTO_IGMP) {\n\t\t\tif (!fl4->saddr)\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      RT_SCOPE_LINK);\n\t\t\tgoto make_route;\n\t\t}\n\t\tif (!fl4->saddr) {\n\t\t\tif (ipv4_is_multicast(fl4->daddr))\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      fl4->flowi4_scope);\n\t\t\telse if (!fl4->daddr)\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      RT_SCOPE_HOST);\n\t\t}\n\t}\n\n\tif (!fl4->daddr) {\n\t\tfl4->daddr = fl4->saddr;\n\t\tif (!fl4->daddr)\n\t\t\tfl4->daddr = fl4->saddr = htonl(INADDR_LOOPBACK);\n\t\tdev_out = net->loopback_dev;\n\t\tfl4->flowi4_oif = LOOPBACK_IFINDEX;\n\t\tres->type = RTN_LOCAL;\n\t\tflags |= RTCF_LOCAL;\n\t\tgoto make_route;\n\t}\n\n\terr = fib_lookup(net, fl4, res, 0);\n\tif (err) {\n\t\tres->fi = NULL;\n\t\tres->table = NULL;\n\t\tif (fl4->flowi4_oif &&\n\t\t    (ipv4_is_multicast(fl4->daddr) || !fl4->flowi4_l3mdev)) {\n\t\t\t/* Apparently, routing tables are wrong. Assume,\n\t\t\t * that the destination is on link.\n\t\t\t *\n\t\t\t * WHY? DW.\n\t\t\t * Because we are allowed to send to iface\n\t\t\t * even if it has NO routes and NO assigned\n\t\t\t * addresses. When oif is specified, routing\n\t\t\t * tables are looked up with only one purpose:\n\t\t\t * to catch if destination is gatewayed, rather than\n\t\t\t * direct. Moreover, if MSG_DONTROUTE is set,\n\t\t\t * we send packet, ignoring both routing tables\n\t\t\t * and ifaddr state. --ANK\n\t\t\t *\n\t\t\t *\n\t\t\t * We could make it even if oif is unknown,\n\t\t\t * likely IPv6, but we do not.\n\t\t\t */\n\n\t\t\tif (fl4->saddr == 0)\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      RT_SCOPE_LINK);\n\t\t\tres->type = RTN_UNICAST;\n\t\t\tgoto make_route;\n\t\t}\n\t\trth = ERR_PTR(err);\n\t\tgoto out;\n\t}\n\n\tif (res->type == RTN_LOCAL) {\n\t\tif (!fl4->saddr) {\n\t\t\tif (res->fi->fib_prefsrc)\n\t\t\t\tfl4->saddr = res->fi->fib_prefsrc;\n\t\t\telse\n\t\t\t\tfl4->saddr = fl4->daddr;\n\t\t}\n\n\t\t/* L3 master device is the loopback for that domain */\n\t\tdev_out = l3mdev_master_dev_rcu(FIB_RES_DEV(*res)) ? :\n\t\t\tnet->loopback_dev;\n\n\t\t/* make sure orig_oif points to fib result device even\n\t\t * though packet rx/tx happens over loopback or l3mdev\n\t\t */\n\t\torig_oif = FIB_RES_OIF(*res);\n\n\t\tfl4->flowi4_oif = dev_out->ifindex;\n\t\tflags |= RTCF_LOCAL;\n\t\tgoto make_route;\n\t}\n\n\tfib_select_path(net, res, fl4, skb);\n\n\tdev_out = FIB_RES_DEV(*res);\n\nmake_route:\n\trth = __mkroute_output(res, fl4, orig_oif, dev_out, flags);\n\nout:\n\treturn rth;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "__mkroute_output",
+      "var_name": "dev_out",
+      "target": "\t\t    !(dev_out->flags & IFF_LOOPBACK) &&",
+      "code": "static struct rtable *__mkroute_output(const struct fib_result *res,\n\t\t\t\t       const struct flowi4 *fl4, int orig_oif,\n\t\t\t\t       struct net_device *dev_out,\n\t\t\t\t       unsigned int flags)\n{\n\tstruct fib_info *fi = res->fi;\n\tstruct fib_nh_exception *fnhe;\n\tstruct in_device *in_dev;\n\tu16 type = res->type;\n\tstruct rtable *rth;\n\tbool do_cache;\n\n\tin_dev = __in_dev_get_rcu(dev_out);\n\tif (!in_dev)\n\t\treturn ERR_PTR(-EINVAL);\n\n\tif (likely(!IN_DEV_ROUTE_LOCALNET(in_dev)))\n\t\tif (ipv4_is_loopback(fl4->saddr) &&\n\t\t    !(dev_out->flags & IFF_LOOPBACK) &&\n\t\t    !netif_is_l3_master(dev_out))\n\t\t\treturn ERR_PTR(-EINVAL);\n\n\tif (ipv4_is_lbcast(fl4->daddr))\n\t\ttype = RTN_BROADCAST;\n\telse if (ipv4_is_multicast(fl4->daddr))\n\t\ttype = RTN_MULTICAST;\n\telse if (ipv4_is_zeronet(fl4->daddr))\n\t\treturn ERR_PTR(-EINVAL);\n\n\tif (dev_out->flags & IFF_LOOPBACK)\n\t\tflags |= RTCF_LOCAL;\n\n\tdo_cache = true;\n\tif (type == RTN_BROADCAST) {\n\t\tflags |= RTCF_BROADCAST | RTCF_LOCAL;\n\t\tfi = NULL;\n\t} else if (type == RTN_MULTICAST) {\n\t\tflags |= RTCF_MULTICAST | RTCF_LOCAL;\n\t\tif (!ip_check_mc_rcu(in_dev, fl4->daddr, fl4->saddr,\n\t\t\t\t     fl4->flowi4_proto))\n\t\t\tflags &= ~RTCF_LOCAL;\n\t\telse\n\t\t\tdo_cache = false;\n\t\t/* If multicast route do not exist use\n\t\t * default one, but do not gateway in this case.\n\t\t * Yes, it is hack.\n\t\t */\n\t\tif (fi && res->prefixlen < 4)\n\t\t\tfi = NULL;\n\t} else if ((type == RTN_LOCAL) && (orig_oif != 0) &&\n\t\t   (orig_oif != dev_out->ifindex)) {\n\t\t/* For local routes that require a particular output interface\n\t\t * we do not want to cache the result.  Caching the result\n\t\t * causes incorrect behaviour when there are multiple source\n\t\t * addresses on the interface, the end result being that if the\n\t\t * intended recipient is waiting on that interface for the\n\t\t * packet he won't receive it because it will be delivered on\n\t\t * the loopback interface and the IP_PKTINFO ipi_ifindex will\n\t\t * be set to the loopback interface as well.\n\t\t */\n\t\tdo_cache = false;\n\t}\n\n\tfnhe = NULL;\n\tdo_cache &= fi != NULL;\n\tif (fi) {\n\t\tstruct fib_nh_common *nhc = FIB_RES_NHC(*res);\n\t\tstruct rtable __rcu **prth;\n\n\t\tfnhe = find_exception(nhc, fl4->daddr);\n\t\tif (!do_cache)\n\t\t\tgoto add;\n\t\tif (fnhe) {\n\t\t\tprth = &fnhe->fnhe_rth_output;\n\t\t} else {\n\t\t\tif (unlikely(fl4->flowi4_flags &\n\t\t\t\t     FLOWI_FLAG_KNOWN_NH &&\n\t\t\t\t     !(nhc->nhc_gw_family &&\n\t\t\t\t       nhc->nhc_scope == RT_SCOPE_LINK))) {\n\t\t\t\tdo_cache = false;\n\t\t\t\tgoto add;\n\t\t\t}\n\t\t\tprth = raw_cpu_ptr(nhc->nhc_pcpu_rth_output);\n\t\t}\n\t\trth = rcu_dereference(*prth);\n\t\tif (rt_cache_valid(rth) && dst_hold_safe(&rth->dst))\n\t\t\treturn rth;\n\t}\n\nadd:\n\trth = rt_dst_alloc(dev_out, flags, type,\n\t\t\t   IN_DEV_CONF_GET(in_dev, NOPOLICY),\n\t\t\t   IN_DEV_CONF_GET(in_dev, NOXFRM),\n\t\t\t   do_cache);\n\tif (!rth)\n\t\treturn ERR_PTR(-ENOBUFS);\n\n\trth->rt_iif = orig_oif;\n\n\tRT_CACHE_STAT_INC(out_slow_tot);\n\n\tif (flags & (RTCF_BROADCAST | RTCF_MULTICAST)) {\n\t\tif (flags & RTCF_LOCAL &&\n\t\t    !(dev_out->flags & IFF_LOOPBACK)) {\n\t\t\trth->dst.output = ip_mc_output;\n\t\t\tRT_CACHE_STAT_INC(out_slow_mc);\n\t\t}\n#ifdef CONFIG_IP_MROUTE\n\t\tif (type == RTN_MULTICAST) {\n\t\t\tif (IN_DEV_MFORWARD(in_dev) &&\n\t\t\t    !ipv4_is_local_multicast(fl4->daddr)) {\n\t\t\t\trth->dst.input = ip_mr_input;\n\t\t\t\trth->dst.output = ip_mc_output;\n\t\t\t}\n\t\t}\n#endif\n\t}\n\n\trt_set_nexthop(rth, fl4->daddr, res, fnhe, fi, type, 0, do_cache);\n\tlwtunnel_set_redirect(&rth->dst);\n\n\treturn rth;\n}",
+      "body_sha256": "b8e496e602b16fd30765be677a98a5ffcd4bfd6c13807110a4f28fc07e9f5331",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\t    !(dev_out->flags & IFF_LOOPBACK) &&",
+            "condition": [
+              {
+                "condition": "if (likely(!IN_DEV_ROUTE_LOCALNET(in_dev)))",
+                "line_number": 16
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (likely(!IN_DEV_ROUTE_LOCALNET(in_dev)))",
+            "line_number": 16
+          }
+        ],
+        "variable_assignments": {
+          "text": "static struct rtable *__mkroute_output(const struct fib_result *res,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "!in_dev"
+            ]
+          }
+        ],
+        "filter_function_code": "static struct rtable *__mkroute_output(const struct fib_result *res,\n\t\t\t\t       const struct flowi4 *fl4, int orig_oif,\n\t\t\t\t       struct net_device *dev_out,\n\t\t\t\t       unsigned int flags)\n{\n\tstruct fib_info *fi = res->fi;\n\tstruct fib_nh_exception *fnhe;\n\tstruct in_device *in_dev;\n\tu16 type = res->type;\n\tstruct rtable *rth;\n\tbool do_cache;\n\n\tin_dev = __in_dev_get_rcu(dev_out);\n\tif (!in_dev)\n\t\treturn ERR_PTR(-EINVAL);\n\n\tif (likely(!IN_DEV_ROUTE_LOCALNET(in_dev)))\n\t\tif (ipv4_is_loopback(fl4->saddr) &&\n\t\t    !(dev_out->flags & IFF_LOOPBACK) &&\n\t\t    !netif_is_l3_master(dev_out))\n\t\t\treturn ERR_PTR(-EINVAL);\n\n\tif (ipv4_is_lbcast(fl4->daddr))\n\t\ttype = RTN_BROADCAST;\n\telse if (ipv4_is_multicast(fl4->daddr))\n\t\ttype = RTN_MULTICAST;\n\telse if (ipv4_is_zeronet(fl4->daddr))\n\t\treturn ERR_PTR(-EINVAL);\n\n\tif (dev_out->flags & IFF_LOOPBACK)\n\t\tflags |= RTCF_LOCAL;\n\n\tdo_cache = true;\n\tif (type == RTN_BROADCAST) {\n\t\tflags |= RTCF_BROADCAST | RTCF_LOCAL;\n\t\tfi = NULL;\n\t} else if (type == RTN_MULTICAST) {\n\t\tflags |= RTCF_MULTICAST | RTCF_LOCAL;\n\t\tif (!ip_check_mc_rcu(in_dev, fl4->daddr, fl4->saddr,\n\t\t\t\t     fl4->flowi4_proto))\n\t\t\tflags &= ~RTCF_LOCAL;\n\t\telse\n\t\t\tdo_cache = false;\n\t\t/* If multicast route do not exist use\n\t\t * default one, but do not gateway in this case.\n\t\t * Yes, it is hack.\n\t\t */\n\t\tif (fi && res->prefixlen < 4)\n\t\t\tfi = NULL;\n\t} else if ((type == RTN_LOCAL) && (orig_oif != 0) &&\n\t\t   (orig_oif != dev_out->ifindex)) {\n\t\t/* For local routes that require a particular output interface\n\t\t * we do not want to cache the result.  Caching the result\n\t\t * causes incorrect behaviour when there are multiple source\n\t\t * addresses on the interface, the end result being that if the\n\t\t * intended recipient is waiting on that interface for the\n\t\t * packet he won't receive it because it will be delivered on\n\t\t * the loopback interface and the IP_PKTINFO ipi_ifindex will\n\t\t * be set to the loopback interface as well.\n\t\t */\n\t\tdo_cache = false;\n\t}\n\n\tfnhe = NULL;\n\tdo_cache &= fi != NULL;\n\tif (fi) {\n\t\tstruct fib_nh_common *nhc = FIB_RES_NHC(*res);\n\t\tstruct rtable __rcu **prth;\n\n\t\tfnhe = find_exception(nhc, fl4->daddr);\n\t\tif (!do_cache)\n\t\t\tgoto add;\n\t\tif (fnhe) {\n\t\t\tprth = &fnhe->fnhe_rth_output;\n\t\t} else {\n\t\t\tif (unlikely(fl4->flowi4_flags &\n\t\t\t\t     FLOWI_FLAG_KNOWN_NH &&\n\t\t\t\t     !(nhc->nhc_gw_family &&\n\t\t\t\t       nhc->nhc_scope == RT_SCOPE_LINK))) {\n\t\t\t\tdo_cache = false;\n\t\t\t\tgoto add;\n\t\t\t}\n\t\t\tprth = raw_cpu_ptr(nhc->nhc_pcpu_rth_output);\n\t\t}\n\t\trth = rcu_dereference(*prth);\n\t\tif (rt_cache_valid(rth) && dst_hold_safe(&rth->dst))\n\t\t\treturn rth;\n\t}\n\nadd:\n\trth = rt_dst_alloc(dev_out, flags, type,\n\t\t\t   IN_DEV_CONF_GET(in_dev, NOPOLICY),\n\t\t\t   IN_DEV_CONF_GET(in_dev, NOXFRM),\n\t\t\t   do_cache);\n\tif (!rth)\n\t\treturn ERR_PTR(-ENOBUFS);\n\n\trth->rt_iif = orig_oif;\n\n\tRT_CACHE_STAT_INC(out_slow_tot);\n\n\tif (flags & (RTCF_BROADCAST | RTCF_MULTICAST)) {\n\t\tif (flags & RTCF_LOCAL &&\n\t\t    !(dev_out->flags & IFF_LOOPBACK)) {\n\t\t\trth->dst.output = ip_mc_output;\n\t\t\tRT_CACHE_STAT_INC(out_slow_mc);\n\t\t}\n#ifdef CONFIG_IP_MROUTE\n\t\tif (type == RTN_MULTICAST) {\n\t\t\tif (IN_DEV_MFORWARD(in_dev) &&\n\t\t\t    !ipv4_is_local_multicast(fl4->daddr)) {\n\t\t\t\trth->dst.input = ip_mr_input;\n\t\t\t\trth->dst.output = ip_mc_output;\n\t\t\t}\n\t\t}\n#endif\n\t}\n\n\trt_set_nexthop(rth, fl4->daddr, res, fnhe, fi, type, 0, do_cache);\n\tlwtunnel_set_redirect(&rth->dst);\n\n\treturn rth;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,\n\t\t\t\t\t    struct fib_result *res,\n\t\t\t\t\t    const struct sk_buff *skb)\n{\n\tstruct net_device *dev_out = NULL;\n\tint orig_oif = fl4->flowi4_oif;\n\tunsigned int flags = 0;\n\tstruct rtable *rth;\n\tint err;\n\n\tif (fl4->saddr) {\n\t\tif (ipv4_is_multicast(fl4->saddr) ||\n\t\t    ipv4_is_lbcast(fl4->saddr) ||\n\t\t    ipv4_is_zeronet(fl4->saddr)) {\n\t\t\trth = ERR_PTR(-EINVAL);\n\t\t\tgoto out;\n\t\t}\n\n\t\trth = ERR_PTR(-ENETUNREACH);\n\n\t\t/* I removed check for oif == dev_out->oif here.\n\t\t * It was wrong for two reasons:\n\t\t * 1. ip_dev_find(net, saddr) can return wrong iface, if saddr\n\t\t *    is assigned to multiple interfaces.\n\t\t * 2. Moreover, we are allowed to send packets with saddr\n\t\t *    of another iface. --ANK\n\t\t */\n\n\t\tif (fl4->flowi4_oif == 0 &&\n\t\t    (ipv4_is_multicast(fl4->daddr) ||\n\t\t     ipv4_is_lbcast(fl4->daddr))) {\n\t\t\t/* It is equivalent to inet_addr_type(saddr) == RTN_LOCAL */\n\t\t\tdev_out = __ip_dev_find(net, fl4->saddr, false);\n\t\t\tif (!dev_out)\n\t\t\t\tgoto out;\n\n\t\t\t/* Special hack: user can direct multicasts\n\t\t\t * and limited broadcast via necessary interface\n\t\t\t * without fiddling with IP_MULTICAST_IF or IP_PKTINFO.\n\t\t\t * This hack is not just for fun, it allows\n\t\t\t * vic,vat and friends to work.\n\t\t\t * They bind socket to loopback, set ttl to zero\n\t\t\t * and expect that it will work.\n\t\t\t * From the viewpoint of routing cache they are broken,\n\t\t\t * because we are not allowed to build multicast path\n\t\t\t * with loopback source addr (look, routing cache\n\t\t\t * cannot know, that ttl is zero, so that packet\n\t\t\t * will not leave this host and route is valid).\n\t\t\t * Luckily, this hack is good workaround.\n\t\t\t */\n\n\t\t\tfl4->flowi4_oif = dev_out->ifindex;\n\t\t\tgoto make_route;\n\t\t}\n\n\t\tif (!(fl4->flowi4_flags & FLOWI_FLAG_ANYSRC)) {\n\t\t\t/* It is equivalent to inet_addr_type(saddr) == RTN_LOCAL */\n\t\t\tif (!__ip_dev_find(net, fl4->saddr, false))\n\t\t\t\tgoto out;\n\t\t}\n\t}\n\n\n\tif (fl4->flowi4_oif) {\n\t\tdev_out = dev_get_by_index_rcu(net, fl4->flowi4_oif);\n\t\trth = ERR_PTR(-ENODEV);\n\t\tif (!dev_out)\n\t\t\tgoto out;\n\n\t\t/* RACE: Check return value of inet_select_addr instead. */\n\t\tif (!(dev_out->flags & IFF_UP) || !__in_dev_get_rcu(dev_out)) {\n\t\t\trth = ERR_PTR(-ENETUNREACH);\n\t\t\tgoto out;\n\t\t}\n\t\tif (ipv4_is_local_multicast(fl4->daddr) ||\n\t\t    ipv4_is_lbcast(fl4->daddr) ||\n\t\t    fl4->flowi4_proto == IPPROTO_IGMP) {\n\t\t\tif (!fl4->saddr)\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      RT_SCOPE_LINK);\n\t\t\tgoto make_route;\n\t\t}\n\t\tif (!fl4->saddr) {\n\t\t\tif (ipv4_is_multicast(fl4->daddr))\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      fl4->flowi4_scope);\n\t\t\telse if (!fl4->daddr)\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      RT_SCOPE_HOST);\n\t\t}\n\t}\n\n\tif (!fl4->daddr) {\n\t\tfl4->daddr = fl4->saddr;\n\t\tif (!fl4->daddr)\n\t\t\tfl4->daddr = fl4->saddr = htonl(INADDR_LOOPBACK);\n\t\tdev_out = net->loopback_dev;\n\t\tfl4->flowi4_oif = LOOPBACK_IFINDEX;\n\t\tres->type = RTN_LOCAL;\n\t\tflags |= RTCF_LOCAL;\n\t\tgoto make_route;\n\t}\n\n\terr = fib_lookup(net, fl4, res, 0);\n\tif (err) {\n\t\tres->fi = NULL;\n\t\tres->table = NULL;\n\t\tif (fl4->flowi4_oif &&\n\t\t    (ipv4_is_multicast(fl4->daddr) || !fl4->flowi4_l3mdev)) {\n\t\t\t/* Apparently, routing tables are wrong. Assume,\n\t\t\t * that the destination is on link.\n\t\t\t *\n\t\t\t * WHY? DW.\n\t\t\t * Because we are allowed to send to iface\n\t\t\t * even if it has NO routes and NO assigned\n\t\t\t * addresses. When oif is specified, routing\n\t\t\t * tables are looked up with only one purpose:\n\t\t\t * to catch if destination is gatewayed, rather than\n\t\t\t * direct. Moreover, if MSG_DONTROUTE is set,\n\t\t\t * we send packet, ignoring both routing tables\n\t\t\t * and ifaddr state. --ANK\n\t\t\t *\n\t\t\t *\n\t\t\t * We could make it even if oif is unknown,\n\t\t\t * likely IPv6, but we do not.\n\t\t\t */\n\n\t\t\tif (fl4->saddr == 0)\n\t\t\t\tfl4->saddr = inet_select_addr(dev_out, 0,\n\t\t\t\t\t\t\t      RT_SCOPE_LINK);\n\t\t\tres->type = RTN_UNICAST;\n\t\t\tgoto make_route;\n\t\t}\n\t\trth = ERR_PTR(err);\n\t\tgoto out;\n\t}\n\n\tif (res->type == RTN_LOCAL) {\n\t\tif (!fl4->saddr) {\n\t\t\tif (res->fi->fib_prefsrc)\n\t\t\t\tfl4->saddr = res->fi->fib_prefsrc;\n\t\t\telse\n\t\t\t\tfl4->saddr = fl4->daddr;\n\t\t}\n\n\t\t/* L3 master device is the loopback for that domain */\n\t\tdev_out = l3mdev_master_dev_rcu(FIB_RES_DEV(*res)) ? :\n\t\t\tnet->loopback_dev;\n\n\t\t/* make sure orig_oif points to fib result device even\n\t\t * though packet rx/tx happens over loopback or l3mdev\n\t\t */\n\t\torig_oif = FIB_RES_OIF(*res);\n\n\t\tfl4->flowi4_oif = dev_out->ifindex;\n\t\tflags |= RTCF_LOCAL;\n\t\tgoto make_route;\n\t}\n\n\tfib_select_path(net, res, fl4, skb);\n\n\tdev_out = FIB_RES_DEV(*res);\n\nmake_route:\n\trth = __mkroute_output(res, fl4, orig_oif, dev_out, flags);\n\nout:\n\treturn rth;\n}",
+    "static struct rtable *__mkroute_output(const struct fib_result *res,\n\t\t\t\t       const struct flowi4 *fl4, int orig_oif,\n\t\t\t\t       struct net_device *dev_out,\n\t\t\t\t       unsigned int flags)\n{\n\tstruct fib_info *fi = res->fi;\n\tstruct fib_nh_exception *fnhe;\n\tstruct in_device *in_dev;\n\tu16 type = res->type;\n\tstruct rtable *rth;\n\tbool do_cache;\n\n\tin_dev = __in_dev_get_rcu(dev_out);\n\tif (!in_dev)\n\t\treturn ERR_PTR(-EINVAL);\n\n\tif (likely(!IN_DEV_ROUTE_LOCALNET(in_dev)))\n\t\tif (ipv4_is_loopback(fl4->saddr) &&\n\t\t    !(dev_out->flags & IFF_LOOPBACK) &&\n\t\t    !netif_is_l3_master(dev_out))\n\t\t\treturn ERR_PTR(-EINVAL);\n\n\tif (ipv4_is_lbcast(fl4->daddr))\n\t\ttype = RTN_BROADCAST;\n\telse if (ipv4_is_multicast(fl4->daddr))\n\t\ttype = RTN_MULTICAST;\n\telse if (ipv4_is_zeronet(fl4->daddr))\n\t\treturn ERR_PTR(-EINVAL);\n\n\tif (dev_out->flags & IFF_LOOPBACK)\n\t\tflags |= RTCF_LOCAL;\n\n\tdo_cache = true;\n\tif (type == RTN_BROADCAST) {\n\t\tflags |= RTCF_BROADCAST | RTCF_LOCAL;\n\t\tfi = NULL;\n\t} else if (type == RTN_MULTICAST) {\n\t\tflags |= RTCF_MULTICAST | RTCF_LOCAL;\n\t\tif (!ip_check_mc_rcu(in_dev, fl4->daddr, fl4->saddr,\n\t\t\t\t     fl4->flowi4_proto))\n\t\t\tflags &= ~RTCF_LOCAL;\n\t\telse\n\t\t\tdo_cache = false;\n\t\t/* If multicast route do not exist use\n\t\t * default one, but do not gateway in this case.\n\t\t * Yes, it is hack.\n\t\t */\n\t\tif (fi && res->prefixlen < 4)\n\t\t\tfi = NULL;\n\t} else if ((type == RTN_LOCAL) && (orig_oif != 0) &&\n\t\t   (orig_oif != dev_out->ifindex)) {\n\t\t/* For local routes that require a particular output interface\n\t\t * we do not want to cache the result.  Caching the result\n\t\t * causes incorrect behaviour when there are multiple source\n\t\t * addresses on the interface, the end result being that if the\n\t\t * intended recipient is waiting on that interface for the\n\t\t * packet he won't receive it because it will be delivered on\n\t\t * the loopback interface and the IP_PKTINFO ipi_ifindex will\n\t\t * be set to the loopback interface as well.\n\t\t */\n\t\tdo_cache = false;\n\t}\n\n\tfnhe = NULL;\n\tdo_cache &= fi != NULL;\n\tif (fi) {\n\t\tstruct fib_nh_common *nhc = FIB_RES_NHC(*res);\n\t\tstruct rtable __rcu **prth;\n\n\t\tfnhe = find_exception(nhc, fl4->daddr);\n\t\tif (!do_cache)\n\t\t\tgoto add;\n\t\tif (fnhe) {\n\t\t\tprth = &fnhe->fnhe_rth_output;\n\t\t} else {\n\t\t\tif (unlikely(fl4->flowi4_flags &\n\t\t\t\t     FLOWI_FLAG_KNOWN_NH &&\n\t\t\t\t     !(nhc->nhc_gw_family &&\n\t\t\t\t       nhc->nhc_scope == RT_SCOPE_LINK))) {\n\t\t\t\tdo_cache = false;\n\t\t\t\tgoto add;\n\t\t\t}\n\t\t\tprth = raw_cpu_ptr(nhc->nhc_pcpu_rth_output);\n\t\t}\n\t\trth = rcu_dereference(*prth);\n\t\tif (rt_cache_valid(rth) && dst_hold_safe(&rth->dst))\n\t\t\treturn rth;\n\t}\n\nadd:\n\trth = rt_dst_alloc(dev_out, flags, type,\n\t\t\t   IN_DEV_CONF_GET(in_dev, NOPOLICY),\n\t\t\t   IN_DEV_CONF_GET(in_dev, NOXFRM),\n\t\t\t   do_cache);\n\tif (!rth)\n\t\treturn ERR_PTR(-ENOBUFS);\n\n\trth->rt_iif = orig_oif;\n\n\tRT_CACHE_STAT_INC(out_slow_tot);\n\n\tif (flags & (RTCF_BROADCAST | RTCF_MULTICAST)) {\n\t\tif (flags & RTCF_LOCAL &&\n\t\t    !(dev_out->flags & IFF_LOOPBACK)) {\n\t\t\trth->dst.output = ip_mc_output;\n\t\t\tRT_CACHE_STAT_INC(out_slow_mc);\n\t\t}\n#ifdef CONFIG_IP_MROUTE\n\t\tif (type == RTN_MULTICAST) {\n\t\t\tif (IN_DEV_MFORWARD(in_dev) &&\n\t\t\t    !ipv4_is_local_multicast(fl4->daddr)) {\n\t\t\t\trth->dst.input = ip_mr_input;\n\t\t\t\trth->dst.output = ip_mc_output;\n\t\t\t}\n\t\t}\n#endif\n\t}\n\n\trt_set_nexthop(rth, fl4->daddr, res, fnhe, fi, type, 0, do_cache);\n\tlwtunnel_set_redirect(&rth->dst);\n\n\treturn rth;\n}"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "call_id": 987,
+  "sample_id": "NPD/cppcheck/linux:row=45:index=None",
+  "timestamp": "2026-10-26T01:05:34.076522+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static void __init storcenter_init_IRQ(void)\n{\n\tstruct mpic *mpic;\n\n\tmpic = mpic_alloc(NULL, 0, 0, 16, 0, \" OpenPIC  \");\n\tBUG_ON(mpic == NULL);\n\n\t/*\n\t * 16 Serial Interrupts followed by 16 Internal Interrupts.\n\t * I2C is the second internal, so it is at 17, 0x11020.\n\t */\n\tmpic_assign_isu(mpic, 0, mpic->paddr + 0x10200);\n\tmpic_assign_isu(mpic, 1, mpic->paddr + 0x11000);\n\n\tmpic_init(mpic);\n}\n        - Target variables: [], mpic\n        - Constraints: ['!(mpic ==0)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "a2182962-d5aa-4941-8c5b-1a0ad7d5b6e0",
+  "usage": {
+    "prompt_tokens": 247,
+    "completion_tokens": 12,
+    "total_tokens": 259,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 247
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(mpic ==0)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.8121305999993638,
+  "cost_upper_bound_cny": 0.00059
+}

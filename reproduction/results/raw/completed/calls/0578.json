@@ -1,0 +1,45 @@
+{
+  "call_id": 578,
+  "sample_id": "NPD/codeql/libav:row=46:index=76",
+  "timestamp": "2026-10-26T00:55:19.716784+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0) || !(!strcmp(KEYFRAMES_TIMESTAMP_TAG, str_val) && !times) || !(!(times = av_mallocz(sizeof(*times) * arraylen)))']\n        Relevant conditions/variables: [], times\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "8d15e4bc-20c9-48cb-8735-cbd40b26207d",
+  "usage": {
+    "prompt_tokens": 176,
+    "completion_tokens": 629,
+    "total_tokens": 805,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 176
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables relevant to the constraint\n# times: pointer (modeled as an integer address; 0 means NULL)\ntimes = Int('times')\n\n# str_val: string buffer used by amf_get_string / strcmp\n# Modeled as an uninterpreted string-like value; we only care about equality with the tag\nstr_val = String('str_val')\nKEYFRAMES_TIMESTAMP_TAG = StringVal(\"KEYFRAMES_TIMESTAMP_TAG\")\n\n# Boolean predicates abstracting C function calls / comparisons\n# avio_tell(ioc) < max_pos - 2  -> abstracted as a boolean\navio_tell_lt = Bool('avio_tell_lt')\n# amf_get_string(ioc, str_val, sizeof(str_val)) > 0 -> abstracted as a boolean\namf_get_string_gt0 = Bool('amf_get_string_gt0')\n\n# The original C constraint:\n#   !(avio_tell(ioc) < max_pos - 2 && amf_get_string(...) > 0)\n#   || !(!strcmp(KEYFRAMES_TIMESTAMP_TAG, str_val) && !times)\n#   || !(!(times = av_mallocz(...)))\n#\n# Notes on translation:\n#  - \"!ptr\" in C means \"ptr == NULL\" (i.e., times == 0)\n#  - \"!(times = av_mallocz(...))\" means the assignment produced NULL, i.e., times == 0\n#    (the assignment itself is the value; !(assignment) is true iff result is NULL)\n#  - \"!strcmp(a,b)\" means strings are equal\n#  - The whole expression is a disjunction of three negated conjunctions.\n\n# Clause 1: !(avio_tell_lt && amf_get_string_gt0)\nclause1 = Not(And(avio_tell_lt, amf_get_string_gt0))\n\n# Clause 2: !(!strcmp(TAG, str_val) && !times)\n#   !strcmp(...)  -> str_val == KEYFRAMES_TIMESTAMP_TAG\n#   !times        -> times == 0\nclause2 = Not(And(str_val == KEYFRAMES_TIMESTAMP_TAG, times == 0))\n\n# Clause 3: !(!(times = av_mallocz(...)))\n#   The inner assignment yields a pointer; !(ptr) is true iff ptr == 0.\n#   So !(!(assignment)) is true iff the assignment result is non-NULL,\n#   i.e., times != 0.\nclause3 = Not(times == 0)\n\n# Full constraint\nconstraint = Or(clause1, clause2, clause3)\n\ns = Solver()\ns.add(constraint)\n\n# Check satisfiability and print a model if any\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 3.391964100000223,
+  "cost_upper_bound_cny": 0.005384
+}

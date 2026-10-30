@@ -1,0 +1,35 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "rwwriter_fn",
+      "var_name": "new",
+      "target": "*new = 0;",
+      "code": "static void rwwriter_fn(int id, int *iterations)\n{\n    int count;\n    int *old, *new;\n    OSSL_TIME t1, t2;\n    t1 = ossl_time_now();\n\n    for (count = 0; ; count++) {\n        new = CRYPTO_zalloc(sizeof (int), NULL, 0);\n        if (contention == 0)\n            OSSL_sleep(1000);\n        if (!CRYPTO_THREAD_write_lock(rwtorturelock))\n            abort();\n        if (rwwriter_ptr != NULL) {\n            *new = *rwwriter_ptr + 1;\n        } else {\n            *new = 0;\n        }\n        old = rwwriter_ptr;\n        rwwriter_ptr = new;\n        if (!CRYPTO_THREAD_unlock(rwtorturelock))\n            abort();\n        if (old != NULL)\n            CRYPTO_free(old, __FILE__, __LINE__);\n        t2 = ossl_time_now();\n        if ((ossl_time2seconds(t2) - ossl_time2seconds(t1)) >= 4)\n            break;\n    }\n    *iterations = count;\n    return;\n}",
+      "body_sha256": "23d4c04489c0be7868526d9bd9423364a82448523a0f8c43a134c4b5d42c0418",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "*new = 0;",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void rwwriter_fn(int id, int *iterations)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static void rwwriter_fn(int id, int *iterations)\n{\n    int count;\n    int *old, *new;\n    OSSL_TIME t1, t2;\n    t1 = ossl_time_now();\n\n    for (count = 0; ; count++) {\n        new = CRYPTO_zalloc(sizeof (int), NULL, 0);\n        if (contention == 0)\n            OSSL_sleep(1000);\n        if (!CRYPTO_THREAD_write_lock(rwtorturelock))\n            abort();\n        if (rwwriter_ptr != NULL) {\n            *new = *rwwriter_ptr + 1;\n        } else {\n            *new = 0;\n        }\n        old = rwwriter_ptr;\n        rwwriter_ptr = new;\n        if (!CRYPTO_THREAD_unlock(rwtorturelock))\n            abort();\n        if (old != NULL)\n            CRYPTO_free(old, __FILE__, __LINE__);\n        t2 = ossl_time_now();\n        if ((ossl_time2seconds(t2) - ossl_time2seconds(t1)) >= 4)\n            break;\n    }\n    *iterations = count;\n    return;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void rwwriter_fn(int id, int *iterations)\n{\n    int count;\n    int *old, *new;\n    OSSL_TIME t1, t2;\n    t1 = ossl_time_now();\n\n    for (count = 0; ; count++) {\n        new = CRYPTO_zalloc(sizeof (int), NULL, 0);\n        if (contention == 0)\n            OSSL_sleep(1000);\n        if (!CRYPTO_THREAD_write_lock(rwtorturelock))\n            abort();\n        if (rwwriter_ptr != NULL) {\n            *new = *rwwriter_ptr + 1;\n        } else {\n            *new = 0;\n        }\n        old = rwwriter_ptr;\n        rwwriter_ptr = new;\n        if (!CRYPTO_THREAD_unlock(rwtorturelock))\n            abort();\n        if (old != NULL)\n            CRYPTO_free(old, __FILE__, __LINE__);\n        t2 = ossl_time_now();\n        if ((ossl_time2seconds(t2) - ossl_time2seconds(t1)) >= 4)\n            break;\n    }\n    *iterations = count;\n    return;\n}"
+  ]
+}

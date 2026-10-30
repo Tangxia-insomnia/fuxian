@@ -1,0 +1,42 @@
+
+\input{picture/motivating_examples}
+
+\section{Preliminaries \& Motivation}
+This section introduces key preliminaries of static bug detection and presents motivating examples to illustrate the false positive issues related to path feasibility validation.
+
+\subsection{Static Bug Detection}
+Many bugs, such as Null Pointer Dereference (NPD) and Use After Free (UAF),  follow a common pattern where a \textit{target variable} feasibly flows from a \textit{source} (where a potential issue originates) to a \textit{sink} (where the issue manifests). 
+
+\textbf{Source and Sink Identification.}
+The specific definitions of the target variable, source, and sink vary by bug type. For instance, in NPD (Null Pointer Dereference) bugs, the target variable is a pointer (\eg \textit{tun\_info} in Figure~\ref{fig:example2}), the source is the code expression that defines or assigns it as \NULL (\eg Line 4 in Figure~\ref{fig:example2}), and the sink is the code expression that dereferences the pointer (e.g., Line 105 in Figure~\ref{fig:example2}). 
+For a specific bug type $bt$, given a code project $\mathcal{P}$ consisting of multiple code files and lines, the identification of the sources and sinks associated with the target variables can typically be formalized through the procedures:
+$$ \textsc{FindSource}^{bt}: \Sigma_\mathcal{P} \to \Sigma_{var} \times \Sigma_{expr} $$
+$$ \textsc{FindSink}^{bt}: \Sigma_\mathcal{P} \to \Sigma_{var} \times \Sigma_{expr}, $$
+where $\Sigma_{(*)}$ represents the domain of $(*)$, \ie $\Sigma_{var}$ and $\Sigma_{expr}$ denote the complete value domains of variables and code expressions, respectively. Each $source$ or $sink$ is represented as a pair $(var, expr)$, consisting of a target variable $var$ and its corresponding code expression $expr$.
+
+\textbf{Data Flow Analysis.}
+For each source-sink pair $(source, sink)$ sharing the same target variable $var$, data flow analysis aims to determine whether $var$ can flow from $source$ to $sink$. If true, a corresponding bug is reported. For instance, in Figure~\ref{fig:example2}, data flow analysis for the pointer \textit{tun\_info} is performed between Line 4 (source) and Line 105 (sink). If a feasible execution path is found, an NPD bug is reported at the sink. This analysis can be formalized as the procedure:   
+$$ \textsc{TraceFlow}: \Sigma_{source} \times \Sigma_{sink} \to \{\textit{TRUE}, \textit{FALSE}\}, $$  
+which returns \textit{TRUE} if any feasible execution path exists between $source$ and $sink$, and \textit{FALSE} otherwise.
+
+
+\textbf{Path Feasibility Validation.}
+Performing precise data flow analysis is challenging due to the complexity of validating path feasibility. Sources and sinks often reside in different functions, necessitating inter-procedural analysis to trace all potential execution paths. When the function call chain between a source and a sink is lengthy and includes multiple conditional branches, nested function invocations, or compound data types, the complexity of path feasibility validation
+increases exponentially (We will illustrate the challenges with examples in Section~\ref{sec:example}).  
+However, traditional static analysis tools like CodeQL and Infer often incorporate over-approximation during contextual analysis, so as to reduce the complexity of path feasibility validation. As a result, there are high false positive rates in their reported bug alarms in practice.     
+
+
+
+
+
+
+\subsection{Motivating Examples}
+\label{sec:example}
+We present two examples to further illustrate the challenges of validating path feasibility, which lead to false positives in the NPD bug reported by CodeQL on the Linux kernel. 
+
+\textbf{Challenge-1: Complex Constraint Cascades in Path Tracing.} 
+Figure~\ref{fig:example2} presents a false positive reported by CodeQL. In this example,  the green-highlighted sections involve value assignments and constraint validation for the two \textit{bool} variables \textit{connected} and \textit{md}. According to the constraint in Line 34, we can deduce that only when the target pointer \textit{tun\_info} is \textbf{not} \NULL, both \textit{connected} and \textit{md} are \textit{TRUE} (Lines 36 and 37). Based on the constraint in Line 102, only if both \textit{connected} and \textit{md} are \textit{TRUE}, can the dereference operation (the sink) at Line 105 potentially be executed. According to both constraints, it is clear that no feasible path exists to reach the sink, and thus no NPD occurs. Beyond these green-highlighted sections, the example also involves numerous preceding and succeeding conditional constraints (highlighted in orange). Only by comprehensively cascading these constraints and analyzing the potential execution paths,  can accurate path feasibility validation be achieved and false positives be eliminated. Such a high complexity is prevalent in real-world software systems, which often involve intricate function call chains and deeply nested conditional structures, making path feasibility analysis even  challenging.
+
+
+\textbf{Challenge-2: Contextual Analysis.} 
+In addition to the source-to-sink function call trace, precise path feasibility analysis requires reasoning numerous variable values and function call return values, further complicating the analysis process. Figure~\ref{fig:example1} illustrates a false positive resulting from complex contextual analysis. In Line 3 of the second function in the trace, \textit{consume\_skb} correctly performs a null check on the target pointer \textit{skb} by invoking \textit{skb\_unref}, which returns \textit{false} when \textit{skb} is null. This causes the program to \textit{return} early, preventing the null pointer from propagating to the sink. Notably, Figure~\ref{fig:example1} only reveals the minimal contextual information (highlighted in green) necessary for the manual inspection to identify the false positive. Existing LLM-based approaches would consider a broader set of contextual function calls (highlighted in orange), significantly increasing the complexity of context-sensitive analysis. Furthermore, due to the intricacies of the Linux kernel, this analysis incorporates not only function calls but also macro definitions and built-in GCC compiler functions, presenting additional challenges for traditional symbolic execution techniques.

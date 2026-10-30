@@ -1,0 +1,512 @@
+```python
+skb=Int('skb')
+s.add(skb == 0)
+```
+```json
+["!(tcp_clone_payload(sk, nskb, probe_size))", "!(!nskb)", "!(!tcp_can_coalesce_send_queue_head(sk, probe_size))", "!(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)) || !(!(!tcp_packets_in_flight(tp)))", "!(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)) || !(!tcp_packets_in_flight(tp))", "!(after(tp->snd_nxt + size_needed, tcp_wnd_end(tp)))", "!(tp->snd_wnd < size_needed)", "!(tp->write_seq - tp->snd_nxt < size_needed)", "!(probe_size > tcp_mtu_to_mss(sk, icsk->icsk_mtup.search_high) || interval < READ_ONCE(net->ipv4.sysctl_tcp_probe_threshold))", "!(likely(!icsk->icsk_mtup.enabled || icsk->icsk_mtup.probe_size || inet_csk(sk)->icsk_ca_state != TCP_CA_Open || tcp_snd_cwnd(tp) < 11 || tp->rx_opt.num_sacks || tp->rx_opt.dsack))"]
+```
+```python
+from z3 import *
+
+# Declarations for the variables/conditions referenced in the constraints.
+# Since the relevant condition is `skb`, we model the boolean predicates that
+# involve `skb` (directly or via the negated pointer check) as uninterpreted
+# booleans. Other predicates are kept as uninterpreted booleans too, so the
+# script remains self-contained and executable.
+
+# --- Uninterpreted boolean predicates (C function calls / field tests) ---
+tcp_clone_payload = Function('tcp_clone_payload', IntSort(), IntSort(), IntSort(), BoolSort())
+tcp_can_coalesce_send_queue_head = Function('tcp_can_coalesce_send_queue_head', IntSort(), IntSort(), BoolSort())
+tcp_packets_in_flight = Function('tcp_packets_in_flight', IntSort(), IntSort())
+tcp_snd_cwnd = Function('tcp_snd_cwnd', IntSort(), IntSort())
+tcp_wnd_end = Function('tcp_wnd_end', IntSort(), IntSort())
+tcp_mtu_to_mss = Function('tcp_mtu_to_mss', IntSort(), IntSort(), IntSort())
+after = Function('after', IntSort(), IntSort(), BoolSort())
+READ_ONCE = Function('READ_ONCE', IntSort(), IntSort())
+likely = Function('likely', BoolSort(), BoolSort())
+
+# --- Integer / pointer-like symbols ---
+sk = Int('sk')
+nskb = Int('nskb')          # pointer modeled as Int; 0 means NULL
+probe_size = Int('probe_size')
+tp = Int('tp')
+size_needed = Int('size_needed')
+icsk = Int('icsk')
+interval = Int('interval')
+net = Int('net')
+
+# Field accessors modeled as uninterpreted functions
+snd_nxt = Function('snd_nxt', IntSort(), IntSort())
+snd_wnd = Function('snd_wnd', IntSort(), IntSort())
+write_seq = Function('write_seq', IntSort(), IntSort())
+rx_opt_num_sacks = Function('rx_opt_num_sacks', IntSort(), IntSort())
+rx_opt_dsack = Function('rx_opt_dsack', IntSort(), IntSort())
+icsk_mtup_enabled = Function('icsk_mtup_enabled', IntSort(), BoolSort())
+icsk_mtup_probe_size = Function('icsk_mtup_probe_size', IntSort(), IntSort())
+icsk_mtup_search_high = Function('icsk_mtup_search_high', IntSort(), IntSort())
+icsk_ca_state = Function('icsk_ca_state', IntSort(), IntSort())
+inet_csk = Function('inet_csk', IntSort(), IntSort())
+sysctl_tcp_probe_threshold = Function('sysctl_tcp_probe_threshold', IntSort(), IntSort())
+
+TCP_CA_Open = 0  # enum value placeholder
+
+s = Solver()
+
+# ---------------------------------------------------------------------------
+# Constraint 1: !(tcp_clone_payload(sk, nskb, probe_size))
+# Included because it directly references `nskb` (the skb under test) and
+# gates the code path on the clone operation failing.
+# ---------------------------------------------------------------------------
+s.add(Not(tcp_clone_payload(sk, nskb, probe_size)))
+
+# ---------------------------------------------------------------------------
+# Constraint 2: !(!nskb)
+# Directly constrains `skb`/`nskb`: the pointer must be non-NULL.
+# C-style `!ptr` is translated to `ptr == 0`; `!(!ptr)` becomes `ptr != 0`.
+# ---------------------------------------------------------------------------
+s.add(nskb != 0)
+
+# ---------------------------------------------------------------------------
+# Constraint 3: !(!tcp_can_coalesce_send_queue_head(sk, probe_size))
+# Included because it is part of the same guard chain that decides whether
+# the skb path proceeds; it constrains the boolean predicate to be true.
+# ---------------------------------------------------------------------------
+s.add(tcp_can_coalesce_send_queue_head(sk, probe_size))
+
+# ---------------------------------------------------------------------------
+# Constraint 4:
+#   !(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp))
+#   || !(!(!tcp_packets_in_flight(tp)))
+# The inner `!(!(!x))` simplifies to `!x`, i.e. `tcp_packets_in_flight(tp) == 0`.
+# Kept because it participates in the same guard chain as the skb check.
+# ---------------------------------------------------------------------------
+s.add(Or(
+    Not(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)),
+    tcp_packets_in_flight(tp) == 0
+))
+
+# ---------------------------------------------------------------------------
+# Constraint 5:
+#   !(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp))
+#   || !(!tcp_packets_in_flight(tp))
+# `!(!x)` simplifies to `x`, i.e. `tcp_packets_in_flight(tp) != 0`.
+# ---------------------------------------------------------------------------
+s.add(Or(
+    Not(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)),
+    tcp_packets_in_flight(tp) != 0
+))
+
+# ---------------------------------------------------------------------------
+# Constraint 6: !(after(tp->snd_nxt + size_needed, tcp_wnd_end(tp)))
+# Included as part of the send-window guard chain.
+# ---------------------------------------------------------------------------
+s.add(Not(after(snd_nxt(tp) + size_needed, tcp_wnd_end(tp))))
+
+# ---------------------------------------------------------------------------
+# Constraint 7: !(tp->snd_wnd < size_needed)
+# ---------------------------------------------------------------------------
+s.add(Not(snd_wnd(tp) < size_needed))
+
+# ---------------------------------------------------------------------------
+# Constraint 8: !(tp->write_seq - tp->snd_nxt < size_needed)
+# ---------------------------------------------------------------------------
+s.add(Not(write_seq(tp) - snd_nxt(tp) < size_needed))
+
+# ---------------------------------------------------------------------------
+# Constraint 9:
+#   !(probe_size > tcp_mtu_to_mss(sk, icsk->icsk_mtup.search_high)
+#     || interval < READ_ONCE(net->ipv4.sysctl_tcp_probe_threshold))
+# ---------------------------------------------------------------------------
+s.add(Not(Or(
+    probe_size > tcp_mtu_to_mss(sk, icsk_mtup_search_high(icsk)),
+    interval < READ_ONCE(sysctl_tcp_probe_threshold(net))
+)))
+
+# ---------------------------------------------------------------------------
+# Constraint 10:
+#   !(likely(!icsk->icsk_mtup.enabled
+#            || icsk->icsk_mtup.probe_size
+#            || inet_csk(sk)->icsk_ca_state != TCP_CA_Open
+#            || tcp_snd_cwnd(tp) < 11
+#            || tp->rx_opt.num_sacks
+#            || tp->rx_opt.dsack))
+# `likely(x)` is treated as identity for constraint purposes.
+# ---------------------------------------------------------------------------
+s.add(Not(likely(Or(
+    Not(icsk_mtup_enabled(icsk)),
+    icsk_mtup_probe_size(icsk) != 0,
+    icsk_ca_state(inet_csk(sk)) != TCP_CA_Open,
+    tcp_snd_cwnd(tp) < 11,
+    rx_opt_num_sacks(tp) != 0,
+    rx_opt_dsack(tp) != 0
+))))
+
+# ---------------------------------------------------------------------------
+# Solve / report
+# ---------------------------------------------------------------------------
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import (Int, Solver, Function, IntSort, BoolSort, Not, Or, sat)
+
+    # --- Base script variables/constraints ---
+    skb = Int('skb')
+
+    # --- Variables from constraint set 2 ---
+    sk = Int('sk')
+    nskb = Int('nskb')
+    probe_size = Int('probe_size')
+    tp = Int('tp')
+    size_needed = Int('size_needed')
+    icsk = Int('icsk')
+    interval = Int('interval')
+    net = Int('net')
+
+    # --- Uninterpreted boolean predicates ---
+    tcp_clone_payload = Function('tcp_clone_payload', IntSort(), IntSort(), IntSort(), BoolSort())
+    tcp_can_coalesce_send_queue_head = Function('tcp_can_coalesce_send_queue_head', IntSort(), IntSort(), BoolSort())
+    tcp_packets_in_flight = Function('tcp_packets_in_flight', IntSort(), IntSort())
+    tcp_snd_cwnd = Function('tcp_snd_cwnd', IntSort(), IntSort())
+    tcp_wnd_end = Function('tcp_wnd_end', IntSort(), IntSort())
+    tcp_mtu_to_mss = Function('tcp_mtu_to_mss', IntSort(), IntSort(), IntSort())
+    after = Function('after', IntSort(), IntSort(), BoolSort())
+    READ_ONCE = Function('READ_ONCE', IntSort(), IntSort())
+    likely = Function('likely', BoolSort(), BoolSort())
+
+    # --- Field accessors ---
+    snd_nxt = Function('snd_nxt', IntSort(), IntSort())
+    snd_wnd = Function('snd_wnd', IntSort(), IntSort())
+    write_seq = Function('write_seq', IntSort(), IntSort())
+    rx_opt_num_sacks = Function('rx_opt_num_sacks', IntSort(), IntSort())
+    rx_opt_dsack = Function('rx_opt_dsack', IntSort(), IntSort())
+    icsk_mtup_enabled = Function('icsk_mtup_enabled', IntSort(), BoolSort())
+    icsk_mtup_probe_size = Function('icsk_mtup_probe_size', IntSort(), IntSort())
+    icsk_mtup_search_high = Function('icsk_mtup_search_high', IntSort(), IntSort())
+    icsk_ca_state = Function('icsk_ca_state', IntSort(), IntSort())
+    inet_csk = Function('inet_csk', IntSort(), IntSort())
+    sysctl_tcp_probe_threshold = Function('sysctl_tcp_probe_threshold', IntSort(), IntSort())
+
+    TCP_CA_Open = 0
+
+    s = Solver()
+
+    # Base constraint
+    s.add(skb == 0)
+
+    # Constraint 1
+    s.add(Not(tcp_clone_payload(sk, nskb, probe_size)))
+
+    # Constraint 2
+    s.add(nskb != 0)
+
+    # Constraint 3
+    s.add(tcp_can_coalesce_send_queue_head(sk, probe_size))
+
+    # Constraint 4
+    s.add(Or(
+        Not(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)),
+        tcp_packets_in_flight(tp) == 0
+    ))
+
+    # Constraint 5
+    s.add(Or(
+        Not(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)),
+        tcp_packets_in_flight(tp) != 0
+    ))
+
+    # Constraint 6
+    s.add(Not(after(snd_nxt(tp) + size_needed, tcp_wnd_end(tp))))
+
+    # Constraint 7
+    s.add(Not(snd_wnd(tp) < size_needed))
+
+    # Constraint 8
+    s.add(Not(write_seq(tp) - snd_nxt(tp) < size_needed))
+
+    # Constraint 9
+    s.add(Not(Or(
+        probe_size > tcp_mtu_to_mss(sk, icsk_mtup_search_high(icsk)),
+        interval < READ_ONCE(sysctl_tcp_probe_threshold(net))
+    )))
+
+    # Constraint 10
+    s.add(Not(likely(Or(
+        Not(icsk_mtup_enabled(icsk)),
+        icsk_mtup_probe_size(icsk) != 0,
+        icsk_ca_state(inet_csk(sk)) != TCP_CA_Open,
+        tcp_snd_cwnd(tp) < 11,
+        rx_opt_num_sacks(tp) != 0,
+        rx_opt_dsack(tp) != 0
+    ))))
+
+    return s.check() == sat
+```
+NameError: name 'Function' is not defined
+```python
+def check_constraints():
+    from z3 import Int, Solver, Function, IntSort, BoolSort, Not, Or, And, sat
+
+    # --- Base script variables/constraints ---
+    skb = Int('skb')
+
+    # --- Variables from constraint set 2 ---
+    sk = Int('sk')
+    nskb = Int('nskb')
+    probe_size = Int('probe_size')
+    tp = Int('tp')
+    size_needed = Int('size_needed')
+    icsk = Int('icsk')
+    interval = Int('interval')
+    net = Int('net')
+
+    # --- Uninterpreted boolean predicates (modeled as Int-returning, 0/1) ---
+    tcp_clone_payload = Function('tcp_clone_payload', IntSort(), IntSort(), IntSort(), IntSort())
+    tcp_can_coalesce_send_queue_head = Function('tcp_can_coalesce_send_queue_head', IntSort(), IntSort(), IntSort())
+    tcp_packets_in_flight = Function('tcp_packets_in_flight', IntSort(), IntSort())
+    tcp_snd_cwnd = Function('tcp_snd_cwnd', IntSort(), IntSort())
+    tcp_wnd_end = Function('tcp_wnd_end', IntSort(), IntSort())
+    tcp_mtu_to_mss = Function('tcp_mtu_to_mss', IntSort(), IntSort(), IntSort())
+    after = Function('after', IntSort(), IntSort(), IntSort())
+    READ_ONCE = Function('READ_ONCE', IntSort(), IntSort())
+    likely = Function('likely', IntSort(), IntSort())
+
+    # --- Field accessors ---
+    snd_nxt = Function('snd_nxt', IntSort(), IntSort())
+    snd_wnd = Function('snd_wnd', IntSort(), IntSort())
+    write_seq = Function('write_seq', IntSort(), IntSort())
+    rx_opt_num_sacks = Function('rx_opt_num_sacks', IntSort(), IntSort())
+    rx_opt_dsack = Function('rx_opt_dsack', IntSort(), IntSort())
+    icsk_mtup_enabled = Function('icsk_mtup_enabled', IntSort(), IntSort())
+    icsk_mtup_probe_size = Function('icsk_mtup_probe_size', IntSort(), IntSort())
+    icsk_mtup_search_high = Function('icsk_mtup_search_high', IntSort(), IntSort())
+    icsk_ca_state = Function('icsk_ca_state', IntSort(), IntSort())
+    inet_csk = Function('inet_csk', IntSort(), IntSort())
+    sysctl_tcp_probe_threshold = Function('sysctl_tcp_probe_threshold', IntSort(), IntSort())
+
+    TCP_CA_Open = 0
+
+    s = Solver()
+
+    # Base constraint
+    s.add(skb == 0)
+
+    # Constraint 1: !(tcp_clone_payload(sk, nskb, probe_size)) -> == 0
+    s.add(tcp_clone_payload(sk, nskb, probe_size) == 0)
+
+    # Constraint 2: !(!nskb) -> nskb != 0
+    s.add(nskb != 0)
+
+    # Constraint 3: !(!tcp_can_coalesce_send_queue_head(...)) -> == 1
+    s.add(tcp_can_coalesce_send_queue_head(sk, probe_size) == 1)
+
+    # Constraint 4: !(pif + 2 > cwnd) || pif == 0
+    s.add(Or(
+        Not(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)),
+        tcp_packets_in_flight(tp) == 0
+    ))
+
+    # Constraint 5: !(pif + 2 > cwnd) || pif != 0
+    s.add(Or(
+        Not(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)),
+        tcp_packets_in_flight(tp) != 0
+    ))
+
+    # Constraint 6: !(after(...)) -> after(...) == 0
+    s.add(after(snd_nxt(tp) + size_needed, tcp_wnd_end(tp)) == 0)
+
+    # Constraint 7: !(snd_wnd < size_needed)
+    s.add(Not(snd_wnd(tp) < size_needed))
+
+    # Constraint 8: !(write_seq - snd_nxt < size_needed)
+    s.add(Not(write_seq(tp) - snd_nxt(tp) < size_needed))
+
+    # Constraint 9: !(probe_size > mtu_to_mss || interval < threshold)
+    s.add(Not(Or(
+        probe_size > tcp_mtu_to_mss(sk, icsk_mtup_search_high(icsk)),
+        interval < READ_ONCE(sysctl_tcp_probe_threshold(net))
+    )))
+
+    # Constraint 10: !(likely(...)) -> likely(...) == 0
+    s.add(likely(Or(
+        Not(icsk_mtup_enabled(icsk) == 1),
+        icsk_mtup_probe_size(icsk) != 0,
+        icsk_ca_state(inet_csk(sk)) != TCP_CA_Open,
+        tcp_snd_cwnd(tp) < 11,
+        rx_opt_num_sacks(tp) != 0,
+        rx_opt_dsack(tp) != 0
+    )) == 0)
+
+    return s.check() == sat
+```
+NameError: name 'Function' is not defined
+def check_constraints():
+    from z3 import Int, Solver, Function, IntSort, Not, Or, sat
+
+    # --- Base script variables/constraints ---
+    skb = Int('skb')
+
+    # --- Variables from constraint set 2 ---
+    sk = Int('sk')
+    nskb = Int('nskb')
+    probe_size = Int('probe_size')
+    tp = Int('tp')
+    size_needed = Int('size_needed')
+    icsk = Int('icsk')
+    interval = Int('interval')
+    net = Int('net')
+
+    # --- Uninterpreted predicates (Int-returning, 0/1) ---
+    tcp_clone_payload = Function('tcp_clone_payload', IntSort(), IntSort(), IntSort(), IntSort())
+    tcp_can_coalesce_send_queue_head = Function('tcp_can_coalesce_send_queue_head', IntSort(), IntSort(), IntSort())
+    tcp_packets_in_flight = Function('tcp_packets_in_flight', IntSort(), IntSort())
+    tcp_snd_cwnd = Function('tcp_snd_cwnd', IntSort(), IntSort())
+    tcp_wnd_end = Function('tcp_wnd_end', IntSort(), IntSort())
+    tcp_mtu_to_mss = Function('tcp_mtu_to_mss', IntSort(), IntSort(), IntSort())
+    after = Function('after', IntSort(), IntSort(), IntSort())
+    READ_ONCE = Function('READ_ONCE', IntSort(), IntSort())
+    likely = Function('likely', IntSort(), IntSort())
+
+    # --- Field accessors ---
+    snd_nxt = Function('snd_nxt', IntSort(), IntSort())
+    snd_wnd = Function('snd_wnd', IntSort(), IntSort())
+    write_seq = Function('write_seq', IntSort(), IntSort())
+    rx_opt_num_sacks = Function('rx_opt_num_sacks', IntSort(), IntSort())
+    rx_opt_dsack = Function('rx_opt_dsack', IntSort(), IntSort())
+    icsk_mtup_enabled = Function('icsk_mtup_enabled', IntSort(), IntSort())
+    icsk_mtup_probe_size = Function('icsk_mtup_probe_size', IntSort(), IntSort())
+    icsk_mtup_search_high = Function('icsk_mtup_search_high', IntSort(), IntSort())
+    icsk_ca_state = Function('icsk_ca_state', IntSort(), IntSort())
+    inet_csk = Function('inet_csk', IntSort(), IntSort())
+    sysctl_tcp_probe_threshold = Function('sysctl_tcp_probe_threshold', IntSort(), IntSort())
+
+    TCP_CA_Open = 0
+
+    s = Solver()
+
+    # Base constraint
+    s.add(skb == 0)
+
+    # Constraint 1: !(tcp_clone_payload(...)) -> == 0
+    s.add(tcp_clone_payload(sk, nskb, probe_size) == 0)
+
+    # Constraint 2: !(!nskb) -> nskb != 0
+    s.add(nskb != 0)
+
+    # Constraint 3: !(!tcp_can_coalesce_send_queue_head(...)) -> == 1
+    s.add(tcp_can_coalesce_send_queue_head(sk, probe_size) == 1)
+
+    # Constraint 4: !(pif + 2 > cwnd) || pif == 0
+    s.add(Or(
+        Not(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)),
+        tcp_packets_in_flight(tp) == 0
+    ))
+
+    # Constraint 5: !(pif + 2 > cwnd) || pif != 0
+    s.add(Or(
+        Not(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)),
+        tcp_packets_in_flight(tp) != 0
+    ))
+
+    # Constraint 6: !(after(...)) -> after(...) == 0
+    s.add(after(snd_nxt(tp) + size_needed, tcp_wnd_end(tp)) == 0)
+
+    # Constraint 7: !(snd_wnd < size_needed)
+    s.add(Not(snd_wnd(tp) < size_needed))
+
+    # Constraint 8: !(write_seq - snd_nxt < size_needed)
+    s.add(Not(write_seq(tp) - snd_nxt(tp) < size_needed))
+
+    # Constraint 9: !(probe_size > mtu_to_mss || interval < threshold)
+    s.add(Not(Or(
+        probe_size > tcp_mtu_to_mss(sk, icsk_mtup_search_high(icsk)),
+        interval < READ_ONCE(sysctl_tcp_probe_threshold(net))
+    )))
+
+    # Constraint 10: !(likely(...)) -> likely(...) == 0
+    s.add(likely(Or(
+        Not(icsk_mtup_enabled(icsk) == 1),
+        icsk_mtup_probe_size(icsk) != 0,
+        icsk_ca_state(inet_csk(sk)) != TCP_CA_Open,
+        tcp_snd_cwnd(tp) < 11,
+        rx_opt_num_sacks(tp) != 0,
+        rx_opt_dsack(tp) != 0
+    )) == 0)
+
+    return s.check() == sat
+NameError: name 'Function' is not defined
+def check_constraints():
+    from z3 import Int, Solver, Function, IntSort, Not, Or, sat
+
+    skb = Int('skb')
+    sk = Int('sk')
+    nskb = Int('nskb')
+    probe_size = Int('probe_size')
+    tp = Int('tp')
+    size_needed = Int('size_needed')
+    icsk = Int('icsk')
+    interval = Int('interval')
+    net = Int('net')
+
+    tcp_clone_payload = Function('tcp_clone_payload', IntSort(), IntSort(), IntSort(), IntSort())
+    tcp_can_coalesce_send_queue_head = Function('tcp_can_coalesce_send_queue_head', IntSort(), IntSort(), IntSort())
+    tcp_packets_in_flight = Function('tcp_packets_in_flight', IntSort(), IntSort())
+    tcp_snd_cwnd = Function('tcp_snd_cwnd', IntSort(), IntSort())
+    tcp_wnd_end = Function('tcp_wnd_end', IntSort(), IntSort())
+    tcp_mtu_to_mss = Function('tcp_mtu_to_mss', IntSort(), IntSort(), IntSort())
+    after = Function('after', IntSort(), IntSort(), IntSort())
+    READ_ONCE = Function('READ_ONCE', IntSort(), IntSort())
+    likely = Function('likely', IntSort(), IntSort())
+
+    snd_nxt = Function('snd_nxt', IntSort(), IntSort())
+    snd_wnd = Function('snd_wnd', IntSort(), IntSort())
+    write_seq = Function('write_seq', IntSort(), IntSort())
+    rx_opt_num_sacks = Function('rx_opt_num_sacks', IntSort(), IntSort())
+    rx_opt_dsack = Function('rx_opt_dsack', IntSort(), IntSort())
+    icsk_mtup_enabled = Function('icsk_mtup_enabled', IntSort(), IntSort())
+    icsk_mtup_probe_size = Function('icsk_mtup_probe_size', IntSort(), IntSort())
+    icsk_mtup_search_high = Function('icsk_mtup_search_high', IntSort(), IntSort())
+    icsk_ca_state = Function('icsk_ca_state', IntSort(), IntSort())
+    inet_csk = Function('inet_csk', IntSort(), IntSort())
+    sysctl_tcp_probe_threshold = Function('sysctl_tcp_probe_threshold', IntSort(), IntSort())
+
+    TCP_CA_Open = 0
+
+    s = Solver()
+
+    s.add(skb == 0)
+    s.add(tcp_clone_payload(sk, nskb, probe_size) == 0)
+    s.add(nskb != 0)
+    s.add(tcp_can_coalesce_send_queue_head(sk, probe_size) == 1)
+
+    s.add(Or(
+        Not(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)),
+        tcp_packets_in_flight(tp) == 0
+    ))
+
+    s.add(Or(
+        Not(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)),
+        tcp_packets_in_flight(tp) != 0
+    ))
+
+    s.add(after(snd_nxt(tp) + size_needed, tcp_wnd_end(tp)) == 0)
+    s.add(Not(snd_wnd(tp) < size_needed))
+    s.add(Not(write_seq(tp) - snd_nxt(tp) < size_needed))
+
+    s.add(Not(Or(
+        probe_size > tcp_mtu_to_mss(sk, icsk_mtup_search_high(icsk)),
+        interval < READ_ONCE(sysctl_tcp_probe_threshold(net))
+    )))
+
+    s.add(likely(Or(
+        Not(icsk_mtup_enabled(icsk) == 1),
+        icsk_mtup_probe_size(icsk) != 0,
+        icsk_ca_state(inet_csk(sk)) != TCP_CA_Open,
+        tcp_snd_cwnd(tp) < 11,
+        rx_opt_num_sacks(tp) != 0,
+        rx_opt_dsack(tp) != 0
+    )) == 0)
+
+    return s.check() == sat
+NameError: name 'Function' is not defined

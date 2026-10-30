@@ -1,0 +1,14 @@
+{
+  "event_id": 3,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Or, sat\n    ptmp = Int('ptmp')\n    idx = Int('idx')\n    s = Solver()\n    s.add(ptmp == 0)\n    s.add(Or(idx != -1, ptmp == 0))\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ptmp () Int)\n(declare-fun idx () Int)\n(assert\n (= ptmp 0))\n(assert\n (let (($x8 (= ptmp 0)))\n(or (and (distinct idx (- 1)) true) $x8)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

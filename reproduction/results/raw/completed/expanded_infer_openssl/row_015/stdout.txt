@@ -1,0 +1,40 @@
+```python
+ptmp=Int('ptmp')
+s.add(ptmp == 0)
+```
+Let's go through this step by step.
+
+**Step 1 – Understanding the target variables and constraints**
+
+- Target variables: `[]` (empty list) and `ptmp`.
+- Constraint given: `!(purpose != 0) || !(idx == -1)`.
+
+The constraint mentions `purpose` and `idx`, not `ptmp` or any variable in the empty list.  
+So, if we strictly filter constraints involving only target variables, this constraint does not involve `ptmp` or any target variable from `[]`.
+
+**Step 2 – Filtering constraints affecting reachability**
+
+The constraint `!(purpose != 0) || !(idx == -1)` is essentially saying:  
+If `purpose != 0`, then `idx != -1`.  
+This is relevant to reachability because if `purpose != 0` and `idx == -1`, the function returns 0 early (line: `if (idx == -1) { ... return 0; }`).  
+So this constraint ensures we don't take that early return path when `purpose != 0`.
+
+But does it involve `ptmp`? No.  
+Does it involve any variable in `[]`? No.
+
+**Step 3 – Include only constraints involving target variables**
+
+Since target variables are `[]` and `ptmp`, and the constraint involves neither, the filtered set is empty.
+
+**Step 4 – Verify step by step**
+
+- Constraint: `!(purpose != 0) || !(idx == -1)`  
+  Variables: `purpose`, `idx`.  
+  Target variables: `ptmp` (and none from `[]`).  
+  → No overlap → exclude.
+
+Final filtered constraints: `[]`.
+
+```json
+[]
+```

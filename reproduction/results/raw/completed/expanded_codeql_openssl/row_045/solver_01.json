@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n\n    # Base script constraints\n    host = Int('host')\n\n    # Constraint set 2 variables and constraints\n    BIO_parse_hostserv_ret = Int('BIO_parse_hostserv_ret')\n\n    s = Solver()\n    # Base script constraint\n    s.add(host == 0)\n    # Constraint set 2 constraints\n    s.add(host != 0)\n    s.add(BIO_parse_hostserv_ret >= 1)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun host () Int)\n(declare-fun BIO_parse_hostserv_ret () Int)\n(assert\n (= host 0))\n(assert\n (and (distinct host 0) true))\n(assert\n (>= BIO_parse_hostserv_ret 1))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

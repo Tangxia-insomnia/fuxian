@@ -1,0 +1,14 @@
+{
+  "event_id": 3,
+  "level": 2,
+  "source": "def check_constraints():\n    from z3 import Int, Function, IntSort, Solver, sat\n    \n    # Variable definitions\n    x = Int('x')\n    X509_trusted = Function('X509_trusted', IntSort(), IntSort())\n    \n    s = Solver()\n    \n    # Base script constraints\n    s.add(x == 0)\n    \n    # Constraint set 2 constraints\n    s.add(X509_trusted(x) != 0)\n    \n    # Check satisfiability\n    result = s.check() == sat\n    return result",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun x () Int)\n(declare-fun X509_trusted (Int) Int)\n(assert\n (= x 0))\n(assert\n (let ((?x25 (X509_trusted x)))\n(and (distinct ?x25 0) true)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

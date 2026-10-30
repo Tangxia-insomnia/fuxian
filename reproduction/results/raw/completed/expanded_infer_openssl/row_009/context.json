@@ -1,0 +1,42 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "test_bn_output",
+      "var_name": "b",
+      "target": "test_output_bignum(bn_output_tests[n], b);",
+      "code": "static int test_bn_output(int n)\n{\n    BIGNUM *b = NULL;\n\n    if (bn_output_tests[n] != NULL\n            && !TEST_true(BN_hex2bn(&b, bn_output_tests[n])))\n        return 0;\n    test_output_bignum(bn_output_tests[n], b);\n    BN_free(b);\n    return 1;\n}",
+      "body_sha256": "a5fdfd4f0f0d127601720fb4dfe5c7c7a77949a9e39b9d2a3fbd7d361eb8e8c4",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "test_output_bignum(bn_output_tests[n], b);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int test_bn_output(int n)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "bn_output_tests[n] != NULL && !TEST_true(BN_hex2bn(&b, bn_output_tests[n]))"
+            ]
+          }
+        ],
+        "filter_function_code": "static int test_bn_output(int n)\n{\n    BIGNUM *b = NULL;\n\n    if (bn_output_tests[n] != NULL\n            && !TEST_true(BN_hex2bn(&b, bn_output_tests[n])))\n        return 0;\n    test_output_bignum(bn_output_tests[n], b);\n    BN_free(b);\n    return 1;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int test_bn_output(int n)\n{\n    BIGNUM *b = NULL;\n\n    if (bn_output_tests[n] != NULL\n            && !TEST_true(BN_hex2bn(&b, bn_output_tests[n])))\n        return 0;\n    test_output_bignum(bn_output_tests[n], b);\n    BN_free(b);\n    return 1;\n}"
+  ]
+}

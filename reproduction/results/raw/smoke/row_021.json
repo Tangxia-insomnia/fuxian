@@ -1,0 +1,94 @@
+{
+  "sample": {
+    "sample_id": "NPD/codeql/kernel69:row=21:index=40",
+    "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+    "row_position": 21,
+    "original_index": 40,
+    "original_label": 0,
+    "prediction": null,
+    "end_to_end_status": "not_run_blocked",
+    "end_to_end_attempted": false,
+    "official_entry_error": "ModuleNotFoundError: No module named 'util'",
+    "llm_status": "not_run",
+    "solver_status": "not_run_on_sample",
+    "api_calls": 0,
+    "cost_cny": 0,
+    "component_status": "extraction_and_prompt_passed",
+    "target_condition_count": 3,
+    "early_jump_count": 0,
+    "component_error": null,
+    "component_duration_seconds": 0.0001318999998147774
+  },
+  "location": {
+    "file_path": "net/ipv6/ip6_input.c",
+    "region": {
+      "startLine": 345,
+      "startColumn": 41,
+      "endColumn": 49
+    },
+    "context": {
+      "startLine": 343,
+      "endLine": 347,
+      "snippet": {
+        "text": "\t\t\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);"
+      }
+    }
+  },
+  "var_name": "curr_net",
+  "function_name": "ipv6_list_rcv",
+  "function_code_sha256": "304cf6caf8418beb2245875f8941804776c56c25f00d881474769a704882e2d7",
+  "source_adaptation": {
+    "kind": "diagnostic_only_in_memory_import_adaptation",
+    "source": "llm4pfa/extract_util_plus.py",
+    "source_sha256": "c69bd09ef04bbf49fd1c6bc4e7609bdc59c795255b4863c770122b82de94f546",
+    "removed_import": "from LLM4Detection.m_agent.conditions_info import ContextHelper,Conditions",
+    "postponed_annotations": true,
+    "reason": "ContextHelper is used only in an uncalled helper annotation; selected extract_conditions path has no dependency on either missing type.",
+    "function_bodies_changed": false,
+    "upstream_files_changed": false,
+    "not_a_repaired_full_pipeline": true
+  },
+  "extracted_conditions": {
+    "bug_line_constraints": [
+      {
+        "text": "\t\t\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);",
+        "condition": [
+          {
+            "condition": "list_for_each_entry_safe(skb, next, head, list)",
+            "line_number": 9
+          },
+          {
+            "condition": "if (curr_dev != dev || curr_net != net)",
+            "line_number": 18
+          },
+          {
+            "condition": "if (!list_empty(&sublist))",
+            "line_number": 20
+          }
+        ]
+      }
+    ],
+    "target_conditions": [
+      {
+        "condition": "list_for_each_entry_safe(skb, next, head, list)",
+        "line_number": 9
+      },
+      {
+        "condition": "if (curr_dev != dev || curr_net != net)",
+        "line_number": 18
+      },
+      {
+        "condition": "if (!list_empty(&sublist))",
+        "line_number": 20
+      }
+    ],
+    "variable_assignments": {
+      "text": "void ipv6_list_rcv(struct list_head *head, struct packet_type *pt,",
+      "condition": []
+    },
+    "variable_non_empty": [],
+    "early_jump_constraints": [],
+    "filter_function_code": "void ipv6_list_rcv(struct list_head *head, struct packet_type *pt,\n\t\t   struct net_device *orig_dev)\n{\n\tstruct net_device *curr_dev = NULL;\n\tstruct net *curr_net = NULL;\n\tstruct sk_buff *skb, *next;\n\tstruct list_head sublist;\n\n\tINIT_LIST_HEAD(&sublist);\n\tlist_for_each_entry_safe(skb, next, head, list) {\n\t\tstruct net_device *dev = skb->dev;\n\t\tstruct net *net = dev_net(dev);\n\n\t\tskb_list_del_init(skb);\n\t\tskb = ip6_rcv_core(skb, dev, net);\n\t\tif (skb == NULL)\n\t\t\tcontinue;\n\n\t\tif (curr_dev != dev || curr_net != net) {\n\t\t\t/* dispatch old sublist */\n\t\t\tif (!list_empty(&sublist))\n\t\t\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n\t\t\t/* start new sublist */\n\t\t\tINIT_LIST_HEAD(&sublist);\n\t\t\tcurr_dev = dev;\n\t\t\tcurr_net = net;\n\t\t}\n\t\tlist_add_tail(&skb->list, &sublist);\n\t}\n\t/* dispatch final sublist */\n\tif (!list_empty(&sublist))\n\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n}"
+  },
+  "generated_initial_prompt": "\n        Convert C code constraints into Z3 solver script.\n        Current constraints: [{'condition': 'list_for_each_entry_safe(skb, next, head, list)', 'line_number': 9}, {'condition': 'if (curr_dev != dev || curr_net != net)', 'line_number': 18}, {'condition': 'if (!list_empty(&sublist))', 'line_number': 20}, 'curr_net == 0']\n\n        Guidelines:\n        \nImportant guidelines for generating Z3 scripts:\n1. Variable Type Guidelines:\n   - Prefer Int type over Bool type\n   - Default to Int type for unknown variables\n   - Convert !ptr to ptr==0 for Int variables\n   \n2. Boolean Representation:\n   - Represent False as Int variable == 0\n   - Represent True as Int variable == 1\n   \n3. Critical Rules:\n   - Use And, Or, Not instead of &, |, ! operators\n   - Avoid assigning Int values to Bool variables\n   - Convert !ptr or Not(ptr) to ptr==0 only\n   \n4. Constraint Guidelines:\n   - Prefer using ==1 or ==0 over inequality operators\n   - Skip constraints for uncertain value ranges\n   - Only interpret function returns when names clearly indicate meaning\n\n\n        Format response strictly as:\n        ```python\n        var_name1=Int('var1')\n        var_name2=Bool('var2')\n        s.add(constraint 1)\n        s.add(constraint 2)\n        ...\n        ```\n        "
+}

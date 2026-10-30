@@ -1,0 +1,45 @@
+{
+  "call_id": 398,
+  "sample_id": "NPD/codeql/kernel69:row=64:index=94",
+  "timestamp": "2026-10-26T00:51:29.125785+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int\nieee80211_tdls_prep_mgmt_packet(struct wiphy *wiphy, struct net_device *dev,\n\t\t\t\tconst u8 *peer, int link_id,\n\t\t\t\tu8 action_code, u8 dialog_token,\n\t\t\t\tu16 status_code, u32 peer_capability,\n\t\t\t\tbool initiator, const u8 *extra_ies,\n\t\t\t\tsize_t extra_ies_len, u8 oper_class,\n\t\t\t\tstruct cfg80211_chan_def *chandef)\n{\n\tstruct ieee80211_sub_if_data *sdata = IEEE80211_DEV_TO_SUB_IF(dev);\n\tstruct sk_buff *skb = NULL;\n\tstruct sta_info *sta;\n\tu32 flags = 0;\n\tint ret = 0;\n\n\trcu_read_lock();\n\tsta = sta_info_get(sdata, peer);\n\n\t/* infer the initiator if we can, to support old userspace */\n\tswitch (action_code) {\n\tcase WLAN_TDLS_SETUP_REQUEST:\n\t\tif (sta) {\n\t\t\tset_sta_flag(sta, WLAN_STA_TDLS_INITIATOR);\n\t\t\tsta->sta.tdls_initiator = false;\n\t\t}\n\t\tfallthrough;\n\tcase WLAN_TDLS_SETUP_CONFIRM:\n\tcase WLAN_TDLS_DISCOVERY_REQUEST:\n\t\tinitiator = true;\n\t\tbreak;\n\tcase WLAN_TDLS_SETUP_RESPONSE:\n\t\t/*\n\t\t * In some testing scenarios, we send a request and response.\n\t\t * Make the last packet sent take effect for the initiator\n\t\t * value.\n\t\t */\n\t\tif (sta) {\n\t\t\tclear_sta_flag(sta, WLAN_STA_TDLS_INITIATOR);\n\t\t\tsta->sta.tdls_initiator = true;\n\t\t}\n\t\tfallthrough;\n\tcase WLAN_PUB_ACTION_TDLS_DISCOVER_RES:\n\t\tinitiator = false;\n\t\tbreak;\n\tcase WLAN_TDLS_TEARDOWN:\n\tcase WLAN_TDLS_CHANNEL_SWITCH_REQUEST:\n\tcase WLAN_TDLS_CHANNEL_SWITCH_RESPONSE:\n\t\t/* any value is ok */\n\t\tbreak;\n\tdefault:\n\t\tret = -EOPNOTSUPP;\n\t\tbreak;\n\t}\n\n\tif (sta && test_sta_flag(sta, WLAN_STA_TDLS_INITIATOR))\n\t\tinitiator = true;\n\n\trcu_read_unlock();\n\tif (ret < 0)\n\t\tgoto fail;\n\n\tskb = ieee80211_tdls_build_mgmt_packet_data(sdata, peer,\n\t\t\t\t\t\t    link_id, action_code,\n\t\t\t\t\t\t    dialog_token, status_code,\n\t\t\t\t\t\t    initiator, extra_ies,\n\t\t\t\t\t\t    extra_ies_len, oper_class,\n\t\t\t\t\t\t    chandef);\n\tif (!skb) {\n\t\tret = -EINVAL;\n\t\tgoto fail;\n\t}\n\n\tif (action_code == WLAN_PUB_ACTION_TDLS_DISCOVER_RES) {\n\t\tieee80211_tx_skb_tid(sdata, skb, 7, link_id);\n\t\treturn 0;\n\t}\n\n\t/*\n\t * According to 802.11z: Setup req/resp are sent in AC_BK, otherwise\n\t * we should default to AC_VI.\n\t */\n\tswitch (action_code) {\n\tcase WLAN_TDLS_SETUP_REQUEST:\n\tcase WLAN_TDLS_SETUP_RESPONSE:\n\t\tskb->priority = 256 + 2;\n\t\tbreak;\n\tdefault:\n\t\tskb->priority = 256 + 5;\n\t\tbreak;\n\t}\n\n\t/*\n\t * Set the WLAN_TDLS_TEARDOWN flag to indicate a teardown in progress.\n\t * Later, if no ACK is returned from peer, we will re-send the teardown\n\t * packet through the AP.\n\t */\n\tif ((action_code == WLAN_TDLS_TEARDOWN) &&\n\t    ieee80211_hw_check(&sdata->local->hw, REPORTS_TX_ACK_STATUS)) {\n\t\tbool try_resend; /* Should we keep skb for possible resend */\n\n\t\t/* If not sending directly to peer - no point in keeping skb */\n\t\trcu_read_lock();\n\t\tsta = sta_info_get(sdata, peer);\n\t\ttry_resend = sta && test_sta_flag(sta, WLAN_STA_TDLS_PEER_AUTH);\n\t\trcu_read_unlock();\n\n\t\tspin_lock_bh(&sdata->u.mgd.teardown_lock);\n\t\tif (try_resend && !sdata->u.mgd.teardown_skb) {\n\t\t\t/* Mark it as requiring TX status callback  */\n\t\t\tflags |= IEEE80211_TX_CTL_REQ_TX_STATUS |\n\t\t\t\t IEEE80211_TX_INTFL_MLME_CONN_TX;\n\n\t\t\t/*\n\t\t\t * skb is copied since mac80211 will later set\n\t\t\t * properties that might not be the same as the AP,\n\t\t\t * such as encryption, QoS, addresses, etc.\n\t\t\t *\n\t\t\t * No problem if skb_copy() fails, so no need to check.\n\t\t\t */\n\t\t\tsdata->u.mgd.teardown_skb = skb_copy(skb, GFP_ATOMIC);\n\t\t\tsdata->u.mgd.orig_teardown_skb = skb;\n\t\t}\n\t\tspin_unlock_bh(&sdata->u.mgd.teardown_lock);\n\t}\n\n\t/* disable bottom halves when entering the Tx path */\n\tlocal_bh_disable();\n\t__ieee80211_subif_start_xmit(skb, dev, flags,\n\t\t\t\t     IEEE80211_TX_CTRL_MLO_LINK_UNSPEC, NULL);\n\tlocal_bh_enable();\n\n\treturn ret;\n\nfail:\n\tdev_kfree_skb(skb);\n\treturn ret;\n}\n        - Target variables: [], skb\n        - Constraints: ['!(action_code == WLAN_PUB_ACTION_TDLS_DISCOVER_RES)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "f3f9c4d7-0a56-4455-bce7-c487a1819cd2",
+  "usage": {
+    "prompt_tokens": 1361,
+    "completion_tokens": 5,
+    "total_tokens": 1366,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1361
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.871376600000076,
+  "cost_upper_bound_cny": 0.002762
+}

@@ -1,0 +1,42 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ieee80211_tx_monitor",
+      "var_name": "skb",
+      "target": "\tdev_kfree_skb(skb);",
+      "code": "void ieee80211_tx_monitor(struct ieee80211_local *local, struct sk_buff *skb,\n\t\t\t  int retry_count, bool send_to_cooked,\n\t\t\t  struct ieee80211_tx_status *status)\n{\n\tstruct sk_buff *skb2;\n\tstruct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);\n\tstruct ieee80211_sub_if_data *sdata;\n\tstruct net_device *prev_dev = NULL;\n\tint rtap_len;\n\n\t/* send frame to monitor interfaces now */\n\trtap_len = ieee80211_tx_radiotap_len(info, status);\n\tif (WARN_ON_ONCE(skb_headroom(skb) < rtap_len)) {\n\t\tpr_err(\"ieee80211_tx_status: headroom too small\\n\");\n\t\tdev_kfree_skb(skb);\n\t\treturn;\n\t}\n\tieee80211_add_tx_radiotap_header(local, skb, retry_count,\n\t\t\t\t\t rtap_len, status);\n\n\t/* XXX: is this sufficient for BPF? */\n\tskb_reset_mac_header(skb);\n\tskb->ip_summed = CHECKSUM_UNNECESSARY;\n\tskb->pkt_type = PACKET_OTHERHOST;\n\tskb->protocol = htons(ETH_P_802_2);\n\tmemset(skb->cb, 0, sizeof(skb->cb));\n\n\trcu_read_lock();\n\tlist_for_each_entry_rcu(sdata, &local->interfaces, list) {\n\t\tif (sdata->vif.type == NL80211_IFTYPE_MONITOR) {\n\t\t\tif (!ieee80211_sdata_running(sdata))\n\t\t\t\tcontinue;\n\n\t\t\tif ((sdata->u.mntr.flags & MONITOR_FLAG_COOK_FRAMES) &&\n\t\t\t    !send_to_cooked)\n\t\t\t\tcontinue;\n\n\t\t\tif (prev_dev) {\n\t\t\t\tskb2 = skb_clone(skb, GFP_ATOMIC);\n\t\t\t\tif (skb2) {\n\t\t\t\t\tskb2->dev = prev_dev;\n\t\t\t\t\tnetif_rx(skb2);\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tprev_dev = sdata->dev;\n\t\t}\n\t}\n\tif (prev_dev) {\n\t\tskb->dev = prev_dev;\n\t\tnetif_rx(skb);\n\t\tskb = NULL;\n\t}\n\trcu_read_unlock();\n\tdev_kfree_skb(skb);\n}",
+      "body_sha256": "f2f5585cb084fe30b52682ac95a9002aaf6f3c7b8fcfd95b90d0dbce051df922",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tdev_kfree_skb(skb);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "void ieee80211_tx_monitor(struct ieee80211_local *local, struct sk_buff *skb,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "WARN_ON_ONCE(skb_headroom(skb) < rtap_len)"
+            ]
+          }
+        ],
+        "filter_function_code": "void ieee80211_tx_monitor(struct ieee80211_local *local, struct sk_buff *skb,\n\t\t\t  int retry_count, bool send_to_cooked,\n\t\t\t  struct ieee80211_tx_status *status)\n{\n\tstruct sk_buff *skb2;\n\tstruct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);\n\tstruct ieee80211_sub_if_data *sdata;\n\tstruct net_device *prev_dev = NULL;\n\tint rtap_len;\n\n\t/* send frame to monitor interfaces now */\n\trtap_len = ieee80211_tx_radiotap_len(info, status);\n\tif (WARN_ON_ONCE(skb_headroom(skb) < rtap_len)) {\n\t\tpr_err(\"ieee80211_tx_status: headroom too small\\n\");\n\t\tdev_kfree_skb(skb);\n\t\treturn;\n\t}\n\tieee80211_add_tx_radiotap_header(local, skb, retry_count,\n\t\t\t\t\t rtap_len, status);\n\n\t/* XXX: is this sufficient for BPF? */\n\tskb_reset_mac_header(skb);\n\tskb->ip_summed = CHECKSUM_UNNECESSARY;\n\tskb->pkt_type = PACKET_OTHERHOST;\n\tskb->protocol = htons(ETH_P_802_2);\n\tmemset(skb->cb, 0, sizeof(skb->cb));\n\n\trcu_read_lock();\n\tlist_for_each_entry_rcu(sdata, &local->interfaces, list) {\n\t\tif (sdata->vif.type == NL80211_IFTYPE_MONITOR) {\n\t\t\tif (!ieee80211_sdata_running(sdata))\n\t\t\t\tcontinue;\n\n\t\t\tif ((sdata->u.mntr.flags & MONITOR_FLAG_COOK_FRAMES) &&\n\t\t\t    !send_to_cooked)\n\t\t\t\tcontinue;\n\n\t\t\tif (prev_dev) {\n\t\t\t\tskb2 = skb_clone(skb, GFP_ATOMIC);\n\t\t\t\tif (skb2) {\n\t\t\t\t\tskb2->dev = prev_dev;\n\t\t\t\t\tnetif_rx(skb2);\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tprev_dev = sdata->dev;\n\t\t}\n\t}\n\tif (prev_dev) {\n\t\tskb->dev = prev_dev;\n\t\tnetif_rx(skb);\n\t\tskb = NULL;\n\t}\n\trcu_read_unlock();\n\tdev_kfree_skb(skb);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "void ieee80211_tx_monitor(struct ieee80211_local *local, struct sk_buff *skb,\n\t\t\t  int retry_count, bool send_to_cooked,\n\t\t\t  struct ieee80211_tx_status *status)\n{\n\tstruct sk_buff *skb2;\n\tstruct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);\n\tstruct ieee80211_sub_if_data *sdata;\n\tstruct net_device *prev_dev = NULL;\n\tint rtap_len;\n\n\t/* send frame to monitor interfaces now */\n\trtap_len = ieee80211_tx_radiotap_len(info, status);\n\tif (WARN_ON_ONCE(skb_headroom(skb) < rtap_len)) {\n\t\tpr_err(\"ieee80211_tx_status: headroom too small\\n\");\n\t\tdev_kfree_skb(skb);\n\t\treturn;\n\t}\n\tieee80211_add_tx_radiotap_header(local, skb, retry_count,\n\t\t\t\t\t rtap_len, status);\n\n\t/* XXX: is this sufficient for BPF? */\n\tskb_reset_mac_header(skb);\n\tskb->ip_summed = CHECKSUM_UNNECESSARY;\n\tskb->pkt_type = PACKET_OTHERHOST;\n\tskb->protocol = htons(ETH_P_802_2);\n\tmemset(skb->cb, 0, sizeof(skb->cb));\n\n\trcu_read_lock();\n\tlist_for_each_entry_rcu(sdata, &local->interfaces, list) {\n\t\tif (sdata->vif.type == NL80211_IFTYPE_MONITOR) {\n\t\t\tif (!ieee80211_sdata_running(sdata))\n\t\t\t\tcontinue;\n\n\t\t\tif ((sdata->u.mntr.flags & MONITOR_FLAG_COOK_FRAMES) &&\n\t\t\t    !send_to_cooked)\n\t\t\t\tcontinue;\n\n\t\t\tif (prev_dev) {\n\t\t\t\tskb2 = skb_clone(skb, GFP_ATOMIC);\n\t\t\t\tif (skb2) {\n\t\t\t\t\tskb2->dev = prev_dev;\n\t\t\t\t\tnetif_rx(skb2);\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tprev_dev = sdata->dev;\n\t\t}\n\t}\n\tif (prev_dev) {\n\t\tskb->dev = prev_dev;\n\t\tnetif_rx(skb);\n\t\tskb = NULL;\n\t}\n\trcu_read_unlock();\n\tdev_kfree_skb(skb);\n}"
+  ]
+}

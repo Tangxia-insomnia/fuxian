@@ -1,0 +1,59 @@
+```python
+movie_format_ctx=Int('movie_format_ctx')
+s.add(movie_format_ctx == 0)
+```
+```json
+["!((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, NULL)) < 0)"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraint.
+# movie->format_ctx is a pointer (address) passed by reference to avformat_open_input.
+# We model it as an integer address (0 == NULL).
+movie_format_ctx = BitVec('movie_format_ctx', 64)
+
+# The C expression is:
+#   !((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, NULL)) < 0)
+#
+# Semantics:
+#   - avformat_open_input returns an int `ret`.
+#   - The constraint asserts that the negation of (ret < 0) holds,
+#     i.e. ret >= 0 (success or non-negative return).
+#   - The assignment to `ret` is a side effect; the constraint only
+#     concerns the truth value of (ret < 0).
+#
+# Since `ret` is a fresh local produced by the call, we model it as an
+# uninterpreted integer representing the return value of the call.
+ret = Int('ret')
+
+# The constraint: NOT (ret < 0)  <=>  ret >= 0
+# This is the only condition affecting the specified variable
+# (movie->format_ctx is only used as an argument address; its value is
+# not constrained by this expression itself).
+constraint = (ret >= 0)
+
+# Solve / check satisfiability of the constraint.
+s = Solver()
+s.add(constraint)
+
+# Print result (executable Z3 script behavior).
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, BitVec, Solver, sat
+
+    # Base script constraints
+    movie_format_ctx = Int('movie_format_ctx')
+    s = Solver()
+    s.add(movie_format_ctx == 0)
+
+    # Constraint set 2: model avformat_open_input return value
+    movie_format_ctx_bv = BitVec('movie_format_ctx_bv', 64)
+    ret = Int('ret')
+    s.add(ret >= 0)
+
+    return s.check() == sat
+```
+goto result: True

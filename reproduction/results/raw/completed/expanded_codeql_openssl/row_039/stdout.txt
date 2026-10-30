@@ -1,0 +1,160 @@
+```python
+req=Int('req')
+s.add(req == 0)
+```
+```json
+["!(newreq || gen_x509) || !(req == NULL) || !(!make_REQ(req, pkey, fsubj, multirdn, !gen_x509, chtype))", "!(newreq || gen_x509) || !(req == NULL) || !(req == NULL)", "!(!newreq) || !(req == NULL)", "!(subj != NULL && !newreq && !gen_x509) || !(!X509_REQ_set_subject_name(req, fsubj))", "!(newreq || gen_x509) || !(!(gen_x509)) || !(extsect != NULL && !X509V3_EXT_REQ_add_nconf(req_conf, &ext_ctx, extsect, req))", "!(newreq || gen_x509) || !(!(gen_x509)) || !(addext_conf != NULL && !X509V3_EXT_REQ_add_nconf(addext_conf, &ext_ctx, \"default\", req))", "!(newreq || gen_x509) || !(!(gen_x509)) || !(!i)", "!(newreq || gen_x509) || !(gen_x509) || !(!copy_extensions(new_x509, req, ext_copy))", "!(verify) || !(tpubkey == NULL) || !(tpubkey == NULL)"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints
+# req is a pointer-like variable; model as an integer (0 = NULL, nonzero = valid pointer)
+req = Int('req')
+
+# Boolean flags used in the constraints
+newreq = Bool('newreq')
+gen_x509 = Bool('gen_x509')
+
+# Solver
+s = Solver()
+
+# ---------------------------------------------------------------------------
+# Constraint 1:
+#   !(newreq || gen_x509) || !(req == NULL) || !(!make_REQ(...))
+# The call make_REQ(...) is treated as an opaque boolean result.
+# We only care about the parts involving req, newreq, gen_x509.
+# The clause reduces to: (newreq || gen_x509) implies (req != NULL) implies make_REQ(...)
+# Since make_REQ is opaque, we keep the structural form but abstract the call.
+# ---------------------------------------------------------------------------
+make_REQ_ok = Bool('make_REQ_ok')
+s.add(Or(Not(Or(newreq, gen_x509)), req != 0, make_REQ_ok))
+
+# ---------------------------------------------------------------------------
+# Constraint 2:
+#   !(newreq || gen_x509) || !(req == NULL) || !(req == NULL)
+# Simplifies to: !(newreq || gen_x509) || (req != NULL)
+# i.e., if newreq or gen_x509 is true, req must be non-NULL.
+# ---------------------------------------------------------------------------
+s.add(Or(Not(Or(newreq, gen_x509)), req != 0))
+
+# ---------------------------------------------------------------------------
+# Constraint 3:
+#   !(!newreq) || !(req == NULL)
+# i.e., newreq implies req != NULL
+# ---------------------------------------------------------------------------
+s.add(Or(Not(Not(newreq)), req != 0))
+
+# ---------------------------------------------------------------------------
+# Constraint 4:
+#   !(subj != NULL && !newreq && !gen_x509) || !(!X509_REQ_set_subject_name(req, fsubj))
+# The call X509_REQ_set_subject_name is opaque; abstract as a boolean.
+# Only the guard involving newreq/gen_x509 is relevant here.
+# ---------------------------------------------------------------------------
+set_subject_ok = Bool('set_subject_ok')
+subj_nonnull = Bool('subj_nonnull')
+s.add(Or(Not(And(subj_nonnull, Not(newreq), Not(gen_x509))), set_subject_ok))
+
+# ---------------------------------------------------------------------------
+# Constraint 5:
+#   !(newreq || gen_x509) || !(!(gen_x509)) || !(extsect != NULL && !X509V3_EXT_REQ_add_nconf(...))
+# Simplifies to: !(newreq || gen_x509) || gen_x509 || !(extsect != NULL && add_ok)
+# ---------------------------------------------------------------------------
+extsect_nonnull = Bool('extsect_nonnull')
+add_ext_ok = Bool('add_ext_ok')
+s.add(Or(Not(Or(newreq, gen_x509)), gen_x509, Not(And(extsect_nonnull, add_ext_ok))))
+
+# ---------------------------------------------------------------------------
+# Constraint 6:
+#   !(newreq || gen_x509) || !(!(gen_x509)) || !(addext_conf != NULL && !X509V3_EXT_REQ_add_nconf(...))
+# Same structure as constraint 5 with a different config pointer.
+# ---------------------------------------------------------------------------
+addext_conf_nonnull = Bool('addext_conf_nonnull')
+add_addext_ok = Bool('add_addext_ok')
+s.add(Or(Not(Or(newreq, gen_x509)), gen_x509, Not(And(addext_conf_nonnull, add_addext_ok))))
+
+# ---------------------------------------------------------------------------
+# Constraint 7:
+#   !(newreq || gen_x509) || !(!(gen_x509)) || !(!i)
+# Simplifies to: !(newreq || gen_x509) || gen_x509 || i
+# ---------------------------------------------------------------------------
+i = Bool('i')
+s.add(Or(Not(Or(newreq, gen_x509)), gen_x509, i))
+
+# ---------------------------------------------------------------------------
+# Constraint 8:
+#   !(newreq || gen_x509) || !(gen_x509) || !(!copy_extensions(new_x509, req, ext_copy))
+# Simplifies to: !(newreq || gen_x509) || !gen_x509 || copy_extensions_ok
+# ---------------------------------------------------------------------------
+copy_extensions_ok = Bool('copy_extensions_ok')
+s.add(Or(Not(Or(newreq, gen_x509)), Not(gen_x509), copy_extensions_ok))
+
+# ---------------------------------------------------------------------------
+# Constraint 9:
+#   !(verify) || !(tpubkey == NULL) || !(tpubkey == NULL)
+# Simplifies to: !verify || tpubkey != NULL
+# ---------------------------------------------------------------------------
+verify = Bool('verify')
+tpubkey = Int('tpubkey')
+s.add(Or(Not(verify), tpubkey != 0))
+
+# Check satisfiability
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, And, sat
+
+    # Base script variables and constraints
+    req = Int('req')
+
+    # Variables from constraint set 2
+    newreq = Bool('newreq')
+    gen_x509 = Bool('gen_x509')
+    make_REQ_ok = Bool('make_REQ_ok')
+    set_subject_ok = Bool('set_subject_ok')
+    subj_nonnull = Bool('subj_nonnull')
+    extsect_nonnull = Bool('extsect_nonnull')
+    add_ext_ok = Bool('add_ext_ok')
+    addext_conf_nonnull = Bool('addext_conf_nonnull')
+    add_addext_ok = Bool('add_addext_ok')
+    i = Bool('i')
+    copy_extensions_ok = Bool('copy_extensions_ok')
+    verify = Bool('verify')
+    tpubkey = Int('tpubkey')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(req == 0)
+
+    # Constraint 1
+    s.add(Or(Not(Or(newreq, gen_x509)), req != 0, make_REQ_ok))
+
+    # Constraint 2
+    s.add(Or(Not(Or(newreq, gen_x509)), req != 0))
+
+    # Constraint 3
+    s.add(Or(Not(Not(newreq)), req != 0))
+
+    # Constraint 4
+    s.add(Or(Not(And(subj_nonnull, Not(newreq), Not(gen_x509))), set_subject_ok))
+
+    # Constraint 5
+    s.add(Or(Not(Or(newreq, gen_x509)), gen_x509, Not(And(extsect_nonnull, add_ext_ok))))
+
+    # Constraint 6
+    s.add(Or(Not(Or(newreq, gen_x509)), gen_x509, Not(And(addext_conf_nonnull, add_addext_ok))))
+
+    # Constraint 7
+    s.add(Or(Not(Or(newreq, gen_x509)), gen_x509, i))
+
+    # Constraint 8
+    s.add(Or(Not(Or(newreq, gen_x509)), Not(gen_x509), copy_extensions_ok))
+
+    # Constraint 9
+    s.add(Or(Not(verify), tpubkey != 0))
+
+    return s.check() == sat
+```
+goto result: False

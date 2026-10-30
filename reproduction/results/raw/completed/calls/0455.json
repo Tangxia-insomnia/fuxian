@@ -1,0 +1,45 @@
+{
+  "call_id": 455,
+  "sample_id": "NPD/codeql/libav:row=12:index=19",
+  "timestamp": "2026-10-26T00:52:37.683265+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int bmp_encode_frame(AVCodecContext *avctx, AVPacket *pkt,\n                            const AVFrame *pict, int *got_packet)\n{\n    const AVFrame * const p = pict;\n    int n_bytes_image, n_bytes_per_row, n_bytes, i, n, hsize, ret;\n    const uint32_t *pal = NULL;\n    int pad_bytes_per_row, pal_entries = 0, compression = BMP_RGB;\n    int bit_count = avctx->bits_per_coded_sample;\n    uint8_t *ptr, *buf;\n\n#if FF_API_CODED_FRAME\nFF_DISABLE_DEPRECATION_WARNINGS\n    avctx->coded_frame->pict_type = AV_PICTURE_TYPE_I;\n    avctx->coded_frame->key_frame = 1;\nFF_ENABLE_DEPRECATION_WARNINGS\n#endif\n    switch (avctx->pix_fmt) {\n    case AV_PIX_FMT_RGB444:\n        compression = BMP_BITFIELDS;\n        pal = rgb444_masks; // abuse pal to hold color masks\n        pal_entries = 3;\n        break;\n    case AV_PIX_FMT_RGB565:\n        compression = BMP_BITFIELDS;\n        pal = rgb565_masks; // abuse pal to hold color masks\n        pal_entries = 3;\n        break;\n    case AV_PIX_FMT_RGB8:\n    case AV_PIX_FMT_BGR8:\n    case AV_PIX_FMT_RGB4_BYTE:\n    case AV_PIX_FMT_BGR4_BYTE:\n    case AV_PIX_FMT_GRAY8:\n        avpriv_set_systematic_pal2((uint32_t*)p->data[1], avctx->pix_fmt);\n    case AV_PIX_FMT_PAL8:\n        pal = (uint32_t *)p->data[1];\n        break;\n    case AV_PIX_FMT_MONOBLACK:\n        pal = monoblack_pal;\n        break;\n    }\n    if (pal && !pal_entries) pal_entries = 1 << bit_count;\n    n_bytes_per_row = ((int64_t)avctx->width * (int64_t)bit_count + 7LL) >> 3LL;\n    pad_bytes_per_row = (4 - n_bytes_per_row) & 3;\n    n_bytes_image = avctx->height * (n_bytes_per_row + pad_bytes_per_row);\n\n    // STRUCTURE.field refer to the MSVC documentation for BITMAPFILEHEADER\n    // and related pages.\n#define SIZE_BITMAPFILEHEADER 14\n#define SIZE_BITMAPINFOHEADER 40\n    hsize = SIZE_BITMAPFILEHEADER + SIZE_BITMAPINFOHEADER + (pal_entries << 2);\n    n_bytes = n_bytes_image + hsize;\n    if ((ret = ff_alloc_packet(pkt, n_bytes)) < 0) {\n        av_log(avctx, AV_LOG_ERROR, \"Error getting output packet.\\n\");\n        return ret;\n    }\n    buf = pkt->data;\n    bytestream_put_byte(&buf, 'B');                   // BITMAPFILEHEADER.bfType\n    bytestream_put_byte(&buf, 'M');                   // do.\n    bytestream_put_le32(&buf, n_bytes);               // BITMAPFILEHEADER.bfSize\n    bytestream_put_le16(&buf, 0);                     // BITMAPFILEHEADER.bfReserved1\n    bytestream_put_le16(&buf, 0);                     // BITMAPFILEHEADER.bfReserved2\n    bytestream_put_le32(&buf, hsize);                 // BITMAPFILEHEADER.bfOffBits\n    bytestream_put_le32(&buf, SIZE_BITMAPINFOHEADER); // BITMAPINFOHEADER.biSize\n    bytestream_put_le32(&buf, avctx->width);          // BITMAPINFOHEADER.biWidth\n    bytestream_put_le32(&buf, avctx->height);         // BITMAPINFOHEADER.biHeight\n    bytestream_put_le16(&buf, 1);                     // BITMAPINFOHEADER.biPlanes\n    bytestream_put_le16(&buf, bit_count);             // BITMAPINFOHEADER.biBitCount\n    bytestream_put_le32(&buf, compression);           // BITMAPINFOHEADER.biCompression\n    bytestream_put_le32(&buf, n_bytes_image);         // BITMAPINFOHEADER.biSizeImage\n    bytestream_put_le32(&buf, 0);                     // BITMAPINFOHEADER.biXPelsPerMeter\n    bytestream_put_le32(&buf, 0);                     // BITMAPINFOHEADER.biYPelsPerMeter\n    bytestream_put_le32(&buf, 0);                     // BITMAPINFOHEADER.biClrUsed\n    bytestream_put_le32(&buf, 0);                     // BITMAPINFOHEADER.biClrImportant\n    for (i = 0; i < pal_entries; i++)\n        bytestream_put_le32(&buf, pal[i] & 0xFFFFFF);\n    // BMP files are bottom-to-top so we start from the end...\n    ptr = p->data[0] + (avctx->height - 1) * p->linesize[0];\n    buf = pkt->data + hsize;\n    for(i = 0; i < avctx->height; i++) {\n        if (bit_count == 16) {\n            const uint16_t *src = (const uint16_t *) ptr;\n            uint16_t *dst = (uint16_t *) buf;\n            for(n = 0; n < avctx->width; n++)\n                AV_WL16(dst + n, src[n]);\n        } else {\n            memcpy(buf, ptr, n_bytes_per_row);\n        }\n        buf += n_bytes_per_row;\n        memset(buf, 0, pad_bytes_per_row);\n        buf += pad_bytes_per_row;\n        ptr -= p->linesize[0]; // ... and go back\n    }\n\n    pkt->flags |= AV_PKT_FLAG_KEY;\n    *got_packet = 1;\n    return 0;\n}\n        - Target variables: [], pal\n        - Constraints: ['!((ret = ff_alloc_packet(pkt, n_bytes)) < 0)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "2a3bf884-52b5-415a-b5f9-a79cbfcb462c",
+  "usage": {
+    "prompt_tokens": 1491,
+    "completion_tokens": 5,
+    "total_tokens": 1496,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1491
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.8920358000004853,
+  "cost_upper_bound_cny": 0.003022
+}

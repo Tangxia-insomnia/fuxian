@@ -1,0 +1,46 @@
+```python
+above_row=Int('above_row')
+s.add(above_row == 0)
+```
+```json
+[]
+```
+```python
+above_row=Int('above_row')
+s.add(above_row == 0)
+```
+Let's go through this step by step.
+
+**Step 1 – Understanding the code and target variables**
+
+We are analyzing the function `epic_handle_edges`.  
+Target variables given: `[]` (empty) and `above_row`.
+
+The constraints given:
+
+1. `!(x) || !(epic_predict_pixel(dc, &dc->W_flag_rung, pPix, pix))`
+2. `!(!x && !y)`
+
+**Step 2 – Filter constraints affecting reachability**
+
+- Constraint 1 involves `x`, `epic_predict_pixel`, `dc`, `pPix`, `pix`. It does not mention `above_row` directly. However, `pix` in that context is `curr_row[x - 1]` (from the code), so it's not `above_row`. So constraint 1 does not involve `above_row`.
+- Constraint 2 involves `x` and `y` only. No `above_row`.
+
+So neither constraint directly involves `above_row`. But the task says "Include only constraints involving target variables". Since `above_row` is a target variable, and neither constraint mentions it, the filtered set should be empty.
+
+But wait — the target variables list is `[], above_row`. The empty list `[]` is odd — maybe it means no additional variables besides `above_row`? Or maybe it's a placeholder? Either way, `above_row` is the only named target variable.
+
+**Step 3 – Verify filtered constraints step by step**
+
+- Constraint 1: Does it involve `above_row`? No.  
+- Constraint 2: Does it involve `above_row`? No.
+
+So both are filtered out.
+
+**Step 4 – Return filtered constraints in JSON array format**
+
+Since none involve `above_row`, the result is an empty array.
+
+```json
+[]
+```

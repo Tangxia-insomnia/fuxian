@@ -1,0 +1,45 @@
+{
+  "call_id": 737,
+  "sample_id": "NPD/codeql/openssl:row=18:index=19",
+  "timestamp": "2026-10-26T00:59:29.551432+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(genkey) || !(EVP_PKEY_keygen_init(gctx_key) <= 0 || EVP_PKEY_keygen(gctx_key, &key) <= 0)']\n        Relevant conditions/variables: [], ectx_key\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "f4fbf0ba-bc30-46ab-b6f0-45f74b47f0eb",
+  "usage": {
+    "prompt_tokens": 145,
+    "completion_tokens": 332,
+    "total_tokens": 477,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 145
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declarations for the variables appearing in the constraint.\n# genkey: boolean flag indicating whether key generation is requested.\n# EVP_PKEY_keygen_init / EVP_PKEY_keygen: modeled as integer return codes\n#   (C convention: <= 0 indicates failure).\ngenkey = Bool('genkey')\nEVP_PKEY_keygen_init_ret = Int('EVP_PKEY_keygen_init_ret')\nEVP_PKEY_keygen_ret = Int('EVP_PKEY_keygen_ret')\n\ns = Solver()\n\n# Original C constraint:\n#   !(genkey) || !(EVP_PKEY_keygen_init(gctx_key) <= 0 || EVP_PKEY_keygen(gctx_key, &key) <= 0)\n#\n# Meaning: if genkey is true, then BOTH keygen_init and keygen must succeed\n# (i.e., their return values must be > 0). If genkey is false, the constraint\n# is trivially satisfied.\n#\n# The C expression `EVP_PKEY_keygen_init(...) <= 0` is modeled as\n# `EVP_PKEY_keygen_init_ret <= 0`, and similarly for keygen.\ns.add(Or(\n    Not(genkey),\n    Not(Or(EVP_PKEY_keygen_init_ret <= 0, EVP_PKEY_keygen_ret <= 0))\n))\n\n# Check satisfiability and print a model.\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.055550199999743,
+  "cost_upper_bound_cny": 0.002946
+}

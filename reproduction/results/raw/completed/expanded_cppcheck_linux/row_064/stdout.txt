@@ -1,0 +1,41 @@
+```python
+rb_node=Int('rb_node')
+fde_tmp=Int('fde_tmp')
+s.add(rb_node != 0)
+s.add(fde_tmp == 0)
+```
+```json
+["!(fde_tmp ==0)"]
+```
+```python
+# Z3 script generated from C constraints
+# Relevant variable: fde_tmp
+
+from z3 import *
+
+# Declare fde_tmp as an integer (C variable of unknown type; adjust if needed)
+fde_tmp = Int('fde_tmp')
+
+# Constraint: !(fde_tmp == 0)
+# This C expression is true when fde_tmp is non-zero.
+# Included because it directly constrains the variable fde_tmp.
+s = Solver()
+s.add(Not(fde_tmp == 0))
+
+# Check satisfiability and print a model
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Not, sat
+    rb_node = Int('rb_node')
+    fde_tmp = Int('fde_tmp')
+    s = Solver()
+    s.add(rb_node != 0)
+    s.add(fde_tmp == 0)
+    s.add(Not(fde_tmp == 0))
+    return s.check() == sat
+```
+goto result: False

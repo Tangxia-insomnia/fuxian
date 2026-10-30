@@ -1,0 +1,70 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 2,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ipv6_list_rcv",
+      "var_name": "curr_net",
+      "target": "\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);",
+      "code": "void ipv6_list_rcv(struct list_head *head, struct packet_type *pt,\n\t\t   struct net_device *orig_dev)\n{\n\tstruct net_device *curr_dev = NULL;\n\tstruct net *curr_net = NULL;\n\tstruct sk_buff *skb, *next;\n\tstruct list_head sublist;\n\n\tINIT_LIST_HEAD(&sublist);\n\tlist_for_each_entry_safe(skb, next, head, list) {\n\t\tstruct net_device *dev = skb->dev;\n\t\tstruct net *net = dev_net(dev);\n\n\t\tskb_list_del_init(skb);\n\t\tskb = ip6_rcv_core(skb, dev, net);\n\t\tif (skb == NULL)\n\t\t\tcontinue;\n\n\t\tif (curr_dev != dev || curr_net != net) {\n\t\t\t/* dispatch old sublist */\n\t\t\tif (!list_empty(&sublist))\n\t\t\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n\t\t\t/* start new sublist */\n\t\t\tINIT_LIST_HEAD(&sublist);\n\t\t\tcurr_dev = dev;\n\t\t\tcurr_net = net;\n\t\t}\n\t\tlist_add_tail(&skb->list, &sublist);\n\t}\n\t/* dispatch final sublist */\n\tif (!list_empty(&sublist))\n\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n}",
+      "body_sha256": "304cf6caf8418beb2245875f8941804776c56c25f00d881474769a704882e2d7",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);",
+            "condition": [
+              {
+                "condition": "if (!list_empty(&sublist))",
+                "line_number": 30
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (!list_empty(&sublist))",
+            "line_number": 30
+          }
+        ],
+        "variable_assignments": {
+          "text": "void ipv6_list_rcv(struct list_head *head, struct packet_type *pt,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "void ipv6_list_rcv(struct list_head *head, struct packet_type *pt,\n\t\t   struct net_device *orig_dev)\n{\n\tstruct net_device *curr_dev = NULL;\n\tstruct net *curr_net = NULL;\n\tstruct sk_buff *skb, *next;\n\tstruct list_head sublist;\n\n\tINIT_LIST_HEAD(&sublist);\n\tlist_for_each_entry_safe(skb, next, head, list) {\n\t\tstruct net_device *dev = skb->dev;\n\t\tstruct net *net = dev_net(dev);\n\n\t\tskb_list_del_init(skb);\n\t\tskb = ip6_rcv_core(skb, dev, net);\n\t\tif (skb == NULL)\n\t\t\tcontinue;\n\n\t\tif (curr_dev != dev || curr_net != net) {\n\t\t\t/* dispatch old sublist */\n\t\t\tif (!list_empty(&sublist))\n\t\t\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n\t\t\t/* start new sublist */\n\t\t\tINIT_LIST_HEAD(&sublist);\n\t\t\tcurr_dev = dev;\n\t\t\tcurr_net = net;\n\t\t}\n\t\tlist_add_tail(&skb->list, &sublist);\n\t}\n\t/* dispatch final sublist */\n\tif (!list_empty(&sublist))\n\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "ip6_sublist_rcv",
+      "var_name": "net",
+      "target": "\tNF_HOOK_LIST(NFPROTO_IPV6, NF_INET_PRE_ROUTING, net, NULL,",
+      "code": "static void ip6_sublist_rcv(struct list_head *head, struct net_device *dev,\n\t\t\t    struct net *net)\n{\n\tNF_HOOK_LIST(NFPROTO_IPV6, NF_INET_PRE_ROUTING, net, NULL,\n\t\t     head, dev, NULL, ip6_rcv_finish);\n\tip6_list_rcv_finish(net, NULL, head);\n}",
+      "body_sha256": "8ea33d2077a8b51e0c52d9b009b6f957c414f38508a023957fb93fb777c2777a",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tNF_HOOK_LIST(NFPROTO_IPV6, NF_INET_PRE_ROUTING, net, NULL,",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void ip6_sublist_rcv(struct list_head *head, struct net_device *dev,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static void ip6_sublist_rcv(struct list_head *head, struct net_device *dev,\n\t\t\t    struct net *net)\n{\n\tNF_HOOK_LIST(NFPROTO_IPV6, NF_INET_PRE_ROUTING, net, NULL,\n\t\t     head, dev, NULL, ip6_rcv_finish);\n\tip6_list_rcv_finish(net, NULL, head);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "void ipv6_list_rcv(struct list_head *head, struct packet_type *pt,\n\t\t   struct net_device *orig_dev)\n{\n\tstruct net_device *curr_dev = NULL;\n\tstruct net *curr_net = NULL;\n\tstruct sk_buff *skb, *next;\n\tstruct list_head sublist;\n\n\tINIT_LIST_HEAD(&sublist);\n\tlist_for_each_entry_safe(skb, next, head, list) {\n\t\tstruct net_device *dev = skb->dev;\n\t\tstruct net *net = dev_net(dev);\n\n\t\tskb_list_del_init(skb);\n\t\tskb = ip6_rcv_core(skb, dev, net);\n\t\tif (skb == NULL)\n\t\t\tcontinue;\n\n\t\tif (curr_dev != dev || curr_net != net) {\n\t\t\t/* dispatch old sublist */\n\t\t\tif (!list_empty(&sublist))\n\t\t\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n\t\t\t/* start new sublist */\n\t\t\tINIT_LIST_HEAD(&sublist);\n\t\t\tcurr_dev = dev;\n\t\t\tcurr_net = net;\n\t\t}\n\t\tlist_add_tail(&skb->list, &sublist);\n\t}\n\t/* dispatch final sublist */\n\tif (!list_empty(&sublist))\n\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n}",
+    "static void ip6_sublist_rcv(struct list_head *head, struct net_device *dev,\n\t\t\t    struct net *net)\n{\n\tNF_HOOK_LIST(NFPROTO_IPV6, NF_INET_PRE_ROUTING, net, NULL,\n\t\t     head, dev, NULL, ip6_rcv_finish);\n\tip6_list_rcv_finish(net, NULL, head);\n}"
+  ]
+}

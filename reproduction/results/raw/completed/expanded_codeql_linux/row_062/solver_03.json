@@ -1,0 +1,14 @@
+{
+  "event_id": 3,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, And, sat\n\n    # Object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early.\n    # folio_test_slab is not evaluated since early return occurs.\n    ptr = Int('ptr')\n    zero_or_null_ptr = Int('zero_or_null_ptr')\n    kfree_early_return = Int('kfree_early_return')\n    folio_test_slab_evaluated = Int('folio_test_slab_evaluated')\n\n    s = Solver()\n\n    # Object is NULL\n    s.add(ptr == 0)\n\n    # ZERO_OR_NULL_PTR(ptr) is true when ptr == 0\n    s.add(zero_or_null_ptr == 1)\n\n    # kfree returns early when ZERO_OR_NULL_PTR is true\n    s.add(kfree_early_return == 1)\n\n    # folio_test_slab is NOT evaluated because of the early return\n    s.add(folio_test_slab_evaluated == 0)\n\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ptr () Int)\n(declare-fun zero_or_null_ptr () Int)\n(declare-fun kfree_early_return () Int)\n(declare-fun folio_test_slab_evaluated () Int)\n(assert\n (= ptr 0))\n(assert\n (= zero_or_null_ptr 1))\n(assert\n (= kfree_early_return 1))\n(assert\n (= folio_test_slab_evaluated 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

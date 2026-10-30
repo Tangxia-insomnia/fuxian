@@ -1,0 +1,101 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "tcp_set_allowed_congestion_control",
+      "var_name": "saved_clone",
+      "target": "\tkfree(saved_clone);",
+      "code": "int tcp_set_allowed_congestion_control(char *val)\n{\n\tstruct tcp_congestion_ops *ca;\n\tchar *saved_clone, *clone, *name;\n\tint ret = 0;\n\n\tsaved_clone = clone = kstrdup(val, GFP_USER);\n\tif (!clone)\n\t\treturn -ENOMEM;\n\n\tspin_lock(&tcp_cong_list_lock);\n\t/* pass 1 check for bad entries */\n\twhile ((name = strsep(&clone, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tif (!ca) {\n\t\t\tret = -ENOENT;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\t/* pass 2 clear old values */\n\tlist_for_each_entry_rcu(ca, &tcp_cong_list, list)\n\t\tca->flags &= ~TCP_CONG_NON_RESTRICTED;\n\n\t/* pass 3 mark as allowed */\n\twhile ((name = strsep(&val, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tWARN_ON(!ca);\n\t\tif (ca)\n\t\t\tca->flags |= TCP_CONG_NON_RESTRICTED;\n\t}\nout:\n\tspin_unlock(&tcp_cong_list_lock);\n\tkfree(saved_clone);\n\n\treturn ret;\n}",
+      "body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tkfree(saved_clone);",
+            "condition": [
+              {
+                "condition": "goto out",
+                "line_number": 31
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "goto out",
+            "line_number": 31
+          }
+        ],
+        "variable_assignments": {
+          "text": "int tcp_set_allowed_congestion_control(char *val)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "out",
+            "condition": [
+              "(name = strsep(&clone, \" \")) && *name",
+              "!ca"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!clone"
+            ]
+          }
+        ],
+        "filter_function_code": "int tcp_set_allowed_congestion_control(char *val)\n{\n\tstruct tcp_congestion_ops *ca;\n\tchar *saved_clone, *clone, *name;\n\tint ret = 0;\n\n\tsaved_clone = clone = kstrdup(val, GFP_USER);\n\tif (!clone)\n\t\treturn -ENOMEM;\n\n\tspin_lock(&tcp_cong_list_lock);\n\t/* pass 1 check for bad entries */\n\twhile ((name = strsep(&clone, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tif (!ca) {\n\t\t\tret = -ENOENT;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\t/* pass 2 clear old values */\n\tlist_for_each_entry_rcu(ca, &tcp_cong_list, list)\n\t\tca->flags &= ~TCP_CONG_NON_RESTRICTED;\n\n\t/* pass 3 mark as allowed */\n\twhile ((name = strsep(&val, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tWARN_ON(!ca);\n\t\tif (ca)\n\t\t\tca->flags |= TCP_CONG_NON_RESTRICTED;\n\t}\nout:\n\tspin_unlock(&tcp_cong_list_lock);\n\tkfree(saved_clone);\n\n\treturn ret;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "kfree",
+      "var_name": "object",
+      "target": "\t\tfree_large_kmalloc(folio, (void *)object);",
+      "code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}",
+      "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\tfree_large_kmalloc(folio, (void *)object);",
+            "condition": [
+              {
+                "condition": "if (unlikely(!folio_test_slab(folio)))",
+                "line_number": 13
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (unlikely(!folio_test_slab(folio)))",
+            "line_number": 13
+          }
+        ],
+        "variable_assignments": {
+          "text": "void kfree(const void *object)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "unlikely(ZERO_OR_NULL_PTR(object))"
+            ]
+          }
+        ],
+        "filter_function_code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "int tcp_set_allowed_congestion_control(char *val)\n{\n\tstruct tcp_congestion_ops *ca;\n\tchar *saved_clone, *clone, *name;\n\tint ret = 0;\n\n\tsaved_clone = clone = kstrdup(val, GFP_USER);\n\tif (!clone)\n\t\treturn -ENOMEM;\n\n\tspin_lock(&tcp_cong_list_lock);\n\t/* pass 1 check for bad entries */\n\twhile ((name = strsep(&clone, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tif (!ca) {\n\t\t\tret = -ENOENT;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\t/* pass 2 clear old values */\n\tlist_for_each_entry_rcu(ca, &tcp_cong_list, list)\n\t\tca->flags &= ~TCP_CONG_NON_RESTRICTED;\n\n\t/* pass 3 mark as allowed */\n\twhile ((name = strsep(&val, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tWARN_ON(!ca);\n\t\tif (ca)\n\t\t\tca->flags |= TCP_CONG_NON_RESTRICTED;\n\t}\nout:\n\tspin_unlock(&tcp_cong_list_lock);\n\tkfree(saved_clone);\n\n\treturn ret;\n}",
+    "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+  ]
+}

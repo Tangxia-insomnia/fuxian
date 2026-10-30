@@ -1,0 +1,7 @@
+{
+  "event_id": 3,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n\n    # Variables from base script\n    ipv6_addr_any = Int('ipv6_addr_any')\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n\n    # Variables from constraint set 2 (converted to Int per guidelines)\n    nh = Int('nh')\n    plen = Int('rt->fib6_src.plen')\n    nexthop_get_nh = Int('nexthop_get(nh)')\n    err = Int('err')\n\n    s = Solver()\n\n    # Base script constraints\n    s.add(Not(ipv6_addr_any == 0) == 1)\n    s.add(fib6_nh == 0)\n\n    # Constraint set 1\n    s.add(cfg_fc_prefsrc != 0)\n    s.add(fib6_nh == 0)\n    s.add(ipv6_addr_any != 0)\n\n    # Constraint set 2 (converted to Int-based boolean representation)\n    # c1: !(nh) || !(rt->fib6_src.plen)  =>  (nh == 0) OR (plen == 0)\n    s.add(Or(nh == 0, plen == 0))\n    # c2: !(nh) || !(!nexthop_get(nh))  =>  (nh == 0) OR (nexthop_get_nh == 1)\n    s.add(Or(nh == 0, nexthop_get_nh == 1))\n    # c3: !(!(nh)) || !(err)  =>  (nh == 1) OR (err == 0)\n    s.add(Or(nh == 1, err == 0))\n\n    result = s.check()\n    return result == sat",
+  "ok": false,
+  "error": "ValueError: Z3Exception: True, False or Z3 Boolean expression expected. Received 1 of type <class 'int'>"
+}

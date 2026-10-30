@@ -1,0 +1,50 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "util_do_cmds",
+      "var_name": "cmd",
+      "target": "memcpy(buf, cmd, (int)(arg - cmd));",
+      "code": "static void util_do_cmds(ENGINE *e, STACK_OF(OPENSSL_STRING) *cmds,\n                         BIO *out, const char *indent)\n{\n    int loop, res, num = sk_OPENSSL_STRING_num(cmds);\n\n    if (num < 0) {\n        BIO_printf(out, \"[Error]: internal stack error\\n\");\n        return;\n    }\n    for (loop = 0; loop < num; loop++) {\n        char buf[256];\n        const char *cmd, *arg;\n        cmd = sk_OPENSSL_STRING_value(cmds, loop);\n        res = 1;                /* assume success */\n        /* Check if this command has no \":arg\" */\n        if ((arg = strchr(cmd, ':')) == NULL) {\n            if (!ENGINE_ctrl_cmd_string(e, cmd, NULL, 0))\n                res = 0;\n        } else {\n            if ((int)(arg - cmd) > 254) {\n                BIO_printf(out, \"[Error]: command name too long\\n\");\n                return;\n            }\n            memcpy(buf, cmd, (int)(arg - cmd));\n            buf[arg - cmd] = '\\0';\n            arg++;              /* Move past the \":\" */\n            /* Call the command with the argument */\n            if (!ENGINE_ctrl_cmd_string(e, buf, arg, 0))\n                res = 0;\n        }\n        if (res) {\n            BIO_printf(out, \"[Success]: %s\\n\", cmd);\n        } else {\n            BIO_printf(out, \"[Failure]: %s\\n\", cmd);\n            ERR_print_errors(out);\n        }\n    }\n}",
+      "body_sha256": "92ff403bb15d82c20ed430d3f5f6429b7a91063ba3599548702ba75a1b948288",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "memcpy(buf, cmd, (int)(arg - cmd));",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void util_do_cmds(ENGINE *e, STACK_OF(OPENSSL_STRING) *cmds,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "loop = 0; loop < num; loop++",
+              "!((arg = strchr(cmd, ':')) == NULL)",
+              "(int)(arg - cmd) > 254"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "num < 0"
+            ]
+          }
+        ],
+        "filter_function_code": "static void util_do_cmds(ENGINE *e, STACK_OF(OPENSSL_STRING) *cmds,\n                         BIO *out, const char *indent)\n{\n    int loop, res, num = sk_OPENSSL_STRING_num(cmds);\n\n    if (num < 0) {\n        BIO_printf(out, \"[Error]: internal stack error\\n\");\n        return;\n    }\n    for (loop = 0; loop < num; loop++) {\n        char buf[256];\n        const char *cmd, *arg;\n        cmd = sk_OPENSSL_STRING_value(cmds, loop);\n        res = 1;                /* assume success */\n        /* Check if this command has no \":arg\" */\n        if ((arg = strchr(cmd, ':')) == NULL) {\n            if (!ENGINE_ctrl_cmd_string(e, cmd, NULL, 0))\n                res = 0;\n        } else {\n            if ((int)(arg - cmd) > 254) {\n                BIO_printf(out, \"[Error]: command name too long\\n\");\n                return;\n            }\n            memcpy(buf, cmd, (int)(arg - cmd));\n            buf[arg - cmd] = '\\0';\n            arg++;              /* Move past the \":\" */\n            /* Call the command with the argument */\n            if (!ENGINE_ctrl_cmd_string(e, buf, arg, 0))\n                res = 0;\n        }\n        if (res) {\n            BIO_printf(out, \"[Success]: %s\\n\", cmd);\n        } else {\n            BIO_printf(out, \"[Failure]: %s\\n\", cmd);\n            ERR_print_errors(out);\n        }\n    }\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void util_do_cmds(ENGINE *e, STACK_OF(OPENSSL_STRING) *cmds,\n                         BIO *out, const char *indent)\n{\n    int loop, res, num = sk_OPENSSL_STRING_num(cmds);\n\n    if (num < 0) {\n        BIO_printf(out, \"[Error]: internal stack error\\n\");\n        return;\n    }\n    for (loop = 0; loop < num; loop++) {\n        char buf[256];\n        const char *cmd, *arg;\n        cmd = sk_OPENSSL_STRING_value(cmds, loop);\n        res = 1;                /* assume success */\n        /* Check if this command has no \":arg\" */\n        if ((arg = strchr(cmd, ':')) == NULL) {\n            if (!ENGINE_ctrl_cmd_string(e, cmd, NULL, 0))\n                res = 0;\n        } else {\n            if ((int)(arg - cmd) > 254) {\n                BIO_printf(out, \"[Error]: command name too long\\n\");\n                return;\n            }\n            memcpy(buf, cmd, (int)(arg - cmd));\n            buf[arg - cmd] = '\\0';\n            arg++;              /* Move past the \":\" */\n            /* Call the command with the argument */\n            if (!ENGINE_ctrl_cmd_string(e, buf, arg, 0))\n                res = 0;\n        }\n        if (res) {\n            BIO_printf(out, \"[Success]: %s\\n\", cmd);\n        } else {\n            BIO_printf(out, \"[Failure]: %s\\n\", cmd);\n            ERR_print_errors(out);\n        }\n    }\n}"
+  ]
+}

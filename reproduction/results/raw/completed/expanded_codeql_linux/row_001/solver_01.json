@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat, unsat\n    \n    # Define all variables as Int type\n    use_cache = Int('use_cache')\n    md = Int('md')\n    connected = Int('connected')\n    tun_info = Int('tun_info')\n    \n    s = Solver()\n    \n    # tun_info is NULL (0)\n    s.add(tun_info == 0)\n    \n    # Constraint: use_cache must be 0 (false) at line 103 since tun_info is NULL\n    s.add(use_cache == 0)\n    \n    # Constraint: md can only be true if tun_info is non-NULL\n    # Since tun_info == 0, md must be 0\n    s.add(md == 0)\n    \n    # Constraint: connected is set to false when !md\n    # Since md == 0, connected must be 0\n    s.add(connected == 0)\n    \n    # Validate the constraints are satisfiable\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun tun_info () Int)\n(declare-fun use_cache () Int)\n(declare-fun md () Int)\n(declare-fun connected () Int)\n(assert\n (= tun_info 0))\n(assert\n (= use_cache 0))\n(assert\n (= md 0))\n(assert\n (= connected 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

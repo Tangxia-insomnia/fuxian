@@ -1,0 +1,45 @@
+{
+  "call_id": 764,
+  "sample_id": "NPD/codeql/openssl:row=25:index=26",
+  "timestamp": "2026-10-26T01:00:09.169633+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(ctx == NULL)']\n        Relevant conditions/variables: [], ctx\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "5a5d5f54-e7ca-4168-ba3d-835e2ee3558c",
+  "usage": {
+    "prompt_tokens": 109,
+    "completion_tokens": 168,
+    "total_tokens": 277,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 109
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\n# Z3 script generated from C constraints\n# Relevant variables: ctx\n# Constraint: !(ctx == NULL)  ->  ctx != NULL (i.e., ctx != 0)\n\nfrom z3 import *\n\n# Declare ctx as an integer representing a pointer address.\n# In C, NULL is typically 0, so we model the pointer as a BitVec/Int.\nctx = Int('ctx')\n\n# Constraint: !(ctx == NULL)\n# Included because the original C code asserts that ctx is not NULL.\n# C-style \"!(ctx == NULL)\" is equivalent to \"ctx != 0\".\ns = Solver()\ns.add(ctx != 0)\n\n# Check satisfiability and print a model\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.6542859999999564,
+  "cost_upper_bound_cny": 0.001562
+}

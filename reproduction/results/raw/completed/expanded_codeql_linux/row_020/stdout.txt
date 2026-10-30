@@ -1,0 +1,102 @@
+```python
+cloned_skb=Int('cloned_skb')
+s.add(cloned_skb == 0)
+```
+```json
+[]
+```
+```python
+skb=Int('skb')
+s.add(skb == 0)
+```
+```json
+["!(!skb_unref(skb))"]
+```
+```python
+# Z3 script converting C constraint: !(!skb_unref(skb))
+#
+# Analysis:
+#   - The C expression is a double negation: !(!skb_unref(skb))
+#   - In C, skb_unref(skb) is a function call returning a boolean-like value
+#     (typically int, where 0 = false, non-zero = true).
+#   - The outer ! negates the inner !, so the whole expression is logically
+#     equivalent to skb_unref(skb) being truthy (non-zero).
+#   - Since skb_unref is a function call, we model its return value as an
+#     uninterpreted integer (or Bool). We use Bool for clarity, since the
+#     constraint only cares about truthiness.
+#   - The variable 'skb' is the argument; we model it as an uninterpreted
+#     sort since no properties of skb itself are constrained here.
+#
+# The constraint to assert is: skb_unref(skb) is true (non-zero).
+
+from z3 import *
+
+# Model 'skb' as an uninterpreted sort (no constraints on its structure)
+Skb = DeclareSort('Skb')
+skb = Const('skb', Skb)
+
+# Model 'skb_unref' as an uninterpreted function returning Bool
+# (representing the truthiness of the C function's return value)
+skb_unref = Function('skb_unref', Skb, BoolSort())
+
+# The C expression !(!skb_unref(skb)) simplifies to skb_unref(skb) != 0,
+# i.e., skb_unref(skb) is true.
+s = Solver()
+s.add(skb_unref(skb))
+
+# Check satisfiability and print result
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, DeclareSort, Const, Function, BoolSort
+    
+    # Base script constraints
+    skb_int = Int('skb')
+    s = Solver()
+    s.add(skb_int == 0)
+    
+    # Constraint set 2: model skb_unref(skb) as true
+    Skb = DeclareSort('Skb')
+    skb = Const('skb', Skb)
+    skb_unref = Function('skb_unref', Skb, BoolSort())
+    s.add(skb_unref(skb))
+    
+    result = s.check()
+    return result == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    
+    # Base script constraints
+    skb = Int('skb')
+    s = Solver()
+    s.add(skb == 0)
+    
+    # Constraint set 2: !(!skb_unref(skb)) simplifies to skb_unref(skb) being truthy
+    # Model skb_unref as an Int (0 = false, 1 = true)
+    skb_unref = Int('skb_unref')
+    s.add(skb_unref == 1)
+    
+    result = s.check()
+    return result == sat
+```
+goto result: True
+```python
+skb=Int('skb')
+s.add(skb == 0)
+```
+```python
+skb=Int('skb')
+s.add(skb == 0)
+```
+```python
+skb=Int('skb')
+s.add(skb == 0)
+```
+```python
+skb=Int('skb')
+s.add(skb == 0)
+```

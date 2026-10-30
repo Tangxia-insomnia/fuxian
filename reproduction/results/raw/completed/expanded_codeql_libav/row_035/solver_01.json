@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Not, And, Or, sat\n\n    # Base script variables and constraints\n    link = Int('link')\n\n    # Constraint set 2 variables\n    i = Int('i')\n    nb_inputs = Int('nb_inputs')\n    link_type = Int('link_type')\n    nb_formats = Int('nb_formats')\n\n    AVMEDIA_TYPE_AUDIO = 1\n\n    s = Solver()\n\n    # Base constraint\n    s.add(link == 0)\n\n    # Constraint set 2 constraints\n    c1 = Not(i == nb_inputs)\n    loop_cond = i < nb_inputs\n    link_cond = And(link_type == AVMEDIA_TYPE_AUDIO, nb_formats == 1)\n    c2 = Or(Not(loop_cond), Not(link_cond))\n\n    s.add(c1)\n    s.add(c2)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun link () Int)\n(declare-fun nb_inputs () Int)\n(declare-fun i () Int)\n(declare-fun nb_formats () Int)\n(declare-fun link_type () Int)\n(assert\n (= link 0))\n(assert\n (not (= i nb_inputs)))\n(assert\n (let (($x35 (and (= link_type 1) (= nb_formats 1))))\n(let (($x37 (not $x35)))\n(or (not (< i nb_inputs)) $x37))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

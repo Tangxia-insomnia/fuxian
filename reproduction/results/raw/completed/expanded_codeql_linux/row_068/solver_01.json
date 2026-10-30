@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Define all variables as Int type\n    sta = Int('sta')\n    action_code = Int('action_code')\n    WLAN_TDLS_SETUP_RESPONSE = Int('WLAN_TDLS_SETUP_RESPONSE')\n    \n    # Constraint: sta_info_get returns NULL (sta == 0)\n    s.add(sta == 0)\n    \n    # Constraint: action_code equals WLAN_TDLS_SETUP_RESPONSE\n    s.add(action_code == WLAN_TDLS_SETUP_RESPONSE)\n    \n    # Since sta == 0, WARN_ON_ONCE(!sta) triggers and function returns early\n    # The dereference sta->tdls_chandef is unreachable, so no constraint needed\n    \n    # Check satisfiability\n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sta () Int)\n(declare-fun WLAN_TDLS_SETUP_RESPONSE () Int)\n(declare-fun action_code () Int)\n(assert\n (= sta 0))\n(assert\n (= action_code WLAN_TDLS_SETUP_RESPONSE))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

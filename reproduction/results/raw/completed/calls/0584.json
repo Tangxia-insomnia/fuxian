@@ -1,0 +1,45 @@
+{
+  "call_id": 584,
+  "sample_id": "NPD/codeql/libav:row=47:index=78",
+  "timestamp": "2026-10-26T00:55:29.016432+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a Z3 constraint solver expert, merge the following constraint sets into a single function.\n\n        Input:\n        1. Base Z3 script: ```python\nstts_entries=Int('stts_entries')\ns.add(stts_entries == 0)\n```\n        2. Constraint set 1: \n        3. Constraint set 2: ```python\nfrom z3 import *\n\n# Declare variables\n# track->par->codec_type == AVMEDIA_TYPE_AUDIO  -> boolean flag\ncodec_type_is_audio = Bool('codec_type_is_audio')\n# !track->audio_vbr  -> boolean flag (audio_vbr is false)\naudio_vbr_is_false = Bool('audio_vbr_is_false')\n# track->entry  -> boolean flag (entry is non-null / truthy)\ntrack_entry = Bool('track_entry')\n# stts_entries  -> boolean flag (stts_entries is non-null / truthy)\nstts_entries = Bool('stts_entries')\n\n# Constraint 1:\n# !(!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr)) || !(track->entry) || !(!stts_entries)\n# Simplify: (codec_type_is_audio && audio_vbr_is_false) || !track_entry || stts_entries\n# Included because it references stts_entries (and the other relevant conditions).\nconstraint1 = Or(\n    And(codec_type_is_audio, audio_vbr_is_false),\n    Not(track_entry),\n    stts_entries\n)\n\n# Constraint 2:\n# !(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr) || !(!stts_entries)\n# Simplify: !(codec_type_is_audio && audio_vbr_is_false) || stts_entries\n# Included because it directly constrains stts_entries.\nconstraint2 = Or(\n    Not(And(codec_type_is_audio, audio_vbr_is_false)),\n    stts_entries\n)\n\n# Solve\ns = Solver()\ns.add(constraint1)\ns.add(constraint2)\n\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```\n\n        Requirements:\n        1. Merge all constraints into a check_constraints() function\n        2. Retain ALL original constraints from the base script\n        3. Add any missing variable definitions from constraint sets\n        4. Function must return boolean (True if constraints are satisfied)\n        5. Return ONLY the function code without imports\n        6. Ensure code is directly executable\n\n        Function signature:\n        def check_constraints():\n            # Your merged constraints here\n            return result  # boolean\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "df55fa7f-6f0e-4f43-82a9-87b3bc070377",
+  "usage": {
+    "prompt_tokens": 600,
+    "completion_tokens": 238,
+    "total_tokens": 838,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 600
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\ndef check_constraints():\n    from z3 import Int, Bool, Or, And, Not, Solver, sat\n\n    # Base script variables and constraints\n    stts_entries_int = Int('stts_entries')\n    s = Solver()\n    s.add(stts_entries_int == 0)\n\n    # Constraint set 2 variables\n    codec_type_is_audio = Bool('codec_type_is_audio')\n    audio_vbr_is_false = Bool('audio_vbr_is_false')\n    track_entry = Bool('track_entry')\n    stts_entries = Bool('stts_entries')\n\n    # Constraint 1\n    constraint1 = Or(\n        And(codec_type_is_audio, audio_vbr_is_false),\n        Not(track_entry),\n        stts_entries\n    )\n\n    # Constraint 2\n    constraint2 = Or(\n        Not(And(codec_type_is_audio, audio_vbr_is_false)),\n        stts_entries\n    )\n\n    s.add(constraint1)\n    s.add(constraint2)\n\n    return s.check() == sat\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.264590799999496,
+  "cost_upper_bound_cny": 0.003104
+}

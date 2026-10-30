@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, And, sat\n\n    s = Solver()\n\n    # Declare all variables as Int to avoid NameError / type mismatches\n    fib6_ref = Int('fib6_ref')\n    fn = Int('fn')\n    fn_flags = Int('fn_flags')\n    RTN_RTINFO = Int('RTN_RTINFO')\n    leaf = Int('leaf')\n    rt = Int('rt')\n    new_leaf = Int('new_leaf')\n\n    # Line 12: if (refcount_read(&rt->fib6_ref) != 1) - entering the branch\n    s.add(fib6_ref != 1)\n\n    # Line 19: while (fn) - loop condition true, fn is non-null\n    s.add(fn != 0)\n\n    # RTN_RTINFO flag bit value\n    s.add(RTN_RTINFO == 1)\n\n    # Line 23: !(fn->fn_flags & RTN_RTINFO) means bitwise AND result is 0\n    # Use Z3 bitwise AND on Int via BitVec conversion is not allowed here;\n    # instead model the masked-bit condition directly as an Int constraint.\n    # Since RTN_RTINFO == 1, (fn_flags & 1) == 0 is equivalent to fn_flags being even.\n    s.add(fn_flags % 2 == 0)\n\n    # leaf == rt\n    s.add(leaf == rt)\n\n    # Assume pointer new_leaf is NULL\n    s.add(new_leaf == 0)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun fib6_ref () Int)\n(declare-fun fn () Int)\n(declare-fun RTN_RTINFO () Int)\n(declare-fun fn_flags () Int)\n(declare-fun rt () Int)\n(declare-fun leaf () Int)\n(declare-fun new_leaf () Int)\n(assert\n (and (distinct fib6_ref 1) true))\n(assert\n (and (distinct fn 0) true))\n(assert\n (= RTN_RTINFO 1))\n(assert\n (= (mod fn_flags 2) 0))\n(assert\n (= leaf rt))\n(assert\n (= new_leaf 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

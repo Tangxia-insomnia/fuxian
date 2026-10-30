@@ -1,0 +1,303 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/kernel69:row=24:index=43",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "neigh",
+    "function_name": "ip6_finish_output2",
+    "location": {
+      "file_path": "net/ipv6/ip6_output.c",
+      "region": {
+        "startLine": 136,
+        "startColumn": 26,
+        "endColumn": 31
+      },
+      "context": {
+        "startLine": 134,
+        "endLine": 138,
+        "snippet": {
+          "text": "\tsock_confirm_neigh(skb, neigh);"
+        }
+      }
+    },
+    "function_code": "static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *skb)\n{\n\tstruct dst_entry *dst = skb_dst(skb);\n\tstruct net_device *dev = dst->dev;\n\tstruct inet6_dev *idev = ip6_dst_idev(dst);\n\tunsigned int hh_len = LL_RESERVED_SPACE(dev);\n\tconst struct in6_addr *daddr, *nexthop;\n\tstruct ipv6hdr *hdr;\n\tstruct neighbour *neigh;\n\tint ret;\n\n\t/* Be paranoid, rather than too clever. */\n\tif (unlikely(hh_len > skb_headroom(skb)) && dev->header_ops) {\n\t\tskb = skb_expand_head(skb, hh_len);\n\t\tif (!skb) {\n\t\t\tIP6_INC_STATS(net, idev, IPSTATS_MIB_OUTDISCARDS);\n\t\t\treturn -ENOMEM;\n\t\t}\n\t}\n\n\thdr = ipv6_hdr(skb);\n\tdaddr = &hdr->daddr;\n\tif (ipv6_addr_is_multicast(daddr)) {\n\t\tif (!(dev->flags & IFF_LOOPBACK) && sk_mc_loop(sk) &&\n\t\t    ((mroute6_is_socket(net, skb) &&\n\t\t     !(IP6CB(skb)->flags & IP6SKB_FORWARDED)) ||\n\t\t     ipv6_chk_mcast_addr(dev, daddr, &hdr->saddr))) {\n\t\t\tstruct sk_buff *newskb = skb_clone(skb, GFP_ATOMIC);\n\n\t\t\t/* Do not check for IFF_ALLMULTI; multicast routing\n\t\t\t   is not supported in any case.\n\t\t\t */\n\t\t\tif (newskb)\n\t\t\t\tNF_HOOK(NFPROTO_IPV6, NF_INET_POST_ROUTING,\n\t\t\t\t\tnet, sk, newskb, NULL, newskb->dev,\n\t\t\t\t\tdev_loopback_xmit);\n\n\t\t\tif (hdr->hop_limit == 0) {\n\t\t\t\tIP6_INC_STATS(net, idev,\n\t\t\t\t\t      IPSTATS_MIB_OUTDISCARDS);\n\t\t\t\tkfree_skb(skb);\n\t\t\t\treturn 0;\n\t\t\t}\n\t\t}\n\n\t\tIP6_UPD_PO_STATS(net, idev, IPSTATS_MIB_OUTMCAST, skb->len);\n\t\tif (IPV6_ADDR_MC_SCOPE(daddr) <= IPV6_ADDR_SCOPE_NODELOCAL &&\n\t\t    !(dev->flags & IFF_LOOPBACK)) {\n\t\t\tkfree_skb(skb);\n\t\t\treturn 0;\n\t\t}\n\t}\n\n\tif (lwtunnel_xmit_redirect(dst->lwtstate)) {\n\t\tint res = lwtunnel_xmit(skb);\n\n\t\tif (res != LWTUNNEL_XMIT_CONTINUE)\n\t\t\treturn res;\n\t}\n\n\tIP6_UPD_PO_STATS(net, idev, IPSTATS_MIB_OUT, skb->len);\n\n\trcu_read_lock();\n\tnexthop = rt6_nexthop(dst_rt6_info(dst), daddr);\n\tneigh = __ipv6_neigh_lookup_noref(dev, nexthop);\n\n\tif (unlikely(IS_ERR_OR_NULL(neigh))) {\n\t\tif (unlikely(!neigh))\n\t\t\tneigh = __neigh_create(&nd_tbl, nexthop, dev, false);\n\t\tif (IS_ERR(neigh)) {\n\t\t\trcu_read_unlock();\n\t\t\tIP6_INC_STATS(net, idev, IPSTATS_MIB_OUTNOROUTES);\n\t\t\tkfree_skb_reason(skb, SKB_DROP_REASON_NEIGH_CREATEFAIL);\n\t\t\treturn -EINVAL;\n\t\t}\n\t}\n\tsock_confirm_neigh(skb, neigh);\n\tret = neigh_output(neigh, skb, false);\n\trcu_read_unlock();\n\treturn ret;\n}",
+    "bug_line_constraints": [
+      {
+        "text": "\tsock_confirm_neigh(skb, neigh);",
+        "condition": []
+      }
+    ],
+    "var_assign_conditions": [],
+    "pointer_null_postconditions": [],
+    "early_jump_constraints": [
+      {
+        "text": "return -ENOMEM;",
+        "condition": [
+          "if (unlikely(hh_len > skb_headroom(skb)) && dev->header_ops)",
+          "if (!skb)"
+        ]
+      },
+      {
+        "text": "return 0;",
+        "condition": [
+          "if (ipv6_addr_is_multicast(daddr))",
+          "if (!(dev->flags & IFF_LOOPBACK) && sk_mc_loop(sk) && ((mroute6_is_socket(net, skb) && !(IP6CB(skb)->flags & IP6SKB_FORWARDED)) || ipv6_chk_mcast_addr(dev, daddr, &hdr->saddr)))",
+          "if (hdr->hop_limit == 0)"
+        ]
+      },
+      {
+        "text": "return 0;",
+        "condition": [
+          "if (ipv6_addr_is_multicast(daddr))",
+          "if (IPV6_ADDR_MC_SCOPE(daddr) <= IPV6_ADDR_SCOPE_NODELOCAL && !(dev->flags & IFF_LOOPBACK))"
+        ]
+      },
+      {
+        "text": "return res;",
+        "condition": [
+          "if (lwtunnel_xmit_redirect(dst->lwtstate))",
+          "if (res != LWTUNNEL_XMIT_CONTINUE)"
+        ]
+      },
+      {
+        "text": "return -EINVAL;",
+        "condition": [
+          "if (unlikely(IS_ERR_OR_NULL(neigh)))",
+          "if (IS_ERR(neigh))"
+        ]
+      }
+    ],
+    "index": 43
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "ip6_finish_output2",
+        "var_name": "neigh",
+        "target": "\tsock_confirm_neigh(skb, neigh);",
+        "code": "static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *skb)\n{\n\tstruct dst_entry *dst = skb_dst(skb);\n\tstruct net_device *dev = dst->dev;\n\tstruct inet6_dev *idev = ip6_dst_idev(dst);\n\tunsigned int hh_len = LL_RESERVED_SPACE(dev);\n\tconst struct in6_addr *daddr, *nexthop;\n\tstruct ipv6hdr *hdr;\n\tstruct neighbour *neigh;\n\tint ret;\n\n\t/* Be paranoid, rather than too clever. */\n\tif (unlikely(hh_len > skb_headroom(skb)) && dev->header_ops) {\n\t\tskb = skb_expand_head(skb, hh_len);\n\t\tif (!skb) {\n\t\t\tIP6_INC_STATS(net, idev, IPSTATS_MIB_OUTDISCARDS);\n\t\t\treturn -ENOMEM;\n\t\t}\n\t}\n\n\thdr = ipv6_hdr(skb);\n\tdaddr = &hdr->daddr;\n\tif (ipv6_addr_is_multicast(daddr)) {\n\t\tif (!(dev->flags & IFF_LOOPBACK) && sk_mc_loop(sk) &&\n\t\t    ((mroute6_is_socket(net, skb) &&\n\t\t     !(IP6CB(skb)->flags & IP6SKB_FORWARDED)) ||\n\t\t     ipv6_chk_mcast_addr(dev, daddr, &hdr->saddr))) {\n\t\t\tstruct sk_buff *newskb = skb_clone(skb, GFP_ATOMIC);\n\n\t\t\t/* Do not check for IFF_ALLMULTI; multicast routing\n\t\t\t   is not supported in any case.\n\t\t\t */\n\t\t\tif (newskb)\n\t\t\t\tNF_HOOK(NFPROTO_IPV6, NF_INET_POST_ROUTING,\n\t\t\t\t\tnet, sk, newskb, NULL, newskb->dev,\n\t\t\t\t\tdev_loopback_xmit);\n\n\t\t\tif (hdr->hop_limit == 0) {\n\t\t\t\tIP6_INC_STATS(net, idev,\n\t\t\t\t\t      IPSTATS_MIB_OUTDISCARDS);\n\t\t\t\tkfree_skb(skb);\n\t\t\t\treturn 0;\n\t\t\t}\n\t\t}\n\n\t\tIP6_UPD_PO_STATS(net, idev, IPSTATS_MIB_OUTMCAST, skb->len);\n\t\tif (IPV6_ADDR_MC_SCOPE(daddr) <= IPV6_ADDR_SCOPE_NODELOCAL &&\n\t\t    !(dev->flags & IFF_LOOPBACK)) {\n\t\t\tkfree_skb(skb);\n\t\t\treturn 0;\n\t\t}\n\t}\n\n\tif (lwtunnel_xmit_redirect(dst->lwtstate)) {\n\t\tint res = lwtunnel_xmit(skb);\n\n\t\tif (res != LWTUNNEL_XMIT_CONTINUE)\n\t\t\treturn res;\n\t}\n\n\tIP6_UPD_PO_STATS(net, idev, IPSTATS_MIB_OUT, skb->len);\n\n\trcu_read_lock();\n\tnexthop = rt6_nexthop(dst_rt6_info(dst), daddr);\n\tneigh = __ipv6_neigh_lookup_noref(dev, nexthop);\n\n\tif (unlikely(IS_ERR_OR_NULL(neigh))) {\n\t\tif (unlikely(!neigh))\n\t\t\tneigh = __neigh_create(&nd_tbl, nexthop, dev, false);\n\t\tif (IS_ERR(neigh)) {\n\t\t\trcu_read_unlock();\n\t\t\tIP6_INC_STATS(net, idev, IPSTATS_MIB_OUTNOROUTES);\n\t\t\tkfree_skb_reason(skb, SKB_DROP_REASON_NEIGH_CREATEFAIL);\n\t\t\treturn -EINVAL;\n\t\t}\n\t}\n\tsock_confirm_neigh(skb, neigh);\n\tret = neigh_output(neigh, skb, false);\n\trcu_read_unlock();\n\treturn ret;\n}",
+        "body_sha256": "90b47239055d70d6940ddc13e68fc1f3e80746d0d735ccb383f25c4c6471a940",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "\tsock_confirm_neigh(skb, neigh);",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *skb)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": [
+                "unlikely(IS_ERR_OR_NULL(neigh))",
+                "IS_ERR(neigh)"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "lwtunnel_xmit_redirect(dst->lwtstate)",
+                "res != LWTUNNEL_XMIT_CONTINUE"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "ipv6_addr_is_multicast(daddr)",
+                "IPV6_ADDR_MC_SCOPE(daddr) <= IPV6_ADDR_SCOPE_NODELOCAL && !(dev->flags & IFF_LOOPBACK)"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "ipv6_addr_is_multicast(daddr)",
+                "!(dev->flags & IFF_LOOPBACK) && sk_mc_loop(sk) && ((mroute6_is_socket(net, skb) && !(IP6CB(skb)->flags & IP6SKB_FORWARDED)) || ipv6_chk_mcast_addr(dev, daddr, &hdr->saddr))",
+                "hdr->hop_limit == 0"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "unlikely(hh_len > skb_headroom(skb)) && dev->header_ops",
+                "!skb"
+              ]
+            }
+          ],
+          "filter_function_code": "static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *skb)\n{\n\tstruct dst_entry *dst = skb_dst(skb);\n\tstruct net_device *dev = dst->dev;\n\tstruct inet6_dev *idev = ip6_dst_idev(dst);\n\tunsigned int hh_len = LL_RESERVED_SPACE(dev);\n\tconst struct in6_addr *daddr, *nexthop;\n\tstruct ipv6hdr *hdr;\n\tstruct neighbour *neigh;\n\tint ret;\n\n\t/* Be paranoid, rather than too clever. */\n\tif (unlikely(hh_len > skb_headroom(skb)) && dev->header_ops) {\n\t\tskb = skb_expand_head(skb, hh_len);\n\t\tif (!skb) {\n\t\t\tIP6_INC_STATS(net, idev, IPSTATS_MIB_OUTDISCARDS);\n\t\t\treturn -ENOMEM;\n\t\t}\n\t}\n\n\thdr = ipv6_hdr(skb);\n\tdaddr = &hdr->daddr;\n\tif (ipv6_addr_is_multicast(daddr)) {\n\t\tif (!(dev->flags & IFF_LOOPBACK) && sk_mc_loop(sk) &&\n\t\t    ((mroute6_is_socket(net, skb) &&\n\t\t     !(IP6CB(skb)->flags & IP6SKB_FORWARDED)) ||\n\t\t     ipv6_chk_mcast_addr(dev, daddr, &hdr->saddr))) {\n\t\t\tstruct sk_buff *newskb = skb_clone(skb, GFP_ATOMIC);\n\n\t\t\t/* Do not check for IFF_ALLMULTI; multicast routing\n\t\t\t   is not supported in any case.\n\t\t\t */\n\t\t\tif (newskb)\n\t\t\t\tNF_HOOK(NFPROTO_IPV6, NF_INET_POST_ROUTING,\n\t\t\t\t\tnet, sk, newskb, NULL, newskb->dev,\n\t\t\t\t\tdev_loopback_xmit);\n\n\t\t\tif (hdr->hop_limit == 0) {\n\t\t\t\tIP6_INC_STATS(net, idev,\n\t\t\t\t\t      IPSTATS_MIB_OUTDISCARDS);\n\t\t\t\tkfree_skb(skb);\n\t\t\t\treturn 0;\n\t\t\t}\n\t\t}\n\n\t\tIP6_UPD_PO_STATS(net, idev, IPSTATS_MIB_OUTMCAST, skb->len);\n\t\tif (IPV6_ADDR_MC_SCOPE(daddr) <= IPV6_ADDR_SCOPE_NODELOCAL &&\n\t\t    !(dev->flags & IFF_LOOPBACK)) {\n\t\t\tkfree_skb(skb);\n\t\t\treturn 0;\n\t\t}\n\t}\n\n\tif (lwtunnel_xmit_redirect(dst->lwtstate)) {\n\t\tint res = lwtunnel_xmit(skb);\n\n\t\tif (res != LWTUNNEL_XMIT_CONTINUE)\n\t\t\treturn res;\n\t}\n\n\tIP6_UPD_PO_STATS(net, idev, IPSTATS_MIB_OUT, skb->len);\n\n\trcu_read_lock();\n\tnexthop = rt6_nexthop(dst_rt6_info(dst), daddr);\n\tneigh = __ipv6_neigh_lookup_noref(dev, nexthop);\n\n\tif (unlikely(IS_ERR_OR_NULL(neigh))) {\n\t\tif (unlikely(!neigh))\n\t\t\tneigh = __neigh_create(&nd_tbl, nexthop, dev, false);\n\t\tif (IS_ERR(neigh)) {\n\t\t\trcu_read_unlock();\n\t\t\tIP6_INC_STATS(net, idev, IPSTATS_MIB_OUTNOROUTES);\n\t\t\tkfree_skb_reason(skb, SKB_DROP_REASON_NEIGH_CREATEFAIL);\n\t\t\treturn -EINVAL;\n\t\t}\n\t}\n\tsock_confirm_neigh(skb, neigh);\n\tret = neigh_output(neigh, skb, false);\n\trcu_read_unlock();\n\treturn ret;\n}"
+        }
+      },
+      {
+        "level": 1,
+        "function": "sock_confirm_neigh",
+        "var_name": "n",
+        "target": "\t\tneigh_confirm(n);",
+        "code": "static inline void sock_confirm_neigh(struct sk_buff *skb, struct neighbour *n)\n{\n\tif (skb_get_dst_pending_confirm(skb)) {\n\t\tstruct sock *sk = skb->sk;\n\n\t\tif (sk && READ_ONCE(sk->sk_dst_pending_confirm))\n\t\t\tWRITE_ONCE(sk->sk_dst_pending_confirm, 0);\n\t\tneigh_confirm(n);\n\t}\n}",
+        "body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "\t\tneigh_confirm(n);",
+              "condition": [
+                {
+                  "condition": "if (skb_get_dst_pending_confirm(skb))",
+                  "line_number": 2
+                }
+              ]
+            }
+          ],
+          "target_conditions": [
+            {
+              "condition": "if (skb_get_dst_pending_confirm(skb))",
+              "line_number": 2
+            }
+          ],
+          "variable_assignments": {
+            "text": "static inline void sock_confirm_neigh(struct sk_buff *skb, struct neighbour *n)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [],
+          "filter_function_code": "static inline void sock_confirm_neigh(struct sk_buff *skb, struct neighbour *n)\n{\n\tif (skb_get_dst_pending_confirm(skb)) {\n\t\tstruct sock *sk = skb->sk;\n\n\t\tif (sk && READ_ONCE(sk->sk_dst_pending_confirm))\n\t\t\tWRITE_ONCE(sk->sk_dst_pending_confirm, 0);\n\t\tneigh_confirm(n);\n\t}\n}"
+        }
+      },
+      {
+        "level": 2,
+        "function": "neigh_confirm",
+        "var_name": "n",
+        "target": "\t\tif (READ_ONCE(n->confirmed) != now)",
+        "code": "static inline void neigh_confirm(struct neighbour *n)\n{\n\tif (n) {\n\t\tunsigned long now = jiffies;\n\n\t\t/* avoid dirtying neighbour */\n\t\tif (READ_ONCE(n->confirmed) != now)\n\t\t\tWRITE_ONCE(n->confirmed, now);\n\t}\n}",
+        "body_sha256": "468f1bceeb2bb427c7a70f1345ed27aa19925bbfcf2197e94b7f6476cc260be9",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "\t\tif (READ_ONCE(n->confirmed) != now)",
+              "condition": [
+                {
+                  "condition": "if (n)",
+                  "line_number": 2
+                }
+              ]
+            }
+          ],
+          "target_conditions": [
+            {
+              "condition": "if (n)",
+              "line_number": 2
+            }
+          ],
+          "variable_assignments": {
+            "text": "static inline void neigh_confirm(struct neighbour *n)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [],
+          "filter_function_code": "static inline void neigh_confirm(struct neighbour *n)\n{\n\tif (n) {\n\t\tunsigned long now = jiffies;\n\n\t\t/* avoid dirtying neighbour */\n\t\tif (READ_ONCE(n->confirmed) != now)\n\t\t\tWRITE_ONCE(n->confirmed, now);\n\t}\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *skb)\n{\n\tstruct dst_entry *dst = skb_dst(skb);\n\tstruct net_device *dev = dst->dev;\n\tstruct inet6_dev *idev = ip6_dst_idev(dst);\n\tunsigned int hh_len = LL_RESERVED_SPACE(dev);\n\tconst struct in6_addr *daddr, *nexthop;\n\tstruct ipv6hdr *hdr;\n\tstruct neighbour *neigh;\n\tint ret;\n\n\t/* Be paranoid, rather than too clever. */\n\tif (unlikely(hh_len > skb_headroom(skb)) && dev->header_ops) {\n\t\tskb = skb_expand_head(skb, hh_len);\n\t\tif (!skb) {\n\t\t\tIP6_INC_STATS(net, idev, IPSTATS_MIB_OUTDISCARDS);\n\t\t\treturn -ENOMEM;\n\t\t}\n\t}\n\n\thdr = ipv6_hdr(skb);\n\tdaddr = &hdr->daddr;\n\tif (ipv6_addr_is_multicast(daddr)) {\n\t\tif (!(dev->flags & IFF_LOOPBACK) && sk_mc_loop(sk) &&\n\t\t    ((mroute6_is_socket(net, skb) &&\n\t\t     !(IP6CB(skb)->flags & IP6SKB_FORWARDED)) ||\n\t\t     ipv6_chk_mcast_addr(dev, daddr, &hdr->saddr))) {\n\t\t\tstruct sk_buff *newskb = skb_clone(skb, GFP_ATOMIC);\n\n\t\t\t/* Do not check for IFF_ALLMULTI; multicast routing\n\t\t\t   is not supported in any case.\n\t\t\t */\n\t\t\tif (newskb)\n\t\t\t\tNF_HOOK(NFPROTO_IPV6, NF_INET_POST_ROUTING,\n\t\t\t\t\tnet, sk, newskb, NULL, newskb->dev,\n\t\t\t\t\tdev_loopback_xmit);\n\n\t\t\tif (hdr->hop_limit == 0) {\n\t\t\t\tIP6_INC_STATS(net, idev,\n\t\t\t\t\t      IPSTATS_MIB_OUTDISCARDS);\n\t\t\t\tkfree_skb(skb);\n\t\t\t\treturn 0;\n\t\t\t}\n\t\t}\n\n\t\tIP6_UPD_PO_STATS(net, idev, IPSTATS_MIB_OUTMCAST, skb->len);\n\t\tif (IPV6_ADDR_MC_SCOPE(daddr) <= IPV6_ADDR_SCOPE_NODELOCAL &&\n\t\t    !(dev->flags & IFF_LOOPBACK)) {\n\t\t\tkfree_skb(skb);\n\t\t\treturn 0;\n\t\t}\n\t}\n\n\tif (lwtunnel_xmit_redirect(dst->lwtstate)) {\n\t\tint res = lwtunnel_xmit(skb);\n\n\t\tif (res != LWTUNNEL_XMIT_CONTINUE)\n\t\t\treturn res;\n\t}\n\n\tIP6_UPD_PO_STATS(net, idev, IPSTATS_MIB_OUT, skb->len);\n\n\trcu_read_lock();\n\tnexthop = rt6_nexthop(dst_rt6_info(dst), daddr);\n\tneigh = __ipv6_neigh_lookup_noref(dev, nexthop);\n\n\tif (unlikely(IS_ERR_OR_NULL(neigh))) {\n\t\tif (unlikely(!neigh))\n\t\t\tneigh = __neigh_create(&nd_tbl, nexthop, dev, false);\n\t\tif (IS_ERR(neigh)) {\n\t\t\trcu_read_unlock();\n\t\t\tIP6_INC_STATS(net, idev, IPSTATS_MIB_OUTNOROUTES);\n\t\t\tkfree_skb_reason(skb, SKB_DROP_REASON_NEIGH_CREATEFAIL);\n\t\t\treturn -EINVAL;\n\t\t}\n\t}\n\tsock_confirm_neigh(skb, neigh);\n\tret = neigh_output(neigh, skb, false);\n\trcu_read_unlock();\n\treturn ret;\n}",
+      "static inline void sock_confirm_neigh(struct sk_buff *skb, struct neighbour *n)\n{\n\tif (skb_get_dst_pending_confirm(skb)) {\n\t\tstruct sock *sk = skb->sk;\n\n\t\tif (sk && READ_ONCE(sk->sk_dst_pending_confirm))\n\t\t\tWRITE_ONCE(sk->sk_dst_pending_confirm, 0);\n\t\tneigh_confirm(n);\n\t}\n}",
+      "static inline void neigh_confirm(struct neighbour *n)\n{\n\tif (n) {\n\t\tunsigned long now = jiffies;\n\n\t\t/* avoid dirtying neighbour */\n\t\tif (READ_ONCE(n->confirmed) != now)\n\t\t\tWRITE_ONCE(n->confirmed, now);\n\t}\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nneigh=Int('neigh')\ns.add(neigh == 0)\n```",
+      "response_filter_goto: ```json\n[\"!(unlikely(IS_ERR_OR_NULL(neigh))) || !(IS_ERR(neigh))\"]\n```",
+      "z3 script: ```python\nfrom z3 import *\n\n# Variable: neigh (pointer-like value; 0 = NULL)\nneigh = BitVec('neigh', 64)\n\n# Helper predicates modeling the C macros:\n#   IS_ERR(ptr)          -> ptr is in the error-pointer range (non-NULL, high values)\n#   IS_ERR_OR_NULL(ptr)  -> ptr == NULL OR IS_ERR(ptr)\n# We model IS_ERR as a symbolic uninterpreted predicate over the pointer value,\n# since the exact kernel error range is not part of the given constraint.\nIS_ERR = Function('IS_ERR', BitVecSort(64), BoolSort())\nIS_ERR_OR_NULL = Function('IS_ERR_OR_NULL', BitVecSort(64), BoolSort())\n\ns = Solver()\n\n# Constraint from C code:\n#   !(unlikely(IS_ERR_OR_NULL(neigh))) || !(IS_ERR(neigh))\n# `unlikely(...)` is a branch-prediction hint only; it has no semantic effect,\n# so it is dropped. The expression becomes:\n#   !IS_ERR_OR_NULL(neigh) || !IS_ERR(neigh)\n# i.e. NOT (IS_ERR_OR_NULL(neigh) AND IS_ERR(neigh))\n# This is included because it is the only constraint referencing `neigh`.\ns.add(Not(And(IS_ERR_OR_NULL(neigh), IS_ERR(neigh))))\n\n# Consistency axioms tying the two predicates together, matching the C macros:\n#   IS_ERR_OR_NULL(p) == (p == 0) || IS_ERR(p)\ns.add(ForAll([neigh],\n    IS_ERR_OR_NULL(neigh) == Or(neigh == 0, IS_ERR(neigh))))\n\nprint(s.check())\n```",
+      "final z3 script: def check_constraints():\n    from z3 import Int, BitVec, Function, BoolSort, BitVecSort, Solver, Not, And, Or, ForAll, sat\n\n    # Base script constraints\n    neigh_int = Int('neigh')\n    s = Solver()\n    s.add(neigh_int == 0)\n\n    # Constraint set 2: pointer-like neigh as BitVec\n    neigh = BitVec('neigh', 64)\n    IS_ERR = Function('IS_ERR', BitVecSort(64), BoolSort())\n    IS_ERR_OR_NULL = Function('IS_ERR_OR_NULL', BitVecSort(64), BoolSort())\n\n    s.add(Not(And(IS_ERR_OR_NULL(neigh), IS_ERR(neigh))))\n    s.add(ForAll([neigh],\n        IS_ERR_OR_NULL(neigh) == Or(neigh == 0, IS_ERR(neigh))))\n\n    return s.check() == sat",
+      "fix final z3 script: def check_constraints():\n    from z3 import Int, BitVec, Function, BoolSort, BitVecSort, Solver, Not, And, Or, ForAll, sat\n\n    # Base script constraints\n    neigh_int = Int('neigh')\n    s = Solver()\n    s.add(neigh_int == 0)\n\n    # Constraint set 2: pointer-like neigh as BitVec\n    neigh = BitVec('neigh', 64)\n    IS_ERR = Function('IS_ERR', BitVecSort(64), BoolSort())\n    IS_ERR_OR_NULL = Function('IS_ERR_OR_NULL', BitVecSort(64), BoolSort())\n\n    s.add(Not(And(IS_ERR_OR_NULL(neigh), IS_ERR(neigh))))\n    s.add(ForAll([neigh],\n        IS_ERR_OR_NULL(neigh) == Or(neigh == 0, IS_ERR(neigh))))\n\n    return s.check() == sat",
+      "fix final z3 script: def check_constraints():\n    from z3 import Int, Solver, sat\n\n    neigh = Int('neigh')\n    s = Solver()\n    s.add(neigh == 0)\n\n    return s.check() == sat",
+      "step 1 z3 script: ```python\nskb_get_dst_pending_confirm=Int('skb_get_dst_pending_confirm')\nn=Int('n')\ns.add(skb_get_dst_pending_confirm == 1)\ns.add(n == 0)\n```",
+      "step 2 analysis: ```python\ndef check_constraints():\n    from z3 import Int, Solver, Or, And, sat\n    \n    s = Solver()\n    \n    # Line 3: struct sock *sk = skb->sk;\n    sk = Int('sk')\n    \n    # Line 5: if (sk && READ_ONCE(sk->sk_dst_pending_confirm))\n    # sk must be non-null for inner branch to execute\n    s.add(sk != 0)\n    \n    # sk_dst_pending_confirm is a boolean-like field (0 or 1)\n    sk_dst_pending_confirm = Int('sk_dst_pending_confirm')\n    s.add(Or(sk_dst_pending_confirm == 0, sk_dst_pending_confirm == 1))\n    \n    # Condition of inner if: sk_dst_pending_confirm is truthy (non-zero)\n    s.add(sk_dst_pending_confirm == 1)\n    \n    # Line 6: WRITE_ONCE(sk->sk_dst_pending_confirm, 0)\n    # After the write, the field becomes 0\n    sk_dst_pending_confirm_after = Int('sk_dst_pending_confirm_after')\n    s.add(sk_dst_pending_confirm_after == 0)\n    \n    # Line 7: neigh_confirm(n) called with n == 0 (NULL)\n    # Track that the call occurred (void return, so just a marker)\n    neigh_confirm_called = Int('neigh_confirm_called')\n    s.add(neigh_confirm_called == 1)\n    \n    # Validate the constraint set is satisfiable\n    return s.check() == sat\n```",
+      "step 2 z3 script: def check_constraints():\n    from z3 import Int, Solver, Or, And, sat\n    \n    s = Solver()\n    \n    # Line 3: struct sock *sk = skb->sk;\n    sk = Int('sk')\n    \n    # Line 5: if (sk && READ_ONCE(sk->sk_dst_pending_confirm))\n    # sk must be non-null for inner branch to execute\n    s.add(sk != 0)\n    \n    # sk_dst_pending_confirm is a boolean-like field (0 or 1)\n    sk_dst_pending_confirm = Int('sk_dst_pending_confirm')\n    s.add(Or(sk_dst_pending_confirm == 0, sk_dst_pending_confirm == 1))\n    \n    # Condition of inner if: sk_dst_pending_confirm is truthy (non-zero)\n    s.add(sk_dst_pending_confirm == 1)\n    \n    # Line 6: WRITE_ONCE(sk->sk_dst_pending_confirm, 0)\n    # After the write, the field becomes 0\n    sk_dst_pending_confirm_after = Int('sk_dst_pending_confirm_after')\n    s.add(sk_dst_pending_confirm_after == 0)\n    \n    # Line 7: neigh_confirm(n) called with n == 0 (NULL)\n    # Track that the call occurred (void return, so just a marker)\n    neigh_confirm_called = Int('neigh_confirm_called')\n    s.add(neigh_confirm_called == 1)\n    \n    # Validate the constraint set is satisfiable\n    return s.check() == sat",
+      "step 1 z3 script: ```python\nn=Int('n')\ns.add(Not(n == 0))\ns.add(n == 0)\n```",
+      "step 2 analysis: ```python\ndef check_constraints():\n    from z3 import Int, Solver, sat\n    n = Int('n')\n    s = Solver()\n    s.add(n == 0)\n    return s.check() == sat\n```",
+      "step 2 z3 script: def check_constraints():\n    from z3 import Int, Solver, sat\n    n = Int('n')\n    s = Solver()\n    s.add(n == 0)\n    return s.check() == sat"
+    ],
+    "function_name_list": [
+      "sock_confirm_neigh",
+      "neigh_confirm"
+    ],
+    "function_body_list": [
+      "static inline void sock_confirm_neigh(struct sk_buff *skb, struct neighbour *n)\n{\n\tif (skb_get_dst_pending_confirm(skb)) {\n\t\tstruct sock *sk = skb->sk;\n\n\t\tif (sk && READ_ONCE(sk->sk_dst_pending_confirm))\n\t\t\tWRITE_ONCE(sk->sk_dst_pending_confirm, 0);\n\t\tneigh_confirm(n);\n\t}\n}",
+      "static inline void neigh_confirm(struct neighbour *n)\n{\n\tif (n) {\n\t\tunsigned long now = jiffies;\n\n\t\t/* avoid dirtying neighbour */\n\t\tif (READ_ONCE(n->confirmed) != now)\n\t\t\tWRITE_ONCE(n->confirmed, now);\n\t}\n}"
+    ],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, BitVec, Function, BoolSort, BitVecSort, Solver, Not, And, Or, ForAll, sat\n\n    # Base script constraints\n    neigh_int = Int('neigh')\n    s = Solver()\n    s.add(neigh_int == 0)\n\n    # Constraint set 2: pointer-like neigh as BitVec\n    neigh = BitVec('neigh', 64)\n    IS_ERR = Function('IS_ERR', BitVecSort(64), BoolSort())\n    IS_ERR_OR_NULL = Function('IS_ERR_OR_NULL', BitVecSort(64), BoolSort())\n\n    s.add(Not(And(IS_ERR_OR_NULL(neigh), IS_ERR(neigh))))\n    s.add(ForAll([neigh],\n        IS_ERR_OR_NULL(neigh) == Or(neigh == 0, IS_ERR(neigh))))\n\n    return s.check() == sat",
+      "ok": false,
+      "error": "ValueError: NameError: name 'ForAll' is not defined"
+    },
+    {
+      "event_id": 2,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, BitVec, Function, BoolSort, BitVecSort, Solver, Not, And, Or, ForAll, sat\n\n    # Base script constraints\n    neigh_int = Int('neigh')\n    s = Solver()\n    s.add(neigh_int == 0)\n\n    # Constraint set 2: pointer-like neigh as BitVec\n    neigh = BitVec('neigh', 64)\n    IS_ERR = Function('IS_ERR', BitVecSort(64), BoolSort())\n    IS_ERR_OR_NULL = Function('IS_ERR_OR_NULL', BitVecSort(64), BoolSort())\n\n    s.add(Not(And(IS_ERR_OR_NULL(neigh), IS_ERR(neigh))))\n    s.add(ForAll([neigh],\n        IS_ERR_OR_NULL(neigh) == Or(neigh == 0, IS_ERR(neigh))))\n\n    return s.check() == sat",
+      "ok": false,
+      "error": "ValueError: NameError: name 'ForAll' is not defined"
+    },
+    {
+      "event_id": 3,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n\n    neigh = Int('neigh')\n    s = Solver()\n    s.add(neigh == 0)\n\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun neigh () Int)\n(assert\n (= neigh 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    {
+      "event_id": 4,
+      "level": 1,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, Or, And, sat\n    \n    s = Solver()\n    \n    # Line 3: struct sock *sk = skb->sk;\n    sk = Int('sk')\n    \n    # Line 5: if (sk && READ_ONCE(sk->sk_dst_pending_confirm))\n    # sk must be non-null for inner branch to execute\n    s.add(sk != 0)\n    \n    # sk_dst_pending_confirm is a boolean-like field (0 or 1)\n    sk_dst_pending_confirm = Int('sk_dst_pending_confirm')\n    s.add(Or(sk_dst_pending_confirm == 0, sk_dst_pending_confirm == 1))\n    \n    # Condition of inner if: sk_dst_pending_confirm is truthy (non-zero)\n    s.add(sk_dst_pending_confirm == 1)\n    \n    # Line 6: WRITE_ONCE(sk->sk_dst_pending_confirm, 0)\n    # After the write, the field becomes 0\n    sk_dst_pending_confirm_after = Int('sk_dst_pending_confirm_after')\n    s.add(sk_dst_pending_confirm_after == 0)\n    \n    # Line 7: neigh_confirm(n) called with n == 0 (NULL)\n    # Track that the call occurred (void return, so just a marker)\n    neigh_confirm_called = Int('neigh_confirm_called')\n    s.add(neigh_confirm_called == 1)\n    \n    # Validate the constraint set is satisfiable\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sk () Int)\n(declare-fun sk_dst_pending_confirm () Int)\n(declare-fun sk_dst_pending_confirm_after () Int)\n(declare-fun neigh_confirm_called () Int)\n(assert\n (and (distinct sk 0) true))\n(assert\n (let (($x30 (= sk_dst_pending_confirm 1)))\n (or (= sk_dst_pending_confirm 0) $x30)))\n(assert\n (= sk_dst_pending_confirm 1))\n(assert\n (= sk_dst_pending_confirm_after 0))\n(assert\n (= neigh_confirm_called 1))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    {
+      "event_id": 5,
+      "level": 2,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    n = Int('n')\n    s = Solver()\n    s.add(n == 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun n () Int)\n(assert\n (= n 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

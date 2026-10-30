@@ -1,0 +1,45 @@
+{
+  "call_id": 550,
+  "sample_id": "NPD/codeql/libav:row=37:index=53",
+  "timestamp": "2026-10-26T00:54:40.724988+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static void swap_samplerates_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int sample_rate;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_samplerates->nb_formats== 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    sample_rate = link->out_samplerates->formats[0];\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx, best_diff = INT_MAX;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_samplerates->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_samplerates->nb_formats; j++) {\n            int diff = abs(sample_rate - outlink->in_samplerates->formats[j]);\n\n            if (diff < best_diff) {\n                best_diff = diff;\n                best_idx  = j;\n            }\n        }\n        FFSWAP(int, outlink->in_samplerates->formats[0],\n               outlink->in_samplerates->formats[best_idx]);\n    }\n}\n        - Target variables: [], link\n        - Constraints: ['!(i == filter->nb_inputs)', '!(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_samplerates->nb_formats== 1)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "aa5571af-7955-4d5d-8fab-f0af7977ba66",
+  "usage": {
+    "prompt_tokens": 466,
+    "completion_tokens": 457,
+    "total_tokens": 923,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 466
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Let's go through this step by step.\n\n**Step 1 – Understanding the target variables**  \nTarget variables: `[]`, `link`  \nThis means we care about constraints that involve `link` (and possibly no other target variables, since the list is otherwise empty).\n\n**Step 2 – Look at the given constraints**  \n\n1. `!(i == filter->nb_inputs)`  \n   - Involves `i` and `filter->nb_inputs`.  \n   - Does **not** involve `link`.  \n   - So, not relevant to target variables.\n\n2. `!(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_samplerates->nb_formats== 1)`  \n   - First part: `!(i = 0; i < filter->nb_inputs; i++)` — this looks like a malformed constraint (probably meant to represent loop condition negation), but it involves `i` and `filter->nb_inputs`, not `link`.  \n   - Second part: `!(link->type == AVMEDIA_TYPE_AUDIO && link->out_samplerates->nb_formats== 1)` — this **does** involve `link`.  \n   - Since the constraint is a disjunction (`||`), and one part involves `link`, the whole constraint involves `link`.  \n   - So this constraint is relevant.\n\n**Step 3 – Filtering**  \nOnly the second constraint involves `link`. The first does not.\n\n**Step 4 – Final filtered constraints**  \nWe keep only:  \n`!(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_samplerates->nb_formats== 1)`\n\n**Step 5 – JSON output**  \n\n```json\n[\"!(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_samplerates->nb_formats== 1)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.2296467000005578,
+  "cost_upper_bound_cny": 0.004588
+}

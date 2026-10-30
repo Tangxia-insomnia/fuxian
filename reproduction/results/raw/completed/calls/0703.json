@@ -1,0 +1,45 @@
+{
+  "call_id": 703,
+  "sample_id": "NPD/codeql/openssl:row=12:index=13",
+  "timestamp": "2026-10-26T00:58:35.749424+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)']\n        Relevant conditions/variables: [], ectx\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "d7dc5ef0-87e0-4e1f-b8e8-fd71508529f1",
+  "usage": {
+    "prompt_tokens": 127,
+    "completion_tokens": 248,
+    "total_tokens": 375,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 127
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare the encoder context as an uninterpreted sort/function input.\n# We model the C function call OSSL_ENCODER_CTX_get_num_encoders(ectx)\n# as an uninterpreted integer-valued function over an uninterpreted\n# context object, since its internal semantics are not provided.\nEncoderCtx = DeclareSort('EncoderCtx')\nectx = Const('ectx', EncoderCtx)\nget_num_encoders = Function('OSSL_ENCODER_CTX_get_num_encoders', EncoderCtx, Int)\n\n# Constraint: !(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)\n# This is the only input constraint. It asserts that the number of\n# encoders in the context is NOT equal to zero (i.e., at least one\n# encoder is present). The C-style negation of an equality is\n# translated directly to a Z3 disequality.\ns = Solver()\ns.add(get_num_encoders(ectx) != 0)\n\n# Check satisfiability and print the result.\nprint(s.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.8205871000000116,
+  "cost_upper_bound_cny": 0.002238
+}

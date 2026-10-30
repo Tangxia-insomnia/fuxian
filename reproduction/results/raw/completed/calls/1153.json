@@ -1,0 +1,45 @@
+{
+  "call_id": 1153,
+  "sample_id": "NPD/infer/openssl:row=6:index=None",
+  "timestamp": "2026-10-26T01:08:29.213567+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(!TEST_ptr(ssl) || !TEST_ptr(s = SSL_CONNECTION_FROM_SSL_ONLY(ssl)))']\n        Relevant conditions/variables: [], s\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "fdcf2221-dfaa-4ddc-a9bf-51adac0f6f6a",
+  "usage": {
+    "prompt_tokens": 130,
+    "completion_tokens": 427,
+    "total_tokens": 557,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 130
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# ssl: pointer to SSL object (modeled as an integer address; 0 = NULL)\nssl = Int('ssl')\n# s: pointer to SSL_CONNECTION (modeled as an integer address; 0 = NULL)\ns = Int('s')\n\n# The C constraint is:\n#   !(!TEST_ptr(ssl) || !TEST_ptr(s = SSL_CONNECTION_FROM_SSL_ONLY(ssl)))\n#\n# TEST_ptr(x) is true iff x != NULL, i.e. x != 0.\n# SSL_CONNECTION_FROM_SSL_ONLY(ssl) is a function call whose result is\n# assigned to s. We model it as an uninterpreted function returning an\n# integer address (0 meaning NULL).\nSSL_CONNECTION_FROM_SSL_ONLY = Function('SSL_CONNECTION_FROM_SSL_ONLY', IntSort(), IntSort())\n\n# The constraint asserts the negation of the disjunction, which by\n# De Morgan's law is equivalent to:\n#   TEST_ptr(ssl) && TEST_ptr(s = SSL_CONNECTION_FROM_SSL_ONLY(ssl))\n# i.e. both ssl and the result of the function call must be non-NULL.\n#\n# We include this constraint because it directly constrains the\n# variables ssl and s (via the function result), which are the\n# relevant conditions/variables for this problem.\n\nsolver = Solver()\n\n# s is the result of SSL_CONNECTION_FROM_SSL_ONLY(ssl)\nsolver.add(s == SSL_CONNECTION_FROM_SSL_ONLY(ssl))\n\n# TEST_ptr(ssl): ssl must be non-NULL\nsolver.add(ssl != 0)\n\n# TEST_ptr(s): s must be non-NULL\nsolver.add(s != 0)\n\n# Check satisfiability and print result\nif solver.check() == sat:\n    print(\"sat\")\n    print(solver.model())\nelse:\n    print(\"unsat\")\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.7079930999998396,
+  "cost_upper_bound_cny": 0.003676
+}

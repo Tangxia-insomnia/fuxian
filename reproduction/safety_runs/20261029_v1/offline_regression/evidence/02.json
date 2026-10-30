@@ -1,0 +1,452 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/kernel69:row=11:index=23",
+    "status": "success",
+    "prediction": "filter",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "skb",
+    "function_name": "tcp_sendmsg_locked",
+    "location": {
+      "file_path": "net/ipv4/tcp.c",
+      "region": {
+        "startLine": 1276,
+        "startColumn": 14,
+        "endColumn": 17
+      },
+      "context": {
+        "startLine": 1274,
+        "endLine": 1278,
+        "snippet": {
+          "text": "\t\tTCP_SKB_CB(skb)->end_seq += copy;"
+        }
+      }
+    },
+    "function_code": "int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)\n{\n\tstruct tcp_sock *tp = tcp_sk(sk);\n\tstruct ubuf_info *uarg = NULL;\n\tstruct sk_buff *skb;\n\tstruct sockcm_cookie sockc;\n\tint flags, err, copied = 0;\n\tint mss_now = 0, size_goal, copied_syn = 0;\n\tint process_backlog = 0;\n\tint zc = 0;\n\tlong timeo;\n\n\tflags = msg->msg_flags;\n\n\tif ((flags & MSG_ZEROCOPY) && size) {\n\t\tif (msg->msg_ubuf) {\n\t\t\tuarg = msg->msg_ubuf;\n\t\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\t\tzc = MSG_ZEROCOPY;\n\t\t} else if (sock_flag(sk, SOCK_ZEROCOPY)) {\n\t\t\tskb = tcp_write_queue_tail(sk);\n\t\t\tuarg = msg_zerocopy_realloc(sk, size, skb_zcopy(skb));\n\t\t\tif (!uarg) {\n\t\t\t\terr = -ENOBUFS;\n\t\t\t\tgoto out_err;\n\t\t\t}\n\t\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\t\tzc = MSG_ZEROCOPY;\n\t\t\telse\n\t\t\t\tuarg_to_msgzc(uarg)->zerocopy = 0;\n\t\t}\n\t} else if (unlikely(msg->msg_flags & MSG_SPLICE_PAGES) && size) {\n\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\tzc = MSG_SPLICE_PAGES;\n\t}\n\n\tif (unlikely(flags & MSG_FASTOPEN ||\n\t\t     inet_test_bit(DEFER_CONNECT, sk)) &&\n\t    !tp->repair) {\n\t\terr = tcp_sendmsg_fastopen(sk, msg, &copied_syn, size, uarg);\n\t\tif (err == -EINPROGRESS && copied_syn > 0)\n\t\t\tgoto out;\n\t\telse if (err)\n\t\t\tgoto out_err;\n\t}\n\n\ttimeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);\n\n\ttcp_rate_check_app_limited(sk);  /* is sending application-limited? */\n\n\t/* Wait for a connection to finish. One exception is TCP Fast Open\n\t * (passive side) where data is allowed to be sent before a connection\n\t * is fully established.\n\t */\n\tif (((1 << sk->sk_state) & ~(TCPF_ESTABLISHED | TCPF_CLOSE_WAIT)) &&\n\t    !tcp_passive_fastopen(sk)) {\n\t\terr = sk_stream_wait_connect(sk, &timeo);\n\t\tif (err != 0)\n\t\t\tgoto do_error;\n\t}\n\n\tif (unlikely(tp->repair)) {\n\t\tif (tp->repair_queue == TCP_RECV_QUEUE) {\n\t\t\tcopied = tcp_send_rcvq(sk, msg, size);\n\t\t\tgoto out_nopush;\n\t\t}\n\n\t\terr = -EINVAL;\n\t\tif (tp->repair_queue == TCP_NO_QUEUE)\n\t\t\tgoto out_err;\n\n\t\t/* 'common' sending to sendq */\n\t}\n\n\tsockcm_init(&sockc, sk);\n\tif (msg->msg_controllen) {\n\t\terr = sock_cmsg_send(sk, msg, &sockc);\n\t\tif (unlikely(err)) {\n\t\t\terr = -EINVAL;\n\t\t\tgoto out_err;\n\t\t}\n\t}\n\n\t/* This should be in poll */\n\tsk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);\n\n\t/* Ok commence sending. */\n\tcopied = 0;\n\nrestart:\n\tmss_now = tcp_send_mss(sk, &size_goal, flags);\n\n\terr = -EPIPE;\n\tif (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))\n\t\tgoto do_error;\n\n\twhile (msg_data_left(msg)) {\n\t\tssize_t copy = 0;\n\n\t\tskb = tcp_write_queue_tail(sk);\n\t\tif (skb)\n\t\t\tcopy = size_goal - skb->len;\n\n\t\tif (copy <= 0 || !tcp_skb_can_collapse_to(skb)) {\n\t\t\tbool first_skb;\n\nnew_segment:\n\t\t\tif (!sk_stream_memory_free(sk))\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tif (unlikely(process_backlog >= 16)) {\n\t\t\t\tprocess_backlog = 0;\n\t\t\t\tif (sk_flush_backlog(sk))\n\t\t\t\t\tgoto restart;\n\t\t\t}\n\t\t\tfirst_skb = tcp_rtx_and_write_queues_empty(sk);\n\t\t\tskb = tcp_stream_alloc_skb(sk, sk->sk_allocation,\n\t\t\t\t\t\t   first_skb);\n\t\t\tif (!skb)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tprocess_backlog++;\n\n#ifdef CONFIG_SKB_DECRYPTED\n\t\t\tskb->decrypted = !!(flags & MSG_SENDPAGE_DECRYPTED);\n#endif\n\t\t\ttcp_skb_entail(sk, skb);\n\t\t\tcopy = size_goal;\n\n\t\t\t/* All packets are restored as if they have\n\t\t\t * already been sent. skb_mstamp_ns isn't set to\n\t\t\t * avoid wrong rtt estimation.\n\t\t\t */\n\t\t\tif (tp->repair)\n\t\t\t\tTCP_SKB_CB(skb)->sacked |= TCPCB_REPAIRED;\n\t\t}\n\n\t\t/* Try to append data to the end of skb. */\n\t\tif (copy > msg_data_left(msg))\n\t\t\tcopy = msg_data_left(msg);\n\n\t\tif (zc == 0) {\n\t\t\tbool merge = true;\n\t\t\tint i = skb_shinfo(skb)->nr_frags;\n\t\t\tstruct page_frag *pfrag = sk_page_frag(sk);\n\n\t\t\tif (!sk_page_frag_refill(sk, pfrag))\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tif (!skb_can_coalesce(skb, i, pfrag->page,\n\t\t\t\t\t      pfrag->offset)) {\n\t\t\t\tif (i >= READ_ONCE(sysctl_max_skb_frags)) {\n\t\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\t\tgoto new_segment;\n\t\t\t\t}\n\t\t\t\tmerge = false;\n\t\t\t}\n\n\t\t\tcopy = min_t(int, copy, pfrag->size - pfrag->offset);\n\n\t\t\tif (unlikely(skb_zcopy_pure(skb) || skb_zcopy_managed(skb))) {\n\t\t\t\tif (tcp_downgrade_zcopy_pure(sk, skb))\n\t\t\t\t\tgoto wait_for_space;\n\t\t\t\tskb_zcopy_downgrade_managed(skb);\n\t\t\t}\n\n\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\tif (!copy)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\terr = skb_copy_to_page_nocache(sk, &msg->msg_iter, skb,\n\t\t\t\t\t\t       pfrag->page,\n\t\t\t\t\t\t       pfrag->offset,\n\t\t\t\t\t\t       copy);\n\t\t\tif (err)\n\t\t\t\tgoto do_error;\n\n\t\t\t/* Update the skb. */\n\t\t\tif (merge) {\n\t\t\t\tskb_frag_size_add(&skb_shinfo(skb)->frags[i - 1], copy);\n\t\t\t} else {\n\t\t\t\tskb_fill_page_desc(skb, i, pfrag->page,\n\t\t\t\t\t\t   pfrag->offset, copy);\n\t\t\t\tpage_ref_inc(pfrag->page);\n\t\t\t}\n\t\t\tpfrag->offset += copy;\n\t\t} else if (zc == MSG_ZEROCOPY)  {\n\t\t\t/* First append to a fragless skb builds initial\n\t\t\t * pure zerocopy skb\n\t\t\t */\n\t\t\tif (!skb->len)\n\t\t\t\tskb_shinfo(skb)->flags |= SKBFL_PURE_ZEROCOPY;\n\n\t\t\tif (!skb_zcopy_pure(skb)) {\n\t\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\t\tif (!copy)\n\t\t\t\t\tgoto wait_for_space;\n\t\t\t}\n\n\t\t\terr = skb_zerocopy_iter_stream(sk, skb, msg, copy, uarg);\n\t\t\tif (err == -EMSGSIZE || err == -EEXIST) {\n\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\tgoto new_segment;\n\t\t\t}\n\t\t\tif (err < 0)\n\t\t\t\tgoto do_error;\n\t\t\tcopy = err;\n\t\t} else if (zc == MSG_SPLICE_PAGES) {\n\t\t\t/* Splice in data if we can; copy if we can't. */\n\t\t\tif (tcp_downgrade_zcopy_pure(sk, skb))\n\t\t\t\tgoto wait_for_space;\n\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\tif (!copy)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\terr = skb_splice_from_iter(skb, &msg->msg_iter, copy,\n\t\t\t\t\t\t   sk->sk_allocation);\n\t\t\tif (err < 0) {\n\t\t\t\tif (err == -EMSGSIZE) {\n\t\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\t\tgoto new_segment;\n\t\t\t\t}\n\t\t\t\tgoto do_error;\n\t\t\t}\n\t\t\tcopy = err;\n\n\t\t\tif (!(flags & MSG_NO_SHARED_FRAGS))\n\t\t\t\tskb_shinfo(skb)->flags |= SKBFL_SHARED_FRAG;\n\n\t\t\tsk_wmem_queued_add(sk, copy);\n\t\t\tsk_mem_charge(sk, copy);\n\t\t}\n\n\t\tif (!copied)\n\t\t\tTCP_SKB_CB(skb)->tcp_flags &= ~TCPHDR_PSH;\n\n\t\tWRITE_ONCE(tp->write_seq, tp->write_seq + copy);\n\t\tTCP_SKB_CB(skb)->end_seq += copy;\n\t\ttcp_skb_pcount_set(skb, 0);\n\n\t\tcopied += copy;\n\t\tif (!msg_data_left(msg)) {\n\t\t\tif (unlikely(flags & MSG_EOR))\n\t\t\t\tTCP_SKB_CB(skb)->eor = 1;\n\t\t\tgoto out;\n\t\t}\n\n\t\tif (skb->len < size_goal || (flags & MSG_OOB) || unlikely(tp->repair))\n\t\t\tcontinue;\n\n\t\tif (forced_push(tp)) {\n\t\t\ttcp_mark_push(tp, skb);\n\t\t\t__tcp_push_pending_frames(sk, mss_now, TCP_NAGLE_PUSH);\n\t\t} else if (skb == tcp_send_head(sk))\n\t\t\ttcp_push_one(sk, mss_now);\n\t\tcontinue;\n\nwait_for_space:\n\t\tset_bit(SOCK_NOSPACE, &sk->sk_socket->flags);\n\t\ttcp_remove_empty_skb(sk);\n\t\tif (copied)\n\t\t\ttcp_push(sk, flags & ~MSG_MORE, mss_now,\n\t\t\t\t TCP_NAGLE_PUSH, size_goal);\n\n\t\terr = sk_stream_wait_memory(sk, &timeo);\n\t\tif (err != 0)\n\t\t\tgoto do_error;\n\n\t\tmss_now = tcp_send_mss(sk, &size_goal, flags);\n\t}\n\nout:\n\tif (copied) {\n\t\ttcp_tx_timestamp(sk, sockc.tsflags);\n\t\ttcp_push(sk, flags, mss_now, tp->nonagle, size_goal);\n\t}\nout_nopush:\n\t/* msg->msg_ubuf is pinned by the caller so we don't take extra refs */\n\tif (uarg && !msg->msg_ubuf)\n\t\tnet_zcopy_put(uarg);\n\treturn copied + copied_syn;\n\ndo_error:\n\ttcp_remove_empty_skb(sk);\n\n\tif (copied + copied_syn)\n\t\tgoto out;\nout_err:\n\t/* msg->msg_ubuf is pinned by the caller so we don't take extra refs */\n\tif (uarg && !msg->msg_ubuf)\n\t\tnet_zcopy_put_abort(uarg, true);\n\terr = sk_stream_error(sk, flags, err);\n\t/* make sure we wake any epoll edge trigger waiter */\n\tif (unlikely(tcp_rtx_and_write_queues_empty(sk) && err == -EAGAIN)) {\n\t\tsk->sk_write_space(sk);\n\t\ttcp_chrono_stop(sk, TCP_CHRONO_SNDBUF_LIMITED);\n\t}\n\treturn err;\n}",
+    "function_list": [
+      "tcp_write_queue_tail"
+    ],
+    "bug_line_constraints": [
+      {
+        "text": "\t\tTCP_SKB_CB(skb)->end_seq += copy;",
+        "condition": [
+          "goto new_segment"
+        ]
+      }
+    ],
+    "var_assign_conditions": [],
+    "pointer_null_postconditions": [
+      {
+        "text": "if (skb)",
+        "condition": [
+          "while (msg_data_left(msg))"
+        ],
+        "content": "\t\tif (skb)\n\t\t\tcopy = size_goal - skb->len;\n"
+      }
+    ],
+    "early_jump_constraints": [
+      {
+        "text": "goto out_err;",
+        "condition": [
+          "if ((flags & MSG_ZEROCOPY) && size)",
+          "if (sock_flag(sk, SOCK_ZEROCOPY))",
+          "if (!uarg)"
+        ]
+      },
+      {
+        "text": "goto out;",
+        "condition": [
+          "if (unlikely(flags & MSG_FASTOPEN || inet_test_bit(DEFER_CONNECT, sk)) && !tp->repair)",
+          "if (err == -EINPROGRESS && copied_syn > 0)"
+        ]
+      },
+      {
+        "text": "goto out_err;",
+        "condition": [
+          "if (unlikely(flags & MSG_FASTOPEN || inet_test_bit(DEFER_CONNECT, sk)) && !tp->repair)",
+          "if (err)"
+        ]
+      },
+      {
+        "text": "goto do_error;",
+        "condition": [
+          "if (((1 << sk->sk_state) & ~(TCPF_ESTABLISHED | TCPF_CLOSE_WAIT)) && !tcp_passive_fastopen(sk))",
+          "if (err != 0)"
+        ]
+      },
+      {
+        "text": "goto out_nopush;",
+        "condition": [
+          "if (unlikely(tp->repair))",
+          "if (tp->repair_queue == TCP_RECV_QUEUE)"
+        ]
+      },
+      {
+        "text": "goto out_err;",
+        "condition": [
+          "if (unlikely(tp->repair))",
+          "if (tp->repair_queue == TCP_NO_QUEUE)"
+        ]
+      },
+      {
+        "text": "goto out_err;",
+        "condition": [
+          "if (msg->msg_controllen)",
+          "if (unlikely(err))"
+        ]
+      },
+      {
+        "text": "goto do_error;",
+        "condition": [
+          "if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))"
+        ]
+      },
+      {
+        "text": "goto wait_for_space;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (copy <= 0 || !tcp_skb_can_collapse_to(skb))",
+          "if (!sk_stream_memory_free(sk))"
+        ]
+      },
+      {
+        "text": "goto restart;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (copy <= 0 || !tcp_skb_can_collapse_to(skb))",
+          "if (unlikely(process_backlog >= 16))",
+          "if (sk_flush_backlog(sk))"
+        ]
+      },
+      {
+        "text": "goto wait_for_space;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (copy <= 0 || !tcp_skb_can_collapse_to(skb))",
+          "if (!skb)"
+        ]
+      },
+      {
+        "text": "goto wait_for_space;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (zc == 0)",
+          "if (!sk_page_frag_refill(sk, pfrag))"
+        ]
+      },
+      {
+        "text": "goto wait_for_space;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (zc == 0)",
+          "if (unlikely(skb_zcopy_pure(skb) || skb_zcopy_managed(skb)))",
+          "if (tcp_downgrade_zcopy_pure(sk, skb))"
+        ]
+      },
+      {
+        "text": "goto wait_for_space;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (zc == 0)",
+          "if (!copy)"
+        ]
+      },
+      {
+        "text": "goto do_error;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (zc == 0)",
+          "if (err)"
+        ]
+      },
+      {
+        "text": "goto wait_for_space;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (zc == MSG_ZEROCOPY)",
+          "if (!skb_zcopy_pure(skb))",
+          "if (!copy)"
+        ]
+      },
+      {
+        "text": "goto do_error;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (zc == MSG_ZEROCOPY)",
+          "if (err < 0)"
+        ]
+      },
+      {
+        "text": "goto wait_for_space;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (zc == MSG_SPLICE_PAGES)",
+          "if (tcp_downgrade_zcopy_pure(sk, skb))"
+        ]
+      },
+      {
+        "text": "goto wait_for_space;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (zc == MSG_SPLICE_PAGES)",
+          "if (!copy)"
+        ]
+      },
+      {
+        "text": "goto do_error;",
+        "condition": [
+          "while (msg_data_left(msg))",
+          "if (zc == MSG_SPLICE_PAGES)",
+          "if (err < 0)"
+        ]
+      }
+    ],
+    "index": 23
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "tcp_sendmsg_locked",
+        "var_name": "skb",
+        "target": "\t\tTCP_SKB_CB(skb)->end_seq += copy;",
+        "code": "int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)\n{\n\tstruct tcp_sock *tp = tcp_sk(sk);\n\tstruct ubuf_info *uarg = NULL;\n\tstruct sk_buff *skb;\n\tstruct sockcm_cookie sockc;\n\tint flags, err, copied = 0;\n\tint mss_now = 0, size_goal, copied_syn = 0;\n\tint process_backlog = 0;\n\tint zc = 0;\n\tlong timeo;\n\n\tflags = msg->msg_flags;\n\n\tif ((flags & MSG_ZEROCOPY) && size) {\n\t\tif (msg->msg_ubuf) {\n\t\t\tuarg = msg->msg_ubuf;\n\t\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\t\tzc = MSG_ZEROCOPY;\n\t\t} else if (sock_flag(sk, SOCK_ZEROCOPY)) {\n\t\t\tskb = tcp_write_queue_tail(sk);\n\t\t\tuarg = msg_zerocopy_realloc(sk, size, skb_zcopy(skb));\n\t\t\tif (!uarg) {\n\t\t\t\terr = -ENOBUFS;\n\t\t\t\tgoto out_err;\n\t\t\t}\n\t\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\t\tzc = MSG_ZEROCOPY;\n\t\t\telse\n\t\t\t\tuarg_to_msgzc(uarg)->zerocopy = 0;\n\t\t}\n\t} else if (unlikely(msg->msg_flags & MSG_SPLICE_PAGES) && size) {\n\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\tzc = MSG_SPLICE_PAGES;\n\t}\n\n\tif (unlikely(flags & MSG_FASTOPEN ||\n\t\t     inet_test_bit(DEFER_CONNECT, sk)) &&\n\t    !tp->repair) {\n\t\terr = tcp_sendmsg_fastopen(sk, msg, &copied_syn, size, uarg);\n\t\tif (err == -EINPROGRESS && copied_syn > 0)\n\t\t\tgoto out;\n\t\telse if (err)\n\t\t\tgoto out_err;\n\t}\n\n\ttimeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);\n\n\ttcp_rate_check_app_limited(sk);  /* is sending application-limited? */\n\n\t/* Wait for a connection to finish. One exception is TCP Fast Open\n\t * (passive side) where data is allowed to be sent before a connection\n\t * is fully established.\n\t */\n\tif (((1 << sk->sk_state) & ~(TCPF_ESTABLISHED | TCPF_CLOSE_WAIT)) &&\n\t    !tcp_passive_fastopen(sk)) {\n\t\terr = sk_stream_wait_connect(sk, &timeo);\n\t\tif (err != 0)\n\t\t\tgoto do_error;\n\t}\n\n\tif (unlikely(tp->repair)) {\n\t\tif (tp->repair_queue == TCP_RECV_QUEUE) {\n\t\t\tcopied = tcp_send_rcvq(sk, msg, size);\n\t\t\tgoto out_nopush;\n\t\t}\n\n\t\terr = -EINVAL;\n\t\tif (tp->repair_queue == TCP_NO_QUEUE)\n\t\t\tgoto out_err;\n\n\t\t/* 'common' sending to sendq */\n\t}\n\n\tsockcm_init(&sockc, sk);\n\tif (msg->msg_controllen) {\n\t\terr = sock_cmsg_send(sk, msg, &sockc);\n\t\tif (unlikely(err)) {\n\t\t\terr = -EINVAL;\n\t\t\tgoto out_err;\n\t\t}\n\t}\n\n\t/* This should be in poll */\n\tsk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);\n\n\t/* Ok commence sending. */\n\tcopied = 0;\n\nrestart:\n\tmss_now = tcp_send_mss(sk, &size_goal, flags);\n\n\terr = -EPIPE;\n\tif (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))\n\t\tgoto do_error;\n\n\twhile (msg_data_left(msg)) {\n\t\tssize_t copy = 0;\n\n\t\tskb = tcp_write_queue_tail(sk);\n\t\tif (skb)\n\t\t\tcopy = size_goal - skb->len;\n\n\t\tif (copy <= 0 || !tcp_skb_can_collapse_to(skb)) {\n\t\t\tbool first_skb;\n\nnew_segment:\n\t\t\tif (!sk_stream_memory_free(sk))\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tif (unlikely(process_backlog >= 16)) {\n\t\t\t\tprocess_backlog = 0;\n\t\t\t\tif (sk_flush_backlog(sk))\n\t\t\t\t\tgoto restart;\n\t\t\t}\n\t\t\tfirst_skb = tcp_rtx_and_write_queues_empty(sk);\n\t\t\tskb = tcp_stream_alloc_skb(sk, sk->sk_allocation,\n\t\t\t\t\t\t   first_skb);\n\t\t\tif (!skb)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tprocess_backlog++;\n\n#ifdef CONFIG_SKB_DECRYPTED\n\t\t\tskb->decrypted = !!(flags & MSG_SENDPAGE_DECRYPTED);\n#endif\n\t\t\ttcp_skb_entail(sk, skb);\n\t\t\tcopy = size_goal;\n\n\t\t\t/* All packets are restored as if they have\n\t\t\t * already been sent. skb_mstamp_ns isn't set to\n\t\t\t * avoid wrong rtt estimation.\n\t\t\t */\n\t\t\tif (tp->repair)\n\t\t\t\tTCP_SKB_CB(skb)->sacked |= TCPCB_REPAIRED;\n\t\t}\n\n\t\t/* Try to append data to the end of skb. */\n\t\tif (copy > msg_data_left(msg))\n\t\t\tcopy = msg_data_left(msg);\n\n\t\tif (zc == 0) {\n\t\t\tbool merge = true;\n\t\t\tint i = skb_shinfo(skb)->nr_frags;\n\t\t\tstruct page_frag *pfrag = sk_page_frag(sk);\n\n\t\t\tif (!sk_page_frag_refill(sk, pfrag))\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tif (!skb_can_coalesce(skb, i, pfrag->page,\n\t\t\t\t\t      pfrag->offset)) {\n\t\t\t\tif (i >= READ_ONCE(sysctl_max_skb_frags)) {\n\t\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\t\tgoto new_segment;\n\t\t\t\t}\n\t\t\t\tmerge = false;\n\t\t\t}\n\n\t\t\tcopy = min_t(int, copy, pfrag->size - pfrag->offset);\n\n\t\t\tif (unlikely(skb_zcopy_pure(skb) || skb_zcopy_managed(skb))) {\n\t\t\t\tif (tcp_downgrade_zcopy_pure(sk, skb))\n\t\t\t\t\tgoto wait_for_space;\n\t\t\t\tskb_zcopy_downgrade_managed(skb);\n\t\t\t}\n\n\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\tif (!copy)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\terr = skb_copy_to_page_nocache(sk, &msg->msg_iter, skb,\n\t\t\t\t\t\t       pfrag->page,\n\t\t\t\t\t\t       pfrag->offset,\n\t\t\t\t\t\t       copy);\n\t\t\tif (err)\n\t\t\t\tgoto do_error;\n\n\t\t\t/* Update the skb. */\n\t\t\tif (merge) {\n\t\t\t\tskb_frag_size_add(&skb_shinfo(skb)->frags[i - 1], copy);\n\t\t\t} else {\n\t\t\t\tskb_fill_page_desc(skb, i, pfrag->page,\n\t\t\t\t\t\t   pfrag->offset, copy);\n\t\t\t\tpage_ref_inc(pfrag->page);\n\t\t\t}\n\t\t\tpfrag->offset += copy;\n\t\t} else if (zc == MSG_ZEROCOPY)  {\n\t\t\t/* First append to a fragless skb builds initial\n\t\t\t * pure zerocopy skb\n\t\t\t */\n\t\t\tif (!skb->len)\n\t\t\t\tskb_shinfo(skb)->flags |= SKBFL_PURE_ZEROCOPY;\n\n\t\t\tif (!skb_zcopy_pure(skb)) {\n\t\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\t\tif (!copy)\n\t\t\t\t\tgoto wait_for_space;\n\t\t\t}\n\n\t\t\terr = skb_zerocopy_iter_stream(sk, skb, msg, copy, uarg);\n\t\t\tif (err == -EMSGSIZE || err == -EEXIST) {\n\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\tgoto new_segment;\n\t\t\t}\n\t\t\tif (err < 0)\n\t\t\t\tgoto do_error;\n\t\t\tcopy = err;\n\t\t} else if (zc == MSG_SPLICE_PAGES) {\n\t\t\t/* Splice in data if we can; copy if we can't. */\n\t\t\tif (tcp_downgrade_zcopy_pure(sk, skb))\n\t\t\t\tgoto wait_for_space;\n\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\tif (!copy)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\terr = skb_splice_from_iter(skb, &msg->msg_iter, copy,\n\t\t\t\t\t\t   sk->sk_allocation);\n\t\t\tif (err < 0) {\n\t\t\t\tif (err == -EMSGSIZE) {\n\t\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\t\tgoto new_segment;\n\t\t\t\t}\n\t\t\t\tgoto do_error;\n\t\t\t}\n\t\t\tcopy = err;\n\n\t\t\tif (!(flags & MSG_NO_SHARED_FRAGS))\n\t\t\t\tskb_shinfo(skb)->flags |= SKBFL_SHARED_FRAG;\n\n\t\t\tsk_wmem_queued_add(sk, copy);\n\t\t\tsk_mem_charge(sk, copy);\n\t\t}\n\n\t\tif (!copied)\n\t\t\tTCP_SKB_CB(skb)->tcp_flags &= ~TCPHDR_PSH;\n\n\t\tWRITE_ONCE(tp->write_seq, tp->write_seq + copy);\n\t\tTCP_SKB_CB(skb)->end_seq += copy;\n\t\ttcp_skb_pcount_set(skb, 0);\n\n\t\tcopied += copy;\n\t\tif (!msg_data_left(msg)) {\n\t\t\tif (unlikely(flags & MSG_EOR))\n\t\t\t\tTCP_SKB_CB(skb)->eor = 1;\n\t\t\tgoto out;\n\t\t}\n\n\t\tif (skb->len < size_goal || (flags & MSG_OOB) || unlikely(tp->repair))\n\t\t\tcontinue;\n\n\t\tif (forced_push(tp)) {\n\t\t\ttcp_mark_push(tp, skb);\n\t\t\t__tcp_push_pending_frames(sk, mss_now, TCP_NAGLE_PUSH);\n\t\t} else if (skb == tcp_send_head(sk))\n\t\t\ttcp_push_one(sk, mss_now);\n\t\tcontinue;\n\nwait_for_space:\n\t\tset_bit(SOCK_NOSPACE, &sk->sk_socket->flags);\n\t\ttcp_remove_empty_skb(sk);\n\t\tif (copied)\n\t\t\ttcp_push(sk, flags & ~MSG_MORE, mss_now,\n\t\t\t\t TCP_NAGLE_PUSH, size_goal);\n\n\t\terr = sk_stream_wait_memory(sk, &timeo);\n\t\tif (err != 0)\n\t\t\tgoto do_error;\n\n\t\tmss_now = tcp_send_mss(sk, &size_goal, flags);\n\t}\n\nout:\n\tif (copied) {\n\t\ttcp_tx_timestamp(sk, sockc.tsflags);\n\t\ttcp_push(sk, flags, mss_now, tp->nonagle, size_goal);\n\t}\nout_nopush:\n\t/* msg->msg_ubuf is pinned by the caller so we don't take extra refs */\n\tif (uarg && !msg->msg_ubuf)\n\t\tnet_zcopy_put(uarg);\n\treturn copied + copied_syn;\n\ndo_error:\n\ttcp_remove_empty_skb(sk);\n\n\tif (copied + copied_syn)\n\t\tgoto out;\nout_err:\n\t/* msg->msg_ubuf is pinned by the caller so we don't take extra refs */\n\tif (uarg && !msg->msg_ubuf)\n\t\tnet_zcopy_put_abort(uarg, true);\n\terr = sk_stream_error(sk, flags, err);\n\t/* make sure we wake any epoll edge trigger waiter */\n\tif (unlikely(tcp_rtx_and_write_queues_empty(sk) && err == -EAGAIN)) {\n\t\tsk->sk_write_space(sk);\n\t\ttcp_chrono_stop(sk, TCP_CHRONO_SNDBUF_LIMITED);\n\t}\n\treturn err;\n}",
+        "body_sha256": "0a179a0178f81a9211efd84d9baa3efce16afafb9dd8dbe54c47eb63e5064590",
+        "sink_kind": "author_historical_macro_or_call_sink",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "\t\tTCP_SKB_CB(skb)->end_seq += copy;",
+              "condition": [
+                {
+                  "condition": "goto new_segment",
+                  "line_number": 106
+                }
+              ]
+            }
+          ],
+          "target_conditions": [
+            {
+              "condition": "goto new_segment",
+              "line_number": 106
+            }
+          ],
+          "variable_assignments": {
+            "text": "int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "do_error",
+              "condition": [
+                "zc == MSG_SPLICE_PAGES",
+                "err < 0"
+              ]
+            },
+            {
+              "text": "new_segment",
+              "condition": [
+                "zc == MSG_SPLICE_PAGES",
+                "err < 0",
+                "err == -EMSGSIZE"
+              ]
+            },
+            {
+              "text": "wait_for_space",
+              "condition": [
+                "zc == MSG_SPLICE_PAGES",
+                "!copy"
+              ]
+            },
+            {
+              "text": "wait_for_space",
+              "condition": [
+                "zc == MSG_SPLICE_PAGES",
+                "tcp_downgrade_zcopy_pure(sk, skb)"
+              ]
+            },
+            {
+              "text": "do_error",
+              "condition": [
+                "zc == MSG_ZEROCOPY",
+                "err < 0"
+              ]
+            },
+            {
+              "text": "new_segment",
+              "condition": [
+                "zc == MSG_ZEROCOPY",
+                "err == -EMSGSIZE || err == -EEXIST"
+              ]
+            },
+            {
+              "text": "wait_for_space",
+              "condition": [
+                "zc == MSG_ZEROCOPY",
+                "!skb_zcopy_pure(skb)",
+                "!copy"
+              ]
+            },
+            {
+              "text": "do_error",
+              "condition": [
+                "zc == 0",
+                "err"
+              ]
+            },
+            {
+              "text": "wait_for_space",
+              "condition": [
+                "zc == 0",
+                "!copy"
+              ]
+            },
+            {
+              "text": "wait_for_space",
+              "condition": [
+                "zc == 0",
+                "unlikely(skb_zcopy_pure(skb) || skb_zcopy_managed(skb))",
+                "tcp_downgrade_zcopy_pure(sk, skb)"
+              ]
+            },
+            {
+              "text": "new_segment",
+              "condition": [
+                "zc == 0",
+                "!skb_can_coalesce(skb, i, pfrag->page, pfrag->offset)",
+                "i >= READ_ONCE(sysctl_max_skb_frags)"
+              ]
+            },
+            {
+              "text": "wait_for_space",
+              "condition": [
+                "zc == 0",
+                "!sk_page_frag_refill(sk, pfrag)"
+              ]
+            },
+            {
+              "text": "wait_for_space",
+              "condition": [
+                "!skb"
+              ]
+            },
+            {
+              "text": "restart",
+              "condition": [
+                "unlikely(process_backlog >= 16)",
+                "sk_flush_backlog(sk)"
+              ]
+            },
+            {
+              "text": "wait_for_space",
+              "condition": [
+                "!sk_stream_memory_free(sk)"
+              ]
+            },
+            {
+              "text": "do_error",
+              "condition": [
+                "sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN)"
+              ]
+            },
+            {
+              "text": "out_err",
+              "condition": [
+                "msg->msg_controllen",
+                "unlikely(err)"
+              ]
+            },
+            {
+              "text": "out_err",
+              "condition": [
+                "unlikely(tp->repair)",
+                "tp->repair_queue == TCP_NO_QUEUE"
+              ]
+            },
+            {
+              "text": "out_nopush",
+              "condition": [
+                "unlikely(tp->repair)",
+                "tp->repair_queue == TCP_RECV_QUEUE"
+              ]
+            },
+            {
+              "text": "do_error",
+              "condition": [
+                "((1 << sk->sk_state) & ~(TCPF_ESTABLISHED | TCPF_CLOSE_WAIT)) && !tcp_passive_fastopen(sk)",
+                "err != 0"
+              ]
+            },
+            {
+              "text": "out_err",
+              "condition": [
+                "unlikely(flags & MSG_FASTOPEN || inet_test_bit(DEFER_CONNECT, sk)) && !tp->repair",
+                "err"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "unlikely(flags & MSG_FASTOPEN || inet_test_bit(DEFER_CONNECT, sk)) && !tp->repair",
+                "err == -EINPROGRESS && copied_syn > 0"
+              ]
+            },
+            {
+              "text": "out_err",
+              "condition": [
+                "(flags & MSG_ZEROCOPY) && size",
+                "sock_flag(sk, SOCK_ZEROCOPY)",
+                "!uarg"
+              ]
+            }
+          ],
+          "filter_function_code": "int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)\n{\n\tstruct tcp_sock *tp = tcp_sk(sk);\n\tstruct ubuf_info *uarg = NULL;\n\tstruct sk_buff *skb;\n\tstruct sockcm_cookie sockc;\n\tint flags, err, copied = 0;\n\tint mss_now = 0, size_goal, copied_syn = 0;\n\tint process_backlog = 0;\n\tint zc = 0;\n\tlong timeo;\n\n\tflags = msg->msg_flags;\n\n\tif ((flags & MSG_ZEROCOPY) && size) {\n\t\tif (msg->msg_ubuf) {\n\t\t\tuarg = msg->msg_ubuf;\n\t\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\t\tzc = MSG_ZEROCOPY;\n\t\t} else if (sock_flag(sk, SOCK_ZEROCOPY)) {\n\t\t\tskb = tcp_write_queue_tail(sk);\n\t\t\tuarg = msg_zerocopy_realloc(sk, size, skb_zcopy(skb));\n\t\t\tif (!uarg) {\n\t\t\t\terr = -ENOBUFS;\n\t\t\t\tgoto out_err;\n\t\t\t}\n\t\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\t\tzc = MSG_ZEROCOPY;\n\t\t\telse\n\t\t\t\tuarg_to_msgzc(uarg)->zerocopy = 0;\n\t\t}\n\t} else if (unlikely(msg->msg_flags & MSG_SPLICE_PAGES) && size) {\n\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\tzc = MSG_SPLICE_PAGES;\n\t}\n\n\tif (unlikely(flags & MSG_FASTOPEN ||\n\t\t     inet_test_bit(DEFER_CONNECT, sk)) &&\n\t    !tp->repair) {\n\t\terr = tcp_sendmsg_fastopen(sk, msg, &copied_syn, size, uarg);\n\t\tif (err == -EINPROGRESS && copied_syn > 0)\n\t\t\tgoto out;\n\t\telse if (err)\n\t\t\tgoto out_err;\n\t}\n\n\ttimeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);\n\n\ttcp_rate_check_app_limited(sk);  /* is sending application-limited? */\n\n\t/* Wait for a connection to finish. One exception is TCP Fast Open\n\t * (passive side) where data is allowed to be sent before a connection\n\t * is fully established.\n\t */\n\tif (((1 << sk->sk_state) & ~(TCPF_ESTABLISHED | TCPF_CLOSE_WAIT)) &&\n\t    !tcp_passive_fastopen(sk)) {\n\t\terr = sk_stream_wait_connect(sk, &timeo);\n\t\tif (err != 0)\n\t\t\tgoto do_error;\n\t}\n\n\tif (unlikely(tp->repair)) {\n\t\tif (tp->repair_queue == TCP_RECV_QUEUE) {\n\t\t\tcopied = tcp_send_rcvq(sk, msg, size);\n\t\t\tgoto out_nopush;\n\t\t}\n\n\t\terr = -EINVAL;\n\t\tif (tp->repair_queue == TCP_NO_QUEUE)\n\t\t\tgoto out_err;\n\n\t\t/* 'common' sending to sendq */\n\t}\n\n\tsockcm_init(&sockc, sk);\n\tif (msg->msg_controllen) {\n\t\terr = sock_cmsg_send(sk, msg, &sockc);\n\t\tif (unlikely(err)) {\n\t\t\terr = -EINVAL;\n\t\t\tgoto out_err;\n\t\t}\n\t}\n\n\t/* This should be in poll */\n\tsk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);\n\n\t/* Ok commence sending. */\n\tcopied = 0;\n\nrestart:\n\tmss_now = tcp_send_mss(sk, &size_goal, flags);\n\n\terr = -EPIPE;\n\tif (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))\n\t\tgoto do_error;\n\n\twhile (msg_data_left(msg)) {\n\t\tssize_t copy = 0;\n\n\t\tskb = tcp_write_queue_tail(sk);\n\t\tif (skb)\n\t\t\tcopy = size_goal - skb->len;\n\n\t\tif (copy <= 0 || !tcp_skb_can_collapse_to(skb)) {\n\t\t\tbool first_skb;\n\nnew_segment:\n\t\t\tif (!sk_stream_memory_free(sk))\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tif (unlikely(process_backlog >= 16)) {\n\t\t\t\tprocess_backlog = 0;\n\t\t\t\tif (sk_flush_backlog(sk))\n\t\t\t\t\tgoto restart;\n\t\t\t}\n\t\t\tfirst_skb = tcp_rtx_and_write_queues_empty(sk);\n\t\t\tskb = tcp_stream_alloc_skb(sk, sk->sk_allocation,\n\t\t\t\t\t\t   first_skb);\n\t\t\tif (!skb)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tprocess_backlog++;\n\n#ifdef CONFIG_SKB_DECRYPTED\n\t\t\tskb->decrypted = !!(flags & MSG_SENDPAGE_DECRYPTED);\n#endif\n\t\t\ttcp_skb_entail(sk, skb);\n\t\t\tcopy = size_goal;\n\n\t\t\t/* All packets are restored as if they have\n\t\t\t * already been sent. skb_mstamp_ns isn't set to\n\t\t\t * avoid wrong rtt estimation.\n\t\t\t */\n\t\t\tif (tp->repair)\n\t\t\t\tTCP_SKB_CB(skb)->sacked |= TCPCB_REPAIRED;\n\t\t}\n\n\t\t/* Try to append data to the end of skb. */\n\t\tif (copy > msg_data_left(msg))\n\t\t\tcopy = msg_data_left(msg);\n\n\t\tif (zc == 0) {\n\t\t\tbool merge = true;\n\t\t\tint i = skb_shinfo(skb)->nr_frags;\n\t\t\tstruct page_frag *pfrag = sk_page_frag(sk);\n\n\t\t\tif (!sk_page_frag_refill(sk, pfrag))\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tif (!skb_can_coalesce(skb, i, pfrag->page,\n\t\t\t\t\t      pfrag->offset)) {\n\t\t\t\tif (i >= READ_ONCE(sysctl_max_skb_frags)) {\n\t\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\t\tgoto new_segment;\n\t\t\t\t}\n\t\t\t\tmerge = false;\n\t\t\t}\n\n\t\t\tcopy = min_t(int, copy, pfrag->size - pfrag->offset);\n\n\t\t\tif (unlikely(skb_zcopy_pure(skb) || skb_zcopy_managed(skb))) {\n\t\t\t\tif (tcp_downgrade_zcopy_pure(sk, skb))\n\t\t\t\t\tgoto wait_for_space;\n\t\t\t\tskb_zcopy_downgrade_managed(skb);\n\t\t\t}\n\n\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\tif (!copy)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\terr = skb_copy_to_page_nocache(sk, &msg->msg_iter, skb,\n\t\t\t\t\t\t       pfrag->page,\n\t\t\t\t\t\t       pfrag->offset,\n\t\t\t\t\t\t       copy);\n\t\t\tif (err)\n\t\t\t\tgoto do_error;\n\n\t\t\t/* Update the skb. */\n\t\t\tif (merge) {\n\t\t\t\tskb_frag_size_add(&skb_shinfo(skb)->frags[i - 1], copy);\n\t\t\t} else {\n\t\t\t\tskb_fill_page_desc(skb, i, pfrag->page,\n\t\t\t\t\t\t   pfrag->offset, copy);\n\t\t\t\tpage_ref_inc(pfrag->page);\n\t\t\t}\n\t\t\tpfrag->offset += copy;\n\t\t} else if (zc == MSG_ZEROCOPY)  {\n\t\t\t/* First append to a fragless skb builds initial\n\t\t\t * pure zerocopy skb\n\t\t\t */\n\t\t\tif (!skb->len)\n\t\t\t\tskb_shinfo(skb)->flags |= SKBFL_PURE_ZEROCOPY;\n\n\t\t\tif (!skb_zcopy_pure(skb)) {\n\t\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\t\tif (!copy)\n\t\t\t\t\tgoto wait_for_space;\n\t\t\t}\n\n\t\t\terr = skb_zerocopy_iter_stream(sk, skb, msg, copy, uarg);\n\t\t\tif (err == -EMSGSIZE || err == -EEXIST) {\n\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\tgoto new_segment;\n\t\t\t}\n\t\t\tif (err < 0)\n\t\t\t\tgoto do_error;\n\t\t\tcopy = err;\n\t\t} else if (zc == MSG_SPLICE_PAGES) {\n\t\t\t/* Splice in data if we can; copy if we can't. */\n\t\t\tif (tcp_downgrade_zcopy_pure(sk, skb))\n\t\t\t\tgoto wait_for_space;\n\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\tif (!copy)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\terr = skb_splice_from_iter(skb, &msg->msg_iter, copy,\n\t\t\t\t\t\t   sk->sk_allocation);\n\t\t\tif (err < 0) {\n\t\t\t\tif (err == -EMSGSIZE) {\n\t\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\t\tgoto new_segment;\n\t\t\t\t}\n\t\t\t\tgoto do_error;\n\t\t\t}\n\t\t\tcopy = err;\n\n\t\t\tif (!(flags & MSG_NO_SHARED_FRAGS))\n\t\t\t\tskb_shinfo(skb)->flags |= SKBFL_SHARED_FRAG;\n\n\t\t\tsk_wmem_queued_add(sk, copy);\n\t\t\tsk_mem_charge(sk, copy);\n\t\t}\n\n\t\tif (!copied)\n\t\t\tTCP_SKB_CB(skb)->tcp_flags &= ~TCPHDR_PSH;\n\n\t\tWRITE_ONCE(tp->write_seq, tp->write_seq + copy);\n\t\tTCP_SKB_CB(skb)->end_seq += copy;\n\t\ttcp_skb_pcount_set(skb, 0);\n\n\t\tcopied += copy;\n\t\tif (!msg_data_left(msg)) {\n\t\t\tif (unlikely(flags & MSG_EOR))\n\t\t\t\tTCP_SKB_CB(skb)->eor = 1;\n\t\t\tgoto out;\n\t\t}\n\n\t\tif (skb->len < size_goal || (flags & MSG_OOB) || unlikely(tp->repair))\n\t\t\tcontinue;\n\n\t\tif (forced_push(tp)) {\n\t\t\ttcp_mark_push(tp, skb);\n\t\t\t__tcp_push_pending_frames(sk, mss_now, TCP_NAGLE_PUSH);\n\t\t} else if (skb == tcp_send_head(sk))\n\t\t\ttcp_push_one(sk, mss_now);\n\t\tcontinue;\n\nwait_for_space:\n\t\tset_bit(SOCK_NOSPACE, &sk->sk_socket->flags);\n\t\ttcp_remove_empty_skb(sk);\n\t\tif (copied)\n\t\t\ttcp_push(sk, flags & ~MSG_MORE, mss_now,\n\t\t\t\t TCP_NAGLE_PUSH, size_goal);\n\n\t\terr = sk_stream_wait_memory(sk, &timeo);\n\t\tif (err != 0)\n\t\t\tgoto do_error;\n\n\t\tmss_now = tcp_send_mss(sk, &size_goal, flags);\n\t}\n\nout:\n\tif (copied) {\n\t\ttcp_tx_timestamp(sk, sockc.tsflags);\n\t\ttcp_push(sk, flags, mss_now, tp->nonagle, size_goal);\n\t}\nout_nopush:\n\t/* msg->msg_ubuf is pinned by the caller so we don't take extra refs */\n\tif (uarg && !msg->msg_ubuf)\n\t\tnet_zcopy_put(uarg);\n\treturn copied + copied_syn;\n\ndo_error:\n\ttcp_remove_empty_skb(sk);\n\n\tif (copied + copied_syn)\n\t\tgoto out;\nout_err:\n\t/* msg->msg_ubuf is pinned by the caller so we don't take extra refs */\n\tif (uarg && !msg->msg_ubuf)\n\t\tnet_zcopy_put_abort(uarg, true);\n\terr = sk_stream_error(sk, flags, err);\n\t/* make sure we wake any epoll edge trigger waiter */\n\tif (unlikely(tcp_rtx_and_write_queues_empty(sk) && err == -EAGAIN)) {\n\t\tsk->sk_write_space(sk);\n\t\ttcp_chrono_stop(sk, TCP_CHRONO_SNDBUF_LIMITED);\n\t}\n\treturn err;\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)\n{\n\tstruct tcp_sock *tp = tcp_sk(sk);\n\tstruct ubuf_info *uarg = NULL;\n\tstruct sk_buff *skb;\n\tstruct sockcm_cookie sockc;\n\tint flags, err, copied = 0;\n\tint mss_now = 0, size_goal, copied_syn = 0;\n\tint process_backlog = 0;\n\tint zc = 0;\n\tlong timeo;\n\n\tflags = msg->msg_flags;\n\n\tif ((flags & MSG_ZEROCOPY) && size) {\n\t\tif (msg->msg_ubuf) {\n\t\t\tuarg = msg->msg_ubuf;\n\t\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\t\tzc = MSG_ZEROCOPY;\n\t\t} else if (sock_flag(sk, SOCK_ZEROCOPY)) {\n\t\t\tskb = tcp_write_queue_tail(sk);\n\t\t\tuarg = msg_zerocopy_realloc(sk, size, skb_zcopy(skb));\n\t\t\tif (!uarg) {\n\t\t\t\terr = -ENOBUFS;\n\t\t\t\tgoto out_err;\n\t\t\t}\n\t\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\t\tzc = MSG_ZEROCOPY;\n\t\t\telse\n\t\t\t\tuarg_to_msgzc(uarg)->zerocopy = 0;\n\t\t}\n\t} else if (unlikely(msg->msg_flags & MSG_SPLICE_PAGES) && size) {\n\t\tif (sk->sk_route_caps & NETIF_F_SG)\n\t\t\tzc = MSG_SPLICE_PAGES;\n\t}\n\n\tif (unlikely(flags & MSG_FASTOPEN ||\n\t\t     inet_test_bit(DEFER_CONNECT, sk)) &&\n\t    !tp->repair) {\n\t\terr = tcp_sendmsg_fastopen(sk, msg, &copied_syn, size, uarg);\n\t\tif (err == -EINPROGRESS && copied_syn > 0)\n\t\t\tgoto out;\n\t\telse if (err)\n\t\t\tgoto out_err;\n\t}\n\n\ttimeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);\n\n\ttcp_rate_check_app_limited(sk);  /* is sending application-limited? */\n\n\t/* Wait for a connection to finish. One exception is TCP Fast Open\n\t * (passive side) where data is allowed to be sent before a connection\n\t * is fully established.\n\t */\n\tif (((1 << sk->sk_state) & ~(TCPF_ESTABLISHED | TCPF_CLOSE_WAIT)) &&\n\t    !tcp_passive_fastopen(sk)) {\n\t\terr = sk_stream_wait_connect(sk, &timeo);\n\t\tif (err != 0)\n\t\t\tgoto do_error;\n\t}\n\n\tif (unlikely(tp->repair)) {\n\t\tif (tp->repair_queue == TCP_RECV_QUEUE) {\n\t\t\tcopied = tcp_send_rcvq(sk, msg, size);\n\t\t\tgoto out_nopush;\n\t\t}\n\n\t\terr = -EINVAL;\n\t\tif (tp->repair_queue == TCP_NO_QUEUE)\n\t\t\tgoto out_err;\n\n\t\t/* 'common' sending to sendq */\n\t}\n\n\tsockcm_init(&sockc, sk);\n\tif (msg->msg_controllen) {\n\t\terr = sock_cmsg_send(sk, msg, &sockc);\n\t\tif (unlikely(err)) {\n\t\t\terr = -EINVAL;\n\t\t\tgoto out_err;\n\t\t}\n\t}\n\n\t/* This should be in poll */\n\tsk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);\n\n\t/* Ok commence sending. */\n\tcopied = 0;\n\nrestart:\n\tmss_now = tcp_send_mss(sk, &size_goal, flags);\n\n\terr = -EPIPE;\n\tif (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))\n\t\tgoto do_error;\n\n\twhile (msg_data_left(msg)) {\n\t\tssize_t copy = 0;\n\n\t\tskb = tcp_write_queue_tail(sk);\n\t\tif (skb)\n\t\t\tcopy = size_goal - skb->len;\n\n\t\tif (copy <= 0 || !tcp_skb_can_collapse_to(skb)) {\n\t\t\tbool first_skb;\n\nnew_segment:\n\t\t\tif (!sk_stream_memory_free(sk))\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tif (unlikely(process_backlog >= 16)) {\n\t\t\t\tprocess_backlog = 0;\n\t\t\t\tif (sk_flush_backlog(sk))\n\t\t\t\t\tgoto restart;\n\t\t\t}\n\t\t\tfirst_skb = tcp_rtx_and_write_queues_empty(sk);\n\t\t\tskb = tcp_stream_alloc_skb(sk, sk->sk_allocation,\n\t\t\t\t\t\t   first_skb);\n\t\t\tif (!skb)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tprocess_backlog++;\n\n#ifdef CONFIG_SKB_DECRYPTED\n\t\t\tskb->decrypted = !!(flags & MSG_SENDPAGE_DECRYPTED);\n#endif\n\t\t\ttcp_skb_entail(sk, skb);\n\t\t\tcopy = size_goal;\n\n\t\t\t/* All packets are restored as if they have\n\t\t\t * already been sent. skb_mstamp_ns isn't set to\n\t\t\t * avoid wrong rtt estimation.\n\t\t\t */\n\t\t\tif (tp->repair)\n\t\t\t\tTCP_SKB_CB(skb)->sacked |= TCPCB_REPAIRED;\n\t\t}\n\n\t\t/* Try to append data to the end of skb. */\n\t\tif (copy > msg_data_left(msg))\n\t\t\tcopy = msg_data_left(msg);\n\n\t\tif (zc == 0) {\n\t\t\tbool merge = true;\n\t\t\tint i = skb_shinfo(skb)->nr_frags;\n\t\t\tstruct page_frag *pfrag = sk_page_frag(sk);\n\n\t\t\tif (!sk_page_frag_refill(sk, pfrag))\n\t\t\t\tgoto wait_for_space;\n\n\t\t\tif (!skb_can_coalesce(skb, i, pfrag->page,\n\t\t\t\t\t      pfrag->offset)) {\n\t\t\t\tif (i >= READ_ONCE(sysctl_max_skb_frags)) {\n\t\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\t\tgoto new_segment;\n\t\t\t\t}\n\t\t\t\tmerge = false;\n\t\t\t}\n\n\t\t\tcopy = min_t(int, copy, pfrag->size - pfrag->offset);\n\n\t\t\tif (unlikely(skb_zcopy_pure(skb) || skb_zcopy_managed(skb))) {\n\t\t\t\tif (tcp_downgrade_zcopy_pure(sk, skb))\n\t\t\t\t\tgoto wait_for_space;\n\t\t\t\tskb_zcopy_downgrade_managed(skb);\n\t\t\t}\n\n\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\tif (!copy)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\terr = skb_copy_to_page_nocache(sk, &msg->msg_iter, skb,\n\t\t\t\t\t\t       pfrag->page,\n\t\t\t\t\t\t       pfrag->offset,\n\t\t\t\t\t\t       copy);\n\t\t\tif (err)\n\t\t\t\tgoto do_error;\n\n\t\t\t/* Update the skb. */\n\t\t\tif (merge) {\n\t\t\t\tskb_frag_size_add(&skb_shinfo(skb)->frags[i - 1], copy);\n\t\t\t} else {\n\t\t\t\tskb_fill_page_desc(skb, i, pfrag->page,\n\t\t\t\t\t\t   pfrag->offset, copy);\n\t\t\t\tpage_ref_inc(pfrag->page);\n\t\t\t}\n\t\t\tpfrag->offset += copy;\n\t\t} else if (zc == MSG_ZEROCOPY)  {\n\t\t\t/* First append to a fragless skb builds initial\n\t\t\t * pure zerocopy skb\n\t\t\t */\n\t\t\tif (!skb->len)\n\t\t\t\tskb_shinfo(skb)->flags |= SKBFL_PURE_ZEROCOPY;\n\n\t\t\tif (!skb_zcopy_pure(skb)) {\n\t\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\t\tif (!copy)\n\t\t\t\t\tgoto wait_for_space;\n\t\t\t}\n\n\t\t\terr = skb_zerocopy_iter_stream(sk, skb, msg, copy, uarg);\n\t\t\tif (err == -EMSGSIZE || err == -EEXIST) {\n\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\tgoto new_segment;\n\t\t\t}\n\t\t\tif (err < 0)\n\t\t\t\tgoto do_error;\n\t\t\tcopy = err;\n\t\t} else if (zc == MSG_SPLICE_PAGES) {\n\t\t\t/* Splice in data if we can; copy if we can't. */\n\t\t\tif (tcp_downgrade_zcopy_pure(sk, skb))\n\t\t\t\tgoto wait_for_space;\n\t\t\tcopy = tcp_wmem_schedule(sk, copy);\n\t\t\tif (!copy)\n\t\t\t\tgoto wait_for_space;\n\n\t\t\terr = skb_splice_from_iter(skb, &msg->msg_iter, copy,\n\t\t\t\t\t\t   sk->sk_allocation);\n\t\t\tif (err < 0) {\n\t\t\t\tif (err == -EMSGSIZE) {\n\t\t\t\t\ttcp_mark_push(tp, skb);\n\t\t\t\t\tgoto new_segment;\n\t\t\t\t}\n\t\t\t\tgoto do_error;\n\t\t\t}\n\t\t\tcopy = err;\n\n\t\t\tif (!(flags & MSG_NO_SHARED_FRAGS))\n\t\t\t\tskb_shinfo(skb)->flags |= SKBFL_SHARED_FRAG;\n\n\t\t\tsk_wmem_queued_add(sk, copy);\n\t\t\tsk_mem_charge(sk, copy);\n\t\t}\n\n\t\tif (!copied)\n\t\t\tTCP_SKB_CB(skb)->tcp_flags &= ~TCPHDR_PSH;\n\n\t\tWRITE_ONCE(tp->write_seq, tp->write_seq + copy);\n\t\tTCP_SKB_CB(skb)->end_seq += copy;\n\t\ttcp_skb_pcount_set(skb, 0);\n\n\t\tcopied += copy;\n\t\tif (!msg_data_left(msg)) {\n\t\t\tif (unlikely(flags & MSG_EOR))\n\t\t\t\tTCP_SKB_CB(skb)->eor = 1;\n\t\t\tgoto out;\n\t\t}\n\n\t\tif (skb->len < size_goal || (flags & MSG_OOB) || unlikely(tp->repair))\n\t\t\tcontinue;\n\n\t\tif (forced_push(tp)) {\n\t\t\ttcp_mark_push(tp, skb);\n\t\t\t__tcp_push_pending_frames(sk, mss_now, TCP_NAGLE_PUSH);\n\t\t} else if (skb == tcp_send_head(sk))\n\t\t\ttcp_push_one(sk, mss_now);\n\t\tcontinue;\n\nwait_for_space:\n\t\tset_bit(SOCK_NOSPACE, &sk->sk_socket->flags);\n\t\ttcp_remove_empty_skb(sk);\n\t\tif (copied)\n\t\t\ttcp_push(sk, flags & ~MSG_MORE, mss_now,\n\t\t\t\t TCP_NAGLE_PUSH, size_goal);\n\n\t\terr = sk_stream_wait_memory(sk, &timeo);\n\t\tif (err != 0)\n\t\t\tgoto do_error;\n\n\t\tmss_now = tcp_send_mss(sk, &size_goal, flags);\n\t}\n\nout:\n\tif (copied) {\n\t\ttcp_tx_timestamp(sk, sockc.tsflags);\n\t\ttcp_push(sk, flags, mss_now, tp->nonagle, size_goal);\n\t}\nout_nopush:\n\t/* msg->msg_ubuf is pinned by the caller so we don't take extra refs */\n\tif (uarg && !msg->msg_ubuf)\n\t\tnet_zcopy_put(uarg);\n\treturn copied + copied_syn;\n\ndo_error:\n\ttcp_remove_empty_skb(sk);\n\n\tif (copied + copied_syn)\n\t\tgoto out;\nout_err:\n\t/* msg->msg_ubuf is pinned by the caller so we don't take extra refs */\n\tif (uarg && !msg->msg_ubuf)\n\t\tnet_zcopy_put_abort(uarg, true);\n\terr = sk_stream_error(sk, flags, err);\n\t/* make sure we wake any epoll edge trigger waiter */\n\tif (unlikely(tcp_rtx_and_write_queues_empty(sk) && err == -EAGAIN)) {\n\t\tsk->sk_write_space(sk);\n\t\ttcp_chrono_stop(sk, TCP_CHRONO_SNDBUF_LIMITED);\n\t}\n\treturn err;\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nskb=Int('skb')\ns.add(skb == 0)\n```",
+      "response_filter_goto: ```json\n[\"!(!skb)\"]\n```",
+      "z3 script: ```python\n# Z3 script generated from C constraints\n# Constraint: !(!skb)\n#\n# In C, `skb` is a pointer. The expression `!skb` is true when skb is NULL\n# (i.e., skb == 0). The outer `!` negates that, so `!(!skb)` is true when\n# skb is NOT NULL (i.e., skb != 0).\n#\n# We model the pointer as an integer (0 = NULL, nonzero = valid pointer),\n# which is the standard way to encode C pointer null-checks in Z3.\n\nfrom z3 import *\n\n# Declare skb as an integer representing a pointer value (0 == NULL)\nskb = Int('skb')\n\n# Solver instance\ns = Solver()\n\n# Constraint: !(!skb)  ==>  skb != 0\n# Included because it directly constrains the variable `skb`.\ns.add(skb != 0)\n\n# Check satisfiability and print a model\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```",
+      "final z3 script: def check_constraints():\n    from z3 import Int, Solver, sat\n    skb = Int('skb')\n    s = Solver()\n    s.add(skb == 0)\n    s.add(skb != 0)\n    return s.check() == sat"
+    ],
+    "function_name_list": [],
+    "function_body_list": [],
+    "z3_script": "def check_constraints():\n    from z3 import Int, Solver, sat\n    skb = Int('skb')\n    s = Solver()\n    s.add(skb == 0)\n    s.add(skb != 0)\n    return s.check() == sat",
+    "result": false
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    skb = Int('skb')\n    s = Solver()\n    s.add(skb == 0)\n    s.add(skb != 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": false,
+      "queries": [
+        {
+          "result": "unsat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun skb () Int)\n(assert\n (= skb 0))\n(assert\n (and (distinct skb 0) true))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": [
+    {
+      "code": "unresolved_prior_audit:关键条件提取错误",
+      "evidence_ref": "audit/failure_audit_20261029/samples/A02/audit.md"
+    }
+  ]
+}

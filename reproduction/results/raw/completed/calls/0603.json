@@ -1,0 +1,45 @@
+{
+  "call_id": 603,
+  "sample_id": "NPD/codeql/libav:row=52:index=85",
+  "timestamp": "2026-10-26T00:55:49.084372+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a Z3 constraint solver expert, merge the following constraint sets into a single function.\n\n        Input:\n        1. Base Z3 script: ```python\nvst=Int('vst')\ns.add(vst == 0)\n```\n        2. Constraint set 1: \n        3. Constraint set 2: ```python\nfrom z3 import *\n\n# Declare variables appearing in the constraints.\n# - version: integer (compared to 2)\n# - avio_rb16(pb): modeled as an integer (return value of the function call)\n# - mv->nb_video_tracks: integer (compared to 0 and 1)\n# - vst: pointer-like boolean (used with !vst, i.e., vst == 0 / NULL)\nversion = Int('version')\navio_rb16_pb = Int('avio_rb16_pb')\nnb_video_tracks = Int('nb_video_tracks')\nvst = Bool('vst')\n\ns = Solver()\n\n# Constraint 1: !(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks) || !(!vst)\n#   C: !(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks) || !(!vst)\n#   - !version  -> version == 0\n#   - !(mv->nb_video_tracks) -> nb_video_tracks == 0\n#   - !(!vst)   -> vst (i.e., vst != 0)\ns.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),\n         nb_video_tracks == 0,\n         vst))\n\n# Constraint 2: !(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks > 1)\n#   - !(mv->nb_video_tracks > 1) -> nb_video_tracks <= 1\ns.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),\n         nb_video_tracks <= 1))\n\n# Constraint 3: !(version == 2) || !(!vst)\n#   - !(version == 2) -> version != 2\n#   - !(!vst)         -> vst\ns.add(Or(version != 2, vst))\n\nprint(s)\n```\n\n        Requirements:\n        1. Merge all constraints into a check_constraints() function\n        2. Retain ALL original constraints from the base script\n        3. Add any missing variable definitions from constraint sets\n        4. Function must return boolean (True if constraints are satisfied)\n        5. Return ONLY the function code without imports\n        6. Ensure code is directly executable\n\n        Function signature:\n        def check_constraints():\n            # Your merged constraints here\n            return result  # boolean\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "be9c8363-b3e2-4cf2-b878-bd6cb9ae00f1",
+  "usage": {
+    "prompt_tokens": 656,
+    "completion_tokens": 241,
+    "total_tokens": 897,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 656
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\ndef check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, And, sat\n\n    # Base script variables and constraints\n    vst_int = Int('vst')\n    s = Solver()\n    s.add(vst_int == 0)\n\n    # Variables from constraint set 2\n    version = Int('version')\n    avio_rb16_pb = Int('avio_rb16_pb')\n    nb_video_tracks = Int('nb_video_tracks')\n    vst = Bool('vst')\n\n    # Constraint 1\n    s.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),\n             nb_video_tracks == 0,\n             vst))\n\n    # Constraint 2\n    s.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),\n             nb_video_tracks <= 1))\n\n    # Constraint 3\n    s.add(Or(version != 2, vst))\n\n    return s.check() == sat\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.176940000000286,
+  "cost_upper_bound_cny": 0.00324
+}

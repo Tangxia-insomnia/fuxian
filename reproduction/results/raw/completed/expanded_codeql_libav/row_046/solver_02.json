@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, And, Or, Not, sat\n\n    times = Int('times')\n    str_val = Int('str_val')\n    KEYFRAMES_TIMESTAMP_TAG = Int('KEYFRAMES_TIMESTAMP_TAG')\n    avio_tell_lt = Int('avio_tell_lt')\n    amf_get_string_gt0 = Int('amf_get_string_gt0')\n\n    s = Solver()\n\n    # Base constraint\n    s.add(times == 0)\n\n    # Constraint set 2 clauses\n    clause1 = Not(And(avio_tell_lt == 1, amf_get_string_gt0 == 1))\n    clause2 = Not(And(str_val == KEYFRAMES_TIMESTAMP_TAG, times == 0))\n    clause3 = Not(times == 0)\n    constraint = Or(clause1, clause2, clause3)\n    s.add(constraint)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun times () Int)\n(declare-fun KEYFRAMES_TIMESTAMP_TAG () Int)\n(declare-fun str_val () Int)\n(declare-fun amf_get_string_gt0 () Int)\n(declare-fun avio_tell_lt () Int)\n(assert\n (= times 0))\n(assert\n (let (($x11 (= times 0)))\n(let (($x37 (not $x11)))\n(let (($x36 (not (and (= str_val KEYFRAMES_TIMESTAMP_TAG) $x11))))\n(let (($x33 (not (and (= avio_tell_lt 1) (= amf_get_string_gt0 1)))))\n(or $x33 $x36 $x37))))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

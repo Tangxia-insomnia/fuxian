@@ -1,0 +1,35 @@
+```python
+window=Int('window')
+s.add(window == 0)
+```
+```json
+["!(window ==0)"]
+```
+```python
+from z3 import *
+
+# Declare variable 'window' as an integer (C-style variable)
+window = Int('window')
+
+# Constraint: !(window == 0)
+# In C, this is equivalent to (window != 0).
+# Included because it directly constrains the variable 'window'.
+s = Solver()
+s.add(Not(window == 0))  # equivalently: window != 0
+
+# Check satisfiability and print a model
+if s.check() == sat:
+    print(s.model())
+else:
+    print("unsat")
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat, Not
+    window = Int('window')
+    s = Solver()
+    s.add(window == 0)
+    s.add(Not(window == 0))
+    return s.check() == sat
+```
+goto result: False

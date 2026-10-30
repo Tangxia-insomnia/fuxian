@@ -1,0 +1,56 @@
+```python
+host=Int('host')
+s.add(host == 0)
+```
+```json
+["!(host == NULL)", "!(BIO_parse_hostserv(opt_arg(), &host, &port, BIO_PARSE_PRIO_SERV) < 1)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# 'host' is a pointer in C; model it as an integer address (0 == NULL)
+host = Int('host')
+
+# Constraint 1: !(host == NULL)
+# In C, this asserts that the pointer 'host' is not NULL.
+# Modeled as host != 0.
+constraint_1 = (host != 0)
+
+# Constraint 2: !(BIO_parse_hostserv(...) < 1)
+# BIO_parse_hostserv returns an int; the C code requires the return value >= 1.
+# Since the function call is opaque to Z3, we model its return value as an
+# uninterpreted integer 'BIO_parse_hostserv_ret' and assert it is >= 1.
+BIO_parse_hostserv_ret = Int('BIO_parse_hostserv_ret')
+constraint_2 = (BIO_parse_hostserv_ret >= 1)
+
+# Solver setup
+s = Solver()
+s.add(constraint_1)
+s.add(constraint_2)
+
+# Check satisfiability
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+
+    # Base script constraints
+    host = Int('host')
+
+    # Constraint set 2 variables and constraints
+    BIO_parse_hostserv_ret = Int('BIO_parse_hostserv_ret')
+
+    s = Solver()
+    # Base script constraint
+    s.add(host == 0)
+    # Constraint set 2 constraints
+    s.add(host != 0)
+    s.add(BIO_parse_hostserv_ret >= 1)
+
+    return s.check() == sat
+```
+goto result: False

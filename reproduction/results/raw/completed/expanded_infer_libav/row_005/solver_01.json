@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Array, IntSort, Bool, Solver, Or, ForAll, Implies, And, Select, Not, sat\n\n    # Base script variables and constraints\n    sub_rects = Int('sub_rects')\n\n    # Constraint set 2 variables\n    sub_num_rects = Int('sub_num_rects')\n    sub_rects_arr = Array('sub_rects_arr', IntSort(), IntSort())\n    sub_rects_is_null = Bool('sub_rects_is_null')\n    i = Int('i')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(sub_rects == 0)\n\n    # Constraint set 2 - Constraint 1\n    constraint1 = Or(\n        sub_num_rects <= 0,\n        ForAll(i, Implies(And(i >= 0, i < sub_num_rects), Select(sub_rects_arr, i) != 0))\n    )\n    s.add(constraint1)\n\n    # Constraint set 2 - Constraint 2\n    constraint2 = Or(sub_num_rects <= 0, Not(sub_rects_is_null))\n    s.add(constraint2)\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: NameError: name 'ForAll' is not defined"
+}

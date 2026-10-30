@@ -1,0 +1,13 @@
+{
+  "response": [
+    "step 1 z3 script: ```python\ndp=Int('dp')\ns.add(dp == 0)\n```",
+    "step 1 z3 script: ```python\ndp=Int('dp')\ns.add(dp == 0)\n```"
+  ],
+  "function_name_list": [
+    "get_dp_url"
+  ],
+  "function_body_list": [
+    "static const char *get_dp_url(DIST_POINT *dp)\n{\n    GENERAL_NAMES *gens;\n    GENERAL_NAME *gen;\n    int i, gtype;\n    ASN1_STRING *uri;\n\n    if (!dp->distpoint || dp->distpoint->type != 0)\n        return NULL;\n    gens = dp->distpoint->name.fullname;\n    for (i = 0; i < sk_GENERAL_NAME_num(gens); i++) {\n        gen = sk_GENERAL_NAME_value(gens, i);\n        uri = GENERAL_NAME_get0_value(gen, &gtype);\n        if (gtype == GEN_URI && ASN1_STRING_length(uri) > 6) {\n            const char *uptr = (const char *)ASN1_STRING_get0_data(uri);\n\n            if (IS_HTTP(uptr)) /* can/should not use HTTPS here */\n                return uptr;\n        }\n    }\n    return NULL;\n}"
+  ],
+  "result": true
+}

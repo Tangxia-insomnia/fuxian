@@ -1,0 +1,38 @@
+```python
+mpic=Int('mpic')
+s.add(mpic == 0)
+```
+```json
+["!(mpic ==0)"]
+```
+```python
+# Z3 script generated from C constraints
+# Relevant variable: mpic
+
+from z3 import *
+
+# Declare mpic as an integer (C variable of unknown type; adjust if needed)
+mpic = Int('mpic')
+
+# Constraint: !(mpic == 0)
+# In C, this is equivalent to mpic != 0.
+# Included because it directly constrains the variable mpic.
+s = Solver()
+s.add(mpic != 0)
+
+# Check satisfiability and print a model
+if s.check() == sat:
+    print(s.model())
+else:
+    print("unsat")
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    mpic = Int('mpic')
+    s = Solver()
+    s.add(mpic == 0)
+    s.add(mpic != 0)
+    return s.check() == sat
+```
+goto result: False

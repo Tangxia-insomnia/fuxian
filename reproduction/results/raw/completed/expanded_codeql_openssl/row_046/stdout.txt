@@ -1,0 +1,158 @@
+```python
+port=Int('port')
+s.add(port == 0)
+```
+```json
+["!(BIO_parse_hostserv(opt_arg(), NULL, &port, BIO_PARSE_PRIO_SERV) < 1)", "!(BIO_parse_hostserv(opt_arg(), &host, &port, BIO_PARSE_PRIO_SERV) < 1)", "!(port == NULL || cctx == NULL || vpm == NULL)"]
+```
+```python
+from z3 import *
+
+# Declare variables referenced in the constraints.
+# - port: pointer (modeled as an integer address; 0 means NULL)
+# - host: pointer (modeled as an integer address; 0 means NULL)
+# - cctx: pointer (modeled as an integer address; 0 means NULL)
+# - vpm:  pointer (modeled as an integer address; 0 means NULL)
+# - opt_arg(): modeled as an uninterpreted function returning a pointer (Int)
+# - BIO_parse_hostserv(...): modeled as an uninterpreted function returning Int
+port = Int('port')
+host = Int('host')
+cctx = Int('cctx')
+vpm  = Int('vpm')
+
+opt_arg = Function('opt_arg', IntSort())
+BIO_parse_hostserv = Function('BIO_parse_hostserv', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())
+
+s = Solver()
+
+# Constraint 1: !(BIO_parse_hostserv(opt_arg(), NULL, &port, BIO_PARSE_PRIO_SERV) < 1)
+# Included because it constrains the value of `port` (via &port) and the
+# return value of BIO_parse_hostserv. In C, `!(x < 1)` is equivalent to `x >= 1`.
+# NULL is modeled as 0. BIO_PARSE_PRIO_SERV is an opaque constant; we model it
+# as an uninterpreted integer constant.
+BIO_PARSE_PRIO_SERV = Int('BIO_PARSE_PRIO_SERV')
+s.add(Not(BIO_parse_hostserv(opt_arg(0), 0, port, BIO_PARSE_PRIO_SERV) < 1))
+
+# Constraint 2: !(BIO_parse_hostserv(opt_arg(), &host, &port, BIO_PARSE_PRIO_SERV) < 1)
+# Included because it constrains `port` (via &port) and `host` (via &host).
+# Equivalent to BIO_parse_hostserv(...) >= 1.
+s.add(Not(BIO_parse_hostserv(opt_arg(0), host, port, BIO_PARSE_PRIO_SERV) < 1))
+
+# Constraint 3: !(port == NULL || cctx == NULL || vpm == NULL)
+# Included because it directly constrains `port` (and also cctx, vpm).
+# In C, `!(a || b || c)` is equivalent to `!a && !b && !c`, i.e. all non-NULL.
+# NULL is modeled as 0.
+s.add(Not(Or(port == 0, cctx == 0, vpm == 0)))
+
+# Print the solver state (sanity check / executable output)
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, IntSort, Function, Solver, Not, Or
+
+    port = Int('port')
+    host = Int('host')
+    cctx = Int('cctx')
+    vpm  = Int('vpm')
+
+    opt_arg = Function('opt_arg', IntSort())
+    BIO_parse_hostserv = Function('BIO_parse_hostserv', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())
+    BIO_PARSE_PRIO_SERV = Int('BIO_PARSE_PRIO_SERV')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(port == 0)
+
+    # Constraint set 2 constraints
+    s.add(Not(BIO_parse_hostserv(opt_arg(0), 0, port, BIO_PARSE_PRIO_SERV) < 1))
+    s.add(Not(BIO_parse_hostserv(opt_arg(0), host, port, BIO_PARSE_PRIO_SERV) < 1))
+    s.add(Not(Or(port == 0, cctx == 0, vpm == 0)))
+
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+```python
+def check_constraints():
+    from z3 import Int, IntSort, Function, Solver, Not, Or, And
+
+    port = Int('port')
+    host = Int('host')
+    cctx = Int('cctx')
+    vpm  = Int('vpm')
+
+    opt_arg = Function('opt_arg', IntSort())
+    BIO_parse_hostserv = Function('BIO_parse_hostserv', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())
+    BIO_PARSE_PRIO_SERV = Int('BIO_PARSE_PRIO_SERV')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(port == 0)
+
+    # Constraint set 2 constraints
+    # !(BIO_parse_hostserv(...) < 1)  ->  BIO_parse_hostserv(...) >= 1
+    s.add(Not(BIO_parse_hostserv(opt_arg(0), 0, port, BIO_PARSE_PRIO_SERV) < 1))
+    s.add(Not(BIO_parse_hostserv(opt_arg(0), host, port, BIO_PARSE_PRIO_SERV) < 1))
+
+    # !(port == NULL || cctx == NULL || vpm == NULL) -> all non-NULL
+    s.add(Not(Or(port == 0, cctx == 0, vpm == 0)))
+
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import Int, IntSort, Function, Solver, Not, Or, And
+
+    port = Int('port')
+    host = Int('host')
+    cctx = Int('cctx')
+    vpm  = Int('vpm')
+
+    opt_arg = Function('opt_arg', IntSort())
+    BIO_parse_hostserv = Function('BIO_parse_hostserv', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())
+    BIO_PARSE_PRIO_SERV = Int('BIO_PARSE_PRIO_SERV')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(port == 0)
+
+    # Constraint set 2 constraints
+    # !(BIO_parse_hostserv(...) < 1)  ->  BIO_parse_hostserv(...) >= 1
+    s.add(Not(BIO_parse_hostserv(opt_arg(0), 0, port, BIO_PARSE_PRIO_SERV) < 1))
+    s.add(Not(BIO_parse_hostserv(opt_arg(0), host, port, BIO_PARSE_PRIO_SERV) < 1))
+
+    # !(port == NULL || cctx == NULL || vpm == NULL) -> all non-NULL
+    s.add(Not(Or(port == 0, cctx == 0, vpm == 0)))
+
+    return s.check() == __import__('z3').sat
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import Int, IntSort, Function, Solver, Not, Or, And
+
+    port = Int('port')
+    host = Int('host')
+    cctx = Int('cctx')
+    vpm  = Int('vpm')
+
+    opt_arg = Function('opt_arg', IntSort())
+    BIO_parse_hostserv = Function('BIO_parse_hostserv', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())
+    BIO_PARSE_PRIO_SERV = Int('BIO_PARSE_PRIO_SERV')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(port == 0)
+
+    # Constraint set 2 constraints
+    # !(BIO_parse_hostserv(...) < 1)  ->  BIO_parse_hostserv(...) >= 1
+    s.add(Not(BIO_parse_hostserv(opt_arg(0), 0, port, BIO_PARSE_PRIO_SERV) < 1))
+    s.add(Not(BIO_parse_hostserv(opt_arg(0), host, port, BIO_PARSE_PRIO_SERV) < 1))
+
+    # !(port == NULL || cctx == NULL || vpm == NULL) -> all non-NULL
+    s.add(Not(Or(port == 0, cctx == 0, vpm == 0)))
+
+    return s.check() == __import__('z3').sat
+ValueError: Unsupported generated-code operation

@@ -1,0 +1,140 @@
+```python
+st=Int('st')
+s.add(st == 0)
+```
+```json
+["!(;;) || !(tag == TAG_JPEG2) || !(i=0; i<s->nb_streams; i++) || !(st->codecpar->codec_id == AV_CODEC_ID_MJPEG && st->id == -2)", "!(;;) || !(tag == TAG_STREAMBLOCK) || !(i = 0; i < s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && st->id == -1)", "!(;;) || !(tag == TAG_VIDEOFRAME) || !(i=0; i<s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && st->id == ch_id)", "!(;;) || !(tag == TAG_STREAMHEAD || tag == TAG_STREAMHEAD2) || !(i=0; i<s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && st->id == -1)", "!(;;) || !(tag == TAG_VIDEOSTREAM) || !(i=0; i<s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && st->id == ch_id)"]
+```
+```python
+from z3 import *
+
+# Declare symbolic variables used in the constraints.
+# We model the relevant fields of the stream `st` and loop/tag variables.
+# - tag: integer tag identifier (e.g., TAG_JPEG2, TAG_STREAMBLOCK, ...)
+# - i, nb_streams: loop counter and stream count
+# - codec_id: codec identifier (e.g., AV_CODEC_ID_MJPEG)
+# - codec_type: media type (e.g., AVMEDIA_TYPE_AUDIO, AVMEDIA_TYPE_VIDEO)
+# - st_id: the stream's id field (st->id)
+# - ch_id: channel id used in comparisons
+tag         = Int('tag')
+i           = Int('i')
+nb_streams  = Int('nb_streams')
+codec_id    = Int('codec_id')
+codec_type  = Int('codec_type')
+st_id       = Int('st_id')
+ch_id       = Int('ch_id')
+
+# Symbolic constants for the tag values referenced in the constraints.
+TAG_JPEG2       = IntVal(0)   # placeholder symbolic value
+TAG_STREAMBLOCK = IntVal(1)
+TAG_VIDEOFRAME  = IntVal(2)
+TAG_STREAMHEAD  = IntVal(3)
+TAG_STREAMHEAD2 = IntVal(4)
+TAG_VIDEOSTREAM = IntVal(5)
+
+# Symbolic constants for codec ids / types.
+AV_CODEC_ID_MJPEG   = IntVal(10)
+AVMEDIA_TYPE_AUDIO  = IntVal(20)
+AVMEDIA_TYPE_VIDEO  = IntVal(21)
+
+s = Solver()
+
+# Constraint 1:
+#   !(;;) || !(tag == TAG_JPEG2) || !(i=0; i<s->nb_streams; i++) ||
+#   !(st->codecpar->codec_id == AV_CODEC_ID_MJPEG && st->id == -2)
+# The `!(;;)` and `!(i=0; i<s->nb_streams; i++)` are C loop/empty-statement
+# artifacts that are always false in a boolean sense (they are not real
+# conditions), so the disjunction reduces to the meaningful part:
+#   !(tag == TAG_JPEG2) || !(codec_id == AV_CODEC_ID_MJPEG && st_id == -2)
+# We include it because it constrains `tag`, `codec_id`, and `st_id`.
+s.add(Or(tag != TAG_JPEG2,
+         Not(And(codec_id == AV_CODEC_ID_MJPEG, st_id == -2))))
+
+# Constraint 2:
+#   !(;;) || !(tag == TAG_STREAMBLOCK) || !(i = 0; i < s->nb_streams; i++) ||
+#   !(st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && st->id == -1)
+# Reduces to: !(tag == TAG_STREAMBLOCK) ||
+#             !(codec_type == AVMEDIA_TYPE_AUDIO && st_id == -1)
+# Included because it constrains `tag`, `codec_type`, and `st_id`.
+s.add(Or(tag != TAG_STREAMBLOCK,
+         Not(And(codec_type == AVMEDIA_TYPE_AUDIO, st_id == -1))))
+
+# Constraint 3:
+#   !(;;) || !(tag == TAG_VIDEOFRAME) || !(i=0; i<s->nb_streams; i++) ||
+#   !(st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && st->id == ch_id)
+# Reduces to: !(tag == TAG_VIDEOFRAME) ||
+#             !(codec_type == AVMEDIA_TYPE_VIDEO && st_id == ch_id)
+# Included because it constrains `tag`, `codec_type`, `st_id`, and `ch_id`.
+s.add(Or(tag != TAG_VIDEOFRAME,
+         Not(And(codec_type == AVMEDIA_TYPE_VIDEO, st_id == ch_id))))
+
+# Constraint 4:
+#   !(;;) || !(tag == TAG_STREAMHEAD || tag == TAG_STREAMHEAD2) ||
+#   !(i=0; i<s->nb_streams; i++) ||
+#   !(st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && st->id == -1)
+# Reduces to: !(tag == TAG_STREAMHEAD || tag == TAG_STREAMHEAD2) ||
+#             !(codec_type == AVMEDIA_TYPE_AUDIO && st_id == -1)
+# Included because it constrains `tag`, `codec_type`, and `st_id`.
+s.add(Or(Not(Or(tag == TAG_STREAMHEAD, tag == TAG_STREAMHEAD2)),
+         Not(And(codec_type == AVMEDIA_TYPE_AUDIO, st_id == -1))))
+
+# Constraint 5:
+#   !(;;) || !(tag == TAG_VIDEOSTREAM) || !(i=0; i<s->nb_streams; i++) ||
+#   !(st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && st->id == ch_id)
+# Reduces to: !(tag == TAG_VIDEOSTREAM) ||
+#             !(codec_type == AVMEDIA_TYPE_VIDEO && st_id == ch_id)
+# Included because it constrains `tag`, `codec_type`, `st_id`, and `ch_id`.
+s.add(Or(tag != TAG_VIDEOSTREAM,
+         Not(And(codec_type == AVMEDIA_TYPE_VIDEO, st_id == ch_id))))
+
+# Check satisfiability and print a model if one exists.
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, IntVal, Solver, Or, Not, And, sat
+    
+    st = Int('st')
+    tag = Int('tag')
+    i = Int('i')
+    nb_streams = Int('nb_streams')
+    codec_id = Int('codec_id')
+    codec_type = Int('codec_type')
+    st_id = Int('st_id')
+    ch_id = Int('ch_id')
+    
+    TAG_JPEG2 = IntVal(0)
+    TAG_STREAMBLOCK = IntVal(1)
+    TAG_VIDEOFRAME = IntVal(2)
+    TAG_STREAMHEAD = IntVal(3)
+    TAG_STREAMHEAD2 = IntVal(4)
+    TAG_VIDEOSTREAM = IntVal(5)
+    
+    AV_CODEC_ID_MJPEG = IntVal(10)
+    AVMEDIA_TYPE_AUDIO = IntVal(20)
+    AVMEDIA_TYPE_VIDEO = IntVal(21)
+    
+    s = Solver()
+    
+    s.add(st == 0)
+    
+    s.add(Or(tag != TAG_JPEG2,
+             Not(And(codec_id == AV_CODEC_ID_MJPEG, st_id == -2))))
+    
+    s.add(Or(tag != TAG_STREAMBLOCK,
+             Not(And(codec_type == AVMEDIA_TYPE_AUDIO, st_id == -1))))
+    
+    s.add(Or(tag != TAG_VIDEOFRAME,
+             Not(And(codec_type == AVMEDIA_TYPE_VIDEO, st_id == ch_id))))
+    
+    s.add(Or(Not(Or(tag == TAG_STREAMHEAD, tag == TAG_STREAMHEAD2)),
+             Not(And(codec_type == AVMEDIA_TYPE_AUDIO, st_id == -1))))
+    
+    s.add(Or(tag != TAG_VIDEOSTREAM,
+             Not(And(codec_type == AVMEDIA_TYPE_VIDEO, st_id == ch_id))))
+    
+    return s.check() == sat
+```
+goto result: True

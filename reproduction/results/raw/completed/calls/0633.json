@@ -1,0 +1,45 @@
+{
+  "call_id": 633,
+  "sample_id": "NPD/codeql/openssl:row=1:index=1",
+  "timestamp": "2026-10-26T00:56:25.915150+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!((outdir == NULL) && (req)) || !(outdir == NULL)', '!(app_isdir(outdir) <= 0)']\n        Relevant conditions/variables: [], outdir\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "ec66d7e9-cc39-4934-b729-69281cdfa887",
+  "usage": {
+    "prompt_tokens": 137,
+    "completion_tokens": 391,
+    "total_tokens": 528,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 137
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# outdir is a pointer; model as an integer address (0 == NULL)\noutdir = Int('outdir')\n\n# app_isdir is an external function; model its return value as an uninterpreted integer\napp_isdir_ret = Int('app_isdir_ret')\n\ns = Solver()\n\n# Constraint 1: !((outdir == NULL) && (req)) || !(outdir == NULL)\n# Included because it directly constrains `outdir`.\n# In C, `req` is a boolean condition; we model it as an uninterpreted Bool.\nreq = Bool('req')\n# C: !((outdir == NULL) && req) || !(outdir == NULL)\n# Translate: (outdir != 0) OR (outdir != 0)  -- i.e., outdir != 0\n# (since !(A && B) || !A  ==  !A || !B || !A  ==  !A || !B, and !A alone suffices)\ns.add(Or(Not(And(outdir == 0, req)), Not(outdir == 0)))\n\n# Constraint 2: !(app_isdir(outdir) <= 0)\n# Included because it constrains `outdir` via the call app_isdir(outdir).\n# Model app_isdir(outdir) as an uninterpreted function of outdir.\napp_isdir = Function('app_isdir', IntSort(), IntSort())\n# C: !(app_isdir(outdir) <= 0)  ==>  app_isdir(outdir) > 0\ns.add(Not(app_isdir(outdir) <= 0))\n\n# Check satisfiability\nprint(s.check())\nprint(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.2626823000000513,
+  "cost_upper_bound_cny": 0.003402
+}

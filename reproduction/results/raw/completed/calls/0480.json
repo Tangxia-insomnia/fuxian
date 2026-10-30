@@ -1,0 +1,45 @@
+{
+  "call_id": 480,
+  "sample_id": "NPD/codeql/libav:row=19:index=26",
+  "timestamp": "2026-10-26T00:52:58.512041+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int epic_decode_from_cache(ePICContext *dc, uint32_t W, uint32_t *pPix)\n{\n    ePICPixListElem *list, *prev = NULL;\n    ePICPixHashElem *hash_elem = epic_hash_find(&dc->hash, W);\n\n    if (!hash_elem || !hash_elem->list)\n        return 0;\n\n    list = hash_elem->list;\n    while (list) {\n        if (!is_pixel_on_stack(dc, list->pixel)) {\n            if (ff_els_decode_bit(&dc->els_ctx, &list->rung)) {\n                *pPix = list->pixel;\n                if (list != hash_elem->list) {\n                    prev->next      = list->next;\n                    list->next      = hash_elem->list;\n                    hash_elem->list = list;\n                }\n                return 1;\n            }\n            dc->stack[dc->stack_pos++ & EPIC_PIX_STACK_MAX] = list->pixel;\n        }\n        prev = list;\n        list = list->next;\n    }\n\n    return 0;\n}\n        - Target variables: [], prev\n        - Constraints: ['!(!hash_elem || !hash_elem->list)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "c5a11478-6fbe-4318-b9e8-d8589630716a",
+  "usage": {
+    "prompt_tokens": 343,
+    "completion_tokens": 5,
+    "total_tokens": 348,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 343
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.514537900000505,
+  "cost_upper_bound_cny": 0.000726
+}

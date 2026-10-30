@@ -1,0 +1,45 @@
+{
+  "call_id": 414,
+  "sample_id": "NPD/codeql/kernel69:row=68:index=98",
+  "timestamp": "2026-10-26T00:51:48.473628+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a Z3 constraint solver expert, merge the following constraint sets into a single function.\n\n        Input:\n        1. Base Z3 script: ```python\naction_code=Int('action_code')\nWLAN_TDLS_SETUP_RESPONSE=Int('WLAN_TDLS_SETUP_RESPONSE')\nsta=Int('sta')\ns.add(Or(action_code != WLAN_TDLS_SETUP_RESPONSE, sta == 0))\n```\n        2. Constraint set 1: def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Define all variables as Int type\n    sta = Int('sta')\n    action_code = Int('action_code')\n    WLAN_TDLS_SETUP_RESPONSE = Int('WLAN_TDLS_SETUP_RESPONSE')\n    \n    # Constraint: sta_info_get returns NULL (sta == 0)\n    s.add(sta == 0)\n    \n    # Constraint: action_code equals WLAN_TDLS_SETUP_RESPONSE\n    s.add(action_code == WLAN_TDLS_SETUP_RESPONSE)\n    \n    # Since sta == 0, WARN_ON_ONCE(!sta) triggers and function returns early\n    # The dereference sta->tdls_chandef is unreachable, so no constraint needed\n    \n    # Check satisfiability\n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False\n        3. Constraint set 2: ```python\nfrom z3 import *\n\n# Declare variables\n# action_code: integer/enum representing the TDLS action code\naction_code = Int('action_code')\n# sta: pointer (modeled as an integer address; 0 means NULL)\nsta = Int('sta')\n\n# Constant for WLAN_TDLS_SETUP_RESPONSE (enum value; symbolic constant)\nWLAN_TDLS_SETUP_RESPONSE = Int('WLAN_TDLS_SETUP_RESPONSE')\n\ns = Solver()\n\n# Constraint from line 72:\n#   if (action_code == WLAN_TDLS_SETUP_RESPONSE)\n#       WARN_ON_ONCE(!sta);\n# The C expression `!(action_code == WLAN_TDLS_SETUP_RESPONSE) || !(WARN_ON_ONCE(!sta))`\n# encodes: if action_code == WLAN_TDLS_SETUP_RESPONSE, then sta must be non-NULL.\n# In Z3: (action_code != WLAN_TDLS_SETUP_RESPONSE) OR (sta != 0)\ns.add(Or(action_code != WLAN_TDLS_SETUP_RESPONSE, sta != 0))\n\n# Print the solver state (for inspection)\nprint(s)\n```\n\n        Requirements:\n        1. Merge all constraints into a check_constraints() function\n        2. Retain ALL original constraints from the base script\n        3. Add any missing variable definitions from constraint sets\n        4. Function must return boolean (True if constraints are satisfied)\n        5. Return ONLY the function code without imports\n        6. Ensure code is directly executable\n\n        Function signature:\n        def check_constraints():\n            # Your merged constraints here\n            return result  # boolean\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "b6b041e3-ca6f-4b01-9a01-6e05f110ca6e",
+  "usage": {
+    "prompt_tokens": 703,
+    "completion_tokens": 183,
+    "total_tokens": 886,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 703
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\ndef check_constraints():\n    from z3 import Solver, Int, Or, sat\n\n    # Variable definitions\n    action_code = Int('action_code')\n    WLAN_TDLS_SETUP_RESPONSE = Int('WLAN_TDLS_SETUP_RESPONSE')\n    sta = Int('sta')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(Or(action_code != WLAN_TDLS_SETUP_RESPONSE, sta == 0))\n\n    # Constraint set 1\n    s.add(sta == 0)\n    s.add(action_code == WLAN_TDLS_SETUP_RESPONSE)\n\n    # Constraint set 2\n    s.add(Or(action_code != WLAN_TDLS_SETUP_RESPONSE, sta != 0))\n\n    result = s.check()\n    return result == sat\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.9480927999993582,
+  "cost_upper_bound_cny": 0.00287
+}

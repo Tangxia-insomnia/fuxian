@@ -1,0 +1,387 @@
+```python
+fc=Int('fc')
+IEEE80211_FCTL_STYPE=Int('IEEE80211_FCTL_STYPE')
+IEEE80211_STYPE_ACTION=Int('IEEE80211_STYPE_ACTION')
+mgmt_u_action_category=Int('mgmt_u_action_category')
+WLAN_CATEGORY_SPECTRUM_MGMT=Int('WLAN_CATEGORY_SPECTRUM_MGMT')
+elems=Int('elems')
+
+s.add(And(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION,
+          mgmt_u_action_category == WLAN_CATEGORY_SPECTRUM_MGMT,
+          elems == 0))
+```
+```python
+fc=Int('fc')
+mgmt_u_action_category=Int('mgmt_u_action_category')
+elems=Int('elems')
+ies_len=Int('ies_len')
+
+# Assume elems is NULL
+s.add(elems == 0)
+
+# Constraint: if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)
+# IEEE80211_FCTL_STYPE = 0x00f0, IEEE80211_STYPE_ACTION = 0x00d0
+# (fc & 0x00f0) == 0x00d0
+s.add((fc & 0x00f0) == 0x00d0)
+
+# Constraint: if(mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT)
+# WLAN_CATEGORY_SPECTRUM_MGMT = 0
+s.add(mgmt_u_action_category == 0)
+
+# Constraint: elems == 0 (already added above)
+```
+```python
+fc=Int('fc')
+mgmt_u_action_category=Int('mgmt_u_action_category')
+elems=Int('elems')
+ies_len=Int('ies_len')
+skb_len=Int('skb_len')
+
+# Assume elems is NULL
+s.add(elems == 0)
+
+# Line 31: if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)
+# IEEE80211_FCTL_STYPE = 0x00f0, IEEE80211_STYPE_ACTION = 0x00d0
+s.add((fc & 0x00f0) == 0x00d0)
+
+# Line 33: if(mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT)
+# WLAN_CATEGORY_SPECTRUM_MGMT = 0
+s.add(mgmt_u_action_category == 0)
+
+# ies_len = skb->len - offsetof(...); offsetof is a positive constant
+# Since we reach the parse call, ies_len >= 0
+s.add(ies_len >= 0)
+
+# elems == 0 (already added above)
+```
+```python
+# New constraints based on line-by-line symbolic execution
+
+# Line 31: fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION
+# IEEE80211_FCTL_STYPE = 0x00f0, IEEE80211_STYPE_ACTION = 0x00d0
+s.add(IEEE80211_FCTL_STYPE == 0x00f0)
+s.add(IEEE80211_STYPE_ACTION == 0x00d0)
+
+# Line 33: mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT
+# WLAN_CATEGORY_SPECTRUM_MGMT = 0
+s.add(WLAN_CATEGORY_SPECTRUM_MGMT == 0)
+
+# elems is NULL (assumed)
+s.add(elems == 0)
+
+# ies_len = skb->len - offsetof(...); reaching parse call requires ies_len >= 0
+ies_len=Int('ies_len')
+skb_len=Int('skb_len')
+s.add(ies_len == skb_len - 24)  # offsetof(struct ieee80211_mgmt, u.action.u.chan_switch.variable) is a positive constant
+s.add(ies_len >= 0)
+
+# After ieee802_11_parse_elems returns, elems is assigned the return value.
+# Since we assume elems is NULL, the parse function returned NULL.
+# The guard `if (elems && !elems->parse_error)` is false, so
+# ieee80211_rx_mgmt_spectrum_mgmt is NOT called.
+# kfree(elems) is called with NULL (safe).
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat, unsat
+    
+    s = Solver()
+    
+    # Define all variables as Int type
+    IEEE80211_FCTL_STYPE = Int('IEEE80211_FCTL_STYPE')
+    IEEE80211_STYPE_ACTION = Int('IEEE80211_STYPE_ACTION')
+    WLAN_CATEGORY_SPECTRUM_MGMT = Int('WLAN_CATEGORY_SPECTRUM_MGMT')
+    elems = Int('elems')
+    ies_len = Int('ies_len')
+    skb_len = Int('skb_len')
+    
+    # Line 31: fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION
+    # IEEE80211_FCTL_STYPE = 0x00f0, IEEE80211_STYPE_ACTION = 0x00d0
+    s.add(IEEE80211_FCTL_STYPE == 0x00f0)
+    s.add(IEEE80211_STYPE_ACTION == 0x00d0)
+    
+    # Line 33: mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT
+    # WLAN_CATEGORY_SPECTRUM_MGMT = 0
+    s.add(WLAN_CATEGORY_SPECTRUM_MGMT == 0)
+    
+    # elems is NULL (assumed)
+    s.add(elems == 0)
+    
+    # ies_len = skb->len - offsetof(...); reaching parse call requires ies_len >= 0
+    s.add(ies_len == skb_len - 24)  # offsetof is a positive constant
+    s.add(ies_len >= 0)
+    
+    # After ieee802_11_parse_elems returns, elems is assigned the return value.
+    # Since we assume elems is NULL, the parse function returned NULL.
+    # The guard `if (elems && !elems->parse_error)` is false, so
+    # ieee80211_rx_mgmt_spectrum_mgmt is NOT called.
+    # kfree(elems) is called with NULL (safe).
+    
+    # Check satisfiability
+    result = s.check()
+    return result == sat
+```
+dereference constraint: True
+```json
+["!(ies_len < 0)"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints.
+# ies_len is used in the constraint `!(ies_len < 0)`.
+ies_len = Int('ies_len')
+
+# Declare variables referenced by the relevant conditions.
+# fc is used in: if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)
+fc = BitVec('fc', 32)
+# mgmt->u.action.category is used in:
+#   if(mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT)
+# Modeled as an integer field.
+action_category = Int('action_category')
+
+# Constants from the C code (IEEE 802.11 definitions).
+IEEE80211_FCTL_STYPE = BitVecVal(0x00f0, 32)      # frame control subtype mask
+IEEE80211_STYPE_ACTION = BitVecVal(0x00d0, 32)    # action subtype value
+WLAN_CATEGORY_SPECTRUM_MGMT = 0                   # spectrum management category
+
+s = Solver()
+
+# Constraint from input: !(ies_len < 0)
+# Included because it directly constrains ies_len, which is a relevant variable.
+# In C, `!(ies_len < 0)` is equivalent to `ies_len >= 0`.
+s.add(Not(ies_len < 0))
+
+# Constraint encoding the first relevant condition:
+#   if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)
+# Included because it gates the code path that uses the relevant variables.
+# Note: In C, `&` has lower precedence than `==`, so this parses as
+#   fc & (IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)
+# which is `fc & 0` (since the comparison is false) => always 0.
+# We model the C semantics faithfully here.
+s.add((fc & If(IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION,
+               BitVecVal(1, 32), BitVecVal(0, 32))) != 0)
+
+# Constraint encoding the second relevant condition:
+#   if(mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT)
+# Included because it gates the code path that uses the relevant variables.
+s.add(action_category == WLAN_CATEGORY_SPECTRUM_MGMT)
+
+# Check satisfiability and print the model.
+if s.check() == sat:
+    print("sat")
+    print(s.model())
+else:
+    print("unsat")
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, BitVec, BitVecVal, And, Or, Not, If, sat, unsat
+
+    s = Solver()
+
+    # Variables from base script
+    fc = Int('fc')
+    IEEE80211_FCTL_STYPE = Int('IEEE80211_FCTL_STYPE')
+    IEEE80211_STYPE_ACTION = Int('IEEE80211_STYPE_ACTION')
+    mgmt_u_action_category = Int('mgmt_u_action_category')
+    WLAN_CATEGORY_SPECTRUM_MGMT = Int('WLAN_CATEGORY_SPECTRUM_MGMT')
+    elems = Int('elems')
+
+    # Base script constraints
+    s.add(And(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION,
+              mgmt_u_action_category == WLAN_CATEGORY_SPECTRUM_MGMT,
+              elems == 0))
+
+    # Variables from constraint set 1
+    ies_len = Int('ies_len')
+    skb_len = Int('skb_len')
+
+    # Constraint set 1 constraints
+    s.add(IEEE80211_FCTL_STYPE == 0x00f0)
+    s.add(IEEE80211_STYPE_ACTION == 0x00d0)
+    s.add(WLAN_CATEGORY_SPECTRUM_MGMT == 0)
+    s.add(elems == 0)
+    s.add(ies_len == skb_len - 24)
+    s.add(ies_len >= 0)
+
+    # Variables from constraint set 2
+    fc_bv = BitVec('fc_bv', 32)
+    action_category = Int('action_category')
+
+    # Constraint set 2 constraints
+    s.add(Not(ies_len < 0))
+    s.add((fc_bv & If(BitVecVal(0x00f0, 32) == BitVecVal(0x00d0, 32),
+                      BitVecVal(1, 32), BitVecVal(0, 32))) != 0)
+    s.add(action_category == 0)
+
+    result = s.check()
+    return result == sat
+```
+TypeError: unsupported operand type(s) for &: 'ArithRef' and 'ArithRef'
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat, unsat
+
+    s = Solver()
+
+    # Variables from base script
+    fc = Int('fc')
+    IEEE80211_FCTL_STYPE = Int('IEEE80211_FCTL_STYPE')
+    IEEE80211_STYPE_ACTION = Int('IEEE80211_STYPE_ACTION')
+    mgmt_u_action_category = Int('mgmt_u_action_category')
+    WLAN_CATEGORY_SPECTRUM_MGMT = Int('WLAN_CATEGORY_SPECTRUM_MGMT')
+    elems = Int('elems')
+
+    # Base script constraints
+    s.add(And(IEEE80211_FCTL_STYPE == 0x00f0,
+              IEEE80211_STYPE_ACTION == 0x00d0,
+              mgmt_u_action_category == WLAN_CATEGORY_SPECTRUM_MGMT,
+              elems == 0))
+
+    # Variables from constraint set 1
+    ies_len = Int('ies_len')
+    skb_len = Int('skb_len')
+
+    # Constraint set 1 constraints
+    s.add(WLAN_CATEGORY_SPECTRUM_MGMT == 0)
+    s.add(ies_len == skb_len - 24)
+    s.add(ies_len >= 0)
+
+    # Variables from constraint set 2
+    action_category = Int('action_category')
+
+    # Constraint set 2 constraints
+    s.add(Not(ies_len < 0))
+    s.add(action_category == 0)
+
+    result = s.check()
+    return result == sat
+goto result: True
+```python
+folio_test_slab=Int('folio_test_slab')
+object=Int('object')
+s.add(folio_test_slab == 0)
+s.add(object == 0)
+```
+```python
+object=Int('object')
+folio_test_slab=Int('folio_test_slab')
+s.add(object==0)
+s.add(folio_test_slab==0)
+```
+```python
+# Additional constraints based on line-by-line symbolic execution
+
+# Line 8: trace_kfree(_RET_IP_, object) - trace call, no constraint on object
+# Line 10: if (unlikely(ZERO_OR_NULL_PTR(object))) return;
+# ZERO_OR_NULL_PTR(object) is true when object == 0 (already constrained)
+# Since object == 0, the function returns early, so folio_test_slab is never evaluated
+# However, the existing constraint folio_test_slab == 0 represents the branch condition
+# being false (i.e., !folio_test_slab(folio) is true), consistent with the path
+
+# Line 12: folio = virt_to_folio(object) - object is NULL, folio derived from NULL
+# Line 13: if (unlikely(!folio_test_slab(folio))) - condition true means folio_test_slab == 0
+# This is already captured by folio_test_slab == 0
+
+# Additional constraint: object is NULL pointer (already present, reinforcing)
+s.add(object == 0)
+
+# Additional constraint: folio_test_slab returns 0 (false), meaning !folio_test_slab is true
+s.add(folio_test_slab == 0)
+
+# Note: Since object == 0, ZERO_OR_NULL_PTR(object) is true, so the function returns
+# at line 11 before reaching line 13. The folio_test_slab constraint represents the
+# hypothetical branch condition if execution reached line 13.
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat, unsat
+    
+    s = Solver()
+    
+    # Define all variables as Int type
+    object_val = Int('object')
+    folio_test_slab = Int('folio_test_slab')
+    
+    # Constraint: object is NULL pointer (object == 0)
+    s.add(object_val == 0)
+    
+    # Constraint: folio_test_slab returns 0 (false)
+    s.add(folio_test_slab == 0)
+    
+    # Check satisfiability
+    result = s.check()
+    
+    if result == sat:
+        return True
+    elif result == unsat:
+        return False
+    else:
+        return False
+```
+dereference constraint: True
+```json
+["!(unlikely(ZERO_OR_NULL_PTR(object)))"]
+```
+```python
+from z3 import *
+
+# Declare the pointer variable `object` as an integer address.
+# In C, `object` is a pointer; we model it as an integer where 0 means NULL.
+object = Int('object')
+
+# Constraint: !(unlikely(ZERO_OR_NULL_PTR(object)))
+# ZERO_OR_NULL_PTR(x) is true when x is NULL or a small error-pointer value.
+# In the Linux kernel, ZERO_OR_NULL_PTR(x) is defined as:
+#     unlikely(!x || (unsigned long)(x) < PAGE_SIZE)
+# i.e., the pointer is NULL (0) or its address is below PAGE_SIZE (typically 4096).
+# The C code negates this, so the constraint requires:
+#     object != 0  AND  object >= PAGE_SIZE
+# This ensures `object` is a valid, non-NULL, non-error pointer before use.
+PAGE_SIZE = 4096
+
+s = Solver()
+
+# object is not NULL
+s.add(object != 0)
+
+# object is not a small error-pointer value (address >= PAGE_SIZE)
+s.add(object >= PAGE_SIZE)
+
+# Print the resulting constraints for inspection
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, sat, unsat
+
+    # Variable definitions (merged from base script and constraint sets)
+    folio_test_slab = Int('folio_test_slab')
+    object = Int('object')
+
+    s = Solver()
+
+    # Constraints from base script
+    s.add(folio_test_slab == 0)
+    s.add(object == 0)
+
+    # Constraints from constraint set 1
+    s.add(object == 0)
+    s.add(folio_test_slab == 0)
+
+    # Constraints from constraint set 2
+    PAGE_SIZE = 4096
+    s.add(object != 0)
+    s.add(object >= PAGE_SIZE)
+
+    # Check satisfiability
+    result = s.check()
+
+    if result == sat:
+        return True
+    elif result == unsat:
+        return False
+    else:
+        return False
+```
+goto result: False

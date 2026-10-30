@@ -1,0 +1,129 @@
+{
+  "audit_id": "A07",
+  "sample_id": "NPD/codeql/openssl:row=41:index=43",
+  "selection_reason": "输出截断",
+  "selection": "purposive diagnostic; not random and not representative",
+  "label": 0,
+  "prediction": null,
+  "status": "failed",
+  "error": "ModelFailure: Response incomplete: finish_reason=length",
+  "source_status": "No explicit source location/complete SARIF codeFlow in published row; raw function_list/assignment hints preserved, not invented",
+  "sink": {
+    "file_path": "apps/req.c",
+    "region": {
+      "startLine": 978,
+      "startColumn": 42,
+      "endColumn": 45
+    },
+    "context": {
+      "startLine": 976,
+      "endLine": 980,
+      "snippet": {
+        "text": "ret = X509_REQ_print_ex(out, req, get_nameopt(), reqflag);"
+      }
+    }
+  },
+  "saved_context_exists": true,
+  "function_chain": [
+    "req_main",
+    "X509_REQ_print_ex",
+    "X509_REQ_get_X509_PUBKEY"
+  ],
+  "final_attempt_call_ids": [
+    837,
+    838,
+    839
+  ],
+  "earlier_attempt_call_ids_not_reused": [],
+  "solver_evidence": [],
+  "argument_parameter_mapping": [
+    {
+      "caller": "req_main",
+      "callee": "X509_REQ_print_ex",
+      "statement": "ret = X509_REQ_print_ex(out, req, get_nameopt(), reqflag);",
+      "caller_tracked_variable": "req",
+      "recorded_callee_tracked_variable": "x",
+      "callee_parameters": [
+        "bp",
+        "x",
+        "nmflags",
+        "cflag"
+      ],
+      "call_candidates": [
+        {
+          "name": "X509_REQ_print_ex",
+          "arguments": [
+            "out",
+            "req",
+            "get_nameopt()",
+            "reqflag"
+          ],
+          "start": 6,
+          "end": 57,
+          "text": "X509_REQ_print_ex(out, req, get_nameopt(), reqflag)"
+        }
+      ],
+      "audit_note": "Lexical positional check; not a new experiment and not proof of alias/value propagation",
+      "recomputed_tracked_parameter": "x",
+      "parameter_name_matches_saved_frame": true,
+      "all_positional_pairs": [
+        {
+          "position_zero_based": 0,
+          "argument": "out",
+          "parameter": "bp"
+        },
+        {
+          "position_zero_based": 1,
+          "argument": "req",
+          "parameter": "x"
+        },
+        {
+          "position_zero_based": 2,
+          "argument": "get_nameopt()",
+          "parameter": "nmflags"
+        },
+        {
+          "position_zero_based": 3,
+          "argument": "reqflag",
+          "parameter": "cflag"
+        }
+      ]
+    },
+    {
+      "caller": "X509_REQ_print_ex",
+      "callee": "X509_REQ_get_X509_PUBKEY",
+      "statement": "        xpkey = X509_REQ_get_X509_PUBKEY(x);",
+      "caller_tracked_variable": "x",
+      "recorded_callee_tracked_variable": "req",
+      "callee_parameters": [
+        "req"
+      ],
+      "call_candidates": [
+        {
+          "name": "X509_REQ_get_X509_PUBKEY",
+          "arguments": [
+            "x"
+          ],
+          "start": 16,
+          "end": 43,
+          "text": "X509_REQ_get_X509_PUBKEY(x)"
+        }
+      ],
+      "audit_note": "Lexical positional check; not a new experiment and not proof of alias/value propagation",
+      "recomputed_tracked_parameter": "req",
+      "parameter_name_matches_saved_frame": true,
+      "all_positional_pairs": [
+        {
+          "position_zero_based": 0,
+          "argument": "x",
+          "parameter": "req"
+        }
+      ]
+    }
+  ],
+  "duration_seconds": 17.796863999999914,
+  "cost_upper_bound_cny": 0.06322599999999978,
+  "missing_steps": [
+    "See recorded error; unexecuted steps have no LLM/SMT output and are not fabricated"
+  ]
+}

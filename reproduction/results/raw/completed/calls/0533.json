@@ -1,0 +1,45 @@
+{
+  "call_id": 533,
+  "sample_id": "NPD/codeql/libav:row=31:index=46",
+  "timestamp": "2026-10-26T00:54:18.976076+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static VP8Frame *vp8_find_free_buffer(VP8Context *s)\n{\n    VP8Frame *frame = NULL;\n    int i;\n\n    // find a free buffer\n    for (i = 0; i < 5; i++)\n        if (&s->frames[i] != s->framep[VP56_FRAME_CURRENT]  &&\n            &s->frames[i] != s->framep[VP56_FRAME_PREVIOUS] &&\n            &s->frames[i] != s->framep[VP56_FRAME_GOLDEN]   &&\n            &s->frames[i] != s->framep[VP56_FRAME_GOLDEN2]) {\n            frame = &s->frames[i];\n            break;\n        }\n    if (i == 5) {\n        av_log(s->avctx, AV_LOG_FATAL, \"Ran out of free frames!\\n\");\n        abort();\n    }\n    if (frame->tf.f->buf[0])\n        vp8_release_frame(s, frame);\n\n    return frame;\n}\n        - Target variables: [], frame\n        - Constraints: ['!(i = 0; i < 5; i++) || !(&s->frames[i] != s->framep[VP56_FRAME_CURRENT]  && &s->frames[i] != s->framep[VP56_FRAME_PREVIOUS] && &s->frames[i] != s->framep[VP56_FRAME_GOLDEN]   && &s->frames[i] != s->framep[VP56_FRAME_GOLDEN2])']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "4dbcafe0-5018-4ec6-8972-08a6ab68f0cf",
+  "usage": {
+    "prompt_tokens": 416,
+    "completion_tokens": 5,
+    "total_tokens": 421,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 416
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.8273411999998643,
+  "cost_upper_bound_cny": 0.000872
+}

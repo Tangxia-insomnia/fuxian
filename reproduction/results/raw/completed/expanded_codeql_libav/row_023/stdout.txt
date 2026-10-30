@@ -1,0 +1,56 @@
+```python
+t=Int('t')
+s.add(t == 0)
+```
+Let's go through this step by step.
+
+**Step 1 – Understanding the code and constraints**
+
+We have:
+
+- Target variables: `[]` and `t`  
+  (The empty `[]` likely means no specific variable, but `t` is explicitly listed.)
+
+- Constraints given:  
+  1. `!(!res)` → This simplifies to `res` (i.e., `res` is non-null).  
+  2. `!(tt_size == -1)` → This means `tt_size != -1`.
+
+**Step 2 – Filter constraints affecting reachability**
+
+Reachability here means: can we reach a certain point in the code given the constraints?  
+The constraints are about `res` and `tt_size`.
+
+- `res` is assigned from `av_mallocz_array(...)`. If `res` is null, function returns NULL early. So `res` being non-null means we passed the `if (!res) return NULL;` check.
+- `tt_size != -1` means we passed the `if (tt_size == -1) return NULL;` check.
+
+Both constraints are necessary to reach the `while` loop and the final `t[0].parent = NULL;` and `return res;`.
+
+**Step 3 – Include only constraints involving target variables**
+
+Target variables: `t` (and `[]` which is empty, so ignore).  
+- Constraint 1: `res` — not a target variable.  
+- Constraint 2: `tt_size` — not a target variable.
+
+So **neither constraint directly involves `t`**.  
+But the task says: "Filter constraints affecting reachability" and "Include only constraints involving target variables".  
+If we strictly include only those involving `t`, we get none. But that would ignore reachability constraints that are necessary to reach the code where `t` is used.
+
+However, the instructions are:
+
+1. Filter constraints affecting reachability → both constraints affect reachability.
+2. Include only constraints involving target variables → none involve `t`.
+
+So the intersection is empty.
+
+**Step 4 – Verify filtered constraints step by step**
+
+- `!(!res)` → `res` must be non-null to proceed past `if (!res) return NULL;`. This is a reachability constraint but doesn't involve `t`.
+- `!(tt_size == -1)` → `tt_size` must not be -1 to proceed past `if (tt_size == -1) return NULL;`. Also reachability, but doesn't involve `t`.
+
+Since target variable is only `t`, and neither constraint mentions `t`, the filtered set is empty.
+
+**Step 5 – Final answer**
+
+```json
+[]
+```

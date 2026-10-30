@@ -1,0 +1,82 @@
+{
+  "bug_line_constraints": [
+    {
+      "text": "        xpkey = X509_REQ_get_X509_PUBKEY(x);",
+      "condition": []
+    }
+  ],
+  "target_conditions": [],
+  "variable_assignments": {
+    "text": "int X509_REQ_print_ex(BIO *bp, X509_REQ *x, unsigned long nmflags,",
+    "condition": []
+  },
+  "variable_non_empty": [],
+  "early_jump_constraints": [
+    {
+      "text": "err",
+      "condition": [
+        "!(cflag & X509_FLAG_NO_PUBKEY)",
+        "BIO_printf(bp, \"%12sPublic Key Algorithm: \", \"\") <= 0"
+      ]
+    },
+    {
+      "text": "err",
+      "condition": [
+        "!(cflag & X509_FLAG_NO_PUBKEY)",
+        "BIO_write(bp, \"        Subject Public Key Info:\\n\", 33) <= 0"
+      ]
+    },
+    {
+      "text": "err",
+      "condition": [
+        "!(cflag & X509_FLAG_NO_SUBJECT)",
+        "BIO_write(bp, \"\\n\", 1) <= 0"
+      ]
+    },
+    {
+      "text": "err",
+      "condition": [
+        "!(cflag & X509_FLAG_NO_SUBJECT)",
+        "X509_NAME_print_ex(bp, X509_REQ_get_subject_name(x), nmindent, nmflags) < printok"
+      ]
+    },
+    {
+      "text": "err",
+      "condition": [
+        "!(cflag & X509_FLAG_NO_SUBJECT)",
+        "BIO_printf(bp, \"        Subject:%c\", mlch) <= 0"
+      ]
+    },
+    {
+      "text": "err",
+      "condition": [
+        "!(cflag & X509_FLAG_NO_VERSION)",
+        "!(l == X509_REQ_VERSION_1)",
+        "BIO_printf(bp, \"%8sVersion: Unknown (%ld)\\n\", \"\", l) <= 0"
+      ]
+    },
+    {
+      "text": "err",
+      "condition": [
+        "!(cflag & X509_FLAG_NO_VERSION)",
+        "l == X509_REQ_VERSION_1",
+        "BIO_printf(bp, \"%8sVersion: %ld (0x%lx)\\n\", \"\", l + 1, (unsigned long)l) <= 0"
+      ]
+    },
+    {
+      "text": "err",
+      "condition": [
+        "!(cflag & X509_FLAG_NO_HEADER)",
+        "BIO_write(bp, \"    Data:\\n\", 10) <= 0"
+      ]
+    },
+    {
+      "text": "err",
+      "condition": [
+        "!(cflag & X509_FLAG_NO_HEADER)",
+        "BIO_write(bp, \"Certificate Request:\\n\", 21) <= 0"
+      ]
+    }
+  ],
+  "filter_function_code": "int X509_REQ_print_ex(BIO *bp, X509_REQ *x, unsigned long nmflags,\n                      unsigned long cflag)\n{\n    long l;\n    int i;\n    EVP_PKEY *pkey;\n    STACK_OF(X509_EXTENSION) *exts;\n    char mlch = ' ';\n    int nmindent = 0, printok = 0;\n\n    if ((nmflags & XN_FLAG_SEP_MASK) == XN_FLAG_SEP_MULTILINE) {\n        mlch = '\\n';\n        nmindent = 12;\n    }\n\n    if (nmflags == XN_FLAG_COMPAT)\n        printok = 1;\n\n    if (!(cflag & X509_FLAG_NO_HEADER)) {\n        if (BIO_write(bp, \"Certificate Request:\\n\", 21) <= 0)\n            goto err;\n        if (BIO_write(bp, \"    Data:\\n\", 10) <= 0)\n            goto err;\n    }\n    if (!(cflag & X509_FLAG_NO_VERSION)) {\n        l = X509_REQ_get_version(x);\n        if (l == X509_REQ_VERSION_1) {\n            if (BIO_printf(bp, \"%8sVersion: %ld (0x%lx)\\n\", \"\", l + 1, (unsigned long)l) <= 0)\n                goto err;\n        } else {\n            if (BIO_printf(bp, \"%8sVersion: Unknown (%ld)\\n\", \"\", l) <= 0)\n                goto err;\n        }\n    }\n    if (!(cflag & X509_FLAG_NO_SUBJECT)) {\n        if (BIO_printf(bp, \"        Subject:%c\", mlch) <= 0)\n            goto err;\n        if (X509_NAME_print_ex(bp, X509_REQ_get_subject_name(x),\n            nmindent, nmflags) < printok)\n            goto err;\n        if (BIO_write(bp, \"\\n\", 1) <= 0)\n            goto err;\n    }\n    if (!(cflag & X509_FLAG_NO_PUBKEY)) {\n        X509_PUBKEY *xpkey;\n        ASN1_OBJECT *koid;\n        if (BIO_write(bp, \"        Subject Public Key Info:\\n\", 33) <= 0)\n            goto err;\n        if (BIO_printf(bp, \"%12sPublic Key Algorithm: \", \"\") <= 0)\n            goto err;\n        xpkey = X509_REQ_get_X509_PUBKEY(x);\n        X509_PUBKEY_get0_param(&koid, NULL, NULL, NULL, xpkey);\n        if (i2a_ASN1_OBJECT(bp, koid) <= 0)\n            goto err;\n        if (BIO_puts(bp, \"\\n\") <= 0)\n            goto err;\n\n        pkey = X509_REQ_get0_pubkey(x);\n        if (pkey == NULL) {\n            if (BIO_printf(bp, \"%12sUnable to load Public Key\\n\", \"\") <= 0)\n                goto err;\n            ERR_print_errors(bp);\n        } else {\n            if (EVP_PKEY_print_public(bp, pkey, 16, NULL) <= 0)\n                goto err;\n        }\n    }\n\n    if (!(cflag & X509_FLAG_NO_ATTRIBUTES)) {\n        /* may not be */\n        if (BIO_printf(bp, \"%8sAttributes:\\n\", \"\") <= 0)\n            goto err;\n\n        if (X509_REQ_get_attr_count(x) == 0) {\n            if (BIO_printf(bp, \"%12s(none)\\n\", \"\") <= 0)\n                goto err;\n        } else {\n            for (i = 0; i < X509_REQ_get_attr_count(x); i++) {\n                ASN1_TYPE *at;\n                X509_ATTRIBUTE *a;\n                ASN1_BIT_STRING *bs = NULL;\n                ASN1_OBJECT *aobj;\n                int j, type = 0, count = 1, ii = 0;\n\n                a = X509_REQ_get_attr(x, i);\n                aobj = X509_ATTRIBUTE_get0_object(a);\n                if (X509_REQ_extension_nid(OBJ_obj2nid(aobj)))\n                    continue;\n                if (BIO_printf(bp, \"%12s\", \"\") <= 0)\n                    goto err;\n                if ((j = i2a_ASN1_OBJECT(bp, aobj)) > 0) {\n                    ii = 0;\n                    count = X509_ATTRIBUTE_count(a);\n                    if (count == 0) {\n                      ERR_raise(ERR_LIB_X509, X509_R_INVALID_ATTRIBUTES);\n                      return 0;\n                    }\n get_next:\n                    at = X509_ATTRIBUTE_get0_type(a, ii);\n                    type = at->type;\n                    bs = at->value.asn1_string;\n                }\n                for (j = 25 - j; j > 0; j--)\n                    if (BIO_write(bp, \" \", 1) != 1)\n                        goto err;\n                if (BIO_puts(bp, \":\") <= 0)\n                    goto err;\n                switch (type) {\n                case V_ASN1_PRINTABLESTRING:\n                case V_ASN1_T61STRING:\n                case V_ASN1_NUMERICSTRING:\n                case V_ASN1_UTF8STRING:\n                case V_ASN1_IA5STRING:\n                    if (BIO_write(bp, (char *)bs->data, bs->length)\n                            != bs->length)\n                        goto err;\n                    if (BIO_puts(bp, \"\\n\") <= 0)\n                        goto err;\n                    break;\n                default:\n                    if (BIO_puts(bp, \"unable to print attribute\\n\") <= 0)\n                        goto err;\n                    break;\n                }\n                if (++ii < count)\n                    goto get_next;\n            }\n        }\n    }\n    if (!(cflag & X509_FLAG_NO_EXTENSIONS)) {\n        exts = X509_REQ_get_extensions(x);\n        if (exts) {\n            if (BIO_printf(bp, \"%12sRequested Extensions:\\n\", \"\") <= 0)\n                goto err;\n            for (i = 0; i < sk_X509_EXTENSION_num(exts); i++) {\n                ASN1_OBJECT *obj;\n                X509_EXTENSION *ex;\n                int critical;\n                ex = sk_X509_EXTENSION_value(exts, i);\n                if (BIO_printf(bp, \"%16s\", \"\") <= 0)\n                    goto err;\n                obj = X509_EXTENSION_get_object(ex);\n                if (i2a_ASN1_OBJECT(bp, obj) <= 0)\n                    goto err;\n                critical = X509_EXTENSION_get_critical(ex);\n                if (BIO_printf(bp, \": %s\\n\", critical ? \"critical\" : \"\") <= 0)\n                    goto err;\n                if (!X509V3_EXT_print(bp, ex, cflag, 20)) {\n                    if (BIO_printf(bp, \"%20s\", \"\") <= 0\n                        || ASN1_STRING_print(bp,\n                                             X509_EXTENSION_get_data(ex)) <= 0)\n                        goto err;\n                }\n                if (BIO_write(bp, \"\\n\", 1) <= 0)\n                    goto err;\n            }\n            sk_X509_EXTENSION_pop_free(exts, X509_EXTENSION_free);\n        }\n    }\n\n    if (!(cflag & X509_FLAG_NO_SIGDUMP)) {\n        const X509_ALGOR *sig_alg;\n        const ASN1_BIT_STRING *sig;\n        X509_REQ_get0_signature(x, &sig, &sig_alg);\n        if (!X509_signature_print(bp, sig_alg, sig))\n            goto err;\n    }\n\n    return 1;\n err:\n    ERR_raise(ERR_LIB_X509, ERR_R_BUF_LIB);\n    return 0;\n}"
+}

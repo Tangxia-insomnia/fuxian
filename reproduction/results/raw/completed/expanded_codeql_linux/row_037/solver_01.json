@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, BitVec, BitVecVal, Function, IntSort, BoolSort, Bool, Or, Not, Solver, sat\n\n    # Base script constraints\n    nh = Int('nh')\n\n    # Constraint set 2 variable definitions\n    fib_nh_flags = BitVec('fib_nh_flags', 32)\n    RTNH_F_DEAD = BitVecVal(1, 32)\n    nexthop_is_blackhole = Function('nexthop_is_blackhole', IntSort(), BoolSort())\n    unlikely_nh = Function('unlikely_nh', IntSort(), BoolSort())\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(nh == 0)\n\n    # Constraint 1\n    c1 = Or(Not(unlikely_nh(nh)), Not(nexthop_is_blackhole(nh)))\n    s.add(c1)\n\n    # Constraint 2\n    left2 = Bool('left2')\n    right2 = (fib_nh_flags & RTNH_F_DEAD) == BitVecVal(0, 32)\n    c2 = Or(left2, right2)\n    s.add(c2)\n\n    # Constraint 3\n    left3 = Bool('left3')\n    c3 = Or(left3, Not(unlikely_nh(nh)), Not(nexthop_is_blackhole(nh)))\n    s.add(c3)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun nh () Int)\n(declare-fun nexthop_is_blackhole (Int) Bool)\n(declare-fun unlikely_nh (Int) Bool)\n(declare-fun fib_nh_flags () (_ BitVec 32))\n(declare-fun left2 () Bool)\n(declare-fun left3 () Bool)\n(assert\n (= nh 0))\n(assert\n (let (($x30 (not (nexthop_is_blackhole nh))))\n (let (($x28 (not (unlikely_nh nh))))\n (or $x28 $x30))))\n(assert\n (let (($x35 (= (_ bv0 32) (bvand fib_nh_flags (_ bv1 32)))))\n (or left2 $x35)))\n(assert\n (let (($x30 (not (nexthop_is_blackhole nh))))\n(let (($x28 (not (unlikely_nh nh))))\n(or left3 $x28 $x30))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

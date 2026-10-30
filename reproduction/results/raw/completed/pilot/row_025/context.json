@@ -1,0 +1,112 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ipv6_set_opt_hdr",
+      "var_name": "new",
+      "target": "\tkfree(new);",
+      "code": "static int ipv6_set_opt_hdr(struct sock *sk, int optname, sockptr_t optval,\n\t\tint optlen)\n{\n\tstruct ipv6_pinfo *np = inet6_sk(sk);\n\tstruct ipv6_opt_hdr *new = NULL;\n\tstruct net *net = sock_net(sk);\n\tstruct ipv6_txoptions *opt;\n\tint err;\n\n\t/* hop-by-hop / destination options are privileged option */\n\tif (optname != IPV6_RTHDR && !sockopt_ns_capable(net->user_ns, CAP_NET_RAW))\n\t\treturn -EPERM;\n\n\t/* remove any sticky options header with a zero option\n\t * length, per RFC3542.\n\t */\n\tif (optlen > 0) {\n\t\tif (sockptr_is_null(optval))\n\t\t\treturn -EINVAL;\n\t\tif (optlen < sizeof(struct ipv6_opt_hdr) ||\n\t\t    optlen & 0x7 ||\n\t\t    optlen > 8 * 255)\n\t\t\treturn -EINVAL;\n\n\t\tnew = memdup_sockptr(optval, optlen);\n\t\tif (IS_ERR(new))\n\t\t\treturn PTR_ERR(new);\n\t\tif (unlikely(ipv6_optlen(new) > optlen)) {\n\t\t\tkfree(new);\n\t\t\treturn -EINVAL;\n\t\t}\n\t}\n\n\topt = rcu_dereference_protected(np->opt, lockdep_sock_is_held(sk));\n\topt = ipv6_renew_options(sk, opt, optname, new);\n\tkfree(new);\n\tif (IS_ERR(opt))\n\t\treturn PTR_ERR(opt);\n\n\t/* routing header option needs extra check */\n\terr = -EINVAL;\n\tif (optname == IPV6_RTHDR && opt && opt->srcrt) {\n\t\tstruct ipv6_rt_hdr *rthdr = opt->srcrt;\n\t\tswitch (rthdr->type) {\n#if IS_ENABLED(CONFIG_IPV6_MIP6)\n\t\tcase IPV6_SRCRT_TYPE_2:\n\t\t\tif (rthdr->hdrlen != 2 || rthdr->segments_left != 1)\n\t\t\t\tgoto sticky_done;\n\t\t\tbreak;\n#endif\n\t\tcase IPV6_SRCRT_TYPE_4:\n\t\t{\n\t\t\tstruct ipv6_sr_hdr *srh =\n\t\t\t\t(struct ipv6_sr_hdr *)opt->srcrt;\n\n\t\t\tif (!seg6_validate_srh(srh, optlen, false))\n\t\t\t\tgoto sticky_done;\n\t\t\tbreak;\n\t\t}\n\t\tdefault:\n\t\t\tgoto sticky_done;\n\t\t}\n\t}\n\n\terr = 0;\n\topt = ipv6_update_options(sk, opt);\nsticky_done:\n\tif (opt) {\n\t\tatomic_sub(opt->tot_len, &sk->sk_omem_alloc);\n\t\ttxopt_put(opt);\n\t}\n\treturn err;\n}",
+      "body_sha256": "d683532bc54a3c71edb7c9ece68a75f600a0d87735c16dd1d256428c9e6d0fdb",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tkfree(new);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int ipv6_set_opt_hdr(struct sock *sk, int optname, sockptr_t optval,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "optlen > 0",
+              "unlikely(ipv6_optlen(new) > optlen)"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "optlen > 0",
+              "IS_ERR(new)"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "optlen > 0",
+              "optlen < sizeof(struct ipv6_opt_hdr) || optlen & 0x7 || optlen > 8 * 255"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "optlen > 0",
+              "sockptr_is_null(optval)"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "optname != IPV6_RTHDR && !sockopt_ns_capable(net->user_ns, CAP_NET_RAW)"
+            ]
+          }
+        ],
+        "filter_function_code": "static int ipv6_set_opt_hdr(struct sock *sk, int optname, sockptr_t optval,\n\t\tint optlen)\n{\n\tstruct ipv6_pinfo *np = inet6_sk(sk);\n\tstruct ipv6_opt_hdr *new = NULL;\n\tstruct net *net = sock_net(sk);\n\tstruct ipv6_txoptions *opt;\n\tint err;\n\n\t/* hop-by-hop / destination options are privileged option */\n\tif (optname != IPV6_RTHDR && !sockopt_ns_capable(net->user_ns, CAP_NET_RAW))\n\t\treturn -EPERM;\n\n\t/* remove any sticky options header with a zero option\n\t * length, per RFC3542.\n\t */\n\tif (optlen > 0) {\n\t\tif (sockptr_is_null(optval))\n\t\t\treturn -EINVAL;\n\t\tif (optlen < sizeof(struct ipv6_opt_hdr) ||\n\t\t    optlen & 0x7 ||\n\t\t    optlen > 8 * 255)\n\t\t\treturn -EINVAL;\n\n\t\tnew = memdup_sockptr(optval, optlen);\n\t\tif (IS_ERR(new))\n\t\t\treturn PTR_ERR(new);\n\t\tif (unlikely(ipv6_optlen(new) > optlen)) {\n\t\t\tkfree(new);\n\t\t\treturn -EINVAL;\n\t\t}\n\t}\n\n\topt = rcu_dereference_protected(np->opt, lockdep_sock_is_held(sk));\n\topt = ipv6_renew_options(sk, opt, optname, new);\n\tkfree(new);\n\tif (IS_ERR(opt))\n\t\treturn PTR_ERR(opt);\n\n\t/* routing header option needs extra check */\n\terr = -EINVAL;\n\tif (optname == IPV6_RTHDR && opt && opt->srcrt) {\n\t\tstruct ipv6_rt_hdr *rthdr = opt->srcrt;\n\t\tswitch (rthdr->type) {\n#if IS_ENABLED(CONFIG_IPV6_MIP6)\n\t\tcase IPV6_SRCRT_TYPE_2:\n\t\t\tif (rthdr->hdrlen != 2 || rthdr->segments_left != 1)\n\t\t\t\tgoto sticky_done;\n\t\t\tbreak;\n#endif\n\t\tcase IPV6_SRCRT_TYPE_4:\n\t\t{\n\t\t\tstruct ipv6_sr_hdr *srh =\n\t\t\t\t(struct ipv6_sr_hdr *)opt->srcrt;\n\n\t\t\tif (!seg6_validate_srh(srh, optlen, false))\n\t\t\t\tgoto sticky_done;\n\t\t\tbreak;\n\t\t}\n\t\tdefault:\n\t\t\tgoto sticky_done;\n\t\t}\n\t}\n\n\terr = 0;\n\topt = ipv6_update_options(sk, opt);\nsticky_done:\n\tif (opt) {\n\t\tatomic_sub(opt->tot_len, &sk->sk_omem_alloc);\n\t\ttxopt_put(opt);\n\t}\n\treturn err;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "kfree",
+      "var_name": "object",
+      "target": "\t\tfree_large_kmalloc(folio, (void *)object);",
+      "code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}",
+      "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\tfree_large_kmalloc(folio, (void *)object);",
+            "condition": [
+              {
+                "condition": "if (unlikely(!folio_test_slab(folio)))",
+                "line_number": 13
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (unlikely(!folio_test_slab(folio)))",
+            "line_number": 13
+          }
+        ],
+        "variable_assignments": {
+          "text": "void kfree(const void *object)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "unlikely(ZERO_OR_NULL_PTR(object))"
+            ]
+          }
+        ],
+        "filter_function_code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int ipv6_set_opt_hdr(struct sock *sk, int optname, sockptr_t optval,\n\t\tint optlen)\n{\n\tstruct ipv6_pinfo *np = inet6_sk(sk);\n\tstruct ipv6_opt_hdr *new = NULL;\n\tstruct net *net = sock_net(sk);\n\tstruct ipv6_txoptions *opt;\n\tint err;\n\n\t/* hop-by-hop / destination options are privileged option */\n\tif (optname != IPV6_RTHDR && !sockopt_ns_capable(net->user_ns, CAP_NET_RAW))\n\t\treturn -EPERM;\n\n\t/* remove any sticky options header with a zero option\n\t * length, per RFC3542.\n\t */\n\tif (optlen > 0) {\n\t\tif (sockptr_is_null(optval))\n\t\t\treturn -EINVAL;\n\t\tif (optlen < sizeof(struct ipv6_opt_hdr) ||\n\t\t    optlen & 0x7 ||\n\t\t    optlen > 8 * 255)\n\t\t\treturn -EINVAL;\n\n\t\tnew = memdup_sockptr(optval, optlen);\n\t\tif (IS_ERR(new))\n\t\t\treturn PTR_ERR(new);\n\t\tif (unlikely(ipv6_optlen(new) > optlen)) {\n\t\t\tkfree(new);\n\t\t\treturn -EINVAL;\n\t\t}\n\t}\n\n\topt = rcu_dereference_protected(np->opt, lockdep_sock_is_held(sk));\n\topt = ipv6_renew_options(sk, opt, optname, new);\n\tkfree(new);\n\tif (IS_ERR(opt))\n\t\treturn PTR_ERR(opt);\n\n\t/* routing header option needs extra check */\n\terr = -EINVAL;\n\tif (optname == IPV6_RTHDR && opt && opt->srcrt) {\n\t\tstruct ipv6_rt_hdr *rthdr = opt->srcrt;\n\t\tswitch (rthdr->type) {\n#if IS_ENABLED(CONFIG_IPV6_MIP6)\n\t\tcase IPV6_SRCRT_TYPE_2:\n\t\t\tif (rthdr->hdrlen != 2 || rthdr->segments_left != 1)\n\t\t\t\tgoto sticky_done;\n\t\t\tbreak;\n#endif\n\t\tcase IPV6_SRCRT_TYPE_4:\n\t\t{\n\t\t\tstruct ipv6_sr_hdr *srh =\n\t\t\t\t(struct ipv6_sr_hdr *)opt->srcrt;\n\n\t\t\tif (!seg6_validate_srh(srh, optlen, false))\n\t\t\t\tgoto sticky_done;\n\t\t\tbreak;\n\t\t}\n\t\tdefault:\n\t\t\tgoto sticky_done;\n\t\t}\n\t}\n\n\terr = 0;\n\topt = ipv6_update_options(sk, opt);\nsticky_done:\n\tif (opt) {\n\t\tatomic_sub(opt->tot_len, &sk->sk_omem_alloc);\n\t\ttxopt_put(opt);\n\t}\n\treturn err;\n}",
+    "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+  ]
+}

@@ -1,0 +1,148 @@
+```python
+ectx=Int('ectx')
+s.add(ectx == 0)
+```
+```json
+["!(outformat == FORMAT_PVK) || !(!OSSL_ENCODER_CTX_set_params(ectx, params))", "!(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# ectx: pointer to OSSL_ENCODER_CTX (modeled as an integer address)
+ectx = Int('ectx')
+
+# OSSL_ENCODER_CTX_set_params(ectx, params) returns int (1 on success, 0 on failure)
+# Modeled as an uninterpreted function returning Int
+OSSL_ENCODER_CTX_set_params = Function('OSSL_ENCODER_CTX_set_params', IntSort(), IntSort())
+
+# OSSL_ENCODER_CTX_get_num_encoders(ectx) returns int (number of encoders)
+OSSL_ENCODER_CTX_get_num_encoders = Function('OSSL_ENCODER_CTX_get_num_encoders', IntSort(), IntSort())
+
+# FORMAT_PVK is a constant format identifier
+FORMAT_PVK = Int('FORMAT_PVK')
+
+# outformat: the output format variable
+outformat = Int('outformat')
+
+s = Solver()
+
+# Constraint 1: !(outformat == FORMAT_PVK) || !(!OSSL_ENCODER_CTX_set_params(ectx, params))
+# This is included because it constrains ectx via OSSL_ENCODER_CTX_set_params.
+# In C, !x is true when x == 0. So !OSSL_ENCODER_CTX_set_params(...) means the call returned 0.
+# The constraint says: either outformat is not FORMAT_PVK, or the set_params call did NOT fail
+# (i.e., it succeeded, returning non-zero).
+s.add(Or(outformat != FORMAT_PVK, OSSL_ENCODER_CTX_set_params(ectx) != 0))
+
+# Constraint 2: !(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)
+# This is included because it directly constrains ectx: the number of encoders must be non-zero.
+s.add(OSSL_ENCODER_CTX_get_num_encoders(ectx) != 0)
+
+# Check satisfiability
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Function, IntSort, Solver, Or
+
+    # Base script variables and constraints
+    ectx = Int('ectx')
+
+    # Constraint set 2 variables
+    OSSL_ENCODER_CTX_set_params = Function('OSSL_ENCODER_CTX_set_params', IntSort(), IntSort())
+    OSSL_ENCODER_CTX_get_num_encoders = Function('OSSL_ENCODER_CTX_get_num_encoders', IntSort(), IntSort())
+    FORMAT_PVK = Int('FORMAT_PVK')
+    outformat = Int('outformat')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ectx == 0)
+
+    # Constraint set 2, constraint 1
+    s.add(Or(outformat != FORMAT_PVK, OSSL_ENCODER_CTX_set_params(ectx) != 0))
+
+    # Constraint set 2, constraint 2
+    s.add(OSSL_ENCODER_CTX_get_num_encoders(ectx) != 0)
+
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+```python
+def check_constraints():
+    from z3 import Int, Function, IntSort, Solver, Or, And
+
+    ectx = Int('ectx')
+    OSSL_ENCODER_CTX_set_params = Function('OSSL_ENCODER_CTX_set_params', IntSort(), IntSort())
+    OSSL_ENCODER_CTX_get_num_encoders = Function('OSSL_ENCODER_CTX_get_num_encoders', IntSort(), IntSort())
+    FORMAT_PVK = Int('FORMAT_PVK')
+    outformat = Int('outformat')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ectx == 0)
+
+    # Constraint set 2, constraint 1:
+    # !(outformat == FORMAT_PVK) || !(!OSSL_ENCODER_CTX_set_params(ectx, params))
+    # => (outformat != FORMAT_PVK) || (OSSL_ENCODER_CTX_set_params(ectx) != 0)
+    s.add(Or(outformat != FORMAT_PVK, OSSL_ENCODER_CTX_set_params(ectx) != 0))
+
+    # Constraint set 2, constraint 2:
+    # !(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)
+    s.add(OSSL_ENCODER_CTX_get_num_encoders(ectx) != 0)
+
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import Int, Function, IntSort, Solver, Or, And
+
+    ectx = Int('ectx')
+    OSSL_ENCODER_CTX_set_params = Function('OSSL_ENCODER_CTX_set_params', IntSort(), IntSort())
+    OSSL_ENCODER_CTX_get_num_encoders = Function('OSSL_ENCODER_CTX_get_num_encoders', IntSort(), IntSort())
+    FORMAT_PVK = Int('FORMAT_PVK')
+    outformat = Int('outformat')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ectx == 0)
+
+    # Constraint set 2, constraint 1:
+    # !(outformat == FORMAT_PVK) || !(!OSSL_ENCODER_CTX_set_params(ectx, params))
+    # => (outformat != FORMAT_PVK) || (OSSL_ENCODER_CTX_set_params(ectx) != 0)
+    s.add(Or(outformat != FORMAT_PVK, OSSL_ENCODER_CTX_set_params(ectx) != 0))
+
+    # Constraint set 2, constraint 2:
+    # !(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)
+    s.add(OSSL_ENCODER_CTX_get_num_encoders(ectx) != 0)
+
+    return s.check() == __import__('z3').sat
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import Int, Solver
+
+    ectx = Int('ectx')
+    outformat = Int('outformat')
+    FORMAT_PVK = Int('FORMAT_PVK')
+    set_params_result = Int('set_params_result')
+    num_encoders = Int('num_encoders')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ectx == 0)
+
+    # Constraint set 2, constraint 1:
+    # !(outformat == FORMAT_PVK) || !(!OSSL_ENCODER_CTX_set_params(ectx, params))
+    # => (outformat != FORMAT_PVK) || (set_params_result != 0)
+    s.add((outformat != FORMAT_PVK) | (set_params_result != 0))
+
+    # Constraint set 2, constraint 2:
+    # !(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)
+    s.add(num_encoders != 0)
+
+    return s.check() == __import__('z3').sat
+ValueError: Unsupported generated-code operation

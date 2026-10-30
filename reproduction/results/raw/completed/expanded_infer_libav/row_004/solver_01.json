@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Not, sat\n\n    # Base script constraints\n    config_int = Int('config')\n    s = Solver()\n    s.add(config_int == 0)\n\n    # Constraint set 2 variables (note: 'config' is re-declared as Bool here,\n    # which conflicts with the Int declaration above; we keep both by using\n    # distinct names to preserve all original constraints)\n    config_bool = Bool('config_bool')\n    i = Int('i')\n\n    # Constraint set 2: !(!config) -> config_bool == True\n    s.add(Not(Not(config_bool)))\n\n    # Check satisfiability\n    result = (s.check() == sat)\n    return result",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun config () Int)\n(declare-fun config_bool () Bool)\n(assert\n (= config 0))\n(assert\n (not (not config_bool)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,84 @@
+\section{Baseline Settings}
+\label{ap:baseline}
+
+In RQ1, We compare \app{} against two baselines: LLM4SA~\cite{llm4sa} and LLMDFA~\cite{llmdfa}. 
+For LLM4SA, we use its public implementation with the following prompt:
+
+\begin{mdframed}
+[linecolor=myblue!50,linewidth=2pt,roundcorner=10pt,backgroundcolor=myyellow!20]
+\small
+
+\hspace{3.5mm} You are an expert C/C++ programmer.
+
+\textbf{\# Task Description:} 
+
+The code snippet and the bug report will be provided to you for the purpose of examining the presence of the bug within the code snippet. Initially, you need to explain the behavior of the code. Subsequently, you can determine whether the bug is a true positive or a false positive based on the explanation.  To conclude your answer, you will provide one of the following labels: @@@ real bug @@@, @@@ false alarm @@@, or @@@ unknown @@@.
+
+\textbf{\# Bug Report:} \textit{[Bug Report]}
+
+\textbf{\# Code Snippet:} \textit{[Code Snippet]}
+
+
+\end{mdframed}
+
+For LLMDFA, we omit the Source/Sink Extraction phase and instead use the sources and sinks from \ourbench{} for Dataflow Summarization and Path Feasibility Validation. The prompt template in NPD detection is as follows.
+
+Prompt for Dataflow Summarization:
+
+\begin{mdframed}
+[linecolor=myblue!50,linewidth=2pt,roundcorner=10pt,backgroundcolor=myyellow!20]
+\small
+
+\hspace{3.5mm}
+\textbf{System Role}: You are a C programmer and very good at analyzing C code. 
+
+\textbf{Task Description}: Determine whether two pointer variables at two lines have the same value (i.e., both pointing to the same address or both NULL).
+
+\textbf{Analysis Rules}: 
+
+If they are the same pointer variable and not overwritten between two lines, the answer should be yes.
+
+If the pointer variable a is assigned to the variable b, and there is no overwrite upon them between two lines, the answer should be yes.
+
+[Other Rules]
+
+\textbf{Examples}:
+
+Example 1: User: [Program] [Question]
+
+System: [Answer: Yes][Explanation: y is assigned with x at line 2 and not overwritten between line 2 and line 3, so the value of y before line 3 and x after line 1 are the same]
+
+[Other Examples]
+
+\textbf{Question}: Now I give you a function: [FUNCTION]
+
+Please answer: Dose [VAR1] used at line [LINE1] have the same value as [VAR2] defined at line [LINE2]
+
+Please think it step by step. Return Yes/No with the explanation.
+
+
+\end{mdframed}
+
+
+Prompt for Dataflow Validation:
+
+\begin{mdframed}
+[linecolor=myblue!50,linewidth=2pt,roundcorner=10pt,backgroundcolor=myyellow!20]
+\small
+
+\hspace{3.5mm} \textbf{System Role}: You are a good programmer and familiar with Z3 Python binding.
+
+\textbf{Description}: Please write a Python program using Z3 Python binding to encode the path condition.
+
+\textbf{Path Info}: Here is the path: [path]. Note that the value of [variable] is 0. 
+
+The branch information is as follows: [branch info].
+
+The early jump information is as follows: [early jump info].
+
+\textbf{Synthesis Task}: Please write a Python script to solve the path condition using Z3 Python binding. You can refer to the skeleton: [skeleton]
+
+\textbf{Fixing Task}: Here is the synthesized result of the last round: [script]. When executing the synthesized script, we encounter the following error: [error message]. Please fix the bug and return a runnable script.
+
+
+\end{mdframed}

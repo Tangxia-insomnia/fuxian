@@ -1,0 +1,45 @@
+{
+  "call_id": 674,
+  "sample_id": "NPD/codeql/openssl:row=7:index=8",
+  "timestamp": "2026-10-26T00:57:24.825907+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(operation == SMIME_ENCRYPT) || !(!(flags & CMS_STREAM)) || !(!CMS_final(cms, in, NULL, flags))', '!(operation == SMIME_ENCRYPT) || !(pwri_pass != NULL) || !(CMS_add0_recipient_password(cms, -1, NID_undef, NID_undef, pwri_tmp, -1, NULL) == NULL)', '!(operation == SMIME_ENCRYPT) || !(pwri_pass != NULL) || !(pwri_tmp == NULL)', '!(operation == SMIME_ENCRYPT) || !(secret_key != NULL) || !(!CMS_add0_recipient_key(cms, NID_undef, secret_key, secret_keylen, secret_keyid, secret_keyidlen, NULL, NULL, NULL))', '!(operation == SMIME_ENCRYPT) || !(i = 0; i < sk_X509_num(encerts); i++) || !(CMS_RecipientInfo_type(ri) == CMS_RECIPINFO_AGREE && wrap_cipher != NULL) || !(EVP_EncryptInit_ex(wctx, wrap_cipher, NULL, NULL, NULL) != 1)', '!(operation == SMIME_ENCRYPT) || !(i = 0; i < sk_X509_num(encerts); i++) || !(res <= 0 && res != -2)', '!(operation == SMIME_ENCRYPT) || !(i = 0; i < sk_X509_num(encerts); i++) || !(kparam != NULL) || !(!cms_set_pkey_param(pctx, kparam->param))', '!(operation == SMIME_ENCRYPT) || !(i = 0; i < sk_X509_num(encerts); i++) || !(ri == NULL)', '!(operation == SMIME_ENCRYPT) || !(i = 0; i < sk_X509_num(encerts); i++) || !(kparam = key_first; kparam; kparam = kparam->next) || !(kparam->idx == i)', '!(operation == SMIME_ENCRYPT) || !(cms == NULL)', '!(operation & SMIME_IP) || !(cms == NULL)']\n        Relevant conditions/variables: [], cms\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "ebfea742-774f-4d63-9890-819414ca7885",
+  "usage": {
+    "prompt_tokens": 615,
+    "completion_tokens": 338,
+    "total_tokens": 953,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 615
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables relevant to the constraints\n# cms is a pointer-like variable; model as an integer (0 = NULL, non-zero = valid pointer)\ncms = Int('cms')\n\n# operation is a bitmask variable used in the constraints\noperation = Int('operation')\n\n# Constants for SMIME operations (bitmask values)\nSMIME_ENCRYPT = 1\nSMIME_IP = 2\n\ns = Solver()\n\n# Constraint 1: !(operation == SMIME_ENCRYPT) || !(cms == NULL)\n# Included because it directly references cms and operation.\n# C: !(operation == SMIME_ENCRYPT) || !(cms == NULL)\ns.add(Or(operation != SMIME_ENCRYPT, cms != 0))\n\n# Constraint 2: !(operation & SMIME_IP) || !(cms == NULL)\n# Included because it directly references cms and operation.\n# C: !(operation & SMIME_IP) || !(cms == NULL)\ns.add(Or((operation & SMIME_IP) == 0, cms != 0))\n\n# Note: All other constraints reference variables (flags, pwri_pass, secret_key,\n# encerts, ri, wctx, wrap_cipher, res, kparam, pctx, key_first, i, etc.) that are\n# not part of the specified relevant conditions/variables (only cms and operation\n# are relevant). They are therefore excluded per the guidelines.\n\nprint(s.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.151046299999507,
+  "cost_upper_bound_cny": 0.003934
+}

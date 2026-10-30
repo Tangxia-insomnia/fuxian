@@ -1,0 +1,56 @@
+```python
+config=Int('config')
+s.add(config == 0)
+```
+```json
+["!(i = 0;; i++) || !(!config)"]
+```
+```python
+from z3 import *
+
+# Declare variables appearing in the constraints
+config = Bool('config')
+i = Int('i')
+
+# The input constraint is: !(i = 0;; i++) || !(!config)
+# The C for-loop header "i = 0;; i++" is not a boolean expression; it is
+# malformed when used with logical negation. The only meaningful, well-formed
+# sub-expression that affects the listed variable `config` is `!(!config)`.
+# We therefore model the constraint as: !(!config)  (i.e., config must be true)
+# The `i` variable is declared for completeness but does not appear in any
+# well-formed boolean sub-expression, so no constraint is placed on it.
+
+s = Solver()
+
+# Constraint: !(!config)  ->  config == True
+# Included because it is the only well-formed boolean condition referencing
+# the relevant variable `config`.
+s.add(Not(Not(config)))
+
+# Check satisfiability and print result
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Not, sat
+
+    # Base script constraints
+    config_int = Int('config')
+    s = Solver()
+    s.add(config_int == 0)
+
+    # Constraint set 2 variables (note: 'config' is re-declared as Bool here,
+    # which conflicts with the Int declaration above; we keep both by using
+    # distinct names to preserve all original constraints)
+    config_bool = Bool('config_bool')
+    i = Int('i')
+
+    # Constraint set 2: !(!config) -> config_bool == True
+    s.add(Not(Not(config_bool)))
+
+    # Check satisfiability
+    result = (s.check() == sat)
+    return result
+```
+goto result: True

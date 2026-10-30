@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, sat, Not\n    \n    # Base script constraints\n    sta_int = Int('sta')\n    s = Solver()\n    s.add(sta_int == 0)\n    \n    # Constraint set 2: sta as Bool, requiring sta == True\n    sta = Bool('sta')\n    s.add(Not(Not(sta)))  # equivalent to sta == True\n    \n    result = s.check() == sat\n    return result",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sta () Int)\n(declare-fun sta () Bool)\n(assert\n (= sta 0))\n(assert\n (not (not sta)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

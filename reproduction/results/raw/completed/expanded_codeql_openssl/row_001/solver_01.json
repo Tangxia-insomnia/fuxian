@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, And, Function, IntSort, sat\n\n    # Base script constraints\n    outdir = Int('outdir')\n\n    # Constraint set 2 variables\n    app_isdir_ret = Int('app_isdir_ret')\n    req = Bool('req')\n    app_isdir = Function('app_isdir', IntSort(), IntSort())\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(outdir == 0)\n\n    # Constraint set 2, Constraint 1\n    s.add(Or(Not(And(outdir == 0, req)), Not(outdir == 0)))\n\n    # Constraint set 2, Constraint 2\n    s.add(Not(app_isdir(outdir) <= 0))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun outdir () Int)\n(declare-fun req () Bool)\n(declare-fun app_isdir (Int) Int)\n(assert\n (= outdir 0))\n(assert\n (or (not (and (= outdir 0) req)) (not (= outdir 0))))\n(assert\n (not (<= (app_isdir outdir) 0)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

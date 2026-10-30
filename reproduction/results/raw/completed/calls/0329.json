@@ -1,0 +1,45 @@
+{
+  "call_id": 329,
+  "sample_id": "NPD/codeql/kernel69:row=44:index=69",
+  "timestamp": "2026-10-26T00:49:59.374994+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(unlikely(ZERO_OR_NULL_PTR(object)))']\n        Relevant conditions/variables: [{'condition': 'if (unlikely(!folio_test_slab(folio)))', 'line_number': 13}], object\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "218ae24f-e4bc-4d3c-92f7-39b3ba003775",
+  "usage": {
+    "prompt_tokens": 143,
+    "completion_tokens": 260,
+    "total_tokens": 403,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 143
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare the pointer variable `object` as an integer address.\n# In C, `object` is a pointer; we model it as an integer where 0 means NULL.\nobject = Int('object')\n\n# Constraint: !(unlikely(ZERO_OR_NULL_PTR(object)))\n# ZERO_OR_NULL_PTR(x) is true when x is NULL or a small error-pointer value.\n# In the Linux kernel, ZERO_OR_NULL_PTR(x) is defined as:\n#     unlikely(!x || (unsigned long)(x) < PAGE_SIZE)\n# i.e., the pointer is NULL (0) or its address is below PAGE_SIZE (typically 4096).\n# The C code negates this, so the constraint requires:\n#     object != 0  AND  object >= PAGE_SIZE\n# This ensures `object` is a valid, non-NULL, non-error pointer before use.\nPAGE_SIZE = 4096\n\ns = Solver()\n\n# object is not NULL\ns.add(object != 0)\n\n# object is not a small error-pointer value (address >= PAGE_SIZE)\ns.add(object >= PAGE_SIZE)\n\n# Print the resulting constraints for inspection\nprint(s)\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.9416955000006055,
+  "cost_upper_bound_cny": 0.002366
+}

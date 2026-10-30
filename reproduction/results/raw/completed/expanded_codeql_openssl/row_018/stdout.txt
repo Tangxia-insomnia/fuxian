@@ -1,0 +1,65 @@
+```python
+ectx_key=Int('ectx_key')
+s.add(ectx_key == 0)
+```
+```json
+["!(genkey) || !(EVP_PKEY_keygen_init(gctx_key) <= 0 || EVP_PKEY_keygen(gctx_key, &key) <= 0)"]
+```
+```python
+from z3 import *
+
+# Declarations for the variables appearing in the constraint.
+# genkey: boolean flag indicating whether key generation is requested.
+# EVP_PKEY_keygen_init / EVP_PKEY_keygen: modeled as integer return codes
+#   (C convention: <= 0 indicates failure).
+genkey = Bool('genkey')
+EVP_PKEY_keygen_init_ret = Int('EVP_PKEY_keygen_init_ret')
+EVP_PKEY_keygen_ret = Int('EVP_PKEY_keygen_ret')
+
+s = Solver()
+
+# Original C constraint:
+#   !(genkey) || !(EVP_PKEY_keygen_init(gctx_key) <= 0 || EVP_PKEY_keygen(gctx_key, &key) <= 0)
+#
+# Meaning: if genkey is true, then BOTH keygen_init and keygen must succeed
+# (i.e., their return values must be > 0). If genkey is false, the constraint
+# is trivially satisfied.
+#
+# The C expression `EVP_PKEY_keygen_init(...) <= 0` is modeled as
+# `EVP_PKEY_keygen_init_ret <= 0`, and similarly for keygen.
+s.add(Or(
+    Not(genkey),
+    Not(Or(EVP_PKEY_keygen_init_ret <= 0, EVP_PKEY_keygen_ret <= 0))
+))
+
+# Check satisfiability and print a model.
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, sat
+
+    # Base script variables and constraints
+    ectx_key = Int('ectx_key')
+
+    # Constraint set 2 variables
+    genkey = Bool('genkey')
+    EVP_PKEY_keygen_init_ret = Int('EVP_PKEY_keygen_init_ret')
+    EVP_PKEY_keygen_ret = Int('EVP_PKEY_keygen_ret')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ectx_key == 0)
+
+    # Constraint set 2 constraint
+    s.add(Or(
+        Not(genkey),
+        Not(Or(EVP_PKEY_keygen_init_ret <= 0, EVP_PKEY_keygen_ret <= 0))
+    ))
+
+    return s.check() == sat
+```
+goto result: True

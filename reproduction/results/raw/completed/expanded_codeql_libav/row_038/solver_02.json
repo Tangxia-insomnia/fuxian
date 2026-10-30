@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    filt_name = Int('filt_name')\n    s = Solver()\n    s.add(filt_name == 0)\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun filt_name () Int)\n(assert\n (= filt_name 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

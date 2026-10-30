@@ -1,0 +1,45 @@
+{
+  "call_id": 1108,
+  "sample_id": "NPD/infer/libav:row=1:index=None",
+  "timestamp": "2026-10-26T01:07:32.736070+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static av_cold int movie_init(AVFilterContext *ctx)\n{\n    MovieContext *movie = ctx->priv;\n    AVInputFormat *iformat = NULL;\n    AVStream *st;\n    AVCodec *codec;\n    int ret;\n    int64_t timestamp;\n\n    av_register_all();\n\n    // Try to find the movie format (container)\n    iformat = movie->format_name ? av_find_input_format(movie->format_name) : NULL;\n\n    movie->format_ctx = NULL;\n    if ((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, NULL)) < 0) {\n        av_log(ctx, AV_LOG_ERROR,\n               \"Failed to avformat_open_input '%s'\\n\", movie->file_name);\n        return ret;\n    }\n    if ((ret = avformat_find_stream_info(movie->format_ctx, NULL)) < 0)\n        av_log(ctx, AV_LOG_WARNING, \"Failed to find stream info\\n\");\n\n    // if seeking requested, we execute it\n    if (movie->seek_point > 0) {\n        timestamp = movie->seek_point;\n        // add the stream start time, should it exist\n        if (movie->format_ctx->start_time != AV_NOPTS_VALUE) {\n            if (timestamp > INT64_MAX - movie->format_ctx->start_time) {\n                av_log(ctx, AV_LOG_ERROR,\n                       \"%s: seek value overflow with start_time:%\"PRId64\" seek_point:%\"PRId64\"\\n\",\n                       movie->file_name, movie->format_ctx->start_time, movie->seek_point);\n                return AVERROR(EINVAL);\n            }\n            timestamp += movie->format_ctx->start_time;\n        }\n        if ((ret = av_seek_frame(movie->format_ctx, -1, timestamp, AVSEEK_FLAG_BACKWARD)) < 0) {\n            av_log(ctx, AV_LOG_ERROR, \"%s: could not seek to position %\"PRId64\"\\n\",\n                   movie->file_name, timestamp);\n            return ret;\n        }\n    }\n\n    /* select the video stream */\n    if ((ret = av_find_best_stream(movie->format_ctx, AVMEDIA_TYPE_VIDEO,\n                                   movie->stream_index, -1, NULL, 0)) < 0) {\n        av_log(ctx, AV_LOG_ERROR, \"No video stream with index '%d' found\\n\",\n               movie->stream_index);\n        return ret;\n    }\n    movie->stream_index = ret;\n    st = movie->format_ctx->streams[movie->stream_index];\n\n    /*\n     * So now we've got a pointer to the so-called codec context for our video\n     * stream, but we still have to find the actual codec and open it.\n     */\n    codec = avcodec_find_decoder(st->codecpar->codec_id);\n    if (!codec) {\n        av_log(ctx, AV_LOG_ERROR, \"Failed to find any codec\\n\");\n        return AVERROR(EINVAL);\n    }\n\n    movie->codec_ctx = avcodec_alloc_context3(codec);\n    if (!movie->codec_ctx)\n        return AVERROR(ENOMEM);\n\n    ret = avcodec_parameters_to_context(movie->codec_ctx, st->codecpar);\n    if (ret < 0)\n        return ret;\n\n    movie->codec_ctx->refcounted_frames = 1;\n\n    if ((ret = avcodec_open2(movie->codec_ctx, codec, NULL)) < 0) {\n        av_log(ctx, AV_LOG_ERROR, \"Failed to open codec\\n\");\n        return ret;\n    }\n\n    movie->w = movie->codec_ctx->width;\n    movie->h = movie->codec_ctx->height;\n\n    av_log(ctx, AV_LOG_VERBOSE, \"seek_point:%\"PRIi64\" format_name:%s file_name:%s stream_index:%d\\n\",\n           movie->seek_point, movie->format_name, movie->file_name,\n           movie->stream_index);\n\n    return 0;\n}\n        - Target variables: [], movie->format_ctx\n        - Constraints: ['!((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, NULL)) < 0)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "a7f07169-7583-4340-bc31-5ba49d613fcb",
+  "usage": {
+    "prompt_tokens": 1015,
+    "completion_tokens": 36,
+    "total_tokens": 1051,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1015
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, NULL)) < 0)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.47729399999934685,
+  "cost_upper_bound_cny": 0.002318
+}

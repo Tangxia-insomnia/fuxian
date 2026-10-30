@@ -1,0 +1,45 @@
+{
+  "call_id": 659,
+  "sample_id": "NPD/codeql/openssl:row=3:index=3",
+  "timestamp": "2026-10-26T00:57:04.996429+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: int save_serial(const char *serialfile, const char *suffix,\n                const BIGNUM *serial, ASN1_INTEGER **retai)\n{\n    char buf[1][BSIZE];\n    BIO *out = NULL;\n    int ret = 0;\n    ASN1_INTEGER *ai = NULL;\n    int j;\n\n    if (suffix == NULL)\n        j = strlen(serialfile);\n    else\n        j = strlen(serialfile) + strlen(suffix) + 1;\n    if (j >= BSIZE) {\n        BIO_printf(bio_err, \"File name too long\\n\");\n        goto err;\n    }\n\n    if (suffix == NULL) {\n        OPENSSL_strlcpy(buf[0], serialfile, BSIZE);\n    } else {\n#ifndef OPENSSL_SYS_VMS\n        BIO_snprintf(buf[0], sizeof(buf[0]), \"%s.%s\", serialfile, suffix);\n#else\n        BIO_snprintf(buf[0], sizeof(buf[0]), \"%s-%s\", serialfile, suffix);\n#endif\n    }\n    out = BIO_new_file(buf[0], \"w\");\n    if (out == NULL) {\n        goto err;\n    }\n\n    if ((ai = BN_to_ASN1_INTEGER(serial, NULL)) == NULL) {\n        BIO_printf(bio_err, \"error converting serial to ASN.1 format\\n\");\n        goto err;\n    }\n    i2a_ASN1_INTEGER(out, ai);\n    BIO_puts(out, \"\\n\");\n    ret = 1;\n    if (retai) {\n        *retai = ai;\n        ai = NULL;\n    }\n err:\n    if (!ret)\n        ERR_print_errors(bio_err);\n    BIO_free_all(out);\n    ASN1_INTEGER_free(ai);\n    return ret;\n}\n        - Target variables: [], serial\n        - Constraints: ['!(out == NULL)', '!(j >= BSIZE)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "81e99610-d100-4d77-8c26-3df20fb5d71e",
+  "usage": {
+    "prompt_tokens": 486,
+    "completion_tokens": 5,
+    "total_tokens": 491,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 486
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6670243000007758,
+  "cost_upper_bound_cny": 0.001012
+}

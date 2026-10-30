@@ -1,0 +1,71 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "rt6_device_match",
+      "var_name": "nh",
+      "target": "\tif (nh->fib_nh_flags & RTNH_F_DEAD) {",
+      "code": "static void rt6_device_match(struct net *net, struct fib6_result *res,\n\t\t\t     const struct in6_addr *saddr, int oif, int flags)\n{\n\tstruct fib6_info *f6i = res->f6i;\n\tstruct fib6_info *spf6i;\n\tstruct fib6_nh *nh;\n\n\tif (!oif && ipv6_addr_any(saddr)) {\n\t\tif (unlikely(f6i->nh)) {\n\t\t\tnh = nexthop_fib6_nh(f6i->nh);\n\t\t\tif (nexthop_is_blackhole(f6i->nh))\n\t\t\t\tgoto out_blackhole;\n\t\t} else {\n\t\t\tnh = f6i->fib6_nh;\n\t\t}\n\t\tif (!(nh->fib_nh_flags & RTNH_F_DEAD))\n\t\t\tgoto out;\n\t}\n\n\tfor (spf6i = f6i; spf6i; spf6i = rcu_dereference(spf6i->fib6_next)) {\n\t\tbool matched = false;\n\n\t\tif (unlikely(spf6i->nh)) {\n\t\t\tnh = rt6_nh_dev_match(net, spf6i->nh, res, saddr,\n\t\t\t\t\t      oif, flags);\n\t\t\tif (nh)\n\t\t\t\tmatched = true;\n\t\t} else {\n\t\t\tnh = spf6i->fib6_nh;\n\t\t\tif (__rt6_device_match(net, nh, saddr, oif, flags))\n\t\t\t\tmatched = true;\n\t\t}\n\t\tif (matched) {\n\t\t\tres->f6i = spf6i;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\tif (oif && flags & RT6_LOOKUP_F_IFACE) {\n\t\tres->f6i = net->ipv6.fib6_null_entry;\n\t\tnh = res->f6i->fib6_nh;\n\t\tgoto out;\n\t}\n\n\tif (unlikely(f6i->nh)) {\n\t\tnh = nexthop_fib6_nh(f6i->nh);\n\t\tif (nexthop_is_blackhole(f6i->nh))\n\t\t\tgoto out_blackhole;\n\t} else {\n\t\tnh = f6i->fib6_nh;\n\t}\n\n\tif (nh->fib_nh_flags & RTNH_F_DEAD) {\n\t\tres->f6i = net->ipv6.fib6_null_entry;\n\t\tnh = res->f6i->fib6_nh;\n\t}\nout:\n\tres->nh = nh;\n\tres->fib6_type = res->f6i->fib6_type;\n\tres->fib6_flags = res->f6i->fib6_flags;\n\treturn;\n\nout_blackhole:\n\tres->fib6_flags |= RTF_REJECT;\n\tres->fib6_type = RTN_BLACKHOLE;\n\tres->nh = nh;\n}",
+      "body_sha256": "6cda4dbe94dc3413c9b193d3f01724c21d884ac94425ddce374ae73e30fad5a3",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tif (nh->fib_nh_flags & RTNH_F_DEAD) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void rt6_device_match(struct net *net, struct fib6_result *res,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "out_blackhole",
+            "condition": [
+              "unlikely(f6i->nh)",
+              "nexthop_is_blackhole(f6i->nh)"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "oif && flags & RT6_LOOKUP_F_IFACE"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "spf6i = f6i; spf6i; spf6i = rcu_dereference(spf6i->fib6_next)",
+              "matched"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "!oif && ipv6_addr_any(saddr)",
+              "!(nh->fib_nh_flags & RTNH_F_DEAD)"
+            ]
+          },
+          {
+            "text": "out_blackhole",
+            "condition": [
+              "!oif && ipv6_addr_any(saddr)",
+              "unlikely(f6i->nh)",
+              "nexthop_is_blackhole(f6i->nh)"
+            ]
+          }
+        ],
+        "filter_function_code": "static void rt6_device_match(struct net *net, struct fib6_result *res,\n\t\t\t     const struct in6_addr *saddr, int oif, int flags)\n{\n\tstruct fib6_info *f6i = res->f6i;\n\tstruct fib6_info *spf6i;\n\tstruct fib6_nh *nh;\n\n\tif (!oif && ipv6_addr_any(saddr)) {\n\t\tif (unlikely(f6i->nh)) {\n\t\t\tnh = nexthop_fib6_nh(f6i->nh);\n\t\t\tif (nexthop_is_blackhole(f6i->nh))\n\t\t\t\tgoto out_blackhole;\n\t\t} else {\n\t\t\tnh = f6i->fib6_nh;\n\t\t}\n\t\tif (!(nh->fib_nh_flags & RTNH_F_DEAD))\n\t\t\tgoto out;\n\t}\n\n\tfor (spf6i = f6i; spf6i; spf6i = rcu_dereference(spf6i->fib6_next)) {\n\t\tbool matched = false;\n\n\t\tif (unlikely(spf6i->nh)) {\n\t\t\tnh = rt6_nh_dev_match(net, spf6i->nh, res, saddr,\n\t\t\t\t\t      oif, flags);\n\t\t\tif (nh)\n\t\t\t\tmatched = true;\n\t\t} else {\n\t\t\tnh = spf6i->fib6_nh;\n\t\t\tif (__rt6_device_match(net, nh, saddr, oif, flags))\n\t\t\t\tmatched = true;\n\t\t}\n\t\tif (matched) {\n\t\t\tres->f6i = spf6i;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\tif (oif && flags & RT6_LOOKUP_F_IFACE) {\n\t\tres->f6i = net->ipv6.fib6_null_entry;\n\t\tnh = res->f6i->fib6_nh;\n\t\tgoto out;\n\t}\n\n\tif (unlikely(f6i->nh)) {\n\t\tnh = nexthop_fib6_nh(f6i->nh);\n\t\tif (nexthop_is_blackhole(f6i->nh))\n\t\t\tgoto out_blackhole;\n\t} else {\n\t\tnh = f6i->fib6_nh;\n\t}\n\n\tif (nh->fib_nh_flags & RTNH_F_DEAD) {\n\t\tres->f6i = net->ipv6.fib6_null_entry;\n\t\tnh = res->f6i->fib6_nh;\n\t}\nout:\n\tres->nh = nh;\n\tres->fib6_type = res->f6i->fib6_type;\n\tres->fib6_flags = res->f6i->fib6_flags;\n\treturn;\n\nout_blackhole:\n\tres->fib6_flags |= RTF_REJECT;\n\tres->fib6_type = RTN_BLACKHOLE;\n\tres->nh = nh;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void rt6_device_match(struct net *net, struct fib6_result *res,\n\t\t\t     const struct in6_addr *saddr, int oif, int flags)\n{\n\tstruct fib6_info *f6i = res->f6i;\n\tstruct fib6_info *spf6i;\n\tstruct fib6_nh *nh;\n\n\tif (!oif && ipv6_addr_any(saddr)) {\n\t\tif (unlikely(f6i->nh)) {\n\t\t\tnh = nexthop_fib6_nh(f6i->nh);\n\t\t\tif (nexthop_is_blackhole(f6i->nh))\n\t\t\t\tgoto out_blackhole;\n\t\t} else {\n\t\t\tnh = f6i->fib6_nh;\n\t\t}\n\t\tif (!(nh->fib_nh_flags & RTNH_F_DEAD))\n\t\t\tgoto out;\n\t}\n\n\tfor (spf6i = f6i; spf6i; spf6i = rcu_dereference(spf6i->fib6_next)) {\n\t\tbool matched = false;\n\n\t\tif (unlikely(spf6i->nh)) {\n\t\t\tnh = rt6_nh_dev_match(net, spf6i->nh, res, saddr,\n\t\t\t\t\t      oif, flags);\n\t\t\tif (nh)\n\t\t\t\tmatched = true;\n\t\t} else {\n\t\t\tnh = spf6i->fib6_nh;\n\t\t\tif (__rt6_device_match(net, nh, saddr, oif, flags))\n\t\t\t\tmatched = true;\n\t\t}\n\t\tif (matched) {\n\t\t\tres->f6i = spf6i;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\tif (oif && flags & RT6_LOOKUP_F_IFACE) {\n\t\tres->f6i = net->ipv6.fib6_null_entry;\n\t\tnh = res->f6i->fib6_nh;\n\t\tgoto out;\n\t}\n\n\tif (unlikely(f6i->nh)) {\n\t\tnh = nexthop_fib6_nh(f6i->nh);\n\t\tif (nexthop_is_blackhole(f6i->nh))\n\t\t\tgoto out_blackhole;\n\t} else {\n\t\tnh = f6i->fib6_nh;\n\t}\n\n\tif (nh->fib_nh_flags & RTNH_F_DEAD) {\n\t\tres->f6i = net->ipv6.fib6_null_entry;\n\t\tnh = res->f6i->fib6_nh;\n\t}\nout:\n\tres->nh = nh;\n\tres->fib6_type = res->f6i->fib6_type;\n\tres->fib6_flags = res->f6i->fib6_flags;\n\treturn;\n\nout_blackhole:\n\tres->fib6_flags |= RTF_REJECT;\n\tres->fib6_type = RTN_BLACKHOLE;\n\tres->nh = nh;\n}"
+  ]
+}

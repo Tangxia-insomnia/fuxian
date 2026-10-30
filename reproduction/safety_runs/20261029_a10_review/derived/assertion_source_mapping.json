@@ -1,0 +1,51 @@
+[
+  {
+    "assertion_index": 0,
+    "formula": "(= sta 0)",
+    "role": "bug_assumption",
+    "source_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_a10_review\\fetched\\pinned\\net\\mac80211\\tdls.c",
+    "source_lines": [
+      614,
+      614
+    ],
+    "source_sha256": "ecb95e3e463fced7cf9cf79e88d9e7c7e3d140c3d52560c45bbf5b49b28f5d4d",
+    "generated_python_lines": [
+      13,
+      13
+    ],
+    "model_call": 59,
+    "meaning": "sta is null at the target dereference; NOT an unconditional source assignment",
+    "original_pipeline_origin": {
+      "path": "E:\\codexconversation\\课题研究\\reproduction\\upstream\\llm4pfa\\feasibility_analysis_pipeline.py",
+      "line": 174
+    },
+    "assessment": "appropriate local NPD hypothesis with null represented by Int zero"
+  },
+  {
+    "assertion_index": 1,
+    "formula": "(not (or (= sta 0) (= ap_sta 0)))",
+    "role": "reachability",
+    "source_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_a10_review\\fetched\\pinned\\net\\mac80211\\tdls.c",
+    "source_lines": [
+      611,
+      612
+    ],
+    "source_sha256": "ecb95e3e463fced7cf9cf79e88d9e7c7e3d140c3d52560c45bbf5b49b28f5d4d",
+    "generated_python_lines": [
+      17,
+      17
+    ],
+    "model_calls": [
+      60,
+      61,
+      62
+    ],
+    "macro_refs": [
+      "include/asm-generic/bug.h:110-116,146-148,170-184",
+      "include/linux/once_lite.h:26-34",
+      "include/linux/compiler.h:17-78"
+    ],
+    "meaning": "must negate the return guard to reach the next statement",
+    "assessment": "polarity/merge correct for saved historical macros; actual original build still unbound"
+  }
+]

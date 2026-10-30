@@ -1,0 +1,256 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "rsa_main",
+      "var_name": "ectx",
+      "target": "OSSL_ENCODER_CTX_set_passphrase_ui(ectx, get_ui_method(), NULL);",
+      "code": "int rsa_main(int argc, char **argv)\n{\n    ENGINE *e = NULL;\n    BIO *out = NULL;\n    EVP_PKEY *pkey = NULL;\n    EVP_PKEY_CTX *pctx;\n    EVP_CIPHER *enc = NULL;\n    char *infile = NULL, *outfile = NULL, *ciphername = NULL, *prog;\n    char *passin = NULL, *passout = NULL, *passinarg = NULL, *passoutarg = NULL;\n    int private = 0;\n    int informat = FORMAT_UNDEF, outformat = FORMAT_PEM, text = 0, check = 0;\n    int noout = 0, modulus = 0, pubin = 0, pubout = 0, ret = 1;\n    int pvk_encr = DEFAULT_PVK_ENCR_STRENGTH;\n    OPTION_CHOICE o;\n    int traditional = 0;\n    const char *output_type = NULL;\n    const char *output_structure = NULL;\n    int selection = 0;\n    OSSL_ENCODER_CTX *ectx = NULL;\n\n    opt_set_unknown_name(\"cipher\");\n    prog = opt_init(argc, argv, rsa_options);\n    while ((o = opt_next()) != OPT_EOF) {\n        switch (o) {\n        case OPT_EOF:\n        case OPT_ERR:\n opthelp:\n            BIO_printf(bio_err, \"%s: Use -help for summary.\\n\", prog);\n            goto end;\n        case OPT_HELP:\n            opt_help(rsa_options);\n            ret = 0;\n            goto end;\n        case OPT_INFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &informat))\n                goto opthelp;\n            break;\n        case OPT_IN:\n            infile = opt_arg();\n            break;\n        case OPT_OUTFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &outformat))\n                goto opthelp;\n            break;\n        case OPT_OUT:\n            outfile = opt_arg();\n            break;\n        case OPT_PASSIN:\n            passinarg = opt_arg();\n            break;\n        case OPT_PASSOUT:\n            passoutarg = opt_arg();\n            break;\n        case OPT_ENGINE:\n            e = setup_engine(opt_arg(), 0);\n            break;\n        case OPT_PUBIN:\n            pubin = 1;\n            break;\n        case OPT_PUBOUT:\n            pubout = 1;\n            break;\n        case OPT_RSAPUBKEY_IN:\n            pubin = 2;\n            break;\n        case OPT_RSAPUBKEY_OUT:\n            pubout = 2;\n            break;\n        case OPT_PVK_STRONG:    /* pvk_encr:= 2 */\n        case OPT_PVK_WEAK:      /* pvk_encr:= 1 */\n        case OPT_PVK_NONE:      /* pvk_encr:= 0 */\n            pvk_encr = (o - OPT_PVK_NONE);\n            break;\n        case OPT_NOOUT:\n            noout = 1;\n            break;\n        case OPT_TEXT:\n            text = 1;\n            break;\n        case OPT_MODULUS:\n            modulus = 1;\n            break;\n        case OPT_CHECK:\n            check = 1;\n            break;\n        case OPT_CIPHER:\n            ciphername = opt_unknown();\n            break;\n        case OPT_PROV_CASES:\n            if (!opt_provider(o))\n                goto end;\n            break;\n        case OPT_TRADITIONAL:\n            traditional = 1;\n            break;\n        }\n    }\n\n    /* No extra arguments. */\n    if (!opt_check_rest_arg(NULL))\n        goto opthelp;\n\n    if (!opt_cipher(ciphername, &enc))\n        goto opthelp;\n    private = (text && !pubin) || (!pubout && !noout);\n\n    if (!app_passwd(passinarg, passoutarg, &passin, &passout)) {\n        BIO_printf(bio_err, \"Error getting passwords\\n\");\n        goto end;\n    }\n    if (check && pubin) {\n        BIO_printf(bio_err, \"Only private keys can be checked\\n\");\n        goto end;\n    }\n\n    if (pubin) {\n        int tmpformat = FORMAT_UNDEF;\n\n        if (pubin == 2) {\n            if (informat == FORMAT_PEM)\n                tmpformat = FORMAT_PEMRSA;\n            else if (informat == FORMAT_ASN1)\n                tmpformat = FORMAT_ASN1RSA;\n        } else {\n            tmpformat = informat;\n        }\n\n        pkey = load_pubkey(infile, tmpformat, 1, passin, e, \"public key\");\n    } else {\n        pkey = load_key(infile, informat, 1, passin, e, \"private key\");\n    }\n\n    if (pkey == NULL) {\n        ERR_print_errors(bio_err);\n        goto end;\n    }\n    if (!EVP_PKEY_is_a(pkey, \"RSA\") && !EVP_PKEY_is_a(pkey, \"RSA-PSS\")) {\n        BIO_printf(bio_err, \"Not an RSA key\\n\");\n        goto end;\n    }\n\n    out = bio_open_owner(outfile, outformat, private);\n    if (out == NULL)\n        goto end;\n\n    if (text) {\n        assert(pubin || private);\n        if ((pubin && EVP_PKEY_print_public(out, pkey, 0, NULL) <= 0)\n            || (!pubin && EVP_PKEY_print_private(out, pkey, 0, NULL) <= 0)) {\n            perror(outfile);\n            ERR_print_errors(bio_err);\n            goto end;\n        }\n    }\n\n    if (modulus) {\n        BIGNUM *n = NULL;\n\n        /* Every RSA key has an 'n' */\n        EVP_PKEY_get_bn_param(pkey, \"n\", &n);\n        BIO_printf(out, \"Modulus=\");\n        BN_print(out, n);\n        BIO_printf(out, \"\\n\");\n        BN_free(n);\n    }\n\n    if (check) {\n        int r;\n\n        pctx = EVP_PKEY_CTX_new_from_pkey(NULL, pkey, NULL);\n        if (pctx == NULL) {\n            BIO_printf(bio_err, \"RSA unable to create PKEY context\\n\");\n            ERR_print_errors(bio_err);\n            goto end;\n        }\n        r = EVP_PKEY_check(pctx);\n        EVP_PKEY_CTX_free(pctx);\n\n        if (r == 1) {\n            BIO_printf(out, \"RSA key ok\\n\");\n        } else if (r == 0) {\n            BIO_printf(bio_err, \"RSA key not ok\\n\");\n            ERR_print_errors(bio_err);\n        } else if (r < 0) {\n            ERR_print_errors(bio_err);\n            goto end;\n        }\n    }\n\n    if (noout) {\n        ret = 0;\n        goto end;\n    }\n    BIO_printf(bio_err, \"writing RSA key\\n\");\n\n    /* Choose output type for the format */\n    if (outformat == FORMAT_ASN1) {\n        output_type = \"DER\";\n    } else if (outformat == FORMAT_PEM) {\n        output_type = \"PEM\";\n    } else if (outformat == FORMAT_MSBLOB) {\n        output_type = \"MSBLOB\";\n    } else if (outformat == FORMAT_PVK) {\n        if (pubin) {\n            BIO_printf(bio_err, \"PVK form impossible with public key input\\n\");\n            goto end;\n        }\n        output_type = \"PVK\";\n    } else {\n        BIO_printf(bio_err, \"bad output format specified for outfile\\n\");\n        goto end;\n    }\n\n    /* Select what you want in the output */\n    if (pubout || pubin) {\n        selection = OSSL_KEYMGMT_SELECT_PUBLIC_KEY;\n    } else {\n        assert(private);\n        selection = (OSSL_KEYMGMT_SELECT_KEYPAIR\n                     | OSSL_KEYMGMT_SELECT_ALL_PARAMETERS);\n    }\n\n    /* For DER based output, select the desired output structure */\n    if (outformat == FORMAT_ASN1 || outformat == FORMAT_PEM) {\n        if (pubout || pubin) {\n            if (pubout == 2)\n                output_structure = \"pkcs1\"; /* \"type-specific\" would work too */\n            else\n                output_structure = \"SubjectPublicKeyInfo\";\n        } else {\n            assert(private);\n            if (traditional)\n                output_structure = \"pkcs1\"; /* \"type-specific\" would work too */\n            else\n                output_structure = \"PrivateKeyInfo\";\n        }\n    }\n\n    /* Now, perform the encoding */\n    ectx = OSSL_ENCODER_CTX_new_for_pkey(pkey, selection,\n                                         output_type, output_structure,\n                                         NULL);\n    if (OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0) {\n        if ((!pubout && !pubin)\n            || !try_legacy_encoding(pkey, outformat, pubout, out))\n            BIO_printf(bio_err, \"%s format not supported\\n\", output_type);\n        else\n            ret = 0;\n        goto end;\n    }\n\n    /* Passphrase setup */\n    if (enc != NULL)\n        OSSL_ENCODER_CTX_set_cipher(ectx, EVP_CIPHER_get0_name(enc), NULL);\n\n    /* Default passphrase prompter */\n    if (enc != NULL || outformat == FORMAT_PVK) {\n        OSSL_ENCODER_CTX_set_passphrase_ui(ectx, get_ui_method(), NULL);\n        if (passout != NULL)\n            /* When passout given, override the passphrase prompter */\n            OSSL_ENCODER_CTX_set_passphrase(ectx,\n                                            (const unsigned char *)passout,\n                                            strlen(passout));\n    }\n\n    /* PVK is a bit special... */\n    if (outformat == FORMAT_PVK) {\n        OSSL_PARAM params[2] = { OSSL_PARAM_END, OSSL_PARAM_END };\n\n        params[0] = OSSL_PARAM_construct_int(\"encrypt-level\", &pvk_encr);\n        if (!OSSL_ENCODER_CTX_set_params(ectx, params)) {\n            BIO_printf(bio_err, \"invalid PVK encryption level\\n\");\n            goto end;\n        }\n    }\n\n    if (!OSSL_ENCODER_to_bio(ectx, out)) {\n        BIO_printf(bio_err, \"unable to write key\\n\");\n        ERR_print_errors(bio_err);\n        goto end;\n    }\n    ret = 0;\n end:\n    OSSL_ENCODER_CTX_free(ectx);\n    release_engine(e);\n    BIO_free_all(out);\n    EVP_PKEY_free(pkey);\n    EVP_CIPHER_free(enc);\n    OPENSSL_free(passin);\n    OPENSSL_free(passout);\n    return ret;\n}",
+      "body_sha256": "4e12b30738578d65c3b05139da7582869cb21ed851da510ba5870477e4942dea",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "OSSL_ENCODER_CTX_set_passphrase_ui(ectx, get_ui_method(), NULL);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "int rsa_main(int argc, char **argv)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "end",
+            "condition": [
+              "OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "!(outformat == FORMAT_ASN1) && !(outformat == FORMAT_PEM) && !(outformat == FORMAT_MSBLOB) && !(outformat == FORMAT_PVK)"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "outformat == FORMAT_PVK",
+              "pubin"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "noout"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "check",
+              "r < 0"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "check",
+              "pctx == NULL"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "text",
+              "(pubin && EVP_PKEY_print_public(out, pkey, 0, NULL) <= 0) || (!pubin && EVP_PKEY_print_private(out, pkey, 0, NULL) <= 0)"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "out == NULL"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "!EVP_PKEY_is_a(pkey, \"RSA\") && !EVP_PKEY_is_a(pkey, \"RSA-PSS\")"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "pkey == NULL"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "check && pubin"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": [
+              "!app_passwd(passinarg, passoutarg, &passin, &passout)"
+            ]
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "!opt_cipher(ciphername, &enc)"
+            ]
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "!opt_check_rest_arg(NULL)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": [
+              "!opt_provider(o)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "!opt_format(opt_arg(), OPT_FMT_ANY, &outformat)"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          },
+          {
+            "text": "opthelp",
+            "condition": [
+              "!opt_format(opt_arg(), OPT_FMT_ANY, &informat)"
+            ]
+          },
+          {
+            "text": "end",
+            "condition": []
+          },
+          {
+            "text": "end",
+            "condition": []
+          }
+        ],
+        "filter_function_code": "int rsa_main(int argc, char **argv)\n{\n    ENGINE *e = NULL;\n    BIO *out = NULL;\n    EVP_PKEY *pkey = NULL;\n    EVP_PKEY_CTX *pctx;\n    EVP_CIPHER *enc = NULL;\n    char *infile = NULL, *outfile = NULL, *ciphername = NULL, *prog;\n    char *passin = NULL, *passout = NULL, *passinarg = NULL, *passoutarg = NULL;\n    int private = 0;\n    int informat = FORMAT_UNDEF, outformat = FORMAT_PEM, text = 0, check = 0;\n    int noout = 0, modulus = 0, pubin = 0, pubout = 0, ret = 1;\n    int pvk_encr = DEFAULT_PVK_ENCR_STRENGTH;\n    OPTION_CHOICE o;\n    int traditional = 0;\n    const char *output_type = NULL;\n    const char *output_structure = NULL;\n    int selection = 0;\n    OSSL_ENCODER_CTX *ectx = NULL;\n\n    opt_set_unknown_name(\"cipher\");\n    prog = opt_init(argc, argv, rsa_options);\n    while ((o = opt_next()) != OPT_EOF) {\n        switch (o) {\n        case OPT_EOF:\n        case OPT_ERR:\n opthelp:\n            BIO_printf(bio_err, \"%s: Use -help for summary.\\n\", prog);\n            goto end;\n        case OPT_HELP:\n            opt_help(rsa_options);\n            ret = 0;\n            goto end;\n        case OPT_INFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &informat))\n                goto opthelp;\n            break;\n        case OPT_IN:\n            infile = opt_arg();\n            break;\n        case OPT_OUTFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &outformat))\n                goto opthelp;\n            break;\n        case OPT_OUT:\n            outfile = opt_arg();\n            break;\n        case OPT_PASSIN:\n            passinarg = opt_arg();\n            break;\n        case OPT_PASSOUT:\n            passoutarg = opt_arg();\n            break;\n        case OPT_ENGINE:\n            e = setup_engine(opt_arg(), 0);\n            break;\n        case OPT_PUBIN:\n            pubin = 1;\n            break;\n        case OPT_PUBOUT:\n            pubout = 1;\n            break;\n        case OPT_RSAPUBKEY_IN:\n            pubin = 2;\n            break;\n        case OPT_RSAPUBKEY_OUT:\n            pubout = 2;\n            break;\n        case OPT_PVK_STRONG:    /* pvk_encr:= 2 */\n        case OPT_PVK_WEAK:      /* pvk_encr:= 1 */\n        case OPT_PVK_NONE:      /* pvk_encr:= 0 */\n            pvk_encr = (o - OPT_PVK_NONE);\n            break;\n        case OPT_NOOUT:\n            noout = 1;\n            break;\n        case OPT_TEXT:\n            text = 1;\n            break;\n        case OPT_MODULUS:\n            modulus = 1;\n            break;\n        case OPT_CHECK:\n            check = 1;\n            break;\n        case OPT_CIPHER:\n            ciphername = opt_unknown();\n            break;\n        case OPT_PROV_CASES:\n            if (!opt_provider(o))\n                goto end;\n            break;\n        case OPT_TRADITIONAL:\n            traditional = 1;\n            break;\n        }\n    }\n\n    /* No extra arguments. */\n    if (!opt_check_rest_arg(NULL))\n        goto opthelp;\n\n    if (!opt_cipher(ciphername, &enc))\n        goto opthelp;\n    private = (text && !pubin) || (!pubout && !noout);\n\n    if (!app_passwd(passinarg, passoutarg, &passin, &passout)) {\n        BIO_printf(bio_err, \"Error getting passwords\\n\");\n        goto end;\n    }\n    if (check && pubin) {\n        BIO_printf(bio_err, \"Only private keys can be checked\\n\");\n        goto end;\n    }\n\n    if (pubin) {\n        int tmpformat = FORMAT_UNDEF;\n\n        if (pubin == 2) {\n            if (informat == FORMAT_PEM)\n                tmpformat = FORMAT_PEMRSA;\n            else if (informat == FORMAT_ASN1)\n                tmpformat = FORMAT_ASN1RSA;\n        } else {\n            tmpformat = informat;\n        }\n\n        pkey = load_pubkey(infile, tmpformat, 1, passin, e, \"public key\");\n    } else {\n        pkey = load_key(infile, informat, 1, passin, e, \"private key\");\n    }\n\n    if (pkey == NULL) {\n        ERR_print_errors(bio_err);\n        goto end;\n    }\n    if (!EVP_PKEY_is_a(pkey, \"RSA\") && !EVP_PKEY_is_a(pkey, \"RSA-PSS\")) {\n        BIO_printf(bio_err, \"Not an RSA key\\n\");\n        goto end;\n    }\n\n    out = bio_open_owner(outfile, outformat, private);\n    if (out == NULL)\n        goto end;\n\n    if (text) {\n        assert(pubin || private);\n        if ((pubin && EVP_PKEY_print_public(out, pkey, 0, NULL) <= 0)\n            || (!pubin && EVP_PKEY_print_private(out, pkey, 0, NULL) <= 0)) {\n            perror(outfile);\n            ERR_print_errors(bio_err);\n            goto end;\n        }\n    }\n\n    if (modulus) {\n        BIGNUM *n = NULL;\n\n        /* Every RSA key has an 'n' */\n        EVP_PKEY_get_bn_param(pkey, \"n\", &n);\n        BIO_printf(out, \"Modulus=\");\n        BN_print(out, n);\n        BIO_printf(out, \"\\n\");\n        BN_free(n);\n    }\n\n    if (check) {\n        int r;\n\n        pctx = EVP_PKEY_CTX_new_from_pkey(NULL, pkey, NULL);\n        if (pctx == NULL) {\n            BIO_printf(bio_err, \"RSA unable to create PKEY context\\n\");\n            ERR_print_errors(bio_err);\n            goto end;\n        }\n        r = EVP_PKEY_check(pctx);\n        EVP_PKEY_CTX_free(pctx);\n\n        if (r == 1) {\n            BIO_printf(out, \"RSA key ok\\n\");\n        } else if (r == 0) {\n            BIO_printf(bio_err, \"RSA key not ok\\n\");\n            ERR_print_errors(bio_err);\n        } else if (r < 0) {\n            ERR_print_errors(bio_err);\n            goto end;\n        }\n    }\n\n    if (noout) {\n        ret = 0;\n        goto end;\n    }\n    BIO_printf(bio_err, \"writing RSA key\\n\");\n\n    /* Choose output type for the format */\n    if (outformat == FORMAT_ASN1) {\n        output_type = \"DER\";\n    } else if (outformat == FORMAT_PEM) {\n        output_type = \"PEM\";\n    } else if (outformat == FORMAT_MSBLOB) {\n        output_type = \"MSBLOB\";\n    } else if (outformat == FORMAT_PVK) {\n        if (pubin) {\n            BIO_printf(bio_err, \"PVK form impossible with public key input\\n\");\n            goto end;\n        }\n        output_type = \"PVK\";\n    } else {\n        BIO_printf(bio_err, \"bad output format specified for outfile\\n\");\n        goto end;\n    }\n\n    /* Select what you want in the output */\n    if (pubout || pubin) {\n        selection = OSSL_KEYMGMT_SELECT_PUBLIC_KEY;\n    } else {\n        assert(private);\n        selection = (OSSL_KEYMGMT_SELECT_KEYPAIR\n                     | OSSL_KEYMGMT_SELECT_ALL_PARAMETERS);\n    }\n\n    /* For DER based output, select the desired output structure */\n    if (outformat == FORMAT_ASN1 || outformat == FORMAT_PEM) {\n        if (pubout || pubin) {\n            if (pubout == 2)\n                output_structure = \"pkcs1\"; /* \"type-specific\" would work too */\n            else\n                output_structure = \"SubjectPublicKeyInfo\";\n        } else {\n            assert(private);\n            if (traditional)\n                output_structure = \"pkcs1\"; /* \"type-specific\" would work too */\n            else\n                output_structure = \"PrivateKeyInfo\";\n        }\n    }\n\n    /* Now, perform the encoding */\n    ectx = OSSL_ENCODER_CTX_new_for_pkey(pkey, selection,\n                                         output_type, output_structure,\n                                         NULL);\n    if (OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0) {\n        if ((!pubout && !pubin)\n            || !try_legacy_encoding(pkey, outformat, pubout, out))\n            BIO_printf(bio_err, \"%s format not supported\\n\", output_type);\n        else\n            ret = 0;\n        goto end;\n    }\n\n    /* Passphrase setup */\n    if (enc != NULL)\n        OSSL_ENCODER_CTX_set_cipher(ectx, EVP_CIPHER_get0_name(enc), NULL);\n\n    /* Default passphrase prompter */\n    if (enc != NULL || outformat == FORMAT_PVK) {\n        OSSL_ENCODER_CTX_set_passphrase_ui(ectx, get_ui_method(), NULL);\n        if (passout != NULL)\n            /* When passout given, override the passphrase prompter */\n            OSSL_ENCODER_CTX_set_passphrase(ectx,\n                                            (const unsigned char *)passout,\n                                            strlen(passout));\n    }\n\n    /* PVK is a bit special... */\n    if (outformat == FORMAT_PVK) {\n        OSSL_PARAM params[2] = { OSSL_PARAM_END, OSSL_PARAM_END };\n\n        params[0] = OSSL_PARAM_construct_int(\"encrypt-level\", &pvk_encr);\n        if (!OSSL_ENCODER_CTX_set_params(ectx, params)) {\n            BIO_printf(bio_err, \"invalid PVK encryption level\\n\");\n            goto end;\n        }\n    }\n\n    if (!OSSL_ENCODER_to_bio(ectx, out)) {\n        BIO_printf(bio_err, \"unable to write key\\n\");\n        ERR_print_errors(bio_err);\n        goto end;\n    }\n    ret = 0;\n end:\n    OSSL_ENCODER_CTX_free(ectx);\n    release_engine(e);\n    BIO_free_all(out);\n    EVP_PKEY_free(pkey);\n    EVP_CIPHER_free(enc);\n    OPENSSL_free(passin);\n    OPENSSL_free(passout);\n    return ret;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "OSSL_ENCODER_CTX_set_passphrase_ui",
+      "var_name": "ctx",
+      "target": "    return ossl_pw_set_ui_method(&ctx->pwdata, ui_method, ui_data);",
+      "code": "int OSSL_ENCODER_CTX_set_passphrase_ui(OSSL_ENCODER_CTX *ctx,\n                                       const UI_METHOD *ui_method,\n                                       void *ui_data)\n{\n    return ossl_pw_set_ui_method(&ctx->pwdata, ui_method, ui_data);\n}",
+      "body_sha256": "b0daa2e76bc17028b203d1262f0b03122d1e27735f7a90a22181c49eee686db5",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "    return ossl_pw_set_ui_method(&ctx->pwdata, ui_method, ui_data);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "int OSSL_ENCODER_CTX_set_passphrase_ui(OSSL_ENCODER_CTX *ctx,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": []
+          }
+        ],
+        "filter_function_code": "int OSSL_ENCODER_CTX_set_passphrase_ui(OSSL_ENCODER_CTX *ctx,\n                                       const UI_METHOD *ui_method,\n                                       void *ui_data)\n{\n    return ossl_pw_set_ui_method(&ctx->pwdata, ui_method, ui_data);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "int rsa_main(int argc, char **argv)\n{\n    ENGINE *e = NULL;\n    BIO *out = NULL;\n    EVP_PKEY *pkey = NULL;\n    EVP_PKEY_CTX *pctx;\n    EVP_CIPHER *enc = NULL;\n    char *infile = NULL, *outfile = NULL, *ciphername = NULL, *prog;\n    char *passin = NULL, *passout = NULL, *passinarg = NULL, *passoutarg = NULL;\n    int private = 0;\n    int informat = FORMAT_UNDEF, outformat = FORMAT_PEM, text = 0, check = 0;\n    int noout = 0, modulus = 0, pubin = 0, pubout = 0, ret = 1;\n    int pvk_encr = DEFAULT_PVK_ENCR_STRENGTH;\n    OPTION_CHOICE o;\n    int traditional = 0;\n    const char *output_type = NULL;\n    const char *output_structure = NULL;\n    int selection = 0;\n    OSSL_ENCODER_CTX *ectx = NULL;\n\n    opt_set_unknown_name(\"cipher\");\n    prog = opt_init(argc, argv, rsa_options);\n    while ((o = opt_next()) != OPT_EOF) {\n        switch (o) {\n        case OPT_EOF:\n        case OPT_ERR:\n opthelp:\n            BIO_printf(bio_err, \"%s: Use -help for summary.\\n\", prog);\n            goto end;\n        case OPT_HELP:\n            opt_help(rsa_options);\n            ret = 0;\n            goto end;\n        case OPT_INFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &informat))\n                goto opthelp;\n            break;\n        case OPT_IN:\n            infile = opt_arg();\n            break;\n        case OPT_OUTFORM:\n            if (!opt_format(opt_arg(), OPT_FMT_ANY, &outformat))\n                goto opthelp;\n            break;\n        case OPT_OUT:\n            outfile = opt_arg();\n            break;\n        case OPT_PASSIN:\n            passinarg = opt_arg();\n            break;\n        case OPT_PASSOUT:\n            passoutarg = opt_arg();\n            break;\n        case OPT_ENGINE:\n            e = setup_engine(opt_arg(), 0);\n            break;\n        case OPT_PUBIN:\n            pubin = 1;\n            break;\n        case OPT_PUBOUT:\n            pubout = 1;\n            break;\n        case OPT_RSAPUBKEY_IN:\n            pubin = 2;\n            break;\n        case OPT_RSAPUBKEY_OUT:\n            pubout = 2;\n            break;\n        case OPT_PVK_STRONG:    /* pvk_encr:= 2 */\n        case OPT_PVK_WEAK:      /* pvk_encr:= 1 */\n        case OPT_PVK_NONE:      /* pvk_encr:= 0 */\n            pvk_encr = (o - OPT_PVK_NONE);\n            break;\n        case OPT_NOOUT:\n            noout = 1;\n            break;\n        case OPT_TEXT:\n            text = 1;\n            break;\n        case OPT_MODULUS:\n            modulus = 1;\n            break;\n        case OPT_CHECK:\n            check = 1;\n            break;\n        case OPT_CIPHER:\n            ciphername = opt_unknown();\n            break;\n        case OPT_PROV_CASES:\n            if (!opt_provider(o))\n                goto end;\n            break;\n        case OPT_TRADITIONAL:\n            traditional = 1;\n            break;\n        }\n    }\n\n    /* No extra arguments. */\n    if (!opt_check_rest_arg(NULL))\n        goto opthelp;\n\n    if (!opt_cipher(ciphername, &enc))\n        goto opthelp;\n    private = (text && !pubin) || (!pubout && !noout);\n\n    if (!app_passwd(passinarg, passoutarg, &passin, &passout)) {\n        BIO_printf(bio_err, \"Error getting passwords\\n\");\n        goto end;\n    }\n    if (check && pubin) {\n        BIO_printf(bio_err, \"Only private keys can be checked\\n\");\n        goto end;\n    }\n\n    if (pubin) {\n        int tmpformat = FORMAT_UNDEF;\n\n        if (pubin == 2) {\n            if (informat == FORMAT_PEM)\n                tmpformat = FORMAT_PEMRSA;\n            else if (informat == FORMAT_ASN1)\n                tmpformat = FORMAT_ASN1RSA;\n        } else {\n            tmpformat = informat;\n        }\n\n        pkey = load_pubkey(infile, tmpformat, 1, passin, e, \"public key\");\n    } else {\n        pkey = load_key(infile, informat, 1, passin, e, \"private key\");\n    }\n\n    if (pkey == NULL) {\n        ERR_print_errors(bio_err);\n        goto end;\n    }\n    if (!EVP_PKEY_is_a(pkey, \"RSA\") && !EVP_PKEY_is_a(pkey, \"RSA-PSS\")) {\n        BIO_printf(bio_err, \"Not an RSA key\\n\");\n        goto end;\n    }\n\n    out = bio_open_owner(outfile, outformat, private);\n    if (out == NULL)\n        goto end;\n\n    if (text) {\n        assert(pubin || private);\n        if ((pubin && EVP_PKEY_print_public(out, pkey, 0, NULL) <= 0)\n            || (!pubin && EVP_PKEY_print_private(out, pkey, 0, NULL) <= 0)) {\n            perror(outfile);\n            ERR_print_errors(bio_err);\n            goto end;\n        }\n    }\n\n    if (modulus) {\n        BIGNUM *n = NULL;\n\n        /* Every RSA key has an 'n' */\n        EVP_PKEY_get_bn_param(pkey, \"n\", &n);\n        BIO_printf(out, \"Modulus=\");\n        BN_print(out, n);\n        BIO_printf(out, \"\\n\");\n        BN_free(n);\n    }\n\n    if (check) {\n        int r;\n\n        pctx = EVP_PKEY_CTX_new_from_pkey(NULL, pkey, NULL);\n        if (pctx == NULL) {\n            BIO_printf(bio_err, \"RSA unable to create PKEY context\\n\");\n            ERR_print_errors(bio_err);\n            goto end;\n        }\n        r = EVP_PKEY_check(pctx);\n        EVP_PKEY_CTX_free(pctx);\n\n        if (r == 1) {\n            BIO_printf(out, \"RSA key ok\\n\");\n        } else if (r == 0) {\n            BIO_printf(bio_err, \"RSA key not ok\\n\");\n            ERR_print_errors(bio_err);\n        } else if (r < 0) {\n            ERR_print_errors(bio_err);\n            goto end;\n        }\n    }\n\n    if (noout) {\n        ret = 0;\n        goto end;\n    }\n    BIO_printf(bio_err, \"writing RSA key\\n\");\n\n    /* Choose output type for the format */\n    if (outformat == FORMAT_ASN1) {\n        output_type = \"DER\";\n    } else if (outformat == FORMAT_PEM) {\n        output_type = \"PEM\";\n    } else if (outformat == FORMAT_MSBLOB) {\n        output_type = \"MSBLOB\";\n    } else if (outformat == FORMAT_PVK) {\n        if (pubin) {\n            BIO_printf(bio_err, \"PVK form impossible with public key input\\n\");\n            goto end;\n        }\n        output_type = \"PVK\";\n    } else {\n        BIO_printf(bio_err, \"bad output format specified for outfile\\n\");\n        goto end;\n    }\n\n    /* Select what you want in the output */\n    if (pubout || pubin) {\n        selection = OSSL_KEYMGMT_SELECT_PUBLIC_KEY;\n    } else {\n        assert(private);\n        selection = (OSSL_KEYMGMT_SELECT_KEYPAIR\n                     | OSSL_KEYMGMT_SELECT_ALL_PARAMETERS);\n    }\n\n    /* For DER based output, select the desired output structure */\n    if (outformat == FORMAT_ASN1 || outformat == FORMAT_PEM) {\n        if (pubout || pubin) {\n            if (pubout == 2)\n                output_structure = \"pkcs1\"; /* \"type-specific\" would work too */\n            else\n                output_structure = \"SubjectPublicKeyInfo\";\n        } else {\n            assert(private);\n            if (traditional)\n                output_structure = \"pkcs1\"; /* \"type-specific\" would work too */\n            else\n                output_structure = \"PrivateKeyInfo\";\n        }\n    }\n\n    /* Now, perform the encoding */\n    ectx = OSSL_ENCODER_CTX_new_for_pkey(pkey, selection,\n                                         output_type, output_structure,\n                                         NULL);\n    if (OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0) {\n        if ((!pubout && !pubin)\n            || !try_legacy_encoding(pkey, outformat, pubout, out))\n            BIO_printf(bio_err, \"%s format not supported\\n\", output_type);\n        else\n            ret = 0;\n        goto end;\n    }\n\n    /* Passphrase setup */\n    if (enc != NULL)\n        OSSL_ENCODER_CTX_set_cipher(ectx, EVP_CIPHER_get0_name(enc), NULL);\n\n    /* Default passphrase prompter */\n    if (enc != NULL || outformat == FORMAT_PVK) {\n        OSSL_ENCODER_CTX_set_passphrase_ui(ectx, get_ui_method(), NULL);\n        if (passout != NULL)\n            /* When passout given, override the passphrase prompter */\n            OSSL_ENCODER_CTX_set_passphrase(ectx,\n                                            (const unsigned char *)passout,\n                                            strlen(passout));\n    }\n\n    /* PVK is a bit special... */\n    if (outformat == FORMAT_PVK) {\n        OSSL_PARAM params[2] = { OSSL_PARAM_END, OSSL_PARAM_END };\n\n        params[0] = OSSL_PARAM_construct_int(\"encrypt-level\", &pvk_encr);\n        if (!OSSL_ENCODER_CTX_set_params(ectx, params)) {\n            BIO_printf(bio_err, \"invalid PVK encryption level\\n\");\n            goto end;\n        }\n    }\n\n    if (!OSSL_ENCODER_to_bio(ectx, out)) {\n        BIO_printf(bio_err, \"unable to write key\\n\");\n        ERR_print_errors(bio_err);\n        goto end;\n    }\n    ret = 0;\n end:\n    OSSL_ENCODER_CTX_free(ectx);\n    release_engine(e);\n    BIO_free_all(out);\n    EVP_PKEY_free(pkey);\n    EVP_CIPHER_free(enc);\n    OPENSSL_free(passin);\n    OPENSSL_free(passout);\n    return ret;\n}",
+    "int OSSL_ENCODER_CTX_set_passphrase_ui(OSSL_ENCODER_CTX *ctx,\n                                       const UI_METHOD *ui_method,\n                                       void *ui_data)\n{\n    return ossl_pw_set_ui_method(&ctx->pwdata, ui_method, ui_data);\n}"
+  ]
+}

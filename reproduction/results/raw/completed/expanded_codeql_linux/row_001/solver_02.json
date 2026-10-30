@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, BitVec, BitVecVal, Solver, And, sat\n\n    # --- Variables from base script ---\n    connected = Int('connected')\n    md = Int('md')\n    use_cache = Int('use_cache')\n    tun_info = Int('tun_info')\n\n    # --- Variables from constraint set 2 ---\n    tun_info_bv = BitVec('tun_info_bv', 64)\n    tun_info_mode = BitVec('tun_info_mode', 32)\n    tun_info_af = BitVec('tun_info_af', 16)\n    tun_info_key_u_ipv4_dst = BitVec('tun_info_key_u_ipv4_dst', 32)\n    payload_protocol = BitVec('payload_protocol', 16)\n\n    IP_TUNNEL_INFO_TX = BitVecVal(0x1, 32)\n    AF_INET = BitVecVal(2, 16)\n\n    def htons(x):\n        return ((x & 0xFF) << 8) | ((x >> 8) & 0xFF)\n\n    ETH_P_IP_HTONS = BitVecVal(htons(0x0800), 16)\n    ETH_P_IPV6_HTONS = BitVecVal(htons(0x86DD), 16)\n\n    s = Solver()\n\n    # --- Base script constraints ---\n    s.add(And(connected == 1, md == 1))\n    s.add(use_cache == 1)\n    s.add(tun_info == 0)\n\n    # --- Constraint set 1 constraints ---\n    s.add(tun_info == 0)\n    s.add(use_cache == 0)\n    s.add(md == 0)\n    s.add(connected == 0)\n\n    # --- Constraint set 2 constraints ---\n    s.add(tun_info_bv != 0)\n    s.add((tun_info_mode & IP_TUNNEL_INFO_TX) != 0)\n    s.add(tun_info_af == AF_INET)\n    s.add(tun_info_key_u_ipv4_dst != 0)\n    s.add(payload_protocol != ETH_P_IP_HTONS)\n    s.add(payload_protocol != ETH_P_IPV6_HTONS)\n\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun md () Int)\n(declare-fun connected () Int)\n(declare-fun use_cache () Int)\n(declare-fun tun_info () Int)\n(declare-fun tun_info_bv () (_ BitVec 64))\n(declare-fun tun_info_mode () (_ BitVec 32))\n(declare-fun tun_info_af () (_ BitVec 16))\n(declare-fun tun_info_key_u_ipv4_dst () (_ BitVec 32))\n(declare-fun payload_protocol () (_ BitVec 16))\n(assert\n (let (($x20 (= md 1)))\n (let (($x19 (= connected 1)))\n (and $x19 $x20))))\n(assert\n (= use_cache 1))\n(assert\n (= tun_info 0))\n(assert\n (= tun_info 0))\n(assert\n (= use_cache 0))\n(assert\n (= md 0))\n(assert\n (= connected 0))\n(assert\n (and (distinct tun_info_bv (_ bv0 64)) true))\n(assert\n (and (distinct (bvand tun_info_mode (_ bv1 32)) (_ bv0 32)) true))\n(assert\n (= (_ bv2 16) tun_info_af))\n(assert\n (and (distinct tun_info_key_u_ipv4_dst (_ bv0 32)) true))\n(assert\n (and (distinct (_ bv8 16) payload_protocol) true))\n(assert\n (and (distinct (_ bv56710 16) payload_protocol) true))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

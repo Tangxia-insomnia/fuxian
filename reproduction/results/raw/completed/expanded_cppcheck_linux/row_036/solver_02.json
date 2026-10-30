@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, And, Or, Not, sat\n\n    s = Solver()\n\n    # Base script constraint\n    iommu = Int('iommu')\n    s.add(iommu == 0)\n\n    # Constraint set 1\n    np = Int('np')\n    s.add(np != 0)\n\n    # iommu is allocated via cell_iommu_alloc(np) and BUG_ON(!iommu) ensures non-NULL\n    s.add(iommu != 0)\n\n    # hbase is either 0 (device tree window) or __pa(htab_address) (non-zero)\n    # Tautology: hbase == 0 or hbase != 0 is always true; skip as it adds no constraint\n    hbase = Int('hbase')\n\n    # fbase is aligned to segment boundary and non-negative\n    fbase = Int('fbase')\n    s.add(fbase >= 0)\n\n    # fsize = memblock_phys_mem_size() which is non-negative\n    fsize = Int('fsize')\n    s.add(fsize >= 0)\n\n    # dbase and dsize come from cell_iommu_get_window, addresses are non-negative\n    dbase = Int('dbase')\n    dsize = Int('dsize')\n    s.add(dbase >= 0)\n    s.add(dsize >= 0)\n\n    # Constraint set 2\n    # Constraint: !(iommu == 0)  ->  iommu != 0 (already added above)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun iommu () Int)\n(declare-fun np () Int)\n(declare-fun fbase () Int)\n(declare-fun fsize () Int)\n(declare-fun dbase () Int)\n(declare-fun dsize () Int)\n(assert\n (= iommu 0))\n(assert\n (and (distinct np 0) true))\n(assert\n (and (distinct iommu 0) true))\n(assert\n (>= fbase 0))\n(assert\n (>= fsize 0))\n(assert\n (>= dbase 0))\n(assert\n (>= dsize 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

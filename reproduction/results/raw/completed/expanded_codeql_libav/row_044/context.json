@@ -1,0 +1,88 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "flv_data_packet",
+      "var_name": "st",
+      "target": "pkt->stream_index = st->index;",
+      "code": "static int flv_data_packet(AVFormatContext *s, AVPacket *pkt,\n                           int64_t dts, int64_t next)\n{\n    AVIOContext *pb = s->pb;\n    AVStream *st    = NULL;\n    char buf[20];\n    int ret = AVERROR_INVALIDDATA;\n    int i, length = -1;\n\n    switch (avio_r8(pb)) {\n    case AMF_DATA_TYPE_MIXEDARRAY:\n        avio_seek(pb, 4, SEEK_CUR);\n    case AMF_DATA_TYPE_OBJECT:\n        break;\n    default:\n        goto skip;\n    }\n\n    while ((ret = amf_get_string(pb, buf, sizeof(buf))) > 0) {\n        AMFDataType type = avio_r8(pb);\n        if (type == AMF_DATA_TYPE_STRING && !strcmp(buf, \"text\")) {\n            length = avio_rb16(pb);\n            ret    = av_get_packet(pb, pkt, length);\n            if (ret < 0)\n                goto skip;\n            else\n                break;\n        } else {\n            if ((ret = amf_skip_tag(pb, type)) < 0)\n                goto skip;\n        }\n    }\n\n    if (length < 0) {\n        ret = AVERROR_INVALIDDATA;\n        goto skip;\n    }\n\n    for (i = 0; i < s->nb_streams; i++) {\n        st = s->streams[i];\n        if (st->codecpar->codec_type == AVMEDIA_TYPE_DATA)\n            break;\n    }\n\n    if (i == s->nb_streams) {\n        st = create_stream(s, AVMEDIA_TYPE_DATA);\n        if (!st)\n            return AVERROR(ENOMEM);\n        st->codecpar->codec_id = AV_CODEC_ID_TEXT;\n    }\n\n    pkt->dts  = dts;\n    pkt->pts  = dts;\n    pkt->size = ret;\n\n    pkt->stream_index = st->index;\n    pkt->flags       |= AV_PKT_FLAG_KEY;\n\nskip:\n    avio_seek(s->pb, next + 4, SEEK_SET);\n\n    return ret;\n}",
+      "body_sha256": "5cb61ccf7626ac9862c967f67f360b82f7df406b391f743c62441549bc703eca",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "pkt->stream_index = st->index;",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int flv_data_packet(AVFormatContext *s, AVPacket *pkt,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "i == s->nb_streams",
+              "!st"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "i = 0; i < s->nb_streams; i++",
+              "st->codecpar->codec_type == AVMEDIA_TYPE_DATA"
+            ]
+          },
+          {
+            "text": "skip",
+            "condition": [
+              "length < 0"
+            ]
+          },
+          {
+            "text": "skip",
+            "condition": [
+              "(ret = amf_get_string(pb, buf, sizeof(buf))) > 0",
+              "!(type == AMF_DATA_TYPE_STRING && !strcmp(buf, \"text\"))",
+              "(ret = amf_skip_tag(pb, type)) < 0"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "(ret = amf_get_string(pb, buf, sizeof(buf))) > 0",
+              "type == AMF_DATA_TYPE_STRING && !strcmp(buf, \"text\")",
+              "!(ret < 0)"
+            ]
+          },
+          {
+            "text": "skip",
+            "condition": [
+              "(ret = amf_get_string(pb, buf, sizeof(buf))) > 0",
+              "type == AMF_DATA_TYPE_STRING && !strcmp(buf, \"text\")",
+              "ret < 0"
+            ]
+          },
+          {
+            "text": "skip",
+            "condition": []
+          },
+          {
+            "text": "break",
+            "condition": []
+          }
+        ],
+        "filter_function_code": "static int flv_data_packet(AVFormatContext *s, AVPacket *pkt,\n                           int64_t dts, int64_t next)\n{\n    AVIOContext *pb = s->pb;\n    AVStream *st    = NULL;\n    char buf[20];\n    int ret = AVERROR_INVALIDDATA;\n    int i, length = -1;\n\n    switch (avio_r8(pb)) {\n    case AMF_DATA_TYPE_MIXEDARRAY:\n        avio_seek(pb, 4, SEEK_CUR);\n    case AMF_DATA_TYPE_OBJECT:\n        break;\n    default:\n        goto skip;\n    }\n\n    while ((ret = amf_get_string(pb, buf, sizeof(buf))) > 0) {\n        AMFDataType type = avio_r8(pb);\n        if (type == AMF_DATA_TYPE_STRING && !strcmp(buf, \"text\")) {\n            length = avio_rb16(pb);\n            ret    = av_get_packet(pb, pkt, length);\n            if (ret < 0)\n                goto skip;\n            else\n                break;\n        } else {\n            if ((ret = amf_skip_tag(pb, type)) < 0)\n                goto skip;\n        }\n    }\n\n    if (length < 0) {\n        ret = AVERROR_INVALIDDATA;\n        goto skip;\n    }\n\n    for (i = 0; i < s->nb_streams; i++) {\n        st = s->streams[i];\n        if (st->codecpar->codec_type == AVMEDIA_TYPE_DATA)\n            break;\n    }\n\n    if (i == s->nb_streams) {\n        st = create_stream(s, AVMEDIA_TYPE_DATA);\n        if (!st)\n            return AVERROR(ENOMEM);\n        st->codecpar->codec_id = AV_CODEC_ID_TEXT;\n    }\n\n    pkt->dts  = dts;\n    pkt->pts  = dts;\n    pkt->size = ret;\n\n    pkt->stream_index = st->index;\n    pkt->flags       |= AV_PKT_FLAG_KEY;\n\nskip:\n    avio_seek(s->pb, next + 4, SEEK_SET);\n\n    return ret;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int flv_data_packet(AVFormatContext *s, AVPacket *pkt,\n                           int64_t dts, int64_t next)\n{\n    AVIOContext *pb = s->pb;\n    AVStream *st    = NULL;\n    char buf[20];\n    int ret = AVERROR_INVALIDDATA;\n    int i, length = -1;\n\n    switch (avio_r8(pb)) {\n    case AMF_DATA_TYPE_MIXEDARRAY:\n        avio_seek(pb, 4, SEEK_CUR);\n    case AMF_DATA_TYPE_OBJECT:\n        break;\n    default:\n        goto skip;\n    }\n\n    while ((ret = amf_get_string(pb, buf, sizeof(buf))) > 0) {\n        AMFDataType type = avio_r8(pb);\n        if (type == AMF_DATA_TYPE_STRING && !strcmp(buf, \"text\")) {\n            length = avio_rb16(pb);\n            ret    = av_get_packet(pb, pkt, length);\n            if (ret < 0)\n                goto skip;\n            else\n                break;\n        } else {\n            if ((ret = amf_skip_tag(pb, type)) < 0)\n                goto skip;\n        }\n    }\n\n    if (length < 0) {\n        ret = AVERROR_INVALIDDATA;\n        goto skip;\n    }\n\n    for (i = 0; i < s->nb_streams; i++) {\n        st = s->streams[i];\n        if (st->codecpar->codec_type == AVMEDIA_TYPE_DATA)\n            break;\n    }\n\n    if (i == s->nb_streams) {\n        st = create_stream(s, AVMEDIA_TYPE_DATA);\n        if (!st)\n            return AVERROR(ENOMEM);\n        st->codecpar->codec_id = AV_CODEC_ID_TEXT;\n    }\n\n    pkt->dts  = dts;\n    pkt->pts  = dts;\n    pkt->size = ret;\n\n    pkt->stream_index = st->index;\n    pkt->flags       |= AV_PKT_FLAG_KEY;\n\nskip:\n    avio_seek(s->pb, next + 4, SEEK_SET);\n\n    return ret;\n}"
+  ]
+}

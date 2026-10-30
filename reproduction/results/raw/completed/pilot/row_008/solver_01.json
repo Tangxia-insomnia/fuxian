@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, And, Not, sat\n\n    # Base script variables and constraints\n    dev_out = Int('dev_out')\n\n    # Variables from constraint set 2\n    fl4_flowi4_oif = Int('fl4_flowi4_oif')\n    fl4_saddr      = Int('fl4_saddr')\n    fl4_daddr      = Int('fl4_daddr')\n    dev_out_flags  = Int('dev_out_flags')\n    in_dev_rcu     = Int('in_dev_rcu')\n    is_multicast   = Bool('is_multicast')\n    is_lbcast      = Bool('is_lbcast')\n\n    IFF_UP = 0x1\n\n    s = Solver()\n\n    # Base constraint\n    s.add(dev_out == 0)\n\n    # Constraint 1\n    c1 = Or(\n        fl4_flowi4_oif == 0,\n        Not(Or(\n            (dev_out_flags & IFF_UP) == 0,\n            in_dev_rcu == 0\n        ))\n    )\n    s.add(c1)\n\n    # Constraint 2\n    c2 = Or(\n        fl4_flowi4_oif == 0,\n        dev_out != 0\n    )\n    s.add(c2)\n\n    # Constraint 3\n    c3 = Or(\n        fl4_saddr == 0,\n        Not(And(\n            fl4_flowi4_oif == 0,\n            Or(is_multicast, is_lbcast)\n        )),\n        dev_out != 0\n    )\n    s.add(c3)\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: TypeError: unsupported operand type(s) for &: 'ArithRef' and 'int'"
+}

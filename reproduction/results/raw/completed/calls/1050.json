@@ -1,0 +1,45 @@
+{
+  "call_id": 1050,
+  "sample_id": "NPD/cppcheck/linux:row=66:index=None",
+  "timestamp": "2026-10-26T01:06:31.115417+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(UNWINDER_if(reg->flags != DWARF_REG_OFFSET))']\n        Relevant conditions/variables: [], reg\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "df6e873a-7672-489f-8041-0e73ab055fdc",
+  "usage": {
+    "prompt_tokens": 123,
+    "completion_tokens": 402,
+    "total_tokens": 525,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 123
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare the variable `reg` as an uninterpreted sort (pointer-like object).\n# We model `reg` as an uninterpreted sort because its internal structure\n# (fields like `flags`) is not fully specified; only the field access\n# `reg->flags` matters for this constraint.\nReg = DeclareSort('Reg')\nreg = Const('reg', Reg)\n\n# `reg->flags` is modeled as an uninterpreted function from Reg to Int.\n# The exact type of `flags` is not given, so Int is a reasonable choice\n# for an enum-like field (DWARF_REG_OFFSET is presumably an enum value).\nflags = Function('flags', Reg, Int)\n\n# DWARF_REG_OFFSET is an enum constant; model it as an uninterpreted Int.\nDWARF_REG_OFFSET = Int('DWARF_REG_OFFSET')\n\n# The C expression `reg->flags != DWARF_REG_OFFSET` is the inner condition\n# of the macro `UNWINDER_if(...)`. The outer `!` negates the whole macro.\n#\n# `UNWINDER_if(cond)` is treated as asserting `cond` (the unwinder takes the\n# branch when the condition holds). Therefore:\n#   !UNWINDER_if(reg->flags != DWARF_REG_OFFSET)\n# is equivalent to asserting the negation of the inner condition:\n#   reg->flags == DWARF_REG_OFFSET\n#\n# We add this constraint because it is the only constraint given and it\n# directly involves `reg` (via `reg->flags`).\ns = Solver()\ns.add(flags(reg) == DWARF_REG_OFFSET)\n\n# Check satisfiability and print the model for inspection.\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.423919500000011,
+  "cost_upper_bound_cny": 0.003462
+}

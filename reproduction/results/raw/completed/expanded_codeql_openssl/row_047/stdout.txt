@@ -1,0 +1,79 @@
+```python
+p7=Int('p7')
+s.add(p7 == 0)
+```
+```json
+["!(operation & SMIME_SIGNERS) || !(operation == SMIME_SIGN) || !(p7 == NULL)", "!(operation & SMIME_IP) || !(p7 == NULL)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# operation: integer bitmask (C int)
+operation = BitVec('operation', 32)
+# p7: pointer, modeled as a 64-bit integer (0 == NULL)
+p7 = BitVec('p7', 64)
+
+# SMIME_SIGNERS and SMIME_IP are bitmask flags; SMIME_SIGN is a value.
+# We model them as uninterpreted 32-bit constants since their exact values
+# are not provided. Only their relationships matter for these constraints.
+SMIME_SIGNERS = BitVec('SMIME_SIGNERS', 32)
+SMIME_IP      = BitVec('SMIME_IP', 32)
+SMIME_SIGN    = BitVec('SMIME_SIGN', 32)
+
+s = Solver()
+
+# Constraint 1:
+#   !(operation & SMIME_SIGNERS) || !(operation == SMIME_SIGN) || !(p7 == NULL)
+# Included because it constrains p7 (and operation) — if operation has the
+# SMIME_SIGNERS bit set AND operation equals SMIME_SIGN, then p7 must be non-NULL.
+s.add(Or(
+    (operation & SMIME_SIGNERS) == 0,
+    operation != SMIME_SIGN,
+    p7 != 0
+))
+
+# Constraint 2:
+#   !(operation & SMIME_IP) || !(p7 == NULL)
+# Included because it constrains p7 — if operation has the SMIME_IP bit set,
+# then p7 must be non-NULL.
+s.add(Or(
+    (operation & SMIME_IP) == 0,
+    p7 != 0
+))
+
+# Check satisfiability and print result
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, BitVec, Or, sat
+
+    # Base script constraints
+    p7_int = Int('p7_int')
+    s = Solver()
+    s.add(p7_int == 0)
+
+    # Constraint set 2 variables
+    operation = BitVec('operation', 32)
+    p7 = BitVec('p7', 64)
+    SMIME_SIGNERS = BitVec('SMIME_SIGNERS', 32)
+    SMIME_IP = BitVec('SMIME_IP', 32)
+    SMIME_SIGN = BitVec('SMIME_SIGN', 32)
+
+    # Constraint 1 from set 2
+    s.add(Or(
+        (operation & SMIME_SIGNERS) == 0,
+        operation != SMIME_SIGN,
+        p7 != 0
+    ))
+
+    # Constraint 2 from set 2
+    s.add(Or(
+        (operation & SMIME_IP) == 0,
+        p7 != 0
+    ))
+
+    return s.check() == sat
+```
+goto result: True

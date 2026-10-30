@@ -1,0 +1,60 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "radix_sort",
+      "var_name": "tmp",
+      "target": "radix_sort_pass(tmp, data, size, buckets[0], 0);",
+      "code": "static void radix_sort(RCCMPEntry *data, int size)\n{\n    int buckets[RADIX_PASSES][NBUCKETS];\n    RCCMPEntry *tmp = av_malloc(sizeof(*tmp) * size);\n    radix_count(data, size, buckets);\n    radix_sort_pass(tmp, data, size, buckets[0], 0);\n    radix_sort_pass(data, tmp, size, buckets[1], 1);\n    if (buckets[2][NBUCKETS - 1] || buckets[3][NBUCKETS - 1]) {\n        radix_sort_pass(tmp, data, size, buckets[2], 2);\n        radix_sort_pass(data, tmp, size, buckets[3], 3);\n    }\n    av_free(tmp);\n}",
+      "body_sha256": "e301675db269503429f5c62e376242a061b9697e8ab14c6e7e32746a79de543b",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "radix_sort_pass(tmp, data, size, buckets[0], 0);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void radix_sort(RCCMPEntry *data, int size)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static void radix_sort(RCCMPEntry *data, int size)\n{\n    int buckets[RADIX_PASSES][NBUCKETS];\n    RCCMPEntry *tmp = av_malloc(sizeof(*tmp) * size);\n    radix_count(data, size, buckets);\n    radix_sort_pass(tmp, data, size, buckets[0], 0);\n    radix_sort_pass(data, tmp, size, buckets[1], 1);\n    if (buckets[2][NBUCKETS - 1] || buckets[3][NBUCKETS - 1]) {\n        radix_sort_pass(tmp, data, size, buckets[2], 2);\n        radix_sort_pass(data, tmp, size, buckets[3], 3);\n    }\n    av_free(tmp);\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "radix_sort_pass",
+      "var_name": "dst",
+      "target": "        dst[pos] = data[i];",
+      "code": "static void radix_sort_pass(RCCMPEntry *dst, const RCCMPEntry *data,\n                            int size, int buckets[NBUCKETS], int pass)\n{\n    int shift = pass * BUCKET_BITS;\n    int i;\n    for (i = 0; i < size; i++) {\n        int v   = get_bucket(data[i].value, shift);\n        int pos = buckets[v]++;\n        dst[pos] = data[i];\n    }\n}",
+      "body_sha256": "ac3cfc2cb1ff9d54dcb36606e0d36e6c1e05b37088e16ab6fc2f9c830cda5321",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "        dst[pos] = data[i];",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void radix_sort_pass(RCCMPEntry *dst, const RCCMPEntry *data,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static void radix_sort_pass(RCCMPEntry *dst, const RCCMPEntry *data,\n                            int size, int buckets[NBUCKETS], int pass)\n{\n    int shift = pass * BUCKET_BITS;\n    int i;\n    for (i = 0; i < size; i++) {\n        int v   = get_bucket(data[i].value, shift);\n        int pos = buckets[v]++;\n        dst[pos] = data[i];\n    }\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void radix_sort(RCCMPEntry *data, int size)\n{\n    int buckets[RADIX_PASSES][NBUCKETS];\n    RCCMPEntry *tmp = av_malloc(sizeof(*tmp) * size);\n    radix_count(data, size, buckets);\n    radix_sort_pass(tmp, data, size, buckets[0], 0);\n    radix_sort_pass(data, tmp, size, buckets[1], 1);\n    if (buckets[2][NBUCKETS - 1] || buckets[3][NBUCKETS - 1]) {\n        radix_sort_pass(tmp, data, size, buckets[2], 2);\n        radix_sort_pass(data, tmp, size, buckets[3], 3);\n    }\n    av_free(tmp);\n}",
+    "static void radix_sort_pass(RCCMPEntry *dst, const RCCMPEntry *data,\n                            int size, int buckets[NBUCKETS], int pass)\n{\n    int shift = pass * BUCKET_BITS;\n    int i;\n    for (i = 0; i < size; i++) {\n        int v   = get_bucket(data[i].value, shift);\n        int pos = buckets[v]++;\n        dst[pos] = data[i];\n    }\n}"
+  ]
+}

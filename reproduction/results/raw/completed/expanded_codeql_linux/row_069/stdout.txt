@@ -1,0 +1,59 @@
+```python
+sband=Int('sband')
+s.add(sband == 0)
+```
+```json
+["!(WARN_ON_ONCE(!sband))"]
+```
+```python
+# Z3 script generated from C constraint: !(WARN_ON_ONCE(!sband))
+#
+# Analysis:
+#   - WARN_ON_ONCE(cond) is a Linux kernel macro that evaluates its argument
+#     and returns the (boolean) result of that argument. It has no effect on
+#     program semantics beyond emitting a warning; the expression value is
+#     exactly the value of `cond`.
+#   - Therefore WARN_ON_ONCE(!sband) evaluates to (!sband).
+#   - The outer `!` negates it: !(WARN_ON_ONCE(!sband)) == !(!sband) == sband.
+#   - In C, `sband` is a pointer; `!sband` is true iff sband == NULL.
+#     So the constraint reduces to: sband != NULL (i.e., sband != 0).
+#
+# This constraint is included because it is the only condition that
+# constrains the variable `sband` (forcing it to be non-NULL).
+
+from z3 import *
+
+# Declare sband as an uninterpreted pointer-like value (BitVec of pointer width).
+# Using 64-bit to model a typical 64-bit pointer; the exact width does not
+# affect satisfiability of a simple non-null constraint.
+sband = BitVec('sband', 64)
+
+solver = Solver()
+
+# Constraint: !(WARN_ON_ONCE(!sband))  ==>  sband != NULL
+# WARN_ON_ONCE(x) returns x, so the expression simplifies to sband != 0.
+solver.add(sband != 0)
+
+# Check satisfiability and print result
+result = solver.check()
+print(result)
+if result == sat:
+    print(solver.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, BitVec, Solver, sat
+
+    # Base script constraints
+    sband_int = Int('sband')
+    solver = Solver()
+    solver.add(sband_int == 0)
+
+    # Constraint set 2: !(WARN_ON_ONCE(!sband)) ==> sband != NULL
+    # Modeled with a separate 64-bit BitVec variable as in the original script
+    sband_bv = BitVec('sband', 64)
+    solver.add(sband_bv != 0)
+
+    return solver.check() == sat
+```
+goto result: True

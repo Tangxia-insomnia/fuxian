@@ -1,0 +1,45 @@
+{
+  "call_id": 1121,
+  "sample_id": "NPD/infer/libav:row=4:index=None",
+  "timestamp": "2026-10-26T01:07:48.492586+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static HWDevice *hw_device_match_by_codec(const AVCodec *codec)\n{\n    const AVCodecHWConfig *config;\n    HWDevice *dev;\n    int i;\n    for (i = 0;; i++) {\n        config = avcodec_get_hw_config(codec, i);\n        if (!config)\n            return NULL;\n        if (!(config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX))\n            continue;\n        dev = hw_device_get_by_type(config->device_type);\n        if (dev)\n            return dev;\n    }\n}\n        - Target variables: [], config\n        - Constraints: ['!(i = 0;; i++) || !(!config)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "e063e58f-1803-41aa-b3cb-e29ab5f83359",
+  "usage": {
+    "prompt_tokens": 223,
+    "completion_tokens": 19,
+    "total_tokens": 242,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 223
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(i = 0;; i++) || !(!config)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.8240864999997939,
+  "cost_upper_bound_cny": 0.000598
+}

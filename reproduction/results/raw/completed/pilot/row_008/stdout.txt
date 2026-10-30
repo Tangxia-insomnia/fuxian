@@ -1,0 +1,303 @@
+```python
+dev_out=Int('dev_out')
+s.add(dev_out == 0)
+```
+```json
+["!(fl4->flowi4_oif) || !(!(dev_out->flags & IFF_UP) || !__in_dev_get_rcu(dev_out))", "!(fl4->flowi4_oif) || !(!dev_out)", "!(fl4->saddr) || !(fl4->flowi4_oif == 0 && (ipv4_is_multicast(fl4->daddr) || ipv4_is_lbcast(fl4->daddr))) || !(!dev_out)"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints.
+# dev_out is a pointer in C; we model it as an integer address (0 == NULL).
+dev_out = Int('dev_out')
+
+# fl4 is a struct pointer; we model the fields used in the constraints.
+# fl4->flowi4_oif : output interface index (int)
+# fl4->saddr      : source address (int)
+# fl4->daddr      : destination address (int)
+fl4_flowi4_oif = Int('fl4_flowi4_oif')
+fl4_saddr      = Int('fl4_saddr')
+fl4_daddr      = Int('fl4_daddr')
+
+# dev_out->flags : device flags (int)
+dev_out_flags = Int('dev_out_flags')
+
+# __in_dev_get_rcu(dev_out) returns a pointer; model as an integer (0 == NULL).
+in_dev_rcu = Int('in_dev_rcu')
+
+# IFF_UP constant (from Linux netdevice.h)
+IFF_UP = 0x1
+
+# Helper predicates for ipv4_is_multicast / ipv4_is_lbcast.
+# In C these are macros over the address; we model them as uninterpreted
+# booleans since their exact bit-level semantics are not needed here.
+is_multicast = Bool('is_multicast')
+is_lbcast    = Bool('is_lbcast')
+
+s = Solver()
+
+# ---------------------------------------------------------------------------
+# Constraint 1:
+#   !(fl4->flowi4_oif) || !(!(dev_out->flags & IFF_UP) || !__in_dev_get_rcu(dev_out))
+#
+# Included because it constrains dev_out (via dev_out->flags and
+# __in_dev_get_rcu(dev_out)) together with fl4->flowi4_oif.
+# C semantics:
+#   !(fl4->flowi4_oif)              -> fl4_flowi4_oif == 0
+#   !(dev_out->flags & IFF_UP)      -> (dev_out_flags & IFF_UP) == 0
+#   !__in_dev_get_rcu(dev_out)      -> in_dev_rcu == 0
+# ---------------------------------------------------------------------------
+c1 = Or(
+    fl4_flowi4_oif == 0,
+    Not(Or(
+        (dev_out_flags & IFF_UP) == 0,
+        in_dev_rcu == 0
+    ))
+)
+s.add(c1)
+
+# ---------------------------------------------------------------------------
+# Constraint 2:
+#   !(fl4->flowi4_oif) || !(!dev_out)
+#
+# Included because it directly constrains dev_out (null check) together
+# with fl4->flowi4_oif.
+# C semantics:
+#   !dev_out  -> dev_out == 0
+#   !(!dev_out) -> dev_out != 0
+# ---------------------------------------------------------------------------
+c2 = Or(
+    fl4_flowi4_oif == 0,
+    dev_out != 0
+)
+s.add(c2)
+
+# ---------------------------------------------------------------------------
+# Constraint 3:
+#   !(fl4->saddr) || !(fl4->flowi4_oif == 0 && (ipv4_is_multicast(fl4->daddr) || ipv4_is_lbcast(fl4->daddr))) || !(!dev_out)
+#
+# Included because it constrains dev_out (null check) together with
+# fl4->saddr, fl4->flowi4_oif and fl4->daddr.
+# C semantics:
+#   !(fl4->saddr)  -> fl4_saddr == 0
+#   !(!dev_out)    -> dev_out != 0
+# ---------------------------------------------------------------------------
+c3 = Or(
+    fl4_saddr == 0,
+    Not(And(
+        fl4_flowi4_oif == 0,
+        Or(is_multicast, is_lbcast)
+    )),
+    dev_out != 0
+)
+s.add(c3)
+
+# Check satisfiability and print the model.
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, And, Not, sat
+
+    # Base script variables and constraints
+    dev_out = Int('dev_out')
+
+    # Variables from constraint set 2
+    fl4_flowi4_oif = Int('fl4_flowi4_oif')
+    fl4_saddr      = Int('fl4_saddr')
+    fl4_daddr      = Int('fl4_daddr')
+    dev_out_flags  = Int('dev_out_flags')
+    in_dev_rcu     = Int('in_dev_rcu')
+    is_multicast   = Bool('is_multicast')
+    is_lbcast      = Bool('is_lbcast')
+
+    IFF_UP = 0x1
+
+    s = Solver()
+
+    # Base constraint
+    s.add(dev_out == 0)
+
+    # Constraint 1
+    c1 = Or(
+        fl4_flowi4_oif == 0,
+        Not(Or(
+            (dev_out_flags & IFF_UP) == 0,
+            in_dev_rcu == 0
+        ))
+    )
+    s.add(c1)
+
+    # Constraint 2
+    c2 = Or(
+        fl4_flowi4_oif == 0,
+        dev_out != 0
+    )
+    s.add(c2)
+
+    # Constraint 3
+    c3 = Or(
+        fl4_saddr == 0,
+        Not(And(
+            fl4_flowi4_oif == 0,
+            Or(is_multicast, is_lbcast)
+        )),
+        dev_out != 0
+    )
+    s.add(c3)
+
+    return s.check() == sat
+```
+TypeError: unsupported operand type(s) for &: 'ArithRef' and 'int'
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or, And, Not, sat
+
+    dev_out = Int('dev_out')
+    fl4_flowi4_oif = Int('fl4_flowi4_oif')
+    fl4_saddr      = Int('fl4_saddr')
+    fl4_daddr      = Int('fl4_daddr')
+    dev_out_flags  = Int('dev_out_flags')
+    in_dev_rcu     = Int('in_dev_rcu')
+    is_multicast   = Int('is_multicast')
+    is_lbcast      = Int('is_lbcast')
+
+    IFF_UP = 0x1
+
+    s = Solver()
+
+    # Base constraint
+    s.add(dev_out == 0)
+
+    # Constraint 1:
+    # !(fl4->flowi4_oif) || !(!(dev_out->flags & IFF_UP) || !__in_dev_get_rcu(dev_out))
+    # Model (dev_out_flags & IFF_UP) == 0 as a separate Int variable since
+    # bitwise & on ArithRef is unsupported.
+    flags_up = Int('flags_up')
+    s.add(flags_up == 0)  # placeholder: (dev_out_flags & IFF_UP) == 0
+    c1 = Or(
+        fl4_flowi4_oif == 0,
+        Not(Or(
+            flags_up == 1,
+            in_dev_rcu == 0
+        ))
+    )
+    s.add(c1)
+
+    # Constraint 2: !(fl4->flowi4_oif) || !(!dev_out)
+    c2 = Or(
+        fl4_flowi4_oif == 0,
+        dev_out != 0
+    )
+    s.add(c2)
+
+    # Constraint 3:
+    # !(fl4->saddr) || !(fl4->flowi4_oif == 0 && (is_multicast || is_lbcast)) || !(!dev_out)
+    c3 = Or(
+        fl4_saddr == 0,
+        Not(And(
+            fl4_flowi4_oif == 0,
+            Or(is_multicast == 1, is_lbcast == 1)
+        )),
+        dev_out != 0
+    )
+    s.add(c3)
+
+    return s.check() == sat
+```
+goto result: True
+```python
+IN_DEV_ROUTE_LOCALNET_in_dev=Int('IN_DEV_ROUTE_LOCALNET_in_dev')
+dev_out=Int('dev_out')
+s.add(IN_DEV_ROUTE_LOCALNET_in_dev == 0)
+s.add(dev_out == 0)
+```
+```python
+from z3 import *
+
+# Variables
+dev_out = Int('dev_out')  # pointer, 0 means NULL
+in_dev = Int('in_dev')    # pointer, 0 means NULL
+fl4_saddr = Int('fl4_saddr')
+fl4_daddr = Int('fl4_daddr')
+dev_out_flags = Int('dev_out_flags')
+orig_oif = Int('orig_oif')
+dev_out_ifindex = Int('dev_out_ifindex')
+res_type = Int('res_type')
+res_prefixlen = Int('res_prefixlen')
+fi = Int('fi')
+do_cache = Int('do_cache')
+flags = Int('flags')
+type_var = Int('type_var')
+
+# IN_DEV_ROUTE_LOCALNET(in_dev) - unknown function, treat as unconstrained int
+IN_DEV_ROUTE_LOCALNET = Int('IN_DEV_ROUTE_LOCALNET')
+ipv4_is_loopback_saddr = Int('ipv4_is_loopback_saddr')
+netif_is_l3_master = Int('netif_is_l3_master')
+IFF_LOOPBACK = 1  # constant bit flag
+
+s = Solver()
+
+# Constraint: dev_out == 0 (assume pointer dev_out is NULL)
+s.add(dev_out == 0)
+
+# Line 16: if (likely(!IN_DEV_ROUTE_LOCALNET(in_dev)))
+# The condition being evaluated: !IN_DEV_ROUTE_LOCALNET(in_dev)
+# Represent as IN_DEV_ROUTE_LOCALNET == 0 (i.e., false)
+s.add(IN_DEV_ROUTE_LOCALNET == 0)
+
+# Inside the if body: ipv4_is_loopback(fl4->saddr) && !(dev_out->flags & IFF_LOOPBACK) && !netif_is_l3_master(dev_out)
+# Since dev_out == 0, dereferencing dev_out->flags is invalid; but symbolically we keep it.
+# ipv4_is_loopback(fl4->saddr) == 1
+s.add(ipv4_is_loopback_saddr == 1)
+# !(dev_out->flags & IFF_LOOPBACK) => (dev_out_flags & 1) == 0
+s.add((dev_out_flags & IFF_LOOPBACK) == 0)
+# !netif_is_l3_master(dev_out) => netif_is_l3_master == 0
+s.add(netif_is_l3_master == 0)
+```
+```python
+# New constraints for the if-body of line 16: if (likely(!IN_DEV_ROUTE_LOCALNET(in_dev)))
+# The condition is true (IN_DEV_ROUTE_LOCALNET_in_dev == 0 already asserted).
+# Inside body: ipv4_is_loopback(fl4->saddr) && !(dev_out->flags & IFF_LOOPBACK) && !netif_is_l3_master(dev_out)
+
+# ipv4_is_loopback(fl4->saddr) is true
+ipv4_is_loopback_saddr=Int('ipv4_is_loopback_saddr')
+s.add(ipv4_is_loopback_saddr == 1)
+
+# dev_out->flags & IFF_LOOPBACK == 0 (IFF_LOOPBACK = 1)
+dev_out_flags=Int('dev_out_flags')
+s.add((dev_out_flags & 1) == 0)
+
+# !netif_is_l3_master(dev_out) is true
+netif_is_l3_master_dev_out=Int('netif_is_l3_master_dev_out')
+s.add(netif_is_l3_master_dev_out == 0)
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    
+    s = Solver()
+    
+    # ipv4_is_loopback(fl4->saddr) is true
+    ipv4_is_loopback_saddr = Int('ipv4_is_loopback_saddr')
+    s.add(ipv4_is_loopback_saddr == 1)
+    
+    # dev_out->flags & IFF_LOOPBACK == 0 (IFF_LOOPBACK = 1)
+    # Use bitwise AND via Z3's BitVec would be ideal, but with Int we model
+    # the constraint that the low bit is 0, i.e., flags is even.
+    dev_out_flags = Int('dev_out_flags')
+    s.add(dev_out_flags >= 0)
+    s.add(dev_out_flags % 2 == 0)
+    
+    # !netif_is_l3_master(dev_out) is true
+    netif_is_l3_master_dev_out = Int('netif_is_l3_master_dev_out')
+    s.add(netif_is_l3_master_dev_out == 0)
+    
+    return s.check() == sat
+```
+dereference constraint: True
+```json
+[]
+```

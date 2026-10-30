@@ -1,0 +1,136 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ieee80211_process_tdls_channel_switch_resp",
+      "var_name": "elems",
+      "target": "\tkfree(elems);",
+      "code": "static int\nieee80211_process_tdls_channel_switch_resp(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t\t   struct sk_buff *skb)\n{\n\tstruct ieee80211_local *local = sdata->local;\n\tstruct ieee802_11_elems *elems = NULL;\n\tstruct sta_info *sta;\n\tstruct ieee80211_tdls_data *tf = (void *)skb->data;\n\tbool local_initiator;\n\tstruct ieee80211_rx_status *rx_status = IEEE80211_SKB_RXCB(skb);\n\tint baselen = offsetof(typeof(*tf), u.chan_switch_resp.variable);\n\tstruct ieee80211_tdls_ch_sw_params params = {};\n\tint ret;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\tparams.action_code = WLAN_TDLS_CHANNEL_SWITCH_RESPONSE;\n\tparams.timestamp = rx_status->device_timestamp;\n\n\tif (skb->len < baselen) {\n\t\ttdls_dbg(sdata, \"TDLS channel switch resp too short: %d\\n\",\n\t\t\t skb->len);\n\t\treturn -EINVAL;\n\t}\n\n\tsta = sta_info_get(sdata, tf->sa);\n\tif (!sta || !test_sta_flag(sta, WLAN_STA_TDLS_PEER_AUTH)) {\n\t\ttdls_dbg(sdata, \"TDLS chan switch from non-peer sta %pM\\n\",\n\t\t\t tf->sa);\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tparams.sta = &sta->sta;\n\tparams.status = le16_to_cpu(tf->u.chan_switch_resp.status_code);\n\tif (params.status != 0) {\n\t\tret = 0;\n\t\tgoto call_drv;\n\t}\n\n\telems = ieee802_11_parse_elems(tf->u.chan_switch_resp.variable,\n\t\t\t\t       skb->len - baselen, false, NULL);\n\tif (!elems) {\n\t\tret = -ENOMEM;\n\t\tgoto out;\n\t}\n\n\tif (elems->parse_error) {\n\t\ttdls_dbg(sdata, \"Invalid IEs in TDLS channel switch resp\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tif (!elems->ch_sw_timing || !elems->lnk_id) {\n\t\ttdls_dbg(sdata, \"TDLS channel switch resp - missing IEs\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\t/* validate the initiator is set correctly */\n\tlocal_initiator =\n\t\t!memcmp(elems->lnk_id->init_sta, sdata->vif.addr, ETH_ALEN);\n\tif (local_initiator == sta->sta.tdls_initiator) {\n\t\ttdls_dbg(sdata, \"TDLS chan switch invalid lnk-id initiator\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tparams.switch_time = le16_to_cpu(elems->ch_sw_timing->switch_time);\n\tparams.switch_timeout = le16_to_cpu(elems->ch_sw_timing->switch_timeout);\n\n\tparams.tmpl_skb =\n\t\tieee80211_tdls_ch_sw_resp_tmpl_get(sta, &params.ch_sw_tm_ie);\n\tif (!params.tmpl_skb) {\n\t\tret = -ENOENT;\n\t\tgoto out;\n\t}\n\n\tret = 0;\ncall_drv:\n\tdrv_tdls_recv_channel_switch(sdata->local, sdata, &params);\n\n\ttdls_dbg(sdata,\n\t\t \"TDLS channel switch response received from %pM status %d\\n\",\n\t\t tf->sa, params.status);\n\nout:\n\tdev_kfree_skb_any(params.tmpl_skb);\n\tkfree(elems);\n\treturn ret;\n}",
+      "body_sha256": "b06743cc41a8c6c5e05efe674ffe47d06bf2ef5613b0722bda0b5de3f0e877a6",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tkfree(elems);",
+            "condition": [
+              {
+                "condition": "goto out",
+                "line_number": 86
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "goto out",
+            "line_number": 86
+          }
+        ],
+        "variable_assignments": {
+          "text": "static int",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "out",
+            "condition": [
+              "!params.tmpl_skb"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "local_initiator == sta->sta.tdls_initiator"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "!elems->ch_sw_timing || !elems->lnk_id"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "elems->parse_error"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "!elems"
+            ]
+          },
+          {
+            "text": "call_drv",
+            "condition": [
+              "params.status != 0"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "!sta || !test_sta_flag(sta, WLAN_STA_TDLS_PEER_AUTH)"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "skb->len < baselen"
+            ]
+          }
+        ],
+        "filter_function_code": "static int\nieee80211_process_tdls_channel_switch_resp(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t\t   struct sk_buff *skb)\n{\n\tstruct ieee80211_local *local = sdata->local;\n\tstruct ieee802_11_elems *elems = NULL;\n\tstruct sta_info *sta;\n\tstruct ieee80211_tdls_data *tf = (void *)skb->data;\n\tbool local_initiator;\n\tstruct ieee80211_rx_status *rx_status = IEEE80211_SKB_RXCB(skb);\n\tint baselen = offsetof(typeof(*tf), u.chan_switch_resp.variable);\n\tstruct ieee80211_tdls_ch_sw_params params = {};\n\tint ret;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\tparams.action_code = WLAN_TDLS_CHANNEL_SWITCH_RESPONSE;\n\tparams.timestamp = rx_status->device_timestamp;\n\n\tif (skb->len < baselen) {\n\t\ttdls_dbg(sdata, \"TDLS channel switch resp too short: %d\\n\",\n\t\t\t skb->len);\n\t\treturn -EINVAL;\n\t}\n\n\tsta = sta_info_get(sdata, tf->sa);\n\tif (!sta || !test_sta_flag(sta, WLAN_STA_TDLS_PEER_AUTH)) {\n\t\ttdls_dbg(sdata, \"TDLS chan switch from non-peer sta %pM\\n\",\n\t\t\t tf->sa);\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tparams.sta = &sta->sta;\n\tparams.status = le16_to_cpu(tf->u.chan_switch_resp.status_code);\n\tif (params.status != 0) {\n\t\tret = 0;\n\t\tgoto call_drv;\n\t}\n\n\telems = ieee802_11_parse_elems(tf->u.chan_switch_resp.variable,\n\t\t\t\t       skb->len - baselen, false, NULL);\n\tif (!elems) {\n\t\tret = -ENOMEM;\n\t\tgoto out;\n\t}\n\n\tif (elems->parse_error) {\n\t\ttdls_dbg(sdata, \"Invalid IEs in TDLS channel switch resp\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tif (!elems->ch_sw_timing || !elems->lnk_id) {\n\t\ttdls_dbg(sdata, \"TDLS channel switch resp - missing IEs\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\t/* validate the initiator is set correctly */\n\tlocal_initiator =\n\t\t!memcmp(elems->lnk_id->init_sta, sdata->vif.addr, ETH_ALEN);\n\tif (local_initiator == sta->sta.tdls_initiator) {\n\t\ttdls_dbg(sdata, \"TDLS chan switch invalid lnk-id initiator\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tparams.switch_time = le16_to_cpu(elems->ch_sw_timing->switch_time);\n\tparams.switch_timeout = le16_to_cpu(elems->ch_sw_timing->switch_timeout);\n\n\tparams.tmpl_skb =\n\t\tieee80211_tdls_ch_sw_resp_tmpl_get(sta, &params.ch_sw_tm_ie);\n\tif (!params.tmpl_skb) {\n\t\tret = -ENOENT;\n\t\tgoto out;\n\t}\n\n\tret = 0;\ncall_drv:\n\tdrv_tdls_recv_channel_switch(sdata->local, sdata, &params);\n\n\ttdls_dbg(sdata,\n\t\t \"TDLS channel switch response received from %pM status %d\\n\",\n\t\t tf->sa, params.status);\n\nout:\n\tdev_kfree_skb_any(params.tmpl_skb);\n\tkfree(elems);\n\treturn ret;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "kfree",
+      "var_name": "object",
+      "target": "\t\tfree_large_kmalloc(folio, (void *)object);",
+      "code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}",
+      "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\tfree_large_kmalloc(folio, (void *)object);",
+            "condition": [
+              {
+                "condition": "if (unlikely(!folio_test_slab(folio)))",
+                "line_number": 13
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (unlikely(!folio_test_slab(folio)))",
+            "line_number": 13
+          }
+        ],
+        "variable_assignments": {
+          "text": "void kfree(const void *object)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "unlikely(ZERO_OR_NULL_PTR(object))"
+            ]
+          }
+        ],
+        "filter_function_code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int\nieee80211_process_tdls_channel_switch_resp(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t\t   struct sk_buff *skb)\n{\n\tstruct ieee80211_local *local = sdata->local;\n\tstruct ieee802_11_elems *elems = NULL;\n\tstruct sta_info *sta;\n\tstruct ieee80211_tdls_data *tf = (void *)skb->data;\n\tbool local_initiator;\n\tstruct ieee80211_rx_status *rx_status = IEEE80211_SKB_RXCB(skb);\n\tint baselen = offsetof(typeof(*tf), u.chan_switch_resp.variable);\n\tstruct ieee80211_tdls_ch_sw_params params = {};\n\tint ret;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\tparams.action_code = WLAN_TDLS_CHANNEL_SWITCH_RESPONSE;\n\tparams.timestamp = rx_status->device_timestamp;\n\n\tif (skb->len < baselen) {\n\t\ttdls_dbg(sdata, \"TDLS channel switch resp too short: %d\\n\",\n\t\t\t skb->len);\n\t\treturn -EINVAL;\n\t}\n\n\tsta = sta_info_get(sdata, tf->sa);\n\tif (!sta || !test_sta_flag(sta, WLAN_STA_TDLS_PEER_AUTH)) {\n\t\ttdls_dbg(sdata, \"TDLS chan switch from non-peer sta %pM\\n\",\n\t\t\t tf->sa);\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tparams.sta = &sta->sta;\n\tparams.status = le16_to_cpu(tf->u.chan_switch_resp.status_code);\n\tif (params.status != 0) {\n\t\tret = 0;\n\t\tgoto call_drv;\n\t}\n\n\telems = ieee802_11_parse_elems(tf->u.chan_switch_resp.variable,\n\t\t\t\t       skb->len - baselen, false, NULL);\n\tif (!elems) {\n\t\tret = -ENOMEM;\n\t\tgoto out;\n\t}\n\n\tif (elems->parse_error) {\n\t\ttdls_dbg(sdata, \"Invalid IEs in TDLS channel switch resp\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tif (!elems->ch_sw_timing || !elems->lnk_id) {\n\t\ttdls_dbg(sdata, \"TDLS channel switch resp - missing IEs\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\t/* validate the initiator is set correctly */\n\tlocal_initiator =\n\t\t!memcmp(elems->lnk_id->init_sta, sdata->vif.addr, ETH_ALEN);\n\tif (local_initiator == sta->sta.tdls_initiator) {\n\t\ttdls_dbg(sdata, \"TDLS chan switch invalid lnk-id initiator\\n\");\n\t\tret = -EINVAL;\n\t\tgoto out;\n\t}\n\n\tparams.switch_time = le16_to_cpu(elems->ch_sw_timing->switch_time);\n\tparams.switch_timeout = le16_to_cpu(elems->ch_sw_timing->switch_timeout);\n\n\tparams.tmpl_skb =\n\t\tieee80211_tdls_ch_sw_resp_tmpl_get(sta, &params.ch_sw_tm_ie);\n\tif (!params.tmpl_skb) {\n\t\tret = -ENOENT;\n\t\tgoto out;\n\t}\n\n\tret = 0;\ncall_drv:\n\tdrv_tdls_recv_channel_switch(sdata->local, sdata, &params);\n\n\ttdls_dbg(sdata,\n\t\t \"TDLS channel switch response received from %pM status %d\\n\",\n\t\t tf->sa, params.status);\n\nout:\n\tdev_kfree_skb_any(params.tmpl_skb);\n\tkfree(elems);\n\treturn ret;\n}",
+    "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+  ]
+}

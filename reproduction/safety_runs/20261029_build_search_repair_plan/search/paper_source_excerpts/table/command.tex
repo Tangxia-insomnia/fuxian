@@ -1,0 +1,24 @@
+\begin{table}[htb]
+    \centering
+    \caption{Analyzer identifiers acrocss CWEs}\label{table:command}
+    \footnotesize
+    \begin{adjustbox}{width=0.75\linewidth}
+        \begin{tabular}{c|c|c}
+        \hline
+        \textbf{Type} & \textbf{Analyzer} & \textbf{Command}  \\ \hline
+
+        \multirow{3}{*}{NPD}& CodeQL & MissingNullTest.ql; %path: codeql/cpp/ql/src/Critical/MissingNullTest.ql
+        \\
+        & CppCheck & nullPointer;\\
+        & Infer & Null Dereference; \\\hline 
+        
+        \multirow{1}{*}{UAF}& CodeQL &  UseAfterFree.ql
+        %path:cpp/ql/src/Critical/UseAfterFree.ql
+        \\\hline 
+
+        \multirow{1}{*}{BOF}& CodeQL & OverflowBuffer.ql %path: cpp/ql/src/Security/CWE/CWE-119/OverflowBuffer.ql
+        \\\hline 
+
+        \end{tabular}
+    \end{adjustbox}
+\end{table}

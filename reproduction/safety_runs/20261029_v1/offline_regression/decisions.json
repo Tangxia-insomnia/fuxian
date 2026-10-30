@@ -1,0 +1,1835 @@
+[
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/kernel69:row=10:index=22",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "context_integrity:known_audit_or_evidence_issue",
+      "unresolved_prior_audit:LLM变量状态推理错误",
+      "unresolved_prior_audit:SMT约束生成或求解错误"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "failed",
+        "reason": "known_audit_or_evidence_issue"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "unsat",
+      "query_sha256": "8744415f74226b35d98ab62646dc4f90615184a26049774e769532a52286b470",
+      "assertions": [
+        "(not (= copied 0))",
+        "(= skb 0)",
+        "(= copied 0)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "64c67cfd27f2f23a8aa5443fe4da9ff855acd0a46db775ff6988b9561b513c55",
+    "review_sha256": null,
+    "decision_seconds": 0.00538310000411002,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "audit",
+    "audit_id": "A01",
+    "dataset_label": 1,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "filter",
+    "original_status": "success",
+    "original_duration_seconds": 4.622388099999625,
+    "original_api_calls": 4,
+    "original_cost_upper_cny": 0.01802999999999977
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/kernel69:row=11:index=23",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "context_integrity:known_audit_or_evidence_issue",
+      "unresolved_prior_audit:关键条件提取错误"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "failed",
+        "reason": "known_audit_or_evidence_issue"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "unsat",
+      "query_sha256": "e92d23f734e73a43eabdd1352ee5867793b008d6a9d7e7bfa5d4e281e4618f08",
+      "assertions": [
+        "(= skb 0)",
+        "(and (distinct skb 0) true)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "3d8721763f08ec173e9048919f289af293de973a87e84e3198240c8efe505386",
+    "review_sha256": null,
+    "decision_seconds": 0.0010320000001229346,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "audit",
+    "audit_id": "A02",
+    "dataset_label": 1,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "filter",
+    "original_status": "success",
+    "original_duration_seconds": 3.765564599999834,
+    "original_api_calls": 4,
+    "original_cost_upper_cny": 0.010897999999999963
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/libav:row=3:index=8",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "context_integrity:known_audit_or_evidence_issue",
+      "target_location:missing_or_ambiguous_target",
+      "unresolved_prior_audit:SMT约束生成或求解错误",
+      "unresolved_prior_audit:关键条件提取错误",
+      "unresolved_prior_audit:函数代码或调用链恢复错误"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "failed",
+        "reason": "missing_or_ambiguous_target"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "failed",
+        "reason": "known_audit_or_evidence_issue"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "444e34b8bbaab565ec8ff93ac0c8d0f93ce80522a8839c2431522e504c501d66",
+      "assertions": [
+        "(= che 0)",
+        "(or (= elem_type TYPE_END) (>= elem_type TYPE_DSE) (and (distinct che 0) true))"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "bbabbdfbf04e27d2752d50ae2667fee254cc432bb5d87cf09f93a4e231017b2f",
+    "review_sha256": null,
+    "decision_seconds": 0.004254100000252947,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "audit",
+    "audit_id": "A03",
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 4.94180039999992,
+    "original_api_calls": 4,
+    "original_cost_upper_cny": 0.010111999999999899
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/kernel69:row=12:index=24",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "context_integrity:known_audit_or_evidence_issue",
+      "unresolved_prior_audit:LLM变量状态推理错误",
+      "unresolved_prior_audit:SMT约束生成或求解错误"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "failed",
+        "reason": "known_audit_or_evidence_issue"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "3947f6d341a083bb8bd65c5de2a3ed5d726cd6842a05d0bd5f47d2bd877e3863",
+      "assertions": [
+        "(= folio_test_slab 0)",
+        "(= object 0)",
+        "(= object_ptr 0)",
+        "(and (distinct object_bv #x0000000000000000) true)"
+      ],
+      "event_id": 4,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "f613dfeb98a718e03658f9ce11238b6528ec22bd21fed7c473d3162d79c8daa6",
+    "review_sha256": null,
+    "decision_seconds": 0.0014063999988138676,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "audit",
+    "audit_id": "A04",
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 11.912234599999465,
+    "original_api_calls": 11,
+    "original_cost_upper_cny": 0.020672000000000024
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/kernel69:row=55:index=81",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "context_integrity:original_execution_not_successful",
+      "solver_validity:no_saved_solver_event",
+      "target_location:no_recorded_context",
+      "unresolved_prior_audit:函数代码或调用链恢复错误"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "failed",
+        "reason": "no_recorded_context"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "failed",
+        "reason": "no_saved_solver_event"
+      },
+      "context_integrity": {
+        "status": "failed",
+        "reason": "original_execution_not_successful"
+      }
+    },
+    "solver_replay": {
+      "valid": false,
+      "reason": "no_saved_solver_event"
+    },
+    "evidence_sha256": "20334fa52ecb2672e68d9e4bd9216fd7f528df3479709500efdcca66944179ae",
+    "review_sha256": null,
+    "decision_seconds": 5.310000415192917e-05,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "audit",
+    "audit_id": "A05",
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": null,
+    "original_status": "blocked_context",
+    "original_duration_seconds": 0.00830249999944499,
+    "original_api_calls": 0,
+    "original_cost_upper_cny": 0.0
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/infer/openssl:row=4:index=None",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "context_integrity:original_execution_not_successful",
+      "solver_validity:no_saved_solver_event",
+      "unresolved_prior_audit:关键条件提取错误",
+      "unresolved_prior_audit:模型替换或输出格式不兼容"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "failed",
+        "reason": "no_saved_solver_event"
+      },
+      "context_integrity": {
+        "status": "failed",
+        "reason": "original_execution_not_successful"
+      }
+    },
+    "solver_replay": {
+      "valid": false,
+      "reason": "no_saved_solver_event"
+    },
+    "evidence_sha256": "d60f6254c2082e5e3406d105ca5cff6fbfa6624d9278bc132ded6c77642491f3",
+    "review_sha256": null,
+    "decision_seconds": 0.00020219999714754522,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "audit",
+    "audit_id": "A06",
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": null,
+    "original_status": "failed",
+    "original_duration_seconds": 2.5275351999998747,
+    "original_api_calls": 2,
+    "original_cost_upper_cny": 0.006581999999999866
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/openssl:row=41:index=43",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "context_integrity:original_execution_not_successful",
+      "solver_validity:no_saved_solver_event",
+      "unresolved_prior_audit:关键条件提取错误",
+      "unresolved_prior_audit:模型替换或输出格式不兼容"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "failed",
+        "reason": "no_saved_solver_event"
+      },
+      "context_integrity": {
+        "status": "failed",
+        "reason": "original_execution_not_successful"
+      }
+    },
+    "solver_replay": {
+      "valid": false,
+      "reason": "no_saved_solver_event"
+    },
+    "evidence_sha256": "c79c61fe12addbbefaf91b48aa2d7a6aa0d4fae8c408773c01a783cec79a84ed",
+    "review_sha256": null,
+    "decision_seconds": 0.0011460000023362227,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "audit",
+    "audit_id": "A07",
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": null,
+    "original_status": "failed",
+    "original_duration_seconds": 17.796863999999914,
+    "original_api_calls": 3,
+    "original_cost_upper_cny": 0.06322599999999978
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/libav:row=13:index=20",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "context_integrity:known_audit_or_evidence_issue",
+      "unresolved_prior_audit:关键条件提取错误"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "failed",
+        "reason": "known_audit_or_evidence_issue"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "38062917a4e8a79fe55a0aa2f2095b9623776fb5ece5eb26a8ae197ff251ebdb",
+      "assertions": [
+        "(= dst 0)"
+      ],
+      "event_id": 2,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "9dc31748a0eec9ee3edf2844a909b57351c1ef70659922b3a8fb197feb085f57",
+    "review_sha256": null,
+    "decision_seconds": 0.0015343999984906986,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "audit",
+    "audit_id": "A08",
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 3.3899826000006215,
+    "original_api_calls": 4,
+    "original_cost_upper_cny": 0.003422000000000036
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/kernel69:row=34:index=55",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "context_integrity:known_audit_or_evidence_issue",
+      "unresolved_prior_audit:SMT约束生成或求解错误"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "failed",
+        "reason": "known_audit_or_evidence_issue"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "003926954be962926d1b8f023af80d5b2a0df57a306f54923afb614a7c81ccbc",
+      "assertions": [
+        "(= idev 0)",
+        "(or (= fib6_is_reject 0) (= dev net_loopback_dev) (and (distinct idev 0) true))",
+        "(or (= cfg_fc_ifindex 0) (and (distinct idev 0) true))"
+      ],
+      "event_id": 3,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "d730df39c3d8dcd6dc4382898e7b39eda392d36e75add83ef66074f702ef9488",
+    "review_sha256": null,
+    "decision_seconds": 0.0017548999967402779,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "audit",
+    "audit_id": "A09",
+    "dataset_label": 1,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 8.633778599999914,
+    "original_api_calls": 6,
+    "original_cost_upper_cny": 0.02155000000000007
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/kernel69:row=65:index=95",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "missing_semantic_review"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "unsat",
+      "query_sha256": "ed917dc8e8b6698a7e2b60e2cae82f27416843699f6935aa3ab4fc0fdfe8f9e3",
+      "assertions": [
+        "(= sta 0)",
+        "(not (or (= sta 0) (= ap_sta 0)))"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "01606de9e88eae893905607a91b4dcbfcb399e848e6142ea3fe45465c92e43dd",
+    "review_sha256": null,
+    "decision_seconds": 0.0008670000024721958,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "audit",
+    "audit_id": "A10",
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "filter",
+    "original_status": "success",
+    "original_duration_seconds": 6.102742000000035,
+    "original_api_calls": 4,
+    "original_cost_upper_cny": 0.009494000000000002
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/openssl:row=30:index=31",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "6733ee51cd53438d8d8d7c265ad7fee55a5a207fccb4354a416ff384b741fdb4",
+      "assertions": [
+        "(= x 0)"
+      ],
+      "event_id": 3,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "8f1afbf0fe58d58e46507d70bbc34b539a4f08fe103d70d9ad5606a25980040f",
+    "review_sha256": null,
+    "decision_seconds": 0.0015321999962907284,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 1,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 11.003395599999749,
+    "original_api_calls": 9,
+    "original_cost_upper_cny": 0.015677999999999415
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/kernel69:row=33:index=53",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "solver_repair_history_needs_semantics_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "326fcd0ab88e0be3cb89264e619dfd748c0dd259fe3cdb969e7fcfd2fd2cd40f",
+      "assertions": [
+        "(and (distinct ipv6_addr_any 0) true)",
+        "(= fib6_nh 0)",
+        "(and (distinct cfg_fc_prefsrc 0) true)",
+        "(= fib6_nh 0)",
+        "(and (distinct ipv6_addr_any 0) true)",
+        "(or (= nh 0) (= rt->fib6_src.plen 0))",
+        "(or (= nh 0) (= |nexthop_get(nh)| 1))",
+        "(or (= nh 1) (= err 0))"
+      ],
+      "event_id": 4,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "21df03b06e6b13531f7955ed85056517dba41633c9adadd61ac08e188a4b3455",
+    "review_sha256": null,
+    "decision_seconds": 0.003093899998930283,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 1,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 16.988297599999896,
+    "original_api_calls": 9,
+    "original_cost_upper_cny": 0.04610599999999998
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/openssl:row=6:index=7",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "target_location:missing_or_ambiguous_target"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "failed",
+        "reason": "missing_or_ambiguous_target"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "5dbfb93abbfa4d1532fb346536bd5debb6d74638e18fcf34a72936807c3e8fe5",
+      "assertions": [
+        "(= pctx 0)",
+        "(or (not operation_is_smime_encrypt)\n    (not loop_condition)\n    (not kparam_not_null)\n    cms_set_pkey_param_ok)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "4d4186252789a00147d7a0504cf84a36f29035688af884e68b4e08e3b45bc0b8",
+    "review_sha256": null,
+    "decision_seconds": 0.0024887000035960227,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 1,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 6.663782200000242,
+    "original_api_calls": 4,
+    "original_cost_upper_cny": 0.032709999999999795
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/infer/openssl:row=11:index=None",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "16f679a783101ac439b33eab3b0befa01a779428da1ef51b33eb5ba096623d1b",
+      "assertions": [
+        "(= sc 0)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "331401137ebd0766254495e61d007b3c256b4b211afe379239f9fb99ee7e4c28",
+    "review_sha256": null,
+    "decision_seconds": 0.0013015999938943423,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 1,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 1.2665331999996852,
+    "original_api_calls": 2,
+    "original_cost_upper_cny": 0.0017019999999998703
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/openssl:row=20:index=21",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "solver_repair_history_needs_semantics_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "04a0a1d4dd2b7e4ee91ca2e8a1c2598d99bc90ebbc0dc046fbb4b301455b21b4",
+      "assertions": [
+        "(= ENGINE_get_id_e id)",
+        "(and (distinct engines 0) true)",
+        "(and (distinct pre_cmds 0) true)",
+        "(and (distinct post_cmds 0) true)",
+        "(or (= argv 0) (and (distinct argv_deref_deref 45) true))",
+        "(= (- 1) o)"
+      ],
+      "event_id": 3,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "95bdba8de941d84b86a89492f7992b2ac985a7b6877908a5afaff0d6130eb91f",
+    "review_sha256": null,
+    "decision_seconds": 0.002532899998186622,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 1,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 11.068999999999505,
+    "original_api_calls": 6,
+    "original_cost_upper_cny": 0.02984399999999976
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/kernel69:row=17:index=36",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "c293f7f66b17bb5dff39575f46f41613a2c93fd6dbad014e3379b4655f72d5cc",
+      "assertions": [
+        "(= fib6_nh 0)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "0e2d507d8fcf756166e50ba3f3c14b2d1a9daff0369da94841a7fdee139709eb",
+    "review_sha256": null,
+    "decision_seconds": 0.001444399997126311,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 1,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 1.622182499999326,
+    "original_api_calls": 2,
+    "original_cost_upper_cny": 0.0018879999999998898
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/kernel69:row=15:index=31",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "3646d40c5bb2f3bf0e46277fece53e30d2186d140884fbffa94ae59004367862",
+      "assertions": [
+        "(= uh 0)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "a3452e1d084fff7df1a2078291f2766885a5c0a28f2d03e1934695b1bde76ea6",
+    "review_sha256": null,
+    "decision_seconds": 0.0014735000004293397,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 1,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 1.2671179999997548,
+    "original_api_calls": 2,
+    "original_cost_upper_cny": 0.0017199999999999438
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/libav:row=50:index=83",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "bc047cf2314ec702c259471bfaa46cad610843ba1f473a87903188b14dbf0338",
+      "assertions": [
+        "(= pcr_st 0)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "3ff1450c86d5ad44ff6d92a81ee0720a0383fc30a7ab62a0e57093182a14b4ff",
+    "review_sha256": null,
+    "decision_seconds": 0.0014998999977251515,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 1,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 2.0091040000006615,
+    "original_api_calls": 3,
+    "original_cost_upper_cny": 0.007458000000000187
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/cppcheck/linux:row=63:index=None",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "missing_semantic_review"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "unsat",
+      "query_sha256": "5f57cbf2d0cf048fc8fff61d60b17257d9dec37d2b6d9b247b3216a98a8012ab",
+      "assertions": [
+        "(and (distinct rb_node 0) true)",
+        "(= cie_tmp 0)",
+        "(and (distinct cie_tmp 0) true)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "29aa713e91e7f1eeb8e80d8fba62f8d4b81479837da172ffe25f806278136e96",
+    "review_sha256": null,
+    "decision_seconds": 0.0008556999964639544,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "filter",
+    "original_status": "success",
+    "original_duration_seconds": 3.5176291999996465,
+    "original_api_calls": 4,
+    "original_cost_upper_cny": 0.004226000000000063
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/cppcheck/openssl:row=2:index=None",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "solver_validity:smt2_cannot_be_loaded_unambiguously"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "failed",
+        "reason": "smt2_cannot_be_loaded_unambiguously"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": false,
+      "reason": "smt2_cannot_be_loaded_unambiguously"
+    },
+    "evidence_sha256": "c8e957e427aed4ae8a97605cf34b977c97f3837a7f10c9c6a74ee4baaa1b4ff1",
+    "review_sha256": null,
+    "decision_seconds": 0.0014343999937409535,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 3.688071900000068,
+    "original_api_calls": 4,
+    "original_cost_upper_cny": 0.0037400000000005207
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/openssl:row=15:index=16",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "1e46568bce4968c110b11468ba0bdfb8485f1eb9cbf2b8829d111c91fdc3d261",
+      "assertions": [
+        "(= ectx_int 0)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "5827a3ec35d5491f97c2d1de89cadd7b8737295e74735556d692f08d410a0752",
+    "review_sha256": null,
+    "decision_seconds": 0.001636600005440414,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 6.033936300000278,
+    "original_api_calls": 4,
+    "original_cost_upper_cny": 0.013481999999999772
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/libav:row=51:index=84",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "f7bf16ac7e263d8c3efd70b0919b585036071683e5e225fbf0eb4e78abafb427",
+      "assertions": [
+        "(= st 0)"
+      ],
+      "event_id": 2,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "3f440c26a3e18b8f65be4a88a5abb5ab87214167434bcbe6e85754af528b269d",
+    "review_sha256": null,
+    "decision_seconds": 0.0014869000006001443,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 8.598407100000259,
+    "original_api_calls": 6,
+    "original_cost_upper_cny": 0.017687999999999704
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/cppcheck/linux:row=13:index=None",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "context_integrity:original_execution_not_successful",
+      "solver_validity:no_saved_solver_event",
+      "target_location:no_recorded_context"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "failed",
+        "reason": "no_recorded_context"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "failed",
+        "reason": "no_saved_solver_event"
+      },
+      "context_integrity": {
+        "status": "failed",
+        "reason": "original_execution_not_successful"
+      }
+    },
+    "solver_replay": {
+      "valid": false,
+      "reason": "no_saved_solver_event"
+    },
+    "evidence_sha256": "b7918169bd9bf3362760ff0d07101fc274b2dfa3ca14607920222236fb9ae10b",
+    "review_sha256": null,
+    "decision_seconds": 3.819999983534217e-05,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": null,
+    "original_status": "blocked_context",
+    "original_duration_seconds": 0.0014092999999775202,
+    "original_api_calls": 0,
+    "original_cost_upper_cny": 0.0
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/libav:row=32:index=47",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "3607deb51f079990111c439f4d0c85a4f03ad7b43044d5da8d9930b499b16fe9",
+      "assertions": [
+        "(= top 0)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "1d3dd23c2fcd54abdbb1e7f6f7adeb8fb4804f84ba68b890603e5f4c64820951",
+    "review_sha256": null,
+    "decision_seconds": 0.0016029000034905039,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 1.602065300000504,
+    "original_api_calls": 2,
+    "original_cost_upper_cny": 0.0017020000000000923
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/infer/openssl:row=1:index=None",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "9b2701fe903702319352e05cc62a5139b20b7b9110de079550f0cf9d9d520c3e",
+      "assertions": [
+        "(= path 0)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "a38b5514a6794ca0b6b15d7071164493f577737798218b9f87e9cafe4ae87ea9",
+    "review_sha256": null,
+    "decision_seconds": 0.001368400000501424,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 1.914613100000679,
+    "original_api_calls": 2,
+    "original_cost_upper_cny": 0.0017020000000007585
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/kernel69:row=26:index=45",
+    "verdict": "UNKNOWN",
+    "action": "KEEP",
+    "reason_codes": [
+      "context_integrity:original_execution_not_successful",
+      "solver_validity:no_saved_solver_event",
+      "target_location:no_recorded_context"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "failed",
+        "reason": "no_recorded_context"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "failed",
+        "reason": "no_saved_solver_event"
+      },
+      "context_integrity": {
+        "status": "failed",
+        "reason": "original_execution_not_successful"
+      }
+    },
+    "solver_replay": {
+      "valid": false,
+      "reason": "no_saved_solver_event"
+    },
+    "evidence_sha256": "6c8f74efa8ca73212891594eb1fde5046e8d5fc5c2be78377cfe4e689dd268d3",
+    "review_sha256": null,
+    "decision_seconds": 3.440000000409782e-05,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": null,
+    "original_status": "blocked_context",
+    "original_duration_seconds": 0.0011617000000114786,
+    "original_api_calls": 0,
+    "original_cost_upper_cny": 0.0
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/kernel69:row=24:index=43",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "solver_repair_history_needs_semantics_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "e89172731864944ef306e1995778da3888c8697078e23aa92d14bbed74f20a15",
+      "assertions": [
+        "(= n 0)"
+      ],
+      "event_id": 5,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "deb5d4f6b3c3e36a12485e710b3ed5a47fe970e9300b240c6b054e32665e513f",
+    "review_sha256": null,
+    "decision_seconds": 0.0014152000003377907,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 18.52381080000032,
+    "original_api_calls": 14,
+    "original_cost_upper_cny": 0.03652600000000006
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/libav:row=19:index=26",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "6cb268275bf7c410f394409f3bd9fb66721808276e22f581a8c8543b76aed746",
+      "assertions": [
+        "(= prev 0)"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "8d60c9aea33aa4d07255ddf5b1aeb658a287d181b7c6d0ef819785b241afb67d",
+    "review_sha256": null,
+    "decision_seconds": 0.001283300000068266,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 1.978812299999845,
+    "original_api_calls": 3,
+    "original_cost_upper_cny": 0.002445999999999948
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/openssl:row=16:index=17",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "f90fa1e633624989dd55babaaed32d4d76ef8225ffb4f6db4ad0ef0cecfd4cfc",
+      "assertions": [
+        "(= ectx_params 0)",
+        "(or (not (or check check_named))\n    (not (or (not pctx_nonnull) (<= EVP_PKEY_param_check_ret 0))))",
+        "(or (not (or check check_named))\n    (not (and check_named (= EVP_PKEY_set_utf8_string_param_ret 0))))",
+        "(not (and text (= EVP_PKEY_print_params_ret 0)))",
+        "(not list_curves)",
+        "out_nonnull",
+        "(not (and no_seed (= EVP_PKEY_set_octet_string_param_ret 0)))",
+        "(or (not curve_name_nonnull)\n    (not (and asn1_encoding_nonnull (= EVP_PKEY_set_utf8_string_param_ret 0))))",
+        "(or (not curve_name_nonnull)\n    (not (and point_format (= EVP_PKEY_set_utf8_string_param_ret 0))))",
+        "(or (not curve_name_nonnull) params_key_nonnull)",
+        "(or (not curve_name_nonnull)\n    (not (or (not gctx_params_nonnull)\n             (<= EVP_PKEY_keygen_init_ret 0)\n             (<= EVP_PKEY_CTX_set_params_ret 0)\n             (<= EVP_PKEY_keygen_ret 0))))",
+        "app_RAND_load_ret",
+        "opt_check_rest_arg_ret",
+        "opt_provider_ret",
+        "opt_rand_ret",
+        "opt_string_asn1_ret",
+        "opt_string_point_format_ret",
+        "opt_format_out_ret",
+        "opt_format_in_ret"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "38a9573a57837fd4c71962ba74ec00940d225fdd6fc4116a4b4f2271cacf4d21",
+    "review_sha256": null,
+    "decision_seconds": 0.010552400002779905,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 12.645302599999923,
+    "original_api_calls": 4,
+    "original_cost_upper_cny": 0.03613999999999962
+  },
+  {
+    "policy_version": "real-bugs-first-v1",
+    "sample_id": "NPD/codeql/libav:row=35:index=51",
+    "verdict": "KEEP",
+    "action": "KEEP",
+    "reason_codes": [
+      "consistent_sat_candidate; alert_retained_not_bug_proved"
+    ],
+    "filter_evidence_complete": false,
+    "checks": {
+      "target_location": {
+        "status": "needs_review",
+        "reason": "unique_text_and_body_hash_match; absolute_source_location_not_proven"
+      },
+      "control_conditions": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "variable_identity": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "constraint_semantics": {
+        "status": "needs_review",
+        "reason": "no_complete_source_semantics_review"
+      },
+      "solver_validity": {
+        "status": "verified",
+        "reason": "actual_query_replayed"
+      },
+      "context_integrity": {
+        "status": "needs_review",
+        "reason": "no_complete_context_review"
+      }
+    },
+    "solver_replay": {
+      "valid": true,
+      "result": "sat",
+      "query_sha256": "7c47e37e0de436ec5e40bc8a3d813094f0fe32e8f669ec34bd792f55616de7b3",
+      "assertions": [
+        "(= link 0)",
+        "(not (= i nb_inputs))",
+        "(or (not (< i nb_inputs)) (not (and (= link_type 1) (= nb_formats 1))))"
+      ],
+      "event_id": 1,
+      "meaning": "formula replay only; source semantics not established"
+    },
+    "evidence_sha256": "10b9a081fe8f29a22cf0abf786cac6d0bd31cca7e519ad1d4844251a7ae251a2",
+    "review_sha256": null,
+    "decision_seconds": 0.007670600003621075,
+    "new_model_calls": 0,
+    "new_api_cost_cny": 0,
+    "cohort": "holdout",
+    "audit_id": null,
+    "dataset_label": 0,
+    "label_confidence": "published_label_unverified_individually",
+    "original_prediction": "keep",
+    "original_status": "success",
+    "original_duration_seconds": 5.597233200000119,
+    "original_api_calls": 4,
+    "original_cost_upper_cny": 0.009243999999999586
+  }
+]

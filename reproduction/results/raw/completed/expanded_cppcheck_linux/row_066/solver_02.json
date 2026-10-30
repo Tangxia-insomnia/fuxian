@@ -1,0 +1,7 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, DeclareSort, Const, Function, Solver, sat\n\n    # Base script constraints\n    reg_int = Int('reg')\n    s = Solver()\n    s.add(reg_int == 0)\n\n    # Constraint set 2: model reg as uninterpreted sort with flags field\n    Reg = DeclareSort('Reg')\n    reg = Const('reg', Reg)\n    flags = Function('flags', Reg, Int)\n    DWARF_REG_OFFSET = Int('DWARF_REG_OFFSET')\n    s.add(flags(reg) == DWARF_REG_OFFSET)\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: NameError: name 'DeclareSort' is not defined"
+}

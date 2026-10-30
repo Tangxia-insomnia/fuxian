@@ -1,0 +1,45 @@
+{
+  "call_id": 284,
+  "sample_id": "NPD/codeql/kernel69:row=29:index=48",
+  "timestamp": "2026-10-26T00:48:48.497392+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static enum skb_drop_reason ndisc_recv_ns(struct sk_buff *skb)\n{\n\tstruct nd_msg *msg = (struct nd_msg *)skb_transport_header(skb);\n\tconst struct in6_addr *saddr = &ipv6_hdr(skb)->saddr;\n\tconst struct in6_addr *daddr = &ipv6_hdr(skb)->daddr;\n\tu8 *lladdr = NULL;\n\tu32 ndoptlen = skb_tail_pointer(skb) - (skb_transport_header(skb) +\n\t\t\t\t    offsetof(struct nd_msg, opt));\n\tstruct ndisc_options ndopts;\n\tstruct net_device *dev = skb->dev;\n\tstruct inet6_ifaddr *ifp;\n\tstruct inet6_dev *idev = NULL;\n\tstruct neighbour *neigh;\n\tint dad = ipv6_addr_any(saddr);\n\tint is_router = -1;\n\tSKB_DR(reason);\n\tu64 nonce = 0;\n\tbool inc;\n\n\tif (skb->len < sizeof(struct nd_msg))\n\t\treturn SKB_DROP_REASON_PKT_TOO_SMALL;\n\n\tif (ipv6_addr_is_multicast(&msg->target)) {\n\t\tND_PRINTK(2, warn, \"NS: multicast target address\\n\");\n\t\treturn reason;\n\t}\n\n\t/*\n\t * RFC2461 7.1.1:\n\t * DAD has to be destined for solicited node multicast address.\n\t */\n\tif (dad && !ipv6_addr_is_solict_mult(daddr)) {\n\t\tND_PRINTK(2, warn, \"NS: bad DAD packet (wrong destination)\\n\");\n\t\treturn reason;\n\t}\n\n\tif (!ndisc_parse_options(dev, msg->opt, ndoptlen, &ndopts))\n\t\treturn SKB_DROP_REASON_IPV6_NDISC_BAD_OPTIONS;\n\n\tif (ndopts.nd_opts_src_lladdr) {\n\t\tlladdr = ndisc_opt_addr_data(ndopts.nd_opts_src_lladdr, dev);\n\t\tif (!lladdr) {\n\t\t\tND_PRINTK(2, warn,\n\t\t\t\t  \"NS: invalid link-layer address length\\n\");\n\t\t\treturn reason;\n\t\t}\n\n\t\t/* RFC2461 7.1.1:\n\t\t *\tIf the IP source address is the unspecified address,\n\t\t *\tthere MUST NOT be source link-layer address option\n\t\t *\tin the message.\n\t\t */\n\t\tif (dad) {\n\t\t\tND_PRINTK(2, warn,\n\t\t\t\t  \"NS: bad DAD packet (link-layer address option)\\n\");\n\t\t\treturn reason;\n\t\t}\n\t}\n\tif (ndopts.nd_opts_nonce && ndopts.nd_opts_nonce->nd_opt_len == 1)\n\t\tmemcpy(&nonce, (u8 *)(ndopts.nd_opts_nonce + 1), 6);\n\n\tinc = ipv6_addr_is_multicast(daddr);\n\n\tifp = ipv6_get_ifaddr(dev_net(dev), &msg->target, dev, 1);\n\tif (ifp) {\nhave_ifp:\n\t\tif (ifp->flags & (IFA_F_TENTATIVE|IFA_F_OPTIMISTIC)) {\n\t\t\tif (dad) {\n\t\t\t\tif (nonce != 0 && ifp->dad_nonce == nonce) {\n\t\t\t\t\tu8 *np = (u8 *)&nonce;\n\t\t\t\t\t/* Matching nonce if looped back */\n\t\t\t\t\tND_PRINTK(2, notice,\n\t\t\t\t\t\t  \"%s: IPv6 DAD loopback for address %pI6c nonce %pM ignored\\n\",\n\t\t\t\t\t\t  ifp->idev->dev->name,\n\t\t\t\t\t\t  &ifp->addr, np);\n\t\t\t\t\tgoto out;\n\t\t\t\t}\n\t\t\t\t/*\n\t\t\t\t * We are colliding with another node\n\t\t\t\t * who is doing DAD\n\t\t\t\t * so fail our DAD process\n\t\t\t\t */\n\t\t\t\taddrconf_dad_failure(skb, ifp);\n\t\t\t\treturn reason;\n\t\t\t} else {\n\t\t\t\t/*\n\t\t\t\t * This is not a dad solicitation.\n\t\t\t\t * If we are an optimistic node,\n\t\t\t\t * we should respond.\n\t\t\t\t * Otherwise, we should ignore it.\n\t\t\t\t */\n\t\t\t\tif (!(ifp->flags & IFA_F_OPTIMISTIC))\n\t\t\t\t\tgoto out;\n\t\t\t}\n\t\t}\n\n\t\tidev = ifp->idev;\n\t} else {\n\t\tstruct net *net = dev_net(dev);\n\n\t\t/* perhaps an address on the master device */\n\t\tif (netif_is_l3_slave(dev)) {\n\t\t\tstruct net_device *mdev;\n\n\t\t\tmdev = netdev_master_upper_dev_get_rcu(dev);\n\t\t\tif (mdev) {\n\t\t\t\tifp = ipv6_get_ifaddr(net, &msg->target, mdev, 1);\n\t\t\t\tif (ifp)\n\t\t\t\t\tgoto have_ifp;\n\t\t\t}\n\t\t}\n\n\t\tidev = in6_dev_get(dev);\n\t\tif (!idev) {\n\t\t\t/* XXX: count this drop? */\n\t\t\treturn reason;\n\t\t}\n\n\t\tif (ipv6_chk_acast_addr(net, dev, &msg->target) ||\n\t\t    (READ_ONCE(idev->cnf.forwarding) &&\n\t\t     (READ_ONCE(net->ipv6.devconf_all->proxy_ndp) ||\n\t\t      READ_ONCE(idev->cnf.proxy_ndp)) &&\n\t\t     (is_router = pndisc_is_router(&msg->target, dev)) >= 0)) {\n\t\t\tif (!(NEIGH_CB(skb)->flags & LOCALLY_ENQUEUED) &&\n\t\t\t    skb->pkt_type != PACKET_HOST &&\n\t\t\t    inc &&\n\t\t\t    NEIGH_VAR(idev->nd_parms, PROXY_DELAY) != 0) {\n\t\t\t\t/*\n\t\t\t\t * for anycast or proxy,\n\t\t\t\t * sender should delay its response\n\t\t\t\t * by a random time between 0 and\n\t\t\t\t * MAX_ANYCAST_DELAY_TIME seconds.\n\t\t\t\t * (RFC2461) -- yoshfuji\n\t\t\t\t */\n\t\t\t\tstruct sk_buff *n = skb_clone(skb, GFP_ATOMIC);\n\t\t\t\tif (n)\n\t\t\t\t\tpneigh_enqueue(&nd_tbl, idev->nd_parms, n);\n\t\t\t\tgoto out;\n\t\t\t}\n\t\t} else {\n\t\t\tSKB_DR_SET(reason, IPV6_NDISC_NS_OTHERHOST);\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\tif (is_router < 0)\n\t\tis_router = READ_ONCE(idev->cnf.forwarding);\n\n\tif (dad) {\n\t\tndisc_send_na(dev, &in6addr_linklocal_allnodes, &msg->target,\n\t\t\t      !!is_router, false, (ifp != NULL), true);\n\t\tgoto out;\n\t}\n\n\tif (inc)\n\t\tNEIGH_CACHE_STAT_INC(&nd_tbl, rcv_probes_mcast);\n\telse\n\t\tNEIGH_CACHE_STAT_INC(&nd_tbl, rcv_probes_ucast);\n\n\t/*\n\t *\tupdate / create cache entry\n\t *\tfor the source address\n\t */\n\tneigh = __neigh_lookup(&nd_tbl, saddr, dev,\n\t\t\t       !inc || lladdr || !dev->addr_len);\n\tif (neigh)\n\t\tndisc_update(dev, neigh, lladdr, NUD_STALE,\n\t\t\t     NEIGH_UPDATE_F_WEAK_OVERRIDE|\n\t\t\t     NEIGH_UPDATE_F_OVERRIDE,\n\t\t\t     NDISC_NEIGHBOUR_SOLICITATION, &ndopts);\n\tif (neigh || !dev->header_ops) {\n\t\tndisc_send_na(dev, saddr, &msg->target, !!is_router,\n\t\t\t      true, (ifp != NULL && inc), inc);\n\t\tif (neigh)\n\t\t\tneigh_release(neigh);\n\t\treason = SKB_CONSUMED;\n\t}\n\nout:\n\tif (ifp)\n\t\tin6_ifa_put(ifp);\n\telse\n\t\tin6_dev_put(idev);\n\treturn reason;\n}\n        - Target variables: [{'condition': 'if(!(ifp))', 'line_number': 181}], idev\n        - Constraints: ['!(!(ifp)) || !(!idev)', '!(!(ifp)) || !(netif_is_l3_slave(dev)) || !(mdev) || !(ifp)', '!(ifp->flags & (IFA_F_TENTATIVE|IFA_F_OPTIMISTIC)) || !(dad)', '!(ndopts.nd_opts_src_lladdr) || !(dad)', '!(ndopts.nd_opts_src_lladdr) || !(!lladdr)', '!(!ndisc_parse_options(dev, msg->opt, ndoptlen, &ndopts))', '!(dad && !ipv6_addr_is_solict_mult(daddr))', '!(ipv6_addr_is_multicast(&msg->target))', '!(skb->len < sizeof(struct nd_msg))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "657f979d-a3fd-4e26-84ae-5a7f1746c246",
+  "usage": {
+    "prompt_tokens": 2082,
+    "completion_tokens": 18,
+    "total_tokens": 2100,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 2082
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(!(ifp)) || !(!idev)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.7521774999995614,
+  "cost_upper_bound_cny": 0.004308
+}

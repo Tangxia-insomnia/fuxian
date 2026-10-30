@@ -1,0 +1,123 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "__acquires",
+      "var_name": "sinfo",
+      "target": "\tkfree(sinfo);",
+      "code": "static int sta_info_insert_finish(struct sta_info *sta) __acquires(RCU)\n{\n\tstruct ieee80211_local *local = sta->local;\n\tstruct ieee80211_sub_if_data *sdata = sta->sdata;\n\tstruct station_info *sinfo = NULL;\n\tint err = 0;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\t/* check if STA exists already */\n\tif (sta_info_get_bss(sdata, sta->sta.addr)) {\n\t\terr = -EEXIST;\n\t\tgoto out_cleanup;\n\t}\n\n\tsinfo = kzalloc(sizeof(struct station_info), GFP_KERNEL);\n\tif (!sinfo) {\n\t\terr = -ENOMEM;\n\t\tgoto out_cleanup;\n\t}\n\n\tlocal->num_sta++;\n\tlocal->sta_generation++;\n\tsmp_mb();\n\n\t/* simplify things and don't accept BA sessions yet */\n\tset_sta_flag(sta, WLAN_STA_BLOCK_BA);\n\n\t/* make the station visible */\n\terr = sta_info_hash_add(local, sta);\n\tif (err)\n\t\tgoto out_drop_sta;\n\n\tif (sta->sta.valid_links) {\n\t\terr = link_sta_info_hash_add(local, &sta->deflink);\n\t\tif (err) {\n\t\t\tsta_info_hash_del(local, sta);\n\t\t\tgoto out_drop_sta;\n\t\t}\n\t}\n\n\tlist_add_tail_rcu(&sta->list, &local->sta_list);\n\n\t/* update channel context before notifying the driver about state\n\t * change, this enables driver using the updated channel context right away.\n\t */\n\tif (sta->sta_state >= IEEE80211_STA_ASSOC) {\n\t\tieee80211_recalc_min_chandef(sta->sdata, -1);\n\t\tif (!sta->sta.support_p2p_ps)\n\t\t\tieee80211_recalc_p2p_go_ps_allowed(sta->sdata);\n\t}\n\n\t/* notify driver */\n\terr = sta_info_insert_drv_state(local, sdata, sta);\n\tif (err)\n\t\tgoto out_remove;\n\n\tset_sta_flag(sta, WLAN_STA_INSERTED);\n\n\t/* accept BA sessions now */\n\tclear_sta_flag(sta, WLAN_STA_BLOCK_BA);\n\n\tieee80211_sta_debugfs_add(sta);\n\trate_control_add_sta_debugfs(sta);\n\tif (sta->sta.valid_links) {\n\t\tint i;\n\n\t\tfor (i = 0; i < ARRAY_SIZE(sta->link); i++) {\n\t\t\tstruct link_sta_info *link_sta;\n\n\t\t\tlink_sta = rcu_dereference_protected(sta->link[i],\n\t\t\t\t\t\t\t     lockdep_is_held(&local->hw.wiphy->mtx));\n\n\t\t\tif (!link_sta)\n\t\t\t\tcontinue;\n\n\t\t\tieee80211_link_sta_debugfs_add(link_sta);\n\t\t\tif (sdata->vif.active_links & BIT(i))\n\t\t\t\tieee80211_link_sta_debugfs_drv_add(link_sta);\n\t\t}\n\t} else {\n\t\tieee80211_link_sta_debugfs_add(&sta->deflink);\n\t\tieee80211_link_sta_debugfs_drv_add(&sta->deflink);\n\t}\n\n\tsinfo->generation = local->sta_generation;\n\tcfg80211_new_sta(sdata->dev, sta->sta.addr, sinfo, GFP_KERNEL);\n\tkfree(sinfo);\n\n\tsta_dbg(sdata, \"Inserted STA %pM\\n\", sta->sta.addr);\n\n\t/* move reference to rcu-protected */\n\trcu_read_lock();\n\n\tif (ieee80211_vif_is_mesh(&sdata->vif))\n\t\tmesh_accept_plinks_update(sdata);\n\n\tieee80211_check_fast_xmit(sta);\n\n\treturn 0;\n out_remove:\n\tif (sta->sta.valid_links)\n\t\tlink_sta_info_hash_del(local, &sta->deflink);\n\tsta_info_hash_del(local, sta);\n\tlist_del_rcu(&sta->list);\n out_drop_sta:\n\tlocal->num_sta--;\n\tsynchronize_net();\n out_cleanup:\n\tcleanup_single_sta(sta);\n\tkfree(sinfo);\n\trcu_read_lock();\n\treturn err;\n}",
+      "body_sha256": "3ab666446e8629b83bcc572c00a0d5ebc3d55dbb3495feb0a64cdcb9e34d7cee",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tkfree(sinfo);",
+            "condition": [
+              {
+                "condition": "goto out_cleanup",
+                "line_number": 108
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "goto out_cleanup",
+            "line_number": 108
+          }
+        ],
+        "variable_assignments": {
+          "text": "static int sta_info_insert_finish(struct sta_info *sta) __acquires(RCU)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": []
+          },
+          {
+            "text": "out_remove",
+            "condition": [
+              "err"
+            ]
+          },
+          {
+            "text": "out_drop_sta",
+            "condition": [
+              "sta->sta.valid_links",
+              "err"
+            ]
+          },
+          {
+            "text": "out_drop_sta",
+            "condition": [
+              "err"
+            ]
+          },
+          {
+            "text": "out_cleanup",
+            "condition": [
+              "!sinfo"
+            ]
+          },
+          {
+            "text": "out_cleanup",
+            "condition": [
+              "sta_info_get_bss(sdata, sta->sta.addr)"
+            ]
+          }
+        ],
+        "filter_function_code": "static int sta_info_insert_finish(struct sta_info *sta) __acquires(RCU)\n{\n\tstruct ieee80211_local *local = sta->local;\n\tstruct ieee80211_sub_if_data *sdata = sta->sdata;\n\tstruct station_info *sinfo = NULL;\n\tint err = 0;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\t/* check if STA exists already */\n\tif (sta_info_get_bss(sdata, sta->sta.addr)) {\n\t\terr = -EEXIST;\n\t\tgoto out_cleanup;\n\t}\n\n\tsinfo = kzalloc(sizeof(struct station_info), GFP_KERNEL);\n\tif (!sinfo) {\n\t\terr = -ENOMEM;\n\t\tgoto out_cleanup;\n\t}\n\n\tlocal->num_sta++;\n\tlocal->sta_generation++;\n\tsmp_mb();\n\n\t/* simplify things and don't accept BA sessions yet */\n\tset_sta_flag(sta, WLAN_STA_BLOCK_BA);\n\n\t/* make the station visible */\n\terr = sta_info_hash_add(local, sta);\n\tif (err)\n\t\tgoto out_drop_sta;\n\n\tif (sta->sta.valid_links) {\n\t\terr = link_sta_info_hash_add(local, &sta->deflink);\n\t\tif (err) {\n\t\t\tsta_info_hash_del(local, sta);\n\t\t\tgoto out_drop_sta;\n\t\t}\n\t}\n\n\tlist_add_tail_rcu(&sta->list, &local->sta_list);\n\n\t/* update channel context before notifying the driver about state\n\t * change, this enables driver using the updated channel context right away.\n\t */\n\tif (sta->sta_state >= IEEE80211_STA_ASSOC) {\n\t\tieee80211_recalc_min_chandef(sta->sdata, -1);\n\t\tif (!sta->sta.support_p2p_ps)\n\t\t\tieee80211_recalc_p2p_go_ps_allowed(sta->sdata);\n\t}\n\n\t/* notify driver */\n\terr = sta_info_insert_drv_state(local, sdata, sta);\n\tif (err)\n\t\tgoto out_remove;\n\n\tset_sta_flag(sta, WLAN_STA_INSERTED);\n\n\t/* accept BA sessions now */\n\tclear_sta_flag(sta, WLAN_STA_BLOCK_BA);\n\n\tieee80211_sta_debugfs_add(sta);\n\trate_control_add_sta_debugfs(sta);\n\tif (sta->sta.valid_links) {\n\t\tint i;\n\n\t\tfor (i = 0; i < ARRAY_SIZE(sta->link); i++) {\n\t\t\tstruct link_sta_info *link_sta;\n\n\t\t\tlink_sta = rcu_dereference_protected(sta->link[i],\n\t\t\t\t\t\t\t     lockdep_is_held(&local->hw.wiphy->mtx));\n\n\t\t\tif (!link_sta)\n\t\t\t\tcontinue;\n\n\t\t\tieee80211_link_sta_debugfs_add(link_sta);\n\t\t\tif (sdata->vif.active_links & BIT(i))\n\t\t\t\tieee80211_link_sta_debugfs_drv_add(link_sta);\n\t\t}\n\t} else {\n\t\tieee80211_link_sta_debugfs_add(&sta->deflink);\n\t\tieee80211_link_sta_debugfs_drv_add(&sta->deflink);\n\t}\n\n\tsinfo->generation = local->sta_generation;\n\tcfg80211_new_sta(sdata->dev, sta->sta.addr, sinfo, GFP_KERNEL);\n\tkfree(sinfo);\n\n\tsta_dbg(sdata, \"Inserted STA %pM\\n\", sta->sta.addr);\n\n\t/* move reference to rcu-protected */\n\trcu_read_lock();\n\n\tif (ieee80211_vif_is_mesh(&sdata->vif))\n\t\tmesh_accept_plinks_update(sdata);\n\n\tieee80211_check_fast_xmit(sta);\n\n\treturn 0;\n out_remove:\n\tif (sta->sta.valid_links)\n\t\tlink_sta_info_hash_del(local, &sta->deflink);\n\tsta_info_hash_del(local, sta);\n\tlist_del_rcu(&sta->list);\n out_drop_sta:\n\tlocal->num_sta--;\n\tsynchronize_net();\n out_cleanup:\n\tcleanup_single_sta(sta);\n\tkfree(sinfo);\n\trcu_read_lock();\n\treturn err;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "kfree",
+      "var_name": "object",
+      "target": "\t\tfree_large_kmalloc(folio, (void *)object);",
+      "code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}",
+      "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\tfree_large_kmalloc(folio, (void *)object);",
+            "condition": [
+              {
+                "condition": "if (unlikely(!folio_test_slab(folio)))",
+                "line_number": 13
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (unlikely(!folio_test_slab(folio)))",
+            "line_number": 13
+          }
+        ],
+        "variable_assignments": {
+          "text": "void kfree(const void *object)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "unlikely(ZERO_OR_NULL_PTR(object))"
+            ]
+          }
+        ],
+        "filter_function_code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int sta_info_insert_finish(struct sta_info *sta) __acquires(RCU)\n{\n\tstruct ieee80211_local *local = sta->local;\n\tstruct ieee80211_sub_if_data *sdata = sta->sdata;\n\tstruct station_info *sinfo = NULL;\n\tint err = 0;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\t/* check if STA exists already */\n\tif (sta_info_get_bss(sdata, sta->sta.addr)) {\n\t\terr = -EEXIST;\n\t\tgoto out_cleanup;\n\t}\n\n\tsinfo = kzalloc(sizeof(struct station_info), GFP_KERNEL);\n\tif (!sinfo) {\n\t\terr = -ENOMEM;\n\t\tgoto out_cleanup;\n\t}\n\n\tlocal->num_sta++;\n\tlocal->sta_generation++;\n\tsmp_mb();\n\n\t/* simplify things and don't accept BA sessions yet */\n\tset_sta_flag(sta, WLAN_STA_BLOCK_BA);\n\n\t/* make the station visible */\n\terr = sta_info_hash_add(local, sta);\n\tif (err)\n\t\tgoto out_drop_sta;\n\n\tif (sta->sta.valid_links) {\n\t\terr = link_sta_info_hash_add(local, &sta->deflink);\n\t\tif (err) {\n\t\t\tsta_info_hash_del(local, sta);\n\t\t\tgoto out_drop_sta;\n\t\t}\n\t}\n\n\tlist_add_tail_rcu(&sta->list, &local->sta_list);\n\n\t/* update channel context before notifying the driver about state\n\t * change, this enables driver using the updated channel context right away.\n\t */\n\tif (sta->sta_state >= IEEE80211_STA_ASSOC) {\n\t\tieee80211_recalc_min_chandef(sta->sdata, -1);\n\t\tif (!sta->sta.support_p2p_ps)\n\t\t\tieee80211_recalc_p2p_go_ps_allowed(sta->sdata);\n\t}\n\n\t/* notify driver */\n\terr = sta_info_insert_drv_state(local, sdata, sta);\n\tif (err)\n\t\tgoto out_remove;\n\n\tset_sta_flag(sta, WLAN_STA_INSERTED);\n\n\t/* accept BA sessions now */\n\tclear_sta_flag(sta, WLAN_STA_BLOCK_BA);\n\n\tieee80211_sta_debugfs_add(sta);\n\trate_control_add_sta_debugfs(sta);\n\tif (sta->sta.valid_links) {\n\t\tint i;\n\n\t\tfor (i = 0; i < ARRAY_SIZE(sta->link); i++) {\n\t\t\tstruct link_sta_info *link_sta;\n\n\t\t\tlink_sta = rcu_dereference_protected(sta->link[i],\n\t\t\t\t\t\t\t     lockdep_is_held(&local->hw.wiphy->mtx));\n\n\t\t\tif (!link_sta)\n\t\t\t\tcontinue;\n\n\t\t\tieee80211_link_sta_debugfs_add(link_sta);\n\t\t\tif (sdata->vif.active_links & BIT(i))\n\t\t\t\tieee80211_link_sta_debugfs_drv_add(link_sta);\n\t\t}\n\t} else {\n\t\tieee80211_link_sta_debugfs_add(&sta->deflink);\n\t\tieee80211_link_sta_debugfs_drv_add(&sta->deflink);\n\t}\n\n\tsinfo->generation = local->sta_generation;\n\tcfg80211_new_sta(sdata->dev, sta->sta.addr, sinfo, GFP_KERNEL);\n\tkfree(sinfo);\n\n\tsta_dbg(sdata, \"Inserted STA %pM\\n\", sta->sta.addr);\n\n\t/* move reference to rcu-protected */\n\trcu_read_lock();\n\n\tif (ieee80211_vif_is_mesh(&sdata->vif))\n\t\tmesh_accept_plinks_update(sdata);\n\n\tieee80211_check_fast_xmit(sta);\n\n\treturn 0;\n out_remove:\n\tif (sta->sta.valid_links)\n\t\tlink_sta_info_hash_del(local, &sta->deflink);\n\tsta_info_hash_del(local, sta);\n\tlist_del_rcu(&sta->list);\n out_drop_sta:\n\tlocal->num_sta--;\n\tsynchronize_net();\n out_cleanup:\n\tcleanup_single_sta(sta);\n\tkfree(sinfo);\n\trcu_read_lock();\n\treturn err;\n}",
+    "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+  ]
+}

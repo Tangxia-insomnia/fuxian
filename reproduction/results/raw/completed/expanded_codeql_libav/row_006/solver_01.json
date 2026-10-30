@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, IntSort, Function, Solver, Or, sat\n\n    # Base script variables and constraints\n    che = Int('che')\n\n    # Constraint set 2 variables\n    elem_type = Int('elem_type')\n    TYPE_END  = Int('TYPE_END')\n    TYPE_DSE  = Int('TYPE_DSE')\n    ac        = Int('ac')\n    elem_id   = Int('elem_id')\n\n    get_che = Function('get_che', IntSort(), IntSort(), IntSort(), IntSort())\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(che == 0)\n\n    # Constraint set 2 constraint\n    s.add(Or(\n        elem_type == TYPE_END,\n        elem_type >= TYPE_DSE,\n        che == get_che(ac, elem_type, elem_id)\n    ))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun che () Int)\n(declare-fun get_che (Int Int Int) Int)\n(declare-fun elem_id () Int)\n(declare-fun elem_type () Int)\n(declare-fun ac () Int)\n(declare-fun TYPE_DSE () Int)\n(declare-fun TYPE_END () Int)\n(assert\n (= che 0))\n(assert\n (let (($x33 (= che (get_che ac elem_type elem_id))))\n(let (($x30 (= elem_type TYPE_END)))\n(or $x30 (>= elem_type TYPE_DSE) $x33))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

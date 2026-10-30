@@ -1,0 +1,45 @@
+```python
+skb=Int('skb')
+s.add(skb == 0)
+```
+```json
+["!(!skb)"]
+```
+```python
+# Z3 script generated from C constraints
+# Constraint: !(!skb)
+#
+# In C, `skb` is a pointer. The expression `!skb` is true when skb is NULL
+# (i.e., skb == 0). The outer `!` negates that, so `!(!skb)` is true when
+# skb is NOT NULL (i.e., skb != 0).
+#
+# We model the pointer as an integer (0 = NULL, nonzero = valid pointer),
+# which is the standard way to encode C pointer null-checks in Z3.
+
+from z3 import *
+
+# Declare skb as an integer representing a pointer value (0 == NULL)
+skb = Int('skb')
+
+# Solver instance
+s = Solver()
+
+# Constraint: !(!skb)  ==>  skb != 0
+# Included because it directly constrains the variable `skb`.
+s.add(skb != 0)
+
+# Check satisfiability and print a model
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    skb = Int('skb')
+    s = Solver()
+    s.add(skb == 0)
+    s.add(skb != 0)
+    return s.check() == sat
+```
+goto result: False

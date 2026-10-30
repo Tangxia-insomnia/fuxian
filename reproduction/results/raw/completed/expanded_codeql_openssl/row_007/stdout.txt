@@ -1,0 +1,92 @@
+```python
+cms=Int('cms')
+s.add(cms == 0)
+```
+```json
+["!(operation == SMIME_ENCRYPT) || !(!(flags & CMS_STREAM)) || !(!CMS_final(cms, in, NULL, flags))", "!(operation == SMIME_ENCRYPT) || !(pwri_pass != NULL) || !(CMS_add0_recipient_password(cms, -1, NID_undef, NID_undef, pwri_tmp, -1, NULL) == NULL)", "!(operation == SMIME_ENCRYPT) || !(pwri_pass != NULL) || !(pwri_tmp == NULL)", "!(operation == SMIME_ENCRYPT) || !(secret_key != NULL) || !(!CMS_add0_recipient_key(cms, NID_undef, secret_key, secret_keylen, secret_keyid, secret_keyidlen, NULL, NULL, NULL))", "!(operation == SMIME_ENCRYPT) || !(i = 0; i < sk_X509_num(encerts); i++) || !(CMS_RecipientInfo_type(ri) == CMS_RECIPINFO_AGREE && wrap_cipher != NULL) || !(EVP_EncryptInit_ex(wctx, wrap_cipher, NULL, NULL, NULL) != 1)", "!(operation == SMIME_ENCRYPT) || !(i = 0; i < sk_X509_num(encerts); i++) || !(res <= 0 && res != -2)", "!(operation == SMIME_ENCRYPT) || !(i = 0; i < sk_X509_num(encerts); i++) || !(kparam != NULL) || !(!cms_set_pkey_param(pctx, kparam->param))", "!(operation == SMIME_ENCRYPT) || !(i = 0; i < sk_X509_num(encerts); i++) || !(ri == NULL)", "!(operation == SMIME_ENCRYPT) || !(i = 0; i < sk_X509_num(encerts); i++) || !(kparam = key_first; kparam; kparam = kparam->next) || !(kparam->idx == i)", "!(operation == SMIME_ENCRYPT) || !(cms == NULL)", "!(operation & SMIME_IP) || !(cms == NULL)"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints
+# cms is a pointer-like variable; model as an integer (0 = NULL, non-zero = valid pointer)
+cms = Int('cms')
+
+# operation is a bitmask variable used in the constraints
+operation = Int('operation')
+
+# Constants for SMIME operations (bitmask values)
+SMIME_ENCRYPT = 1
+SMIME_IP = 2
+
+s = Solver()
+
+# Constraint 1: !(operation == SMIME_ENCRYPT) || !(cms == NULL)
+# Included because it directly references cms and operation.
+# C: !(operation == SMIME_ENCRYPT) || !(cms == NULL)
+s.add(Or(operation != SMIME_ENCRYPT, cms != 0))
+
+# Constraint 2: !(operation & SMIME_IP) || !(cms == NULL)
+# Included because it directly references cms and operation.
+# C: !(operation & SMIME_IP) || !(cms == NULL)
+s.add(Or((operation & SMIME_IP) == 0, cms != 0))
+
+# Note: All other constraints reference variables (flags, pwri_pass, secret_key,
+# encerts, ri, wctx, wrap_cipher, res, kparam, pctx, key_first, i, etc.) that are
+# not part of the specified relevant conditions/variables (only cms and operation
+# are relevant). They are therefore excluded per the guidelines.
+
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or, sat
+
+    # Base script variables and constraints
+    cms = Int('cms')
+
+    # Variables from constraint set 2
+    operation = Int('operation')
+
+    # Constants for SMIME operations (bitmask values)
+    SMIME_ENCRYPT = 1
+    SMIME_IP = 2
+
+    s = Solver()
+
+    # Base constraint
+    s.add(cms == 0)
+
+    # Constraint set 2 constraints
+    s.add(Or(operation != SMIME_ENCRYPT, cms != 0))
+    s.add(Or((operation & SMIME_IP) == 0, cms != 0))
+
+    return s.check() == sat
+```
+TypeError: unsupported operand type(s) for &: 'ArithRef' and 'int'
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or, sat
+
+    cms = Int('cms')
+    operation = Int('operation')
+
+    SMIME_ENCRYPT = 1
+    SMIME_IP = 2
+
+    s = Solver()
+
+    # Base constraint
+    s.add(cms == 0)
+
+    # Constraint 1: !(operation == SMIME_ENCRYPT) || !(cms == NULL)
+    s.add(Or(operation != SMIME_ENCRYPT, cms != 0))
+
+    # Constraint 2: !(operation & SMIME_IP) || !(cms == NULL)
+    # Replace bitwise & with Z3-compatible expression using modulo arithmetic
+    # (operation & SMIME_IP) == 0  <=>  operation % 4 < 2
+    s.add(Or(operation % 4 < 2, cms != 0))
+
+    return s.check() == sat
+```
+goto result: True

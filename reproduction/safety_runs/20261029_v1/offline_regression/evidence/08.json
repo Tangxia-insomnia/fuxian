@@ -1,0 +1,140 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/libav:row=13:index=20",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "tmp",
+    "function_name": "radix_sort",
+    "location": {
+      "file_path": "libavcodec/dnxhdenc.c",
+      "region": {
+        "startLine": 956,
+        "startColumn": 21,
+        "endColumn": 24
+      },
+      "context": {
+        "startLine": 954,
+        "endLine": 958,
+        "snippet": {
+          "text": "radix_sort_pass(tmp, data, size, buckets[0], 0);"
+        }
+      }
+    },
+    "function_code": "static void radix_sort(RCCMPEntry *data, int size)\n{\n    int buckets[RADIX_PASSES][NBUCKETS];\n    RCCMPEntry *tmp = av_malloc(sizeof(*tmp) * size);\n    radix_count(data, size, buckets);\n    radix_sort_pass(tmp, data, size, buckets[0], 0);\n    radix_sort_pass(data, tmp, size, buckets[1], 1);\n    if (buckets[2][NBUCKETS - 1] || buckets[3][NBUCKETS - 1]) {\n        radix_sort_pass(tmp, data, size, buckets[2], 2);\n        radix_sort_pass(data, tmp, size, buckets[3], 3);\n    }\n    av_free(tmp);\n}",
+    "index": 20
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "radix_sort",
+        "var_name": "tmp",
+        "target": "radix_sort_pass(tmp, data, size, buckets[0], 0);",
+        "code": "static void radix_sort(RCCMPEntry *data, int size)\n{\n    int buckets[RADIX_PASSES][NBUCKETS];\n    RCCMPEntry *tmp = av_malloc(sizeof(*tmp) * size);\n    radix_count(data, size, buckets);\n    radix_sort_pass(tmp, data, size, buckets[0], 0);\n    radix_sort_pass(data, tmp, size, buckets[1], 1);\n    if (buckets[2][NBUCKETS - 1] || buckets[3][NBUCKETS - 1]) {\n        radix_sort_pass(tmp, data, size, buckets[2], 2);\n        radix_sort_pass(data, tmp, size, buckets[3], 3);\n    }\n    av_free(tmp);\n}",
+        "body_sha256": "e301675db269503429f5c62e376242a061b9697e8ab14c6e7e32746a79de543b",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "radix_sort_pass(tmp, data, size, buckets[0], 0);",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static void radix_sort(RCCMPEntry *data, int size)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [],
+          "filter_function_code": "static void radix_sort(RCCMPEntry *data, int size)\n{\n    int buckets[RADIX_PASSES][NBUCKETS];\n    RCCMPEntry *tmp = av_malloc(sizeof(*tmp) * size);\n    radix_count(data, size, buckets);\n    radix_sort_pass(tmp, data, size, buckets[0], 0);\n    radix_sort_pass(data, tmp, size, buckets[1], 1);\n    if (buckets[2][NBUCKETS - 1] || buckets[3][NBUCKETS - 1]) {\n        radix_sort_pass(tmp, data, size, buckets[2], 2);\n        radix_sort_pass(data, tmp, size, buckets[3], 3);\n    }\n    av_free(tmp);\n}"
+        }
+      },
+      {
+        "level": 1,
+        "function": "radix_sort_pass",
+        "var_name": "dst",
+        "target": "        dst[pos] = data[i];",
+        "code": "static void radix_sort_pass(RCCMPEntry *dst, const RCCMPEntry *data,\n                            int size, int buckets[NBUCKETS], int pass)\n{\n    int shift = pass * BUCKET_BITS;\n    int i;\n    for (i = 0; i < size; i++) {\n        int v   = get_bucket(data[i].value, shift);\n        int pos = buckets[v]++;\n        dst[pos] = data[i];\n    }\n}",
+        "body_sha256": "ac3cfc2cb1ff9d54dcb36606e0d36e6c1e05b37088e16ab6fc2f9c830cda5321",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "        dst[pos] = data[i];",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static void radix_sort_pass(RCCMPEntry *dst, const RCCMPEntry *data,",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [],
+          "filter_function_code": "static void radix_sort_pass(RCCMPEntry *dst, const RCCMPEntry *data,\n                            int size, int buckets[NBUCKETS], int pass)\n{\n    int shift = pass * BUCKET_BITS;\n    int i;\n    for (i = 0; i < size; i++) {\n        int v   = get_bucket(data[i].value, shift);\n        int pos = buckets[v]++;\n        dst[pos] = data[i];\n    }\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static void radix_sort(RCCMPEntry *data, int size)\n{\n    int buckets[RADIX_PASSES][NBUCKETS];\n    RCCMPEntry *tmp = av_malloc(sizeof(*tmp) * size);\n    radix_count(data, size, buckets);\n    radix_sort_pass(tmp, data, size, buckets[0], 0);\n    radix_sort_pass(data, tmp, size, buckets[1], 1);\n    if (buckets[2][NBUCKETS - 1] || buckets[3][NBUCKETS - 1]) {\n        radix_sort_pass(tmp, data, size, buckets[2], 2);\n        radix_sort_pass(data, tmp, size, buckets[3], 3);\n    }\n    av_free(tmp);\n}",
+      "static void radix_sort_pass(RCCMPEntry *dst, const RCCMPEntry *data,\n                            int size, int buckets[NBUCKETS], int pass)\n{\n    int shift = pass * BUCKET_BITS;\n    int i;\n    for (i = 0; i < size; i++) {\n        int v   = get_bucket(data[i].value, shift);\n        int pos = buckets[v]++;\n        dst[pos] = data[i];\n    }\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\ntmp=Int('tmp')\ns.add(tmp == 0)\n```",
+      "step 1 z3 script: ```python\ndst=Int('dst')\ns.add(dst == 0)\n```"
+    ],
+    "function_name_list": [
+      "radix_sort_pass"
+    ],
+    "function_body_list": [
+      "static void radix_sort_pass(RCCMPEntry *dst, const RCCMPEntry *data,\n                            int size, int buckets[NBUCKETS], int pass)\n{\n    int shift = pass * BUCKET_BITS;\n    int i;\n    for (i = 0; i < size; i++) {\n        int v   = get_bucket(data[i].value, shift);\n        int pos = buckets[v]++;\n        dst[pos] = data[i];\n    }\n}"
+    ],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    tmp = Int('tmp')\n    s = Solver()\n    s.add(tmp == 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun tmp () Int)\n(assert\n (= tmp 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    {
+      "event_id": 2,
+      "level": 1,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    dst = Int('dst')\n    s = Solver()\n    s.add(dst == 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun dst () Int)\n(assert\n (= dst 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": [
+    {
+      "code": "unresolved_prior_audit:关键条件提取错误",
+      "evidence_ref": "audit/failure_audit_20261029/samples/A08/audit.md"
+    }
+  ]
+}

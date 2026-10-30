@@ -1,0 +1,39 @@
+```python
+rb_node=Int('rb_node')
+cie_tmp=Int('cie_tmp')
+s.add(rb_node != 0)
+s.add(cie_tmp == 0)
+```
+```json
+["!(cie_tmp ==0)"]
+```
+```python
+from z3 import *
+
+# Declare variable from the C code
+cie_tmp = Int('cie_tmp')
+
+# Constraint: !(cie_tmp == 0)
+# In C, this asserts that cie_tmp is non-zero.
+# Converted to Z3 as cie_tmp != 0.
+s = Solver()
+s.add(cie_tmp != 0)
+
+# Check satisfiability and print a model if one exists
+if s.check() == sat:
+    print(s.model())
+else:
+    print("unsat")
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    rb_node = Int('rb_node')
+    cie_tmp = Int('cie_tmp')
+    s = Solver()
+    s.add(rb_node != 0)
+    s.add(cie_tmp == 0)
+    s.add(cie_tmp != 0)
+    return s.check() == sat
+```
+goto result: False

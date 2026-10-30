@@ -1,0 +1,45 @@
+{
+  "call_id": 505,
+  "sample_id": "NPD/codeql/libav:row=25:index=32",
+  "timestamp": "2026-10-26T00:53:43.872381+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(nplanes == 1 && bpp == 8) || !(buf_end - buf < 257)']\n        Relevant conditions/variables: [], pal\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "f6df7266-8a57-45cc-a465-96cf957a5336",
+  "usage": {
+    "prompt_tokens": 128,
+    "completion_tokens": 266,
+    "total_tokens": 394,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 128
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables used in the constraint\n# nplanes: number of planes (integer)\n# bpp: bits per pixel (integer)\n# buf_end, buf: pointers modeled as integers (addresses)\nnplanes = Int('nplanes')\nbpp = Int('bpp')\nbuf_end = Int('buf_end')\nbuf = Int('buf')\n\ns = Solver()\n\n# Constraint: !(nplanes == 1 && bpp == 8) || !(buf_end - buf < 257)\n# This is the negation of the \"bad\" condition:\n#   (nplanes == 1 && bpp == 8) && (buf_end - buf < 257)\n# i.e., the constraint forbids the case where a 1-plane 8-bpp image\n# has less than 257 bytes of remaining buffer space.\n# Included because it directly constrains nplanes, bpp, and buffer size.\ns.add(Or(Not(And(nplanes == 1, bpp == 8)),\n         Not(buf_end - buf < 257)))\n\n# Check satisfiability and print result\nif s.check() == sat:\n    print(\"sat\")\n    print(s.model())\nelse:\n    print(\"unsat\")\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.6936853999995947,
+  "cost_upper_bound_cny": 0.002384
+}

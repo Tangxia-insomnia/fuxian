@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    # Define variables with consistent Int types\n    object_ptr = Int('object_ptr')\n    folio_test_slab = Int('folio_test_slab')\n    \n    s = Solver()\n    \n    # Constraint: object is NULL (object == 0), confirming early return path\n    s.add(object_ptr == 0)\n    \n    # Since object == 0, ZERO_OR_NULL_PTR(object) is true, function returns early.\n    # The code after the check is NOT executed, so folio_test_slab is never evaluated.\n    # We model this by constraining folio_test_slab to an unconstrained value\n    # (it's unreachable, so no meaningful constraint applies).\n    # To keep the model consistent, we allow folio_test_slab to be any Int value.\n    \n    # Verify the constraints are satisfiable (early return path is reachable)\n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun object_ptr () Int)\n(assert\n (= object_ptr 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

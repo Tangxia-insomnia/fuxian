@@ -1,0 +1,45 @@
+{
+  "call_id": 135,
+  "sample_id": "NPD/codeql/kernel69:row=42:index=67",
+  "timestamp": "2026-10-26T00:31:05.647214+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(WARN_ON(!ctx->replace_ctx))']\n        Relevant conditions/variables: [{'condition': 'list_for_each_entry(ctx, &local->chanctx_list, list)', 'line_number': 15}, {'condition': 'list_for_each_entry(link, &ctx->reserved_links, reserved_chanctx_list)', 'line_number': 24}], old_ctx\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "93b95074-def2-489d-bed5-f5d8b9be58e1",
+  "usage": {
+    "prompt_tokens": 178,
+    "completion_tokens": 363,
+    "total_tokens": 541,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 178
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# ---------------------------------------------------------------------------\n# Z3 model of the C constraint:  !(WARN_ON(!ctx->replace_ctx))\n#\n# In C, WARN_ON(x) evaluates to x (returns the condition value) and emits a\n# warning if x is true.  The surrounding `!` negates it, so the constraint\n# `!(WARN_ON(!ctx->replace_ctx))` is satisfied only when\n# `!ctx->replace_ctx` is false, i.e. when `ctx->replace_ctx` is non-NULL.\n#\n# This constraint is relevant to the loop over `local->chanctx_list`\n# (line 15) and the inner loop over `ctx->reserved_links`\n# (line 24): the code assumes that every `ctx` obtained from the list has\n# a valid `replace_ctx` pointer (non-NULL) before it is dereferenced.\n# ---------------------------------------------------------------------------\n\n# Pointer variable: ctx->replace_ctx (modeled as an uninterpreted pointer).\n# A pointer is non-NULL iff it is not equal to the null pointer (0).\nreplace_ctx = Const('ctx_replace_ctx', IntSort())  # 0 == NULL\n\n# Constraint: !(WARN_ON(!ctx->replace_ctx))  ==>  ctx->replace_ctx != NULL\ns = Solver()\ns.add(replace_ctx != 0)\n\n# ---------------------------------------------------------------------------\n# Sanity check: the constraint is satisfiable (a non-NULL pointer exists).\n# ---------------------------------------------------------------------------\nprint(s.check())          # expected: sat\nprint(s.model())          # expected: ctx_replace_ctx = <some non-zero int>\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.5682089000001724,
+  "cost_upper_bound_cny": 0.00326
+}

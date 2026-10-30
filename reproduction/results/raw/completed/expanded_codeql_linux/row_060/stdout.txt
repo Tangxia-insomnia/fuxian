@@ -1,0 +1,75 @@
+```python
+skb=Int('skb')
+s.add(skb == 0)
+```
+```json
+["!(WARN_ON_ONCE(skb_headroom(skb) < rtap_len))"]
+```
+```python
+from z3 import *
+
+# The C constraint is:
+#   !(WARN_ON_ONCE(skb_headroom(skb) < rtap_len))
+#
+# WARN_ON_ONCE(cond) evaluates to cond (it returns the condition value and
+# emits a warning the first time it is true). The outer '!' negates it, so
+# the constraint effectively asserts that the inner condition is FALSE:
+#
+#   skb_headroom(skb) < rtap_len   must be false
+#   i.e.  skb_headroom(skb) >= rtap_len
+#
+# We model skb_headroom(skb) as an uninterpreted integer function of skb,
+# and rtap_len as an integer variable (its value is not otherwise constrained
+# in the given input, so it is left free).
+
+skb = Int('skb')                 # opaque handle to the skb structure
+rtap_len = Int('rtap_len')       # length of radiotap header (unconstrained here)
+skb_headroom = Function('skb_headroom', IntSort(), IntSort())
+
+s = Solver()
+
+# Constraint: !(skb_headroom(skb) < rtap_len)
+#   => skb_headroom(skb) >= rtap_len
+s.add(skb_headroom(skb) >= rtap_len)
+
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, IntSort, Function, Solver
+    
+    skb = Int('skb')
+    rtap_len = Int('rtap_len')
+    skb_headroom = Function('skb_headroom', IntSort(), IntSort())
+    
+    s = Solver()
+    
+    # Base script constraint
+    s.add(skb == 0)
+    
+    # Constraint set 2: !(skb_headroom(skb) < rtap_len) => skb_headroom(skb) >= rtap_len
+    s.add(skb_headroom(skb) >= rtap_len)
+    
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+```python
+def check_constraints():
+    from z3 import Int, IntSort, Function, Solver, sat
+    
+    skb = Int('skb')
+    rtap_len = Int('rtap_len')
+    skb_headroom = Function('skb_headroom', IntSort(), IntSort())
+    
+    s = Solver()
+    
+    # Base script constraint
+    s.add(skb == 0)
+    
+    # Constraint set 2: !(skb_headroom(skb) < rtap_len) => skb_headroom(skb) >= rtap_len
+    s.add(skb_headroom(skb) >= rtap_len)
+    
+    return s.check() == sat
+```
+goto result: True

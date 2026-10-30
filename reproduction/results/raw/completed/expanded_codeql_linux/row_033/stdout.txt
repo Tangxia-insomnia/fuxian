@@ -1,0 +1,226 @@
+```python
+ipv6_addr_any=Int('ipv6_addr_any')
+cfg_fc_prefsrc=Int('cfg_fc_prefsrc')
+fib6_nh=Int('fib6_nh')
+s.add(Not(ipv6_addr_any == 0) == 1)
+s.add(fib6_nh == 0)
+```
+```python
+fib6_nh=Int('fib6_nh')
+cfg_fc_prefsrc=Int('cfg_fc_prefsrc')
+ipv6_addr_any_result=Int('ipv6_addr_any_result')
+s.add(fib6_nh==0)
+s.add(ipv6_addr_any_result==0)
+s.add(Not(cfg_fc_prefsrc==0))
+```
+```python
+# New constraints based on the condition: if (!ipv6_addr_any(&cfg->fc_prefsrc))
+# The condition is true when ipv6_addr_any returns 0 (address is NOT any)
+# Existing constraint already captures: Not(ipv6_addr_any == 0) == 1
+# This means ipv6_addr_any != 0, i.e., the address IS "any" (function returned non-zero)
+
+# Additional constraint: cfg->fc_prefsrc is a valid (non-zero) address reference
+# Since ipv6_addr_any(&cfg->fc_prefsrc) is being called, the pointer must be valid
+s.add(cfg_fc_prefsrc != 0)
+
+# Constraint: fib6_nh is NULL (already present, but reinforcing the dereference context)
+# When the condition is evaluated, fib6_nh->fib_nh_dev would be dereferenced inside the branch
+# Since fib6_nh == 0, this would be a NULL pointer dereference
+s.add(fib6_nh == 0)
+
+# The condition being true (entering the if-branch) requires ipv6_addr_any to return 0
+# Combined with existing: Not(ipv6_addr_any == 0) == 1 means ipv6_addr_any != 0
+# So the branch is NOT taken; the else branch executes: rt->fib6_prefsrc.plen = 0
+s.add(ipv6_addr_any != 0)
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat, unsat
+    
+    s = Solver()
+    
+    # Declare all variables as Int type
+    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')
+    fib6_nh = Int('fib6_nh')
+    ipv6_addr_any = Int('ipv6_addr_any')
+    
+    # Constraint: cfg->fc_prefsrc is a valid (non-zero) address reference
+    # Since ipv6_addr_any(&cfg->fc_prefsrc) is being called, the pointer must be valid
+    s.add(cfg_fc_prefsrc != 0)
+    
+    # Constraint: fib6_nh is NULL (dereference context)
+    s.add(fib6_nh == 0)
+    
+    # The condition being true (entering the if-branch) requires ipv6_addr_any to return 0
+    # Combined with existing: Not(ipv6_addr_any == 0) == 1 means ipv6_addr_any != 0
+    # So the branch is NOT taken; the else branch executes: rt->fib6_prefsrc.plen = 0
+    s.add(ipv6_addr_any != 0)
+    
+    # Check satisfiability
+    result = s.check()
+    
+    if result == sat:
+        return True
+    else:
+        return False
+```
+dereference constraint: True
+```json
+["!(nh) || !(rt->fib6_src.plen)", "!(nh) || !(!nexthop_get(nh))", "!(!(nh)) || !(err)"]
+```
+```python
+from z3 import *
+
+# Declarations for the variables appearing in the constraints.
+# - nh: pointer to a nexthop structure (modeled as a Boolean "is non-null")
+# - rt->fib6_src.plen: prefix length field (modeled as an integer; 0 means "unset")
+# - nexthop_get(nh): returns non-null on success; modeled as a Boolean "succeeds"
+# - err: error flag / value (modeled as a Boolean "is set")
+nh = Bool('nh')                       # true  => nh != NULL
+plen = Int('rt->fib6_src.plen')       # prefix length of fib6_src
+nexthop_get_nh = Bool('nexthop_get(nh)')  # true => nexthop_get(nh) != NULL
+err = Bool('err')                     # true  => err is set (non-zero)
+
+# Constraint 1: !(nh) || !(rt->fib6_src.plen)
+# Included because it directly references nh and rt->fib6_src.plen.
+# C semantics: if nh is NULL, or the prefix length is zero, the guard passes.
+# In Z3: (nh == False) OR (plen == 0)
+c1 = Or(Not(nh), plen == 0)
+
+# Constraint 2: !(nh) || !(!nexthop_get(nh))
+# Included because it references nh and the nexthop_get(nh) result.
+# C semantics: if nh is NULL, or nexthop_get(nh) is non-NULL (i.e. !nexthop_get(nh) is false),
+# the guard passes. This encodes the "successful get" requirement.
+# In Z3: (nh == False) OR (nexthop_get_nh == True)
+c2 = Or(Not(nh), nexthop_get_nh)
+
+# Constraint 3: !(!(nh)) || !(err)
+# Included because it references nh and err.
+# C semantics: if nh is non-NULL, then err must be false (no error).
+# In Z3: (nh == True) implies (err == False)
+c3 = Or(nh, Not(err))
+
+# The condition "if (!ipv6_addr_any(&cfg->fc_prefsrc))" (line 134) does not
+# reference nh, rt->fib6_src.plen, nexthop_get(nh), or err, so it is not
+# converted here per the guideline to only convert constraints affecting
+# the specified conditions/variables.
+
+s = Solver()
+s.add(c1)
+s.add(c2)
+s.add(c3)
+
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, Bool, And, Or, Not, sat, unsat
+
+    # Variables from base script
+    ipv6_addr_any = Int('ipv6_addr_any')
+    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')
+    fib6_nh = Int('fib6_nh')
+
+    # Variables from constraint set 2
+    nh = Bool('nh')
+    plen = Int('rt->fib6_src.plen')
+    nexthop_get_nh = Bool('nexthop_get(nh)')
+    err = Bool('err')
+
+    s = Solver()
+
+    # Base script constraints
+    s.add(Not(ipv6_addr_any == 0) == 1)
+    s.add(fib6_nh == 0)
+
+    # Constraint set 1
+    s.add(cfg_fc_prefsrc != 0)
+    s.add(fib6_nh == 0)
+    s.add(ipv6_addr_any != 0)
+
+    # Constraint set 2
+    s.add(Or(Not(nh), plen == 0))
+    s.add(Or(Not(nh), nexthop_get_nh))
+    s.add(Or(nh, Not(err)))
+
+    result = s.check()
+    return result == sat
+```
+Z3Exception: True, False or Z3 Boolean expression expected. Received 1 of type <class 'int'>
+```python
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat, unsat
+
+    # Variables from base script
+    ipv6_addr_any = Int('ipv6_addr_any')
+    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')
+    fib6_nh = Int('fib6_nh')
+
+    # Variables from constraint set 2 (converted to Int per guidelines)
+    nh = Int('nh')
+    plen = Int('rt->fib6_src.plen')
+    nexthop_get_nh = Int('nexthop_get(nh)')
+    err = Int('err')
+
+    s = Solver()
+
+    # Base script constraints
+    s.add(Not(ipv6_addr_any == 0) == 1)
+    s.add(fib6_nh == 0)
+
+    # Constraint set 1
+    s.add(cfg_fc_prefsrc != 0)
+    s.add(fib6_nh == 0)
+    s.add(ipv6_addr_any != 0)
+
+    # Constraint set 2 (converted to Int-based boolean representation)
+    # c1: !(nh) || !(rt->fib6_src.plen)  =>  (nh == 0) OR (plen == 0)
+    s.add(Or(nh == 0, plen == 0))
+    # c2: !(nh) || !(!nexthop_get(nh))  =>  (nh == 0) OR (nexthop_get_nh == 1)
+    s.add(Or(nh == 0, nexthop_get_nh == 1))
+    # c3: !(!(nh)) || !(err)  =>  (nh == 1) OR (err == 0)
+    s.add(Or(nh == 1, err == 0))
+
+    result = s.check()
+    return result == sat
+```
+Z3Exception: True, False or Z3 Boolean expression expected. Received 1 of type <class 'int'>
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat, unsat
+
+    # Variables from base script
+    ipv6_addr_any = Int('ipv6_addr_any')
+    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')
+    fib6_nh = Int('fib6_nh')
+
+    # Variables from constraint set 2 (converted to Int per guidelines)
+    nh = Int('nh')
+    plen = Int('rt->fib6_src.plen')
+    nexthop_get_nh = Int('nexthop_get(nh)')
+    err = Int('err')
+
+    s = Solver()
+
+    # Base script constraints
+    # Not(ipv6_addr_any == 0) == 1  =>  ipv6_addr_any != 0
+    s.add(ipv6_addr_any != 0)
+    s.add(fib6_nh == 0)
+
+    # Constraint set 1
+    s.add(cfg_fc_prefsrc != 0)
+    s.add(fib6_nh == 0)
+    s.add(ipv6_addr_any != 0)
+
+    # Constraint set 2 (converted to Int-based boolean representation)
+    # c1: !(nh) || !(rt->fib6_src.plen)  =>  (nh == 0) OR (plen == 0)
+    s.add(Or(nh == 0, plen == 0))
+    # c2: !(nh) || !(!nexthop_get(nh))  =>  (nh == 0) OR (nexthop_get_nh == 1)
+    s.add(Or(nh == 0, nexthop_get_nh == 1))
+    # c3: !(!(nh)) || !(err)  =>  (nh == 1) OR (err == 0)
+    s.add(Or(nh == 1, err == 0))
+
+    result = s.check()
+    return result == sat
+goto result: True

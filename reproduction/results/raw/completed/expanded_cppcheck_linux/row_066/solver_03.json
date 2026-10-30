@@ -1,0 +1,14 @@
+{
+  "event_id": 3,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n\n    # Base script constraints\n    reg = Int('reg')\n    s = Solver()\n    s.add(reg == 0)\n\n    # Constraint set 2: model reg->flags as an Int variable\n    # Since DeclareSort is not available, model reg->flags directly as an Int\n    flags = Int('flags')\n    DWARF_REG_OFFSET = Int('DWARF_REG_OFFSET')\n    s.add(flags == DWARF_REG_OFFSET)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun reg () Int)\n(declare-fun DWARF_REG_OFFSET () Int)\n(declare-fun flags () Int)\n(assert\n (= reg 0))\n(assert\n (= flags DWARF_REG_OFFSET))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

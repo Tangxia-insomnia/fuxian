@@ -1,0 +1,51 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "mov_write_stts_tag",
+      "var_name": "stts_entries",
+      "target": "if (i && duration == stts_entries[entries].duration) {",
+      "code": "static int mov_write_stts_tag(AVIOContext *pb, MOVTrack *track)\n{\n    MOVStts *stts_entries = NULL;\n    uint32_t entries = -1;\n    uint32_t atom_size;\n    int i;\n\n    if (track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr) {\n        stts_entries = av_malloc(sizeof(*stts_entries)); /* one entry */\n        if (!stts_entries)\n            return AVERROR(ENOMEM);\n        stts_entries[0].count = track->sample_count;\n        stts_entries[0].duration = 1;\n        entries = 1;\n    } else {\n        if (track->entry) {\n            stts_entries = av_malloc(track->entry * sizeof(*stts_entries)); /* worst case */\n            if (!stts_entries)\n                return AVERROR(ENOMEM);\n        }\n        for (i = 0; i < track->entry; i++) {\n            int duration = get_cluster_duration(track, i);\n            if (i && duration == stts_entries[entries].duration) {\n                stts_entries[entries].count++; /* compress */\n            } else {\n                entries++;\n                stts_entries[entries].duration = duration;\n                stts_entries[entries].count = 1;\n            }\n        }\n        entries++; /* last one */\n    }\n    atom_size = 16 + (entries * 8);\n    avio_wb32(pb, atom_size); /* size */\n    ffio_wfourcc(pb, \"stts\");\n    avio_wb32(pb, 0); /* version & flags */\n    avio_wb32(pb, entries); /* entry count */\n    for (i = 0; i < entries; i++) {\n        avio_wb32(pb, stts_entries[i].count);\n        avio_wb32(pb, stts_entries[i].duration);\n    }\n    av_free(stts_entries);\n    return atom_size;\n}",
+      "body_sha256": "187ab3611dd28d382fec4f055cba0eef3f1e23c398812e9f3660efaeebdd9dac",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (i && duration == stts_entries[entries].duration) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int mov_write_stts_tag(AVIOContext *pb, MOVTrack *track)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr)",
+              "track->entry",
+              "!stts_entries"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr",
+              "!stts_entries"
+            ]
+          }
+        ],
+        "filter_function_code": "static int mov_write_stts_tag(AVIOContext *pb, MOVTrack *track)\n{\n    MOVStts *stts_entries = NULL;\n    uint32_t entries = -1;\n    uint32_t atom_size;\n    int i;\n\n    if (track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr) {\n        stts_entries = av_malloc(sizeof(*stts_entries)); /* one entry */\n        if (!stts_entries)\n            return AVERROR(ENOMEM);\n        stts_entries[0].count = track->sample_count;\n        stts_entries[0].duration = 1;\n        entries = 1;\n    } else {\n        if (track->entry) {\n            stts_entries = av_malloc(track->entry * sizeof(*stts_entries)); /* worst case */\n            if (!stts_entries)\n                return AVERROR(ENOMEM);\n        }\n        for (i = 0; i < track->entry; i++) {\n            int duration = get_cluster_duration(track, i);\n            if (i && duration == stts_entries[entries].duration) {\n                stts_entries[entries].count++; /* compress */\n            } else {\n                entries++;\n                stts_entries[entries].duration = duration;\n                stts_entries[entries].count = 1;\n            }\n        }\n        entries++; /* last one */\n    }\n    atom_size = 16 + (entries * 8);\n    avio_wb32(pb, atom_size); /* size */\n    ffio_wfourcc(pb, \"stts\");\n    avio_wb32(pb, 0); /* version & flags */\n    avio_wb32(pb, entries); /* entry count */\n    for (i = 0; i < entries; i++) {\n        avio_wb32(pb, stts_entries[i].count);\n        avio_wb32(pb, stts_entries[i].duration);\n    }\n    av_free(stts_entries);\n    return atom_size;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int mov_write_stts_tag(AVIOContext *pb, MOVTrack *track)\n{\n    MOVStts *stts_entries = NULL;\n    uint32_t entries = -1;\n    uint32_t atom_size;\n    int i;\n\n    if (track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr) {\n        stts_entries = av_malloc(sizeof(*stts_entries)); /* one entry */\n        if (!stts_entries)\n            return AVERROR(ENOMEM);\n        stts_entries[0].count = track->sample_count;\n        stts_entries[0].duration = 1;\n        entries = 1;\n    } else {\n        if (track->entry) {\n            stts_entries = av_malloc(track->entry * sizeof(*stts_entries)); /* worst case */\n            if (!stts_entries)\n                return AVERROR(ENOMEM);\n        }\n        for (i = 0; i < track->entry; i++) {\n            int duration = get_cluster_duration(track, i);\n            if (i && duration == stts_entries[entries].duration) {\n                stts_entries[entries].count++; /* compress */\n            } else {\n                entries++;\n                stts_entries[entries].duration = duration;\n                stts_entries[entries].count = 1;\n            }\n        }\n        entries++; /* last one */\n    }\n    atom_size = 16 + (entries * 8);\n    avio_wb32(pb, atom_size); /* size */\n    ffio_wfourcc(pb, \"stts\");\n    avio_wb32(pb, 0); /* version & flags */\n    avio_wb32(pb, entries); /* entry count */\n    for (i = 0; i < entries; i++) {\n        avio_wb32(pb, stts_entries[i].count);\n        avio_wb32(pb, stts_entries[i].duration);\n    }\n    av_free(stts_entries);\n    return atom_size;\n}"
+  ]
+}

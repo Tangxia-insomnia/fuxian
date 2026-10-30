@@ -1,0 +1,94 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "parse_keyframes_index",
+      "var_name": "filepositions",
+      "target": "av_add_index_entry(vstream, filepositions[i], times[i] * 1000,",
+      "code": "static int parse_keyframes_index(AVFormatContext *s, AVIOContext *ioc,\n                                 AVStream *vstream, int64_t max_pos)\n{\n    FLVContext *flv       = s->priv_data;\n    unsigned int arraylen = 0, timeslen = 0, fileposlen = 0, i;\n    double num_val;\n    char str_val[256];\n    int64_t *times         = NULL;\n    int64_t *filepositions = NULL;\n    int ret                = AVERROR(ENOSYS);\n    int64_t initial_pos    = avio_tell(ioc);\n\n    if (s->flags & AVFMT_FLAG_IGNIDX)\n        return 0;\n\n    while (avio_tell(ioc) < max_pos - 2 &&\n           amf_get_string(ioc, str_val, sizeof(str_val)) > 0) {\n        int64_t *current_array;\n\n        // Expect array object in context\n        if (avio_r8(ioc) != AMF_DATA_TYPE_ARRAY)\n            break;\n\n        arraylen = avio_rb32(ioc);\n        if (arraylen >> 28)\n            break;\n\n        /* Expect only 'times' or 'filepositions' sub-arrays in other\n         * case refuse to use such metadata for indexing. */\n        if (!strcmp(KEYFRAMES_TIMESTAMP_TAG, str_val) && !times) {\n            if (!(times = av_mallocz(sizeof(*times) * arraylen))) {\n                ret = AVERROR(ENOMEM);\n                goto finish;\n            }\n            timeslen      = arraylen;\n            current_array = times;\n        } else if (!strcmp(KEYFRAMES_BYTEOFFSET_TAG, str_val) &&\n                   !filepositions) {\n            if (!(filepositions = av_mallocz(sizeof(*filepositions) * arraylen))) {\n                ret = AVERROR(ENOMEM);\n                goto finish;\n            }\n            fileposlen    = arraylen;\n            current_array = filepositions;\n        } else\n            // unexpected metatag inside keyframes, will not use such\n            // metadata for indexing\n            break;\n\n        for (i = 0; i < arraylen && avio_tell(ioc) < max_pos - 1; i++) {\n            if (avio_r8(ioc) != AMF_DATA_TYPE_NUMBER)\n                goto finish;\n            num_val          = av_int2double(avio_rb64(ioc));\n            current_array[i] = num_val;\n        }\n        if (times && filepositions) {\n            // All done, exiting at a position allowing amf_parse_object\n            // to finish parsing the object\n            ret = 0;\n            break;\n        }\n    }\n\n    if (!ret && timeslen == fileposlen) {\n        for (i = 0; i < fileposlen; i++) {\n            av_add_index_entry(vstream, filepositions[i], times[i] * 1000,\n                               0, 0, AVINDEX_KEYFRAME);\n            if (i < 2) {\n                flv->validate_index[i].pos = filepositions[i];\n                flv->validate_index[i].dts = times[i] * 1000;\n                flv->validate_count        = i + 1;\n            }\n        }\n    } else\n        av_log(s, AV_LOG_WARNING, \"Invalid keyframes object, skipping.\\n\");\n\nfinish:\n    av_freep(&times);\n    av_freep(&filepositions);\n    // If we got unexpected data, but successfully reset back to\n    // the start pos, the caller can continue parsing\n    if (ret < 0 && avio_seek(ioc, initial_pos, SEEK_SET) > 0)\n        return 0;\n    return ret;\n}",
+      "body_sha256": "d664ce7680b5ffd94ce5d8c39dbea2ea9eb99b5b6363d4f73ce5084942355f87",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "av_add_index_entry(vstream, filepositions[i], times[i] * 1000,",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int parse_keyframes_index(AVFormatContext *s, AVIOContext *ioc,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "break",
+            "condition": [
+              "avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0",
+              "times && filepositions"
+            ]
+          },
+          {
+            "text": "finish",
+            "condition": [
+              "avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0",
+              "i = 0; i < arraylen && avio_tell(ioc) < max_pos - 1; i++",
+              "avio_r8(ioc) != AMF_DATA_TYPE_NUMBER"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0",
+              "!(!strcmp(KEYFRAMES_TIMESTAMP_TAG, str_val) && !times) && !(!strcmp(KEYFRAMES_BYTEOFFSET_TAG, str_val) && !filepositions)"
+            ]
+          },
+          {
+            "text": "finish",
+            "condition": [
+              "avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0",
+              "!strcmp(KEYFRAMES_BYTEOFFSET_TAG, str_val) && !filepositions",
+              "!(filepositions = av_mallocz(sizeof(*filepositions) * arraylen))"
+            ]
+          },
+          {
+            "text": "finish",
+            "condition": [
+              "avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0",
+              "!strcmp(KEYFRAMES_TIMESTAMP_TAG, str_val) && !times",
+              "!(times = av_mallocz(sizeof(*times) * arraylen))"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0",
+              "arraylen >> 28"
+            ]
+          },
+          {
+            "text": "break",
+            "condition": [
+              "avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0",
+              "avio_r8(ioc) != AMF_DATA_TYPE_ARRAY"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "s->flags & AVFMT_FLAG_IGNIDX"
+            ]
+          }
+        ],
+        "filter_function_code": "static int parse_keyframes_index(AVFormatContext *s, AVIOContext *ioc,\n                                 AVStream *vstream, int64_t max_pos)\n{\n    FLVContext *flv       = s->priv_data;\n    unsigned int arraylen = 0, timeslen = 0, fileposlen = 0, i;\n    double num_val;\n    char str_val[256];\n    int64_t *times         = NULL;\n    int64_t *filepositions = NULL;\n    int ret                = AVERROR(ENOSYS);\n    int64_t initial_pos    = avio_tell(ioc);\n\n    if (s->flags & AVFMT_FLAG_IGNIDX)\n        return 0;\n\n    while (avio_tell(ioc) < max_pos - 2 &&\n           amf_get_string(ioc, str_val, sizeof(str_val)) > 0) {\n        int64_t *current_array;\n\n        // Expect array object in context\n        if (avio_r8(ioc) != AMF_DATA_TYPE_ARRAY)\n            break;\n\n        arraylen = avio_rb32(ioc);\n        if (arraylen >> 28)\n            break;\n\n        /* Expect only 'times' or 'filepositions' sub-arrays in other\n         * case refuse to use such metadata for indexing. */\n        if (!strcmp(KEYFRAMES_TIMESTAMP_TAG, str_val) && !times) {\n            if (!(times = av_mallocz(sizeof(*times) * arraylen))) {\n                ret = AVERROR(ENOMEM);\n                goto finish;\n            }\n            timeslen      = arraylen;\n            current_array = times;\n        } else if (!strcmp(KEYFRAMES_BYTEOFFSET_TAG, str_val) &&\n                   !filepositions) {\n            if (!(filepositions = av_mallocz(sizeof(*filepositions) * arraylen))) {\n                ret = AVERROR(ENOMEM);\n                goto finish;\n            }\n            fileposlen    = arraylen;\n            current_array = filepositions;\n        } else\n            // unexpected metatag inside keyframes, will not use such\n            // metadata for indexing\n            break;\n\n        for (i = 0; i < arraylen && avio_tell(ioc) < max_pos - 1; i++) {\n            if (avio_r8(ioc) != AMF_DATA_TYPE_NUMBER)\n                goto finish;\n            num_val          = av_int2double(avio_rb64(ioc));\n            current_array[i] = num_val;\n        }\n        if (times && filepositions) {\n            // All done, exiting at a position allowing amf_parse_object\n            // to finish parsing the object\n            ret = 0;\n            break;\n        }\n    }\n\n    if (!ret && timeslen == fileposlen) {\n        for (i = 0; i < fileposlen; i++) {\n            av_add_index_entry(vstream, filepositions[i], times[i] * 1000,\n                               0, 0, AVINDEX_KEYFRAME);\n            if (i < 2) {\n                flv->validate_index[i].pos = filepositions[i];\n                flv->validate_index[i].dts = times[i] * 1000;\n                flv->validate_count        = i + 1;\n            }\n        }\n    } else\n        av_log(s, AV_LOG_WARNING, \"Invalid keyframes object, skipping.\\n\");\n\nfinish:\n    av_freep(&times);\n    av_freep(&filepositions);\n    // If we got unexpected data, but successfully reset back to\n    // the start pos, the caller can continue parsing\n    if (ret < 0 && avio_seek(ioc, initial_pos, SEEK_SET) > 0)\n        return 0;\n    return ret;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int parse_keyframes_index(AVFormatContext *s, AVIOContext *ioc,\n                                 AVStream *vstream, int64_t max_pos)\n{\n    FLVContext *flv       = s->priv_data;\n    unsigned int arraylen = 0, timeslen = 0, fileposlen = 0, i;\n    double num_val;\n    char str_val[256];\n    int64_t *times         = NULL;\n    int64_t *filepositions = NULL;\n    int ret                = AVERROR(ENOSYS);\n    int64_t initial_pos    = avio_tell(ioc);\n\n    if (s->flags & AVFMT_FLAG_IGNIDX)\n        return 0;\n\n    while (avio_tell(ioc) < max_pos - 2 &&\n           amf_get_string(ioc, str_val, sizeof(str_val)) > 0) {\n        int64_t *current_array;\n\n        // Expect array object in context\n        if (avio_r8(ioc) != AMF_DATA_TYPE_ARRAY)\n            break;\n\n        arraylen = avio_rb32(ioc);\n        if (arraylen >> 28)\n            break;\n\n        /* Expect only 'times' or 'filepositions' sub-arrays in other\n         * case refuse to use such metadata for indexing. */\n        if (!strcmp(KEYFRAMES_TIMESTAMP_TAG, str_val) && !times) {\n            if (!(times = av_mallocz(sizeof(*times) * arraylen))) {\n                ret = AVERROR(ENOMEM);\n                goto finish;\n            }\n            timeslen      = arraylen;\n            current_array = times;\n        } else if (!strcmp(KEYFRAMES_BYTEOFFSET_TAG, str_val) &&\n                   !filepositions) {\n            if (!(filepositions = av_mallocz(sizeof(*filepositions) * arraylen))) {\n                ret = AVERROR(ENOMEM);\n                goto finish;\n            }\n            fileposlen    = arraylen;\n            current_array = filepositions;\n        } else\n            // unexpected metatag inside keyframes, will not use such\n            // metadata for indexing\n            break;\n\n        for (i = 0; i < arraylen && avio_tell(ioc) < max_pos - 1; i++) {\n            if (avio_r8(ioc) != AMF_DATA_TYPE_NUMBER)\n                goto finish;\n            num_val          = av_int2double(avio_rb64(ioc));\n            current_array[i] = num_val;\n        }\n        if (times && filepositions) {\n            // All done, exiting at a position allowing amf_parse_object\n            // to finish parsing the object\n            ret = 0;\n            break;\n        }\n    }\n\n    if (!ret && timeslen == fileposlen) {\n        for (i = 0; i < fileposlen; i++) {\n            av_add_index_entry(vstream, filepositions[i], times[i] * 1000,\n                               0, 0, AVINDEX_KEYFRAME);\n            if (i < 2) {\n                flv->validate_index[i].pos = filepositions[i];\n                flv->validate_index[i].dts = times[i] * 1000;\n                flv->validate_count        = i + 1;\n            }\n        }\n    } else\n        av_log(s, AV_LOG_WARNING, \"Invalid keyframes object, skipping.\\n\");\n\nfinish:\n    av_freep(&times);\n    av_freep(&filepositions);\n    // If we got unexpected data, but successfully reset back to\n    // the start pos, the caller can continue parsing\n    if (ret < 0 && avio_seek(ioc, initial_pos, SEEK_SET) > 0)\n        return 0;\n    return ret;\n}"
+  ]
+}

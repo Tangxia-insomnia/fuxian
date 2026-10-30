@@ -1,0 +1,45 @@
+{
+  "call_id": 1140,
+  "sample_id": "NPD/infer/openssl:row=3:index=None",
+  "timestamp": "2026-10-26T01:08:15.426608+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: int X509_PURPOSE_add(int id, int trust, int flags,\n                     int (*ck) (const X509_PURPOSE *, const X509 *, int),\n                     const char *name, const char *sname, void *arg)\n{\n    int idx;\n    X509_PURPOSE *ptmp;\n\n    /* This is set according to what we change: application can't set it */\n    flags &= ~X509_PURPOSE_DYNAMIC;\n    /* This will always be set for application modified trust entries */\n    flags |= X509_PURPOSE_DYNAMIC_NAME;\n    /* Get existing entry if any */\n    idx = X509_PURPOSE_get_by_id(id);\n    /* Need a new entry */\n    if (idx == -1) {\n        if ((ptmp = OPENSSL_malloc(sizeof(*ptmp))) == NULL)\n            return 0;\n        ptmp->flags = X509_PURPOSE_DYNAMIC;\n    } else {\n        ptmp = X509_PURPOSE_get0(idx);\n    }\n\n    /* OPENSSL_free existing name if dynamic */\n    if ((ptmp->flags & X509_PURPOSE_DYNAMIC_NAME) != 0) {\n        OPENSSL_free(ptmp->name);\n        OPENSSL_free(ptmp->sname);\n    }\n    /* Dup supplied name */\n    ptmp->name = OPENSSL_strdup(name);\n    ptmp->sname = OPENSSL_strdup(sname);\n    if (ptmp->name == NULL || ptmp->sname == NULL)\n        goto err;\n    /* Keep the dynamic flag of existing entry */\n    ptmp->flags &= X509_PURPOSE_DYNAMIC;\n    /* Set all other flags */\n    ptmp->flags |= flags;\n\n    ptmp->purpose = id;\n    ptmp->trust = trust;\n    ptmp->check_purpose = ck;\n    ptmp->usr_data = arg;\n\n    /* If its a new entry manage the dynamic table */\n    if (idx == -1) {\n        if (xptable == NULL\n            && (xptable = sk_X509_PURPOSE_new(xp_cmp)) == NULL) {\n            ERR_raise(ERR_LIB_X509V3, ERR_R_CRYPTO_LIB);\n            goto err;\n        }\n        if (!sk_X509_PURPOSE_push(xptable, ptmp)) {\n            ERR_raise(ERR_LIB_X509V3, ERR_R_CRYPTO_LIB);\n            goto err;\n        }\n    }\n    return 1;\n err:\n    if (idx == -1) {\n        OPENSSL_free(ptmp->name);\n        OPENSSL_free(ptmp->sname);\n        OPENSSL_free(ptmp);\n    }\n    return 0;\n}\n        - Target variables: [], ptmp\n        - Constraints: ['!(idx == -1) || !((ptmp = OPENSSL_malloc(sizeof(*ptmp))) == NULL)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "98cd7763-ad1b-429e-ad2e-0e7a02c424e0",
+  "usage": {
+    "prompt_tokens": 692,
+    "completion_tokens": 30,
+    "total_tokens": 722,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 692
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(idx == -1) || !((ptmp = OPENSSL_malloc(sizeof(*ptmp))) == NULL)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.8272696000003634,
+  "cost_upper_bound_cny": 0.001624
+}

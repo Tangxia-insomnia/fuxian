@@ -1,0 +1,45 @@
+{
+  "call_id": 180,
+  "sample_id": "NPD/codeql/kernel69:row=56:index=84",
+  "timestamp": "2026-10-26T00:32:22.782376+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static ieee80211_rx_result debug_noinline\nieee80211_rx_h_sta_process(struct ieee80211_rx_data *rx)\n{\n\tstruct sta_info *sta = rx->sta;\n\tstruct link_sta_info *link_sta = rx->link_sta;\n\tstruct sk_buff *skb = rx->skb;\n\tstruct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);\n\tstruct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;\n\tint i;\n\n\tif (!sta || !link_sta)\n\t\treturn RX_CONTINUE;\n\n\t/*\n\t * Update last_rx only for IBSS packets which are for the current\n\t * BSSID and for station already AUTHORIZED to avoid keeping the\n\t * current IBSS network alive in cases where other STAs start\n\t * using different BSSID. This will also give the station another\n\t * chance to restart the authentication/authorization in case\n\t * something went wrong the first time.\n\t */\n\tif (rx->sdata->vif.type == NL80211_IFTYPE_ADHOC) {\n\t\tu8 *bssid = ieee80211_get_bssid(hdr, rx->skb->len,\n\t\t\t\t\t\tNL80211_IFTYPE_ADHOC);\n\t\tif (ether_addr_equal(bssid, rx->sdata->u.ibss.bssid) &&\n\t\t    test_sta_flag(sta, WLAN_STA_AUTHORIZED)) {\n\t\t\tlink_sta->rx_stats.last_rx = jiffies;\n\t\t\tif (ieee80211_is_data_present(hdr->frame_control) &&\n\t\t\t    !is_multicast_ether_addr(hdr->addr1))\n\t\t\t\tlink_sta->rx_stats.last_rate =\n\t\t\t\t\tsta_stats_encode_rate(status);\n\t\t}\n\t} else if (rx->sdata->vif.type == NL80211_IFTYPE_OCB) {\n\t\tlink_sta->rx_stats.last_rx = jiffies;\n\t} else if (!ieee80211_is_s1g_beacon(hdr->frame_control) &&\n\t\t   !is_multicast_ether_addr(hdr->addr1)) {\n\t\t/*\n\t\t * Mesh beacons will update last_rx when if they are found to\n\t\t * match the current local configuration when processed.\n\t\t */\n\t\tlink_sta->rx_stats.last_rx = jiffies;\n\t\tif (ieee80211_is_data_present(hdr->frame_control))\n\t\t\tlink_sta->rx_stats.last_rate = sta_stats_encode_rate(status);\n\t}\n\n\tlink_sta->rx_stats.fragments++;\n\n\tu64_stats_update_begin(&link_sta->rx_stats.syncp);\n\tlink_sta->rx_stats.bytes += rx->skb->len;\n\tu64_stats_update_end(&link_sta->rx_stats.syncp);\n\n\tif (!(status->flag & RX_FLAG_NO_SIGNAL_VAL)) {\n\t\tlink_sta->rx_stats.last_signal = status->signal;\n\t\tewma_signal_add(&link_sta->rx_stats_avg.signal,\n\t\t\t\t-status->signal);\n\t}\n\n\tif (status->chains) {\n\t\tlink_sta->rx_stats.chains = status->chains;\n\t\tfor (i = 0; i < ARRAY_SIZE(status->chain_signal); i++) {\n\t\t\tint signal = status->chain_signal[i];\n\n\t\t\tif (!(status->chains & BIT(i)))\n\t\t\t\tcontinue;\n\n\t\t\tlink_sta->rx_stats.chain_signal_last[i] = signal;\n\t\t\tewma_signal_add(&link_sta->rx_stats_avg.chain_signal[i],\n\t\t\t\t\t-signal);\n\t\t}\n\t}\n\n\tif (ieee80211_is_s1g_beacon(hdr->frame_control))\n\t\treturn RX_CONTINUE;\n\n\t/*\n\t * Change STA power saving mode only at the end of a frame\n\t * exchange sequence, and only for a data or management\n\t * frame as specified in IEEE 802.11-2016 11.2.3.2\n\t */\n\tif (!ieee80211_hw_check(&sta->local->hw, AP_LINK_PS) &&\n\t    !ieee80211_has_morefrags(hdr->frame_control) &&\n\t    !is_multicast_ether_addr(hdr->addr1) &&\n\t    (ieee80211_is_mgmt(hdr->frame_control) ||\n\t     ieee80211_is_data(hdr->frame_control)) &&\n\t    !(status->rx_flags & IEEE80211_RX_DEFERRED_RELEASE) &&\n\t    (rx->sdata->vif.type == NL80211_IFTYPE_AP ||\n\t     rx->sdata->vif.type == NL80211_IFTYPE_AP_VLAN)) {\n\t\tif (test_sta_flag(sta, WLAN_STA_PS_STA)) {\n\t\t\tif (!ieee80211_has_pm(hdr->frame_control))\n\t\t\t\tsta_ps_end(sta);\n\t\t} else {\n\t\t\tif (ieee80211_has_pm(hdr->frame_control))\n\t\t\t\tsta_ps_start(sta);\n\t\t}\n\t}\n\n\t/* mesh power save support */\n\tif (ieee80211_vif_is_mesh(&rx->sdata->vif))\n\t\tieee80211_mps_rx_h_sta_process(sta, hdr);\n\n\t/*\n\t * Drop (qos-)data::nullfunc frames silently, since they\n\t * are used only to control station power saving mode.\n\t */\n\tif (ieee80211_is_any_nullfunc(hdr->frame_control)) {\n\t\tI802_DEBUG_INC(rx->local->rx_handlers_drop_nullfunc);\n\n\t\t/*\n\t\t * If we receive a 4-addr nullfunc frame from a STA\n\t\t * that was not moved to a 4-addr STA vlan yet send\n\t\t * the event to userspace and for older hostapd drop\n\t\t * the frame to the monitor interface.\n\t\t */\n\t\tif (ieee80211_has_a4(hdr->frame_control) &&\n\t\t    (rx->sdata->vif.type == NL80211_IFTYPE_AP ||\n\t\t     (rx->sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&\n\t\t      !rx->sdata->u.vlan.sta))) {\n\t\t\tif (!test_and_set_sta_flag(sta, WLAN_STA_4ADDR_EVENT))\n\t\t\t\tcfg80211_rx_unexpected_4addr_frame(\n\t\t\t\t\trx->sdata->dev, sta->sta.addr,\n\t\t\t\t\tGFP_ATOMIC);\n\t\t\treturn RX_DROP_M_UNEXPECTED_4ADDR_FRAME;\n\t\t}\n\t\t/*\n\t\t * Update counter and free packet here to avoid\n\t\t * counting this as a dropped packed.\n\t\t */\n\t\tlink_sta->rx_stats.packets++;\n\t\tdev_kfree_skb(rx->skb);\n\t\treturn RX_QUEUED;\n\t}\n\n\treturn RX_CONTINUE;\n} /* ieee80211_rx_h_sta_process */\n        - Target variables: [{'condition': 'if (rx->sdata->vif.type == NL80211_IFTYPE_ADHOC)', 'line_number': 21}], bssid\n        - Constraints: ['!(!sta || !link_sta)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "6242f926-34c5-4d59-9eb1-fbafd25e817e",
+  "usage": {
+    "prompt_tokens": 1684,
+    "completion_tokens": 5,
+    "total_tokens": 1689,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1684
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.890731500000129,
+  "cost_upper_bound_cny": 0.003408
+}

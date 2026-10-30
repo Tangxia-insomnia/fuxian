@@ -1,0 +1,86 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "fib6_purge_rt",
+      "var_name": "new_leaf",
+      "target": "\t\t\t\tfib6_info_hold(new_leaf);",
+      "code": "static void fib6_purge_rt(struct fib6_info *rt, struct fib6_node *fn,\n\t\t\t  struct net *net)\n{\n\tstruct fib6_table *table = rt->fib6_table;\n\n\t/* Flush all cached dst in exception table */\n\trt6_flush_exceptions(rt);\n\tfib6_drop_pcpu_from(rt, table);\n\n\tif (rt->nh && !list_empty(&rt->nh_list))\n\t\tlist_del_init(&rt->nh_list);\n\n\tif (refcount_read(&rt->fib6_ref) != 1) {\n\t\t/* This route is used as dummy address holder in some split\n\t\t * nodes. It is not leaked, but it still holds other resources,\n\t\t * which must be released in time. So, scan ascendant nodes\n\t\t * and replace dummy references to this route with references\n\t\t * to still alive ones.\n\t\t */\n\t\twhile (fn) {\n\t\t\tstruct fib6_info *leaf = rcu_dereference_protected(fn->leaf,\n\t\t\t\t\t    lockdep_is_held(&table->tb6_lock));\n\t\t\tstruct fib6_info *new_leaf;\n\t\t\tif (!(fn->fn_flags & RTN_RTINFO) && leaf == rt) {\n\t\t\t\tnew_leaf = fib6_find_prefix(net, table, fn);\n\t\t\t\tfib6_info_hold(new_leaf);\n\n\t\t\t\trcu_assign_pointer(fn->leaf, new_leaf);\n\t\t\t\tfib6_info_release(rt);\n\t\t\t}\n\t\t\tfn = rcu_dereference_protected(fn->parent,\n\t\t\t\t    lockdep_is_held(&table->tb6_lock));\n\t\t}\n\t}\n\n\tfib6_clean_expires(rt);\n\tfib6_remove_gc_list(rt);\n}",
+      "body_sha256": "3c9addddfd4b87b2c6e643953c00d5b832d858d8a7071670eb8f5c2e11813580",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\t\t\tfib6_info_hold(new_leaf);",
+            "condition": [
+              {
+                "condition": "if (refcount_read(&rt->fib6_ref) != 1)",
+                "line_number": 12
+              },
+              {
+                "condition": "while (fn)",
+                "line_number": 19
+              },
+              {
+                "condition": "if (!(fn->fn_flags & RTN_RTINFO) && leaf == rt)",
+                "line_number": 23
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (refcount_read(&rt->fib6_ref) != 1)",
+            "line_number": 12
+          },
+          {
+            "condition": "while (fn)",
+            "line_number": 19
+          },
+          {
+            "condition": "if (!(fn->fn_flags & RTN_RTINFO) && leaf == rt)",
+            "line_number": 23
+          }
+        ],
+        "variable_assignments": {
+          "text": "static void fib6_purge_rt(struct fib6_info *rt, struct fib6_node *fn,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static void fib6_purge_rt(struct fib6_info *rt, struct fib6_node *fn,\n\t\t\t  struct net *net)\n{\n\tstruct fib6_table *table = rt->fib6_table;\n\n\t/* Flush all cached dst in exception table */\n\trt6_flush_exceptions(rt);\n\tfib6_drop_pcpu_from(rt, table);\n\n\tif (rt->nh && !list_empty(&rt->nh_list))\n\t\tlist_del_init(&rt->nh_list);\n\n\tif (refcount_read(&rt->fib6_ref) != 1) {\n\t\t/* This route is used as dummy address holder in some split\n\t\t * nodes. It is not leaked, but it still holds other resources,\n\t\t * which must be released in time. So, scan ascendant nodes\n\t\t * and replace dummy references to this route with references\n\t\t * to still alive ones.\n\t\t */\n\t\twhile (fn) {\n\t\t\tstruct fib6_info *leaf = rcu_dereference_protected(fn->leaf,\n\t\t\t\t\t    lockdep_is_held(&table->tb6_lock));\n\t\t\tstruct fib6_info *new_leaf;\n\t\t\tif (!(fn->fn_flags & RTN_RTINFO) && leaf == rt) {\n\t\t\t\tnew_leaf = fib6_find_prefix(net, table, fn);\n\t\t\t\tfib6_info_hold(new_leaf);\n\n\t\t\t\trcu_assign_pointer(fn->leaf, new_leaf);\n\t\t\t\tfib6_info_release(rt);\n\t\t\t}\n\t\t\tfn = rcu_dereference_protected(fn->parent,\n\t\t\t\t    lockdep_is_held(&table->tb6_lock));\n\t\t}\n\t}\n\n\tfib6_clean_expires(rt);\n\tfib6_remove_gc_list(rt);\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "fib6_info_hold",
+      "var_name": "f6i",
+      "target": "\trefcount_inc(&f6i->fib6_ref);",
+      "code": "static inline void fib6_info_hold(struct fib6_info *f6i)\n{\n\trefcount_inc(&f6i->fib6_ref);\n}",
+      "body_sha256": "fc6d7644b2c6fa0280940462c5a0fc442eef791f39928fac21fa914c52bc2502",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\trefcount_inc(&f6i->fib6_ref);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static inline void fib6_info_hold(struct fib6_info *f6i)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static inline void fib6_info_hold(struct fib6_info *f6i)\n{\n\trefcount_inc(&f6i->fib6_ref);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void fib6_purge_rt(struct fib6_info *rt, struct fib6_node *fn,\n\t\t\t  struct net *net)\n{\n\tstruct fib6_table *table = rt->fib6_table;\n\n\t/* Flush all cached dst in exception table */\n\trt6_flush_exceptions(rt);\n\tfib6_drop_pcpu_from(rt, table);\n\n\tif (rt->nh && !list_empty(&rt->nh_list))\n\t\tlist_del_init(&rt->nh_list);\n\n\tif (refcount_read(&rt->fib6_ref) != 1) {\n\t\t/* This route is used as dummy address holder in some split\n\t\t * nodes. It is not leaked, but it still holds other resources,\n\t\t * which must be released in time. So, scan ascendant nodes\n\t\t * and replace dummy references to this route with references\n\t\t * to still alive ones.\n\t\t */\n\t\twhile (fn) {\n\t\t\tstruct fib6_info *leaf = rcu_dereference_protected(fn->leaf,\n\t\t\t\t\t    lockdep_is_held(&table->tb6_lock));\n\t\t\tstruct fib6_info *new_leaf;\n\t\t\tif (!(fn->fn_flags & RTN_RTINFO) && leaf == rt) {\n\t\t\t\tnew_leaf = fib6_find_prefix(net, table, fn);\n\t\t\t\tfib6_info_hold(new_leaf);\n\n\t\t\t\trcu_assign_pointer(fn->leaf, new_leaf);\n\t\t\t\tfib6_info_release(rt);\n\t\t\t}\n\t\t\tfn = rcu_dereference_protected(fn->parent,\n\t\t\t\t    lockdep_is_held(&table->tb6_lock));\n\t\t}\n\t}\n\n\tfib6_clean_expires(rt);\n\tfib6_remove_gc_list(rt);\n}",
+    "static inline void fib6_info_hold(struct fib6_info *f6i)\n{\n\trefcount_inc(&f6i->fib6_ref);\n}"
+  ]
+}

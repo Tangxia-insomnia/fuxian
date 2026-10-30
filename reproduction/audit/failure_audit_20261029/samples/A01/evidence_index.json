@@ -1,0 +1,53 @@
+{
+  "audit_id": "A01",
+  "sample_id": "NPD/codeql/kernel69:row=10:index=22",
+  "selection_reason": "真实缺陷误删；检查条件极性",
+  "selection": "purposive diagnostic; not random and not representative",
+  "label": 1,
+  "prediction": "filter",
+  "status": "success",
+  "error": null,
+  "source_status": "No explicit source location/complete SARIF codeFlow in published row; raw function_list/assignment hints preserved, not invented",
+  "sink": {
+    "file_path": "net/ipv4/tcp.c",
+    "region": {
+      "startLine": 1273,
+      "startColumn": 15,
+      "endColumn": 18
+    },
+    "context": {
+      "startLine": 1271,
+      "endLine": 1275,
+      "snippet": {
+        "text": "\t\t\tTCP_SKB_CB(skb)->tcp_flags &= ~TCPHDR_PSH;"
+      }
+    }
+  },
+  "saved_context_exists": true,
+  "function_chain": [
+    "tcp_sendmsg_locked"
+  ],
+  "final_attempt_call_ids": [
+    224,
+    225,
+    226,
+    227
+  ],
+  "earlier_attempt_call_ids_not_reused": [],
+  "solver_evidence": [
+    {
+      "file": "solver_01.json",
+      "level": 0,
+      "ok": true,
+      "error": null,
+      "feasible": false,
+      "query_results": [
+        "unsat"
+      ]
+    }
+  ],
+  "argument_parameter_mapping": [],
+  "duration_seconds": 4.622388099999625,
+  "cost_upper_bound_cny": 0.01802999999999977,
+  "missing_steps": []
+}

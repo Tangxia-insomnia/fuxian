@@ -1,0 +1,77 @@
+```python
+vst=Int('vst')
+s.add(vst == 0)
+```
+```json
+["!(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks) || !(!vst)", "!(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks > 1)", "!(version == 2) || !(!vst)"]
+```
+```python
+from z3 import *
+
+# Declare variables appearing in the constraints.
+# - version: integer (compared to 2)
+# - avio_rb16(pb): modeled as an integer (return value of the function call)
+# - mv->nb_video_tracks: integer (compared to 0 and 1)
+# - vst: pointer-like boolean (used with !vst, i.e., vst == 0 / NULL)
+version = Int('version')
+avio_rb16_pb = Int('avio_rb16_pb')
+nb_video_tracks = Int('nb_video_tracks')
+vst = Bool('vst')
+
+s = Solver()
+
+# Constraint 1: !(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks) || !(!vst)
+#   C: !(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks) || !(!vst)
+#   - !version  -> version == 0
+#   - !(mv->nb_video_tracks) -> nb_video_tracks == 0
+#   - !(!vst)   -> vst (i.e., vst != 0)
+s.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),
+         nb_video_tracks == 0,
+         vst))
+
+# Constraint 2: !(!version && avio_rb16(pb) == 3) || !(mv->nb_video_tracks > 1)
+#   - !(mv->nb_video_tracks > 1) -> nb_video_tracks <= 1
+s.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),
+         nb_video_tracks <= 1))
+
+# Constraint 3: !(version == 2) || !(!vst)
+#   - !(version == 2) -> version != 2
+#   - !(!vst)         -> vst
+s.add(Or(version != 2, vst))
+
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, And, sat
+
+    # Base script variables and constraints
+    vst_int = Int('vst')
+    s = Solver()
+    s.add(vst_int == 0)
+
+    # Variables from constraint set 2
+    version = Int('version')
+    avio_rb16_pb = Int('avio_rb16_pb')
+    nb_video_tracks = Int('nb_video_tracks')
+    vst = Bool('vst')
+
+    # Constraint 1
+    s.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),
+             nb_video_tracks == 0,
+             vst))
+
+    # Constraint 2
+    s.add(Or(Not(And(version == 0, avio_rb16_pb == 3)),
+             nb_video_tracks <= 1))
+
+    # Constraint 3
+    s.add(Or(version != 2, vst))
+
+    return s.check() == sat
+```
+goto result: True
+```python
+st=Int('st')
+s.add(st == 0)
+```

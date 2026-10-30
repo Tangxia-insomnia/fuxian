@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Define variables as Int type (per guidelines)\n    ifp = Int('ifp')\n    idev = Int('idev')\n    \n    # Constraint: ifp is NULL (ifp == 0)\n    s.add(ifp == 0)\n    \n    # Constraint: idev is NULL (idev == 0) - from `if (!idev) return reason;`\n    s.add(idev == 0)\n    \n    # The condition !(ifp) evaluates to TRUE since ifp == 0\n    # Represented as: ifp == 0 (already added above)\n    # Redundant constraint removed for clarity\n    \n    # Check satisfiability\n    result = s.check()\n    \n    if result == sat:\n        return True\n    elif result == unsat:\n        return False\n    else:\n        return False",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ifp () Int)\n(declare-fun idev () Int)\n(assert\n (= ifp 0))\n(assert\n (= idev 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

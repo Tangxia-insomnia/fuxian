@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, sat\n\n    # Base script variables and constraints\n    passwd = Int('passwd')\n\n    # Variables from constraint set 2\n    in_ptr = Int('in')\n    passed_salt = Bool('passed_salt')\n    in_noverify = Bool('in_noverify')\n    do_passwd_ok = Bool('do_passwd_ok')\n    evp_read_pw_ok = Bool('evp_read_pw_ok')\n\n    s = Solver()\n\n    # Base constraint\n    s.add(passwd == 0)\n\n    # Constraint set 2 constraints\n    s.add(Or(in_ptr != 0, do_passwd_ok))\n    s.add(Or(in_ptr != 0, evp_read_pw_ok))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun passwd () Int)\n(declare-fun do_passwd_ok () Bool)\n(declare-fun in () Int)\n(declare-fun evp_read_pw_ok () Bool)\n(assert\n (= passwd 0))\n(assert\n (let (($x30 (and (distinct in 0) true)))\n (or $x30 do_passwd_ok)))\n(assert\n (let (($x30 (and (distinct in 0) true)))\n(or $x30 evp_read_pw_ok)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

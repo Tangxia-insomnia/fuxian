@@ -1,0 +1,45 @@
+{
+  "call_id": 1132,
+  "sample_id": "NPD/infer/openssl:row=0:index=None",
+  "timestamp": "2026-10-26T01:08:05.126743+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static EVP_PKEY *pkey_type2param(int ptype, const void *pval,\n                                 OSSL_LIB_CTX *libctx, const char *propq)\n{\n    EVP_PKEY *pkey = NULL;\n    EVP_PKEY_CTX *pctx = NULL;\n    OSSL_DECODER_CTX *ctx = NULL;\n\n    if (ptype == V_ASN1_SEQUENCE) {\n        const ASN1_STRING *pstr = pval;\n        const unsigned char *pm = pstr->data;\n        size_t pmlen = (size_t)pstr->length;\n        int selection = OSSL_KEYMGMT_SELECT_ALL_PARAMETERS;\n\n        ctx = OSSL_DECODER_CTX_new_for_pkey(&pkey, \"DER\", NULL, \"EC\",\n                                            selection, libctx, propq);\n        if (ctx == NULL)\n            goto err;\n\n        if (!OSSL_DECODER_from_data(ctx, &pm, &pmlen)) {\n            ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n            goto err;\n        }\n        OSSL_DECODER_CTX_free(ctx);\n        return pkey;\n    } else if (ptype == V_ASN1_OBJECT) {\n        const ASN1_OBJECT *poid = pval;\n        char groupname[OSSL_MAX_NAME_SIZE];\n\n        /* type == V_ASN1_OBJECT => the parameters are given by an asn1 OID */\n        pctx = EVP_PKEY_CTX_new_from_name(libctx, \"EC\", propq);\n        if (pctx == NULL || EVP_PKEY_paramgen_init(pctx) <= 0)\n            goto err;\n        if (OBJ_obj2txt(groupname, sizeof(groupname), poid, 0) <= 0\n                || EVP_PKEY_CTX_set_group_name(pctx, groupname) <= 0) {\n            ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n            goto err;\n        }\n        if (EVP_PKEY_paramgen(pctx, &pkey) <= 0)\n            goto err;\n        EVP_PKEY_CTX_free(pctx);\n        return pkey;\n    }\n\n    ERR_raise(ERR_LIB_CMS, CMS_R_DECODE_ERROR);\n    return NULL;\n\n err:\n    EVP_PKEY_free(pkey);\n    EVP_PKEY_CTX_free(pctx);\n    OSSL_DECODER_CTX_free(ctx);\n    return NULL;\n}\n        - Target variables: [], ctx\n        - Constraints: ['!(ptype == V_ASN1_OBJECT)', '!(ptype == V_ASN1_OBJECT) || !(EVP_PKEY_paramgen(pctx, &pkey) <= 0)', '!(ptype == V_ASN1_OBJECT) || !(OBJ_obj2txt(groupname, sizeof(groupname), poid, 0) <= 0 || EVP_PKEY_CTX_set_group_name(pctx, groupname) <= 0)', '!(ptype == V_ASN1_OBJECT) || !(pctx == NULL || EVP_PKEY_paramgen_init(pctx) <= 0)', '!(ptype == V_ASN1_SEQUENCE)', '!(ptype == V_ASN1_SEQUENCE) || !(!OSSL_DECODER_from_data(ctx, &pm, &pmlen))', '!(ptype == V_ASN1_SEQUENCE) || !(ctx == NULL)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "dd8c3259-0ca7-4585-937d-610e585f3784",
+  "usage": {
+    "prompt_tokens": 850,
+    "completion_tokens": 640,
+    "total_tokens": 1490,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 850
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Looking at the constraints and target variables `[]` (empty) and `ctx`:\n\n**Step 1: Filter constraints affecting reachability**\n\nThe target variables are `ctx` (and an empty list). I need to find constraints that involve `ctx`.\n\nLet me examine each constraint:\n\n1. `!(ptype == V_ASN1_OBJECT)` - no `ctx`, doesn't affect `ctx` reachability directly\n2. `!(ptype == V_ASN1_OBJECT) || !(EVP_PKEY_paramgen(pctx, &pkey) <= 0)` - no `ctx`\n3. `!(ptype == V_ASN1_OBJECT) || !(OBJ_obj2txt(...) <= 0 || EVP_PKEY_CTX_set_group_name(...) <= 0)` - no `ctx`\n4. `!(ptype == V_ASN1_OBJECT) || !(pctx == NULL || EVP_PKEY_paramgen_init(pctx) <= 0)` - no `ctx`\n5. `!(ptype == V_ASN1_SEQUENCE)` - no `ctx`\n6. `!(ptype == V_ASN1_SEQUENCE) || !(!OSSL_DECODER_from_data(ctx, &pm, &pmlen))` - **involves `ctx`**\n7. `!(ptype == V_ASN1_SEQUENCE) || !(ctx == NULL)` - **involves `ctx`**\n\n**Step 2: Include only constraints involving target variables**\n\nConstraints 6 and 7 involve `ctx`.\n\n**Step 3: Verify filtered constraints step by step**\n\nConstraint 6: `!(ptype == V_ASN1_SEQUENCE) || !(!OSSL_DECODER_from_data(ctx, &pm, &pmlen))`\n- This says: either ptype is not SEQUENCE, OR OSSL_DECODER_from_data succeeds (returns true, so `!OSSL_DECODER_from_data` is false, so `!(!...)` is true).\n- This is the path condition where `ctx` is used in `OSSL_DECODER_from_data`. It's relevant to `ctx` reachability since `ctx` must be non-NULL and valid here.\n\nConstraint 7: `!(ptype == V_ASN1_SEQUENCE) || !(ctx == NULL)`\n- This says: either ptype is not SEQUENCE, OR ctx is not NULL.\n- This ensures `ctx` is non-NULL when used in the SEQUENCE branch (after the `if (ctx == NULL) goto err;` check).\n\nBoth constraints are valid and involve `ctx`.\n\n```json\n[\"!(ptype == V_ASN1_SEQUENCE) || !(!OSSL_DECODER_from_data(ctx, &pm, &pmlen))\", \"!(ptype == V_ASN1_SEQUENCE) || !(ctx == NULL)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.655578599999899,
+  "cost_upper_bound_cny": 0.00682
+}

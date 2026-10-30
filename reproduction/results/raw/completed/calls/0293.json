@@ -1,0 +1,45 @@
+{
+  "call_id": 293,
+  "sample_id": "NPD/codeql/kernel69:row=33:index=53",
+  "timestamp": "2026-10-26T00:49:00.871924+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static struct fib6_info *ip6_route_info_create(struct fib6_config *cfg,\n\t\t\t\t\t      gfp_t gfp_flags,\n\t\t\t\t\t      struct netlink_ext_ack *extack)\n{\n\tstruct net *net = cfg->fc_nlinfo.nl_net;\n\tstruct fib6_info *rt = NULL;\n\tstruct nexthop *nh = NULL;\n\tstruct fib6_table *table;\n\tstruct fib6_nh *fib6_nh;\n\tint err = -EINVAL;\n\tint addr_type;\n\n\t/* RTF_PCPU is an internal flag; can not be set by userspace */\n\tif (cfg->fc_flags & RTF_PCPU) {\n\t\tNL_SET_ERR_MSG(extack, \"Userspace can not set RTF_PCPU\");\n\t\tgoto out;\n\t}\n\n\t/* RTF_CACHE is an internal flag; can not be set by userspace */\n\tif (cfg->fc_flags & RTF_CACHE) {\n\t\tNL_SET_ERR_MSG(extack, \"Userspace can not set RTF_CACHE\");\n\t\tgoto out;\n\t}\n\n\tif (cfg->fc_type > RTN_MAX) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid route type\");\n\t\tgoto out;\n\t}\n\n\tif (cfg->fc_dst_len > 128) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid prefix length\");\n\t\tgoto out;\n\t}\n\tif (cfg->fc_src_len > 128) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid source address length\");\n\t\tgoto out;\n\t}\n#ifndef CONFIG_IPV6_SUBTREES\n\tif (cfg->fc_src_len) {\n\t\tNL_SET_ERR_MSG(extack,\n\t\t\t       \"Specifying source address requires IPV6_SUBTREES to be enabled\");\n\t\tgoto out;\n\t}\n#endif\n\tif (cfg->fc_nh_id) {\n\t\tnh = nexthop_find_by_id(net, cfg->fc_nh_id);\n\t\tif (!nh) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop id does not exist\");\n\t\t\tgoto out;\n\t\t}\n\t\terr = fib6_check_nexthop(nh, cfg, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\t}\n\n\terr = -ENOBUFS;\n\tif (cfg->fc_nlinfo.nlh &&\n\t    !(cfg->fc_nlinfo.nlh->nlmsg_flags & NLM_F_CREATE)) {\n\t\ttable = fib6_get_table(net, cfg->fc_table);\n\t\tif (!table) {\n\t\t\tpr_warn(\"NLM_F_CREATE should be specified when creating new route\\n\");\n\t\t\ttable = fib6_new_table(net, cfg->fc_table);\n\t\t}\n\t} else {\n\t\ttable = fib6_new_table(net, cfg->fc_table);\n\t}\n\n\tif (!table)\n\t\tgoto out;\n\n\terr = -ENOMEM;\n\trt = fib6_info_alloc(gfp_flags, !nh);\n\tif (!rt)\n\t\tgoto out;\n\n\trt->fib6_metrics = ip_fib_metrics_init(net, cfg->fc_mx, cfg->fc_mx_len,\n\t\t\t\t\t       extack);\n\tif (IS_ERR(rt->fib6_metrics)) {\n\t\terr = PTR_ERR(rt->fib6_metrics);\n\t\t/* Do not leave garbage there. */\n\t\trt->fib6_metrics = (struct dst_metrics *)&dst_default_metrics;\n\t\tgoto out_free;\n\t}\n\n\tif (cfg->fc_flags & RTF_ADDRCONF)\n\t\trt->dst_nocount = true;\n\n\tif (cfg->fc_flags & RTF_EXPIRES)\n\t\tfib6_set_expires(rt, jiffies +\n\t\t\t\tclock_t_to_jiffies(cfg->fc_expires));\n\n\tif (cfg->fc_protocol == RTPROT_UNSPEC)\n\t\tcfg->fc_protocol = RTPROT_BOOT;\n\trt->fib6_protocol = cfg->fc_protocol;\n\n\trt->fib6_table = table;\n\trt->fib6_metric = cfg->fc_metric;\n\trt->fib6_type = cfg->fc_type ? : RTN_UNICAST;\n\trt->fib6_flags = cfg->fc_flags & ~RTF_GATEWAY;\n\n\tipv6_addr_prefix(&rt->fib6_dst.addr, &cfg->fc_dst, cfg->fc_dst_len);\n\trt->fib6_dst.plen = cfg->fc_dst_len;\n\n#ifdef CONFIG_IPV6_SUBTREES\n\tipv6_addr_prefix(&rt->fib6_src.addr, &cfg->fc_src, cfg->fc_src_len);\n\trt->fib6_src.plen = cfg->fc_src_len;\n#endif\n\tif (nh) {\n\t\tif (rt->fib6_src.plen) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthops can not be used with source routing\");\n\t\t\tgoto out_free;\n\t\t}\n\t\tif (!nexthop_get(nh)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop has been deleted\");\n\t\t\tgoto out_free;\n\t\t}\n\t\trt->nh = nh;\n\t\tfib6_nh = nexthop_fib6_nh(rt->nh);\n\t} else {\n\t\terr = fib6_nh_init(net, rt->fib6_nh, cfg, gfp_flags, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\n\t\tfib6_nh = rt->fib6_nh;\n\n\t\t/* We cannot add true routes via loopback here, they would\n\t\t * result in kernel looping; promote them to reject routes\n\t\t */\n\t\taddr_type = ipv6_addr_type(&cfg->fc_dst);\n\t\tif (fib6_is_reject(cfg->fc_flags, rt->fib6_nh->fib_nh_dev,\n\t\t\t\t   addr_type))\n\t\t\trt->fib6_flags = RTF_REJECT | RTF_NONEXTHOP;\n\t}\n\n\tif (!ipv6_addr_any(&cfg->fc_prefsrc)) {\n\t\tstruct net_device *dev = fib6_nh->fib_nh_dev;\n\n\t\tif (!ipv6_chk_addr(net, &cfg->fc_prefsrc, dev, 0)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Invalid source address\");\n\t\t\terr = -EINVAL;\n\t\t\tgoto out;\n\t\t}\n\t\trt->fib6_prefsrc.addr = cfg->fc_prefsrc;\n\t\trt->fib6_prefsrc.plen = 128;\n\t} else\n\t\trt->fib6_prefsrc.plen = 0;\n\n\treturn rt;\nout:\n\tfib6_info_release(rt);\n\treturn ERR_PTR(err);\nout_free:\n\tip_fib_metrics_put(rt->fib6_metrics);\n\tkfree(rt);\n\treturn ERR_PTR(err);\n}\n        - Target variables: [{'condition': 'if (!ipv6_addr_any(&cfg->fc_prefsrc))', 'line_number': 134}], fib6_nh\n        - Constraints: ['!(!(nh)) || !(err)', '!(nh) || !(!nexthop_get(nh))', '!(nh) || !(rt->fib6_src.plen)', '!(IS_ERR(rt->fib6_metrics))', '!(!rt)', '!(!table)', '!(cfg->fc_nh_id) || !(err)', '!(cfg->fc_nh_id) || !(!nh)', '!(cfg->fc_src_len)', '!(cfg->fc_src_len > 128)', '!(cfg->fc_dst_len > 128)', '!(cfg->fc_type > RTN_MAX)', '!(cfg->fc_flags & RTF_CACHE)', '!(cfg->fc_flags & RTF_PCPU)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "1a566854-cd88-4d8c-930d-481e0de97e2c",
+  "usage": {
+    "prompt_tokens": 1818,
+    "completion_tokens": 47,
+    "total_tokens": 1865,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1818
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(nh) || !(rt->fib6_src.plen)\", \"!(nh) || !(!nexthop_get(nh))\", \"!(!(nh)) || !(err)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6776130999996894,
+  "cost_upper_bound_cny": 0.004012
+}

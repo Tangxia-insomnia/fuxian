@@ -1,0 +1,119 @@
+```python
+tun_info=Int('tun_info')
+s.add(tun_info == 0)
+```
+```json
+["!(unlikely(!tun_info || !(tun_info->mode & IP_TUNNEL_INFO_TX) || ip_tunnel_info_af(tun_info) != AF_INET))"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# tun_info is a pointer; model as an integer address (0 = NULL)
+tun_info = Int('tun_info')
+
+# Model the bitmask field tun_info->mode as an integer
+tun_info_mode = Int('tun_info_mode')
+
+# Model the address family returned by ip_tunnel_info_af(tun_info) as an integer
+ip_tunnel_info_af = Int('ip_tunnel_info_af')
+
+# Constants
+IP_TUNNEL_INFO_TX = IntVal(1)  # bit flag value (nonzero)
+AF_INET = IntVal(2)           # AF_INET constant (nonzero, distinct from AF_INET6 etc.)
+
+# The C expression:
+#   !(unlikely(!tun_info || !(tun_info->mode & IP_TUNNEL_INFO_TX) || ip_tunnel_info_af(tun_info) != AF_INET))
+#
+# `unlikely(...)` is a branch-prediction hint only; it does not change the
+# truth value of the expression, so it is dropped.
+#
+# The outer `!` negates the whole disjunction. The constraint we want to
+# satisfy (i.e., the condition that must hold) is therefore the negation of
+# the inner disjunction, which by De Morgan becomes a conjunction:
+#
+#   tun_info != NULL
+#   AND (tun_info->mode & IP_TUNNEL_INFO_TX) != 0
+#   AND ip_tunnel_info_af(tun_info) == AF_INET
+#
+# Each conjunct is included because it is one of the disjuncts inside the
+# original `!(...)`; negating the disjunction forces every disjunct to be
+# false, i.e., each corresponding positive condition to be true.
+
+s = Solver()
+
+# 1) tun_info must be non-NULL (C: !tun_info is false)
+s.add(tun_info != 0)
+
+# 2) The TX bit must be set in tun_info->mode
+#    C: !(tun_info->mode & IP_TUNNEL_INFO_TX) is false
+#    i.e. (tun_info->mode & IP_TUNNEL_INFO_TX) != 0
+s.add((tun_info_mode & IP_TUNNEL_INFO_TX) != 0)
+
+# 3) The address family must equal AF_INET
+#    C: ip_tunnel_info_af(tun_info) != AF_INET is false
+s.add(ip_tunnel_info_af == AF_INET)
+
+# Check satisfiability and print a model
+if s.check() == sat:
+    m = s.model()
+    print("sat")
+    print("tun_info =", m[tun_info])
+    print("tun_info_mode =", m[tun_info_mode])
+    print("ip_tunnel_info_af =", m[ip_tunnel_info_af])
+else:
+    print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, IntVal, Solver, sat
+
+    # Base script variables and constraints
+    tun_info = Int('tun_info')
+
+    # Constraint set 2 variables
+    tun_info_mode = Int('tun_info_mode')
+    ip_tunnel_info_af = Int('ip_tunnel_info_af')
+
+    # Constants
+    IP_TUNNEL_INFO_TX = IntVal(1)
+    AF_INET = IntVal(2)
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(tun_info == 0)
+
+    # Constraint set 2 constraints
+    s.add(tun_info != 0)
+    s.add((tun_info_mode & IP_TUNNEL_INFO_TX) != 0)
+    s.add(ip_tunnel_info_af == AF_INET)
+
+    return s.check() == sat
+```
+TypeError: unsupported operand type(s) for &: 'ArithRef' and 'IntNumRef'
+```python
+def check_constraints():
+    from z3 import Int, IntVal, Solver, sat, And
+
+    tun_info = Int('tun_info')
+    tun_info_mode = Int('tun_info_mode')
+    ip_tunnel_info_af = Int('ip_tunnel_info_af')
+
+    IP_TUNNEL_INFO_TX = 1
+    AF_INET = 2
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(tun_info == 0)
+
+    # Constraint set 2 constraints
+    s.add(tun_info != 0)
+    # (tun_info_mode & IP_TUNNEL_INFO_TX) != 0  ->  bit 0 of tun_info_mode is set
+    s.add(tun_info_mode % 2 == 1)
+    s.add(ip_tunnel_info_af == AF_INET)
+
+    return s.check() == sat
+```
+goto result: False

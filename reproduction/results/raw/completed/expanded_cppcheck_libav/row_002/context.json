@@ -1,0 +1,35 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "frame_list_remove_samples",
+      "var_name": "info",
+      "target": "if (info->nb_samples <= samples) {",
+      "code": "static void frame_list_remove_samples(FrameList *frame_list, int nb_samples)\n{\n    if (nb_samples >= frame_list->nb_samples) {\n        frame_list_clear(frame_list);\n    } else {\n        int samples = nb_samples;\n        while (samples > 0) {\n            FrameInfo *info = frame_list->list;\n            av_assert0(info != NULL);\n            if (info->nb_samples <= samples) {\n                samples -= info->nb_samples;\n                frame_list->list = info->next;\n                if (!frame_list->list)\n                    frame_list->end = NULL;\n                frame_list->nb_frames--;\n                frame_list->nb_samples -= info->nb_samples;\n                av_free(info);\n            } else {\n                info->nb_samples       -= samples;\n                info->pts              += samples;\n                frame_list->nb_samples -= samples;\n                samples = 0;\n            }\n        }\n    }\n}",
+      "body_sha256": "2fd2ffb2ac1e5eeec4c9777a5b690410ba349277a331847f6695567945f3710c",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (info->nb_samples <= samples) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void frame_list_remove_samples(FrameList *frame_list, int nb_samples)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static void frame_list_remove_samples(FrameList *frame_list, int nb_samples)\n{\n    if (nb_samples >= frame_list->nb_samples) {\n        frame_list_clear(frame_list);\n    } else {\n        int samples = nb_samples;\n        while (samples > 0) {\n            FrameInfo *info = frame_list->list;\n            av_assert0(info != NULL);\n            if (info->nb_samples <= samples) {\n                samples -= info->nb_samples;\n                frame_list->list = info->next;\n                if (!frame_list->list)\n                    frame_list->end = NULL;\n                frame_list->nb_frames--;\n                frame_list->nb_samples -= info->nb_samples;\n                av_free(info);\n            } else {\n                info->nb_samples       -= samples;\n                info->pts              += samples;\n                frame_list->nb_samples -= samples;\n                samples = 0;\n            }\n        }\n    }\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void frame_list_remove_samples(FrameList *frame_list, int nb_samples)\n{\n    if (nb_samples >= frame_list->nb_samples) {\n        frame_list_clear(frame_list);\n    } else {\n        int samples = nb_samples;\n        while (samples > 0) {\n            FrameInfo *info = frame_list->list;\n            av_assert0(info != NULL);\n            if (info->nb_samples <= samples) {\n                samples -= info->nb_samples;\n                frame_list->list = info->next;\n                if (!frame_list->list)\n                    frame_list->end = NULL;\n                frame_list->nb_frames--;\n                frame_list->nb_samples -= info->nb_samples;\n                av_free(info);\n            } else {\n                info->nb_samples       -= samples;\n                info->pts              += samples;\n                frame_list->nb_samples -= samples;\n                samples = 0;\n            }\n        }\n    }\n}"
+  ]
+}

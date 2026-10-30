@@ -1,0 +1,45 @@
+{
+  "call_id": 312,
+  "sample_id": "NPD/codeql/kernel69:row=40:index=64",
+  "timestamp": "2026-10-26T00:49:32.227100+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: void ieee80211_nan_func_match(struct ieee80211_vif *vif,\n\t\t\t      struct cfg80211_nan_match_params *match,\n\t\t\t      gfp_t gfp)\n{\n\tstruct ieee80211_sub_if_data *sdata = vif_to_sdata(vif);\n\tstruct cfg80211_nan_func *func;\n\n\tif (WARN_ON(vif->type != NL80211_IFTYPE_NAN))\n\t\treturn;\n\n\tspin_lock_bh(&sdata->u.nan.func_lock);\n\n\tfunc = idr_find(&sdata->u.nan.function_inst_ids,  match->inst_id);\n\tif (WARN_ON(!func)) {\n\t\tspin_unlock_bh(&sdata->u.nan.func_lock);\n\t\treturn;\n\t}\n\tmatch->cookie = func->cookie;\n\n\tspin_unlock_bh(&sdata->u.nan.func_lock);\n\n\tcfg80211_nan_match(ieee80211_vif_to_wdev(vif), match, gfp);\n}\n        - Target variables: [], func\n        - Constraints: ['!(WARN_ON(!func))', '!(WARN_ON(vif->type != NL80211_IFTYPE_NAN))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "448ea8e4-2500-4f72-930d-1dc8c336f23a",
+  "usage": {
+    "prompt_tokens": 329,
+    "completion_tokens": 13,
+    "total_tokens": 342,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 329
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(WARN_ON(!func))\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6951526000002559,
+  "cost_upper_bound_cny": 0.000762
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 4,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat, Not, And, Or\n\n    # Base script variables\n    fc = Int('fc')\n    IEEE80211_FCTL_STYPE = Int('IEEE80211_FCTL_STYPE')\n    IEEE80211_STYPE_ACTION = Int('IEEE80211_STYPE_ACTION')\n    mgmt_u_action_category = Int('mgmt_u_action_category')\n    WLAN_CATEGORY_PUBLIC = Int('WLAN_CATEGORY_PUBLIC')\n    elems = Int('elems')\n\n    # Constraint set 1 variables\n    sdata_u_mgd_associated = Int('sdata_u_mgd_associated')\n    ether_addr_equal_result = Int('ether_addr_equal_result')\n    WLAN_CATEGORY_SPECTRUM_MGMT = Int('WLAN_CATEGORY_SPECTRUM_MGMT')\n    fc_stype_masked = Int('fc_stype_masked')\n\n    # Constraint set 2 variables\n    ies_len = Int('ies_len')\n\n    s = Solver()\n\n    # Base script constraint (bitwise AND on Ints unsupported; model masked result)\n    s.add(Not(And(fc_stype_masked == IEEE80211_STYPE_ACTION,\n                  mgmt_u_action_category == WLAN_CATEGORY_PUBLIC,\n                  elems == 0)))\n\n    # Constraint set 1 constraints\n    s.add(fc_stype_masked == IEEE80211_STYPE_ACTION)\n    s.add(sdata_u_mgd_associated != 0)\n    s.add(ether_addr_equal_result != 0)\n    s.add(mgmt_u_action_category != WLAN_CATEGORY_SPECTRUM_MGMT)\n    s.add(mgmt_u_action_category == WLAN_CATEGORY_PUBLIC)\n    s.add(elems == 0)\n\n    # Constraint set 2 constraints\n    s.add(Or(mgmt_u_action_category != WLAN_CATEGORY_PUBLIC, Not(ies_len < 0)))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun elems () Int)\n(declare-fun WLAN_CATEGORY_PUBLIC () Int)\n(declare-fun mgmt_u_action_category () Int)\n(declare-fun IEEE80211_STYPE_ACTION () Int)\n(declare-fun fc_stype_masked () Int)\n(declare-fun sdata_u_mgd_associated () Int)\n(declare-fun ether_addr_equal_result () Int)\n(declare-fun WLAN_CATEGORY_SPECTRUM_MGMT () Int)\n(declare-fun ies_len () Int)\n(assert\n (let (($x19 (= elems 0)))\n (let (($x17 (= mgmt_u_action_category WLAN_CATEGORY_PUBLIC)))\n (let (($x16 (= fc_stype_masked IEEE80211_STYPE_ACTION)))\n (not (and $x16 $x17 $x19))))))\n(assert\n (= fc_stype_masked IEEE80211_STYPE_ACTION))\n(assert\n (and (distinct sdata_u_mgd_associated 0) true))\n(assert\n (and (distinct ether_addr_equal_result 0) true))\n(assert\n (and (distinct mgmt_u_action_category WLAN_CATEGORY_SPECTRUM_MGMT) true))\n(assert\n (= mgmt_u_action_category WLAN_CATEGORY_PUBLIC))\n(assert\n (= elems 0))\n(assert\n (or (and (distinct mgmt_u_action_category WLAN_CATEGORY_PUBLIC) true) (not (< ies_len 0))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

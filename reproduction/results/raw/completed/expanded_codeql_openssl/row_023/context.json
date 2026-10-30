@@ -1,0 +1,60 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "load_crl_crldp",
+      "var_name": "dp",
+      "target": "urlptr = get_dp_url(dp);",
+      "code": "static X509_CRL *load_crl_crldp(STACK_OF(DIST_POINT) *crldp)\n{\n    int i;\n    const char *urlptr = NULL;\n\n    for (i = 0; i < sk_DIST_POINT_num(crldp); i++) {\n        DIST_POINT *dp = sk_DIST_POINT_value(crldp, i);\n\n        urlptr = get_dp_url(dp);\n        if (urlptr != NULL)\n            return load_crl(urlptr, FORMAT_UNDEF, 0, \"CRL via CDP\");\n    }\n    return NULL;\n}",
+      "body_sha256": "c60f4d8c99dc63ef5060bb40a934a41a35fae9a98de04210aafa6b9670dd7d33",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "urlptr = get_dp_url(dp);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static X509_CRL *load_crl_crldp(STACK_OF(DIST_POINT) *crldp)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static X509_CRL *load_crl_crldp(STACK_OF(DIST_POINT) *crldp)\n{\n    int i;\n    const char *urlptr = NULL;\n\n    for (i = 0; i < sk_DIST_POINT_num(crldp); i++) {\n        DIST_POINT *dp = sk_DIST_POINT_value(crldp, i);\n\n        urlptr = get_dp_url(dp);\n        if (urlptr != NULL)\n            return load_crl(urlptr, FORMAT_UNDEF, 0, \"CRL via CDP\");\n    }\n    return NULL;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "get_dp_url",
+      "var_name": "dp",
+      "target": "    if (!dp->distpoint || dp->distpoint->type != 0)",
+      "code": "static const char *get_dp_url(DIST_POINT *dp)\n{\n    GENERAL_NAMES *gens;\n    GENERAL_NAME *gen;\n    int i, gtype;\n    ASN1_STRING *uri;\n\n    if (!dp->distpoint || dp->distpoint->type != 0)\n        return NULL;\n    gens = dp->distpoint->name.fullname;\n    for (i = 0; i < sk_GENERAL_NAME_num(gens); i++) {\n        gen = sk_GENERAL_NAME_value(gens, i);\n        uri = GENERAL_NAME_get0_value(gen, &gtype);\n        if (gtype == GEN_URI && ASN1_STRING_length(uri) > 6) {\n            const char *uptr = (const char *)ASN1_STRING_get0_data(uri);\n\n            if (IS_HTTP(uptr)) /* can/should not use HTTPS here */\n                return uptr;\n        }\n    }\n    return NULL;\n}",
+      "body_sha256": "b67f554466efe999aa6c1ec918423e614d9bac68a782dbe3b87499d41e5526f8",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "    if (!dp->distpoint || dp->distpoint->type != 0)",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static const char *get_dp_url(DIST_POINT *dp)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static const char *get_dp_url(DIST_POINT *dp)\n{\n    GENERAL_NAMES *gens;\n    GENERAL_NAME *gen;\n    int i, gtype;\n    ASN1_STRING *uri;\n\n    if (!dp->distpoint || dp->distpoint->type != 0)\n        return NULL;\n    gens = dp->distpoint->name.fullname;\n    for (i = 0; i < sk_GENERAL_NAME_num(gens); i++) {\n        gen = sk_GENERAL_NAME_value(gens, i);\n        uri = GENERAL_NAME_get0_value(gen, &gtype);\n        if (gtype == GEN_URI && ASN1_STRING_length(uri) > 6) {\n            const char *uptr = (const char *)ASN1_STRING_get0_data(uri);\n\n            if (IS_HTTP(uptr)) /* can/should not use HTTPS here */\n                return uptr;\n        }\n    }\n    return NULL;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static X509_CRL *load_crl_crldp(STACK_OF(DIST_POINT) *crldp)\n{\n    int i;\n    const char *urlptr = NULL;\n\n    for (i = 0; i < sk_DIST_POINT_num(crldp); i++) {\n        DIST_POINT *dp = sk_DIST_POINT_value(crldp, i);\n\n        urlptr = get_dp_url(dp);\n        if (urlptr != NULL)\n            return load_crl(urlptr, FORMAT_UNDEF, 0, \"CRL via CDP\");\n    }\n    return NULL;\n}",
+    "static const char *get_dp_url(DIST_POINT *dp)\n{\n    GENERAL_NAMES *gens;\n    GENERAL_NAME *gen;\n    int i, gtype;\n    ASN1_STRING *uri;\n\n    if (!dp->distpoint || dp->distpoint->type != 0)\n        return NULL;\n    gens = dp->distpoint->name.fullname;\n    for (i = 0; i < sk_GENERAL_NAME_num(gens); i++) {\n        gen = sk_GENERAL_NAME_value(gens, i);\n        uri = GENERAL_NAME_get0_value(gen, &gtype);\n        if (gtype == GEN_URI && ASN1_STRING_length(uri) > 6) {\n            const char *uptr = (const char *)ASN1_STRING_get0_data(uri);\n\n            if (IS_HTTP(uptr)) /* can/should not use HTTPS here */\n                return uptr;\n        }\n    }\n    return NULL;\n}"
+  ]
+}

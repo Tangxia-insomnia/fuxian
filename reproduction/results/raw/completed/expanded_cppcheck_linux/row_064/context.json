@@ -1,0 +1,52 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "dwarf_lookup_fde",
+      "var_name": "fde_tmp",
+      "target": "tmp_start = fde_tmp->initial_location;",
+      "code": "struct dwarf_fde *dwarf_lookup_fde(unsigned long pc)\n{\n\tstruct rb_node **rb_node = &fde_root.rb_node;\n\tstruct dwarf_fde *fde = NULL;\n\tunsigned long flags;\n\n\tspin_lock_irqsave(&dwarf_fde_lock, flags);\n\n\twhile (*rb_node) {\n\t\tstruct dwarf_fde *fde_tmp;\n\t\tunsigned long tmp_start, tmp_end;\n\n\t\tfde_tmp = rb_entry(*rb_node, struct dwarf_fde, node);\n\t\tBUG_ON(!fde_tmp);\n\n\t\ttmp_start = fde_tmp->initial_location;\n\t\ttmp_end = fde_tmp->initial_location + fde_tmp->address_range;\n\n\t\tif (pc < tmp_start) {\n\t\t\trb_node = &(*rb_node)->rb_left;\n\t\t} else {\n\t\t\tif (pc < tmp_end) {\n\t\t\t\tfde = fde_tmp;\n\t\t\t\tgoto out;\n\t\t\t} else\n\t\t\t\trb_node = &(*rb_node)->rb_right;\n\t\t}\n\t}\n\nout:\n\tspin_unlock_irqrestore(&dwarf_fde_lock, flags);\n\n\treturn fde;\n}",
+      "body_sha256": "ef84a40743b7aae4c1c30437012e25cbc8d8d34beb3ab413971cc9be28ecb751",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "tmp_start = fde_tmp->initial_location;",
+            "condition": [
+              {
+                "condition": "while (*rb_node)",
+                "line_number": 8
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "while (*rb_node)",
+            "line_number": 8
+          }
+        ],
+        "variable_assignments": {
+          "text": "struct dwarf_fde *dwarf_lookup_fde(unsigned long pc)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "fde_tmp ==0"
+            ]
+          }
+        ],
+        "filter_function_code": "struct dwarf_fde *dwarf_lookup_fde(unsigned long pc)\n{\n\tstruct rb_node **rb_node = &fde_root.rb_node;\n\tstruct dwarf_fde *fde = NULL;\n\tunsigned long flags;\n\n\tspin_lock_irqsave(&dwarf_fde_lock, flags);\n\n\twhile (*rb_node) {\n\t\tstruct dwarf_fde *fde_tmp;\n\t\tunsigned long tmp_start, tmp_end;\n\n\t\tfde_tmp = rb_entry(*rb_node, struct dwarf_fde, node);\n\t\tBUG_ON(!fde_tmp);\n\n\t\ttmp_start = fde_tmp->initial_location;\n\t\ttmp_end = fde_tmp->initial_location + fde_tmp->address_range;\n\n\t\tif (pc < tmp_start) {\n\t\t\trb_node = &(*rb_node)->rb_left;\n\t\t} else {\n\t\t\tif (pc < tmp_end) {\n\t\t\t\tfde = fde_tmp;\n\t\t\t\tgoto out;\n\t\t\t} else\n\t\t\t\trb_node = &(*rb_node)->rb_right;\n\t\t}\n\t}\n\nout:\n\tspin_unlock_irqrestore(&dwarf_fde_lock, flags);\n\n\treturn fde;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "struct dwarf_fde *dwarf_lookup_fde(unsigned long pc)\n{\n\tstruct rb_node **rb_node = &fde_root.rb_node;\n\tstruct dwarf_fde *fde = NULL;\n\tunsigned long flags;\n\n\tspin_lock_irqsave(&dwarf_fde_lock, flags);\n\n\twhile (*rb_node) {\n\t\tstruct dwarf_fde *fde_tmp;\n\t\tunsigned long tmp_start, tmp_end;\n\n\t\tfde_tmp = rb_entry(*rb_node, struct dwarf_fde, node);\n\t\tBUG_ON(!fde_tmp);\n\n\t\ttmp_start = fde_tmp->initial_location;\n\t\ttmp_end = fde_tmp->initial_location + fde_tmp->address_range;\n\n\t\tif (pc < tmp_start) {\n\t\t\trb_node = &(*rb_node)->rb_left;\n\t\t} else {\n\t\t\tif (pc < tmp_end) {\n\t\t\t\tfde = fde_tmp;\n\t\t\t\tgoto out;\n\t\t\t} else\n\t\t\t\trb_node = &(*rb_node)->rb_right;\n\t\t}\n\t}\n\nout:\n\tspin_unlock_irqrestore(&dwarf_fde_lock, flags);\n\n\treturn fde;\n}"
+  ]
+}

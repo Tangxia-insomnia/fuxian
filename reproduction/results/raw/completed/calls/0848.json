@@ -1,0 +1,45 @@
+{
+  "call_id": 848,
+  "sample_id": "NPD/codeql/openssl:row=43:index=45",
+  "timestamp": "2026-10-26T01:02:47.682243+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(outformat == FORMAT_PVK) || !(!OSSL_ENCODER_CTX_set_params(ectx, params))', '!(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)', '!(!(outformat == FORMAT_ASN1) && !(outformat == FORMAT_PEM) && !(outformat == FORMAT_MSBLOB) && !(outformat == FORMAT_PVK))', '!(outformat == FORMAT_PVK) || !(pubin)', '!(noout)', '!(check) || !(r < 0)', '!(check) || !(pctx == NULL)', '!(text) || !((pubin && EVP_PKEY_print_public(out, pkey, 0, NULL) <= 0) || (!pubin && EVP_PKEY_print_private(out, pkey, 0, NULL) <= 0))', '!(out == NULL)', '!(!EVP_PKEY_is_a(pkey, \"RSA\") && !EVP_PKEY_is_a(pkey, \"RSA-PSS\"))', '!(pkey == NULL)', '!(check && pubin)', '!(!app_passwd(passinarg, passoutarg, &passin, &passout))', '!(!opt_cipher(ciphername, &enc))', '!(!opt_check_rest_arg(NULL))', '!(!opt_provider(o))', '!(!opt_format(opt_arg(), OPT_FMT_ANY, &outformat))', '!(!opt_format(opt_arg(), OPT_FMT_ANY, &informat))']\n        Relevant conditions/variables: [], ectx\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "3c15a861-871e-459b-9905-91a32310264b",
+  "usage": {
+    "prompt_tokens": 463,
+    "completion_tokens": 235,
+    "total_tokens": 698,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 463
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare relevant variables\nectx = Int('ectx')  # encoder context pointer (modeled as integer)\n\n# The only constraint that references `ectx` is:\n#   '!(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)'\n# This asserts that the number of encoders in the context is NOT zero,\n# i.e., the encoder context must have at least one encoder registered.\n# We model OSSL_ENCODER_CTX_get_num_encoders(ectx) as an uninterpreted function.\nnum_encoders = Function('OSSL_ENCODER_CTX_get_num_encoders', IntSort(), IntSort())\n\ns = Solver()\n\n# Constraint: !(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)\n# i.e., num_encoders(ectx) != 0\ns.add(num_encoders(ectx) != 0)\n\n# Check satisfiability and print result\nprint(s.check())\nprint(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.3149845999996614,
+  "cost_upper_bound_cny": 0.002806
+}

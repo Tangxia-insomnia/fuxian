@@ -1,0 +1,201 @@
+```python
+group_type=Int('group_type')
+IPV6_ADDR_ANY=Int('IPV6_ADDR_ANY')
+mlh2=Int('mlh2')
+
+s.add(Or(group_type == IPV6_ADDR_ANY, True))
+s.add(mlh2 == 0)
+```
+```python
+group_type=Int('group_type')
+IPV6_ADDR_ANY=Int('IPV6_ADDR_ANY')
+mlh2=Int('mlh2')
+s.add(mlh2 == 0)
+s.add(Not(group_type == IPV6_ADDR_ANY))
+```
+```python
+group_type=Int('group_type')
+IPV6_ADDR_ANY=Int('IPV6_ADDR_ANY')
+mlh2=Int('mlh2')
+idev=Int('idev')
+ma=Int('ma')
+s.add(mlh2 == 0)
+s.add(Not(group_type == IPV6_ADDR_ANY))
+s.add(idev != 0)
+```
+```python
+# Additional constraints based on line-by-line simulation
+# At line 86: if(!(group_type == IPV6_ADDR_ANY)) - entering else branch
+# This means group_type != IPV6_ADDR_ANY
+s.add(Not(group_type == IPV6_ADDR_ANY))
+
+# At line 87: for_each_mc_mclock(idev, ma) - iterating multicast addresses
+# idev must be valid (non-NULL) to reach this point
+idev=Int('idev')
+s.add(idev != 0)
+
+# ma is the loop iterator over multicast addresses, must be valid
+ma=Int('ma')
+s.add(ma != 0)
+
+# mlh2 is NULL (assumed), so accessing mlh2->mld2q_nsrcs would be invalid
+# This is a potential NULL dereference in the else branch at:
+# mld_marksources(ma, ntohs(mlh2->mld2q_nsrcs), mlh2->mld2q_srcs)
+# Constraint: mlh2 remains NULL
+s.add(mlh2 == 0)
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Not, And, sat
+    
+    s = Solver()
+    
+    # Define all variables with consistent Int types
+    group_type = Int('group_type')
+    IPV6_ADDR_ANY = Int('IPV6_ADDR_ANY')
+    idev = Int('idev')
+    ma = Int('ma')
+    mlh2 = Int('mlh2')
+    
+    # Constraint: group_type != IPV6_ADDR_ANY (entering else branch)
+    s.add(Not(group_type == IPV6_ADDR_ANY))
+    
+    # Constraint: idev must be valid (non-NULL)
+    s.add(idev != 0)
+    
+    # Constraint: ma must be valid (non-NULL)
+    s.add(ma != 0)
+    
+    # Constraint: mlh2 is NULL (potential NULL dereference)
+    s.add(mlh2 == 0)
+    
+    # Check satisfiability
+    result = s.check()
+    return result == sat
+```
+dereference constraint: True
+```json
+["!(len >= MLD_V2_QUERY_LEN_MIN) || !(mlh2->mld2q_nsrcs != 0) || !(!pskb_may_pull(skb, srcs_offset + ntohs(mlh2->mld2q_nsrcs) * sizeof(struct in6_addr)))", "!(len >= MLD_V2_QUERY_LEN_MIN) || !(group_type == IPV6_ADDR_ANY)", "!(len >= MLD_V2_QUERY_LEN_MIN) || !(group_type == IPV6_ADDR_ANY) || !(mlh2->mld2q_nsrcs)", "!(len >= MLD_V2_QUERY_LEN_MIN) || !(!pskb_may_pull(skb, srcs_offset))"]
+```
+```python
+from z3 import *
+
+# Declare symbolic variables used in the constraints
+# len: length of the packet (integer)
+len_ = Int('len')
+# MLD_V2_QUERY_LEN_MIN: minimum length constant for MLDv2 query
+MLD_V2_QUERY_LEN_MIN = Int('MLD_V2_QUERY_LEN_MIN')
+# group_type: type of the multicast group address
+group_type = Int('group_type')
+# IPV6_ADDR_ANY: constant representing the "any" IPv6 address
+IPV6_ADDR_ANY = Int('IPV6_ADDR_ANY')
+# mlh2->mld2q_nsrcs: number of source addresses in the MLDv2 query
+mld2q_nsrcs = Int('mld2q_nsrcs')
+# pskb_may_pull: boolean predicate indicating whether the skb has enough data
+pskb_may_pull_srcs_offset = Bool('pskb_may_pull_srcs_offset')
+pskb_may_pull_srcs_offset_nsrcs = Bool('pskb_may_pull_srcs_offset_nsrcs')
+
+s = Solver()
+
+# Constraint 1:
+# !(len >= MLD_V2_QUERY_LEN_MIN) || !(mlh2->mld2q_nsrcs != 0) ||
+# !(!pskb_may_pull(skb, srcs_offset + ntohs(mlh2->mld2q_nsrcs) * sizeof(struct in6_addr)))
+# This constraint is included because it guards the branch that reads the source
+# address list from the MLDv2 query. It ensures that if the packet is long enough
+# and there are sources, the skb must have enough data to cover the source list.
+s.add(Or(
+    Not(len_ >= MLD_V2_QUERY_LEN_MIN),
+    Not(mld2q_nsrcs != 0),
+    Not(Not(pskb_may_pull_srcs_offset_nsrcs))
+))
+
+# Constraint 2:
+# !(len >= MLD_V2_QUERY_LEN_MIN) || !(group_type == IPV6_ADDR_ANY)
+# This constraint is included because it relates to the branch at line 86
+# (if(!(group_type == IPV6_ADDR_ANY))). It ensures that when the packet is long
+# enough, the group_type must not be IPV6_ADDR_ANY for the guarded code to run.
+s.add(Or(
+    Not(len_ >= MLD_V2_QUERY_LEN_MIN),
+    Not(group_type == IPV6_ADDR_ANY)
+))
+
+# Constraint 3:
+# !(len >= MLD_V2_QUERY_LEN_MIN) || !(group_type == IPV6_ADDR_ANY) || !(mlh2->mld2q_nsrcs)
+# This constraint is included because it further refines the branch at line 86:
+# when the packet is long enough and group_type is not IPV6_ADDR_ANY, the number
+# of sources must be zero for the guarded path to be taken.
+s.add(Or(
+    Not(len_ >= MLD_V2_QUERY_LEN_MIN),
+    Not(group_type == IPV6_ADDR_ANY),
+    Not(mld2q_nsrcs != 0)
+))
+
+# Constraint 4:
+# !(len >= MLD_V2_QUERY_LEN_MIN) || !(!pskb_may_pull(skb, srcs_offset))
+# This constraint is included because it guards the initial pskb_may_pull check
+# on srcs_offset. It ensures that if the packet is long enough, the skb must
+# have enough data to cover the source offset.
+s.add(Or(
+    Not(len_ >= MLD_V2_QUERY_LEN_MIN),
+    Not(Not(pskb_may_pull_srcs_offset))
+))
+
+# Check satisfiability of the constraints
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Not, Or, sat
+
+    # Variables from base script
+    group_type = Int('group_type')
+    IPV6_ADDR_ANY = Int('IPV6_ADDR_ANY')
+    mlh2 = Int('mlh2')
+
+    # Variables from constraint set 1
+    idev = Int('idev')
+    ma = Int('ma')
+
+    # Variables from constraint set 2
+    len_ = Int('len')
+    MLD_V2_QUERY_LEN_MIN = Int('MLD_V2_QUERY_LEN_MIN')
+    mld2q_nsrcs = Int('mld2q_nsrcs')
+    pskb_may_pull_srcs_offset = Bool('pskb_may_pull_srcs_offset')
+    pskb_may_pull_srcs_offset_nsrcs = Bool('pskb_may_pull_srcs_offset_nsrcs')
+
+    s = Solver()
+
+    # Base script constraints
+    s.add(Or(group_type == IPV6_ADDR_ANY, True))
+    s.add(mlh2 == 0)
+
+    # Constraint set 1
+    s.add(Not(group_type == IPV6_ADDR_ANY))
+    s.add(idev != 0)
+    s.add(ma != 0)
+    s.add(mlh2 == 0)
+
+    # Constraint set 2
+    s.add(Or(
+        Not(len_ >= MLD_V2_QUERY_LEN_MIN),
+        Not(mld2q_nsrcs != 0),
+        Not(Not(pskb_may_pull_srcs_offset_nsrcs))
+    ))
+    s.add(Or(
+        Not(len_ >= MLD_V2_QUERY_LEN_MIN),
+        Not(group_type == IPV6_ADDR_ANY)
+    ))
+    s.add(Or(
+        Not(len_ >= MLD_V2_QUERY_LEN_MIN),
+        Not(group_type == IPV6_ADDR_ANY),
+        Not(mld2q_nsrcs != 0)
+    ))
+    s.add(Or(
+        Not(len_ >= MLD_V2_QUERY_LEN_MIN),
+        Not(Not(pskb_may_pull_srcs_offset))
+    ))
+
+    result = s.check()
+    return result == sat
+```
+goto result: True

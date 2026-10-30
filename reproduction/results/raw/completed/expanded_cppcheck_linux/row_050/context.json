@@ -1,0 +1,48 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ps3_system_bus_probe",
+      "var_name": "drv",
+      "target": "if (drv->probe)",
+      "code": "static int ps3_system_bus_probe(struct device *_dev)\n{\n\tint result = 0;\n\tstruct ps3_system_bus_device *dev = ps3_dev_to_system_bus_dev(_dev);\n\tstruct ps3_system_bus_driver *drv;\n\n\tBUG_ON(!dev);\n\tdev_dbg(_dev, \"%s:%d\\n\", __func__, __LINE__);\n\n\tdrv = ps3_system_bus_dev_to_system_bus_drv(dev);\n\tBUG_ON(!drv);\n\n\tif (drv->probe)\n\t\tresult = drv->probe(dev);\n\telse\n\t\tpr_debug(\"%s:%d: %s no probe method\\n\", __func__, __LINE__,\n\t\t\tdev_name(&dev->core));\n\n\tpr_debug(\" <- %s:%d: %s\\n\", __func__, __LINE__, dev_name(&dev->core));\n\treturn result;\n}",
+      "body_sha256": "333ff6fec37496fc82a4fde3bdf07dc759c8749d5898b5f72cdcb2ad87068a9d",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (drv->probe)",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int ps3_system_bus_probe(struct device *_dev)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "drv ==0"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "dev ==0"
+            ]
+          }
+        ],
+        "filter_function_code": "static int ps3_system_bus_probe(struct device *_dev)\n{\n\tint result = 0;\n\tstruct ps3_system_bus_device *dev = ps3_dev_to_system_bus_dev(_dev);\n\tstruct ps3_system_bus_driver *drv;\n\n\tBUG_ON(!dev);\n\tdev_dbg(_dev, \"%s:%d\\n\", __func__, __LINE__);\n\n\tdrv = ps3_system_bus_dev_to_system_bus_drv(dev);\n\tBUG_ON(!drv);\n\n\tif (drv->probe)\n\t\tresult = drv->probe(dev);\n\telse\n\t\tpr_debug(\"%s:%d: %s no probe method\\n\", __func__, __LINE__,\n\t\t\tdev_name(&dev->core));\n\n\tpr_debug(\" <- %s:%d: %s\\n\", __func__, __LINE__, dev_name(&dev->core));\n\treturn result;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int ps3_system_bus_probe(struct device *_dev)\n{\n\tint result = 0;\n\tstruct ps3_system_bus_device *dev = ps3_dev_to_system_bus_dev(_dev);\n\tstruct ps3_system_bus_driver *drv;\n\n\tBUG_ON(!dev);\n\tdev_dbg(_dev, \"%s:%d\\n\", __func__, __LINE__);\n\n\tdrv = ps3_system_bus_dev_to_system_bus_drv(dev);\n\tBUG_ON(!drv);\n\n\tif (drv->probe)\n\t\tresult = drv->probe(dev);\n\telse\n\t\tpr_debug(\"%s:%d: %s no probe method\\n\", __func__, __LINE__,\n\t\t\tdev_name(&dev->core));\n\n\tpr_debug(\" <- %s:%d: %s\\n\", __func__, __LINE__, dev_name(&dev->core));\n\treturn result;\n}"
+  ]
+}

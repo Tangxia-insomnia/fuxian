@@ -1,0 +1,42 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "unescape",
+      "var_name": "p1",
+      "target": "*p1 = 0;",
+      "code": "static uint8_t *unescape(uint8_t *buf, int size)\n{\n    uint8_t *ret = av_malloc(size + 1);\n    uint8_t *p1  = ret, *p2 = buf;\n\n    if (!ret)\n        return NULL;\n\n    while (p2 < buf + size) {\n        if (*p2 == '\\\\')\n            p2++;\n        *p1++ = *p2++;\n    }\n    *p1 = 0;\n    return ret;\n}",
+      "body_sha256": "0dc1e0d6d9b5f75a4b11305f566d68aed5700904ad494891d30bfaa5bb54a2c2",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "*p1 = 0;",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static uint8_t *unescape(uint8_t *buf, int size)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "!ret"
+            ]
+          }
+        ],
+        "filter_function_code": "static uint8_t *unescape(uint8_t *buf, int size)\n{\n    uint8_t *ret = av_malloc(size + 1);\n    uint8_t *p1  = ret, *p2 = buf;\n\n    if (!ret)\n        return NULL;\n\n    while (p2 < buf + size) {\n        if (*p2 == '\\\\')\n            p2++;\n        *p1++ = *p2++;\n    }\n    *p1 = 0;\n    return ret;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static uint8_t *unescape(uint8_t *buf, int size)\n{\n    uint8_t *ret = av_malloc(size + 1);\n    uint8_t *p1  = ret, *p2 = buf;\n\n    if (!ret)\n        return NULL;\n\n    while (p2 < buf + size) {\n        if (*p2 == '\\\\')\n            p2++;\n        *p1++ = *p2++;\n    }\n    *p1 = 0;\n    return ret;\n}"
+  ]
+}

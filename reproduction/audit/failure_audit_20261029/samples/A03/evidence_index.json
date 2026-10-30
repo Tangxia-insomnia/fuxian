@@ -1,0 +1,53 @@
+{
+  "audit_id": "A03",
+  "sample_id": "NPD/codeql/libav:row=3:index=8",
+  "selection_reason": "误报保留；switch 分支与枚举关系",
+  "selection": "purposive diagnostic; not random and not representative",
+  "label": 0,
+  "prediction": "keep",
+  "status": "success",
+  "error": null,
+  "source_status": "No explicit source location/complete SARIF codeFlow in published row; raw function_list/assignment hints preserved, not invented",
+  "sink": {
+    "file_path": "libavcodec/aacdec.c",
+    "region": {
+      "startLine": 2866,
+      "startColumn": 35,
+      "endColumn": 38
+    },
+    "context": {
+      "startLine": 2864,
+      "endLine": 2868,
+      "snippet": {
+        "text": "err = decode_ics(ac, &che->ch[0], gb, 0, 0);"
+      }
+    }
+  },
+  "saved_context_exists": true,
+  "function_chain": [
+    "aac_decode_frame_int"
+  ],
+  "final_attempt_call_ids": [
+    419,
+    420,
+    421,
+    422
+  ],
+  "earlier_attempt_call_ids_not_reused": [],
+  "solver_evidence": [
+    {
+      "file": "solver_01.json",
+      "level": 0,
+      "ok": true,
+      "error": null,
+      "feasible": true,
+      "query_results": [
+        "sat"
+      ]
+    }
+  ],
+  "argument_parameter_mapping": [],
+  "duration_seconds": 4.94180039999992,
+  "cost_upper_bound_cny": 0.010111999999999899,
+  "missing_steps": []
+}

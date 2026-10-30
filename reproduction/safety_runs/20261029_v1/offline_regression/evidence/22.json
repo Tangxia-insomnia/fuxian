@@ -1,0 +1,216 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/libav:row=51:index=84",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "ast",
+    "function_name": "mv_read_header",
+    "location": {
+      "file_path": "libavformat/mvdec.c",
+      "region": {
+        "startLine": 378,
+        "startColumn": 28,
+        "endColumn": 31
+      },
+      "context": {
+        "startLine": 376,
+        "endLine": 380,
+        "snippet": {
+          "text": "read_index(pb, ast);"
+        }
+      }
+    },
+    "function_code": "static int mv_read_header(AVFormatContext *avctx)\n{\n    MvContext *mv = avctx->priv_data;\n    AVIOContext *pb = avctx->pb;\n    AVStream *ast = NULL, *vst = NULL;\n    int version, i;\n\n    avio_skip(pb, 4);\n\n    version = avio_rb16(pb);\n    if (version == 2) {\n        uint64_t timestamp;\n        int v;\n        avio_skip(pb, 22);\n\n        /* allocate audio track first to prevent unnecessary seeking\n         * (audio packet always precede video packet for a given frame) */\n        ast = avformat_new_stream(avctx, NULL);\n        if (!ast)\n            return AVERROR(ENOMEM);\n\n        vst = avformat_new_stream(avctx, NULL);\n        if (!vst)\n            return AVERROR(ENOMEM);\n        avpriv_set_pts_info(vst, 64, 1, 15);\n        vst->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;\n        vst->avg_frame_rate    = av_inv_q(vst->time_base);\n        vst->nb_frames         = avio_rb32(pb);\n        v = avio_rb32(pb);\n        switch (v) {\n        case 1:\n            vst->codecpar->codec_id = AV_CODEC_ID_MVC1;\n            break;\n        case 2:\n            vst->codecpar->format = AV_PIX_FMT_ARGB;\n            vst->codecpar->codec_id = AV_CODEC_ID_RAWVIDEO;\n            break;\n        default:\n            avpriv_request_sample(avctx, \"Video compression %i\", v);\n            break;\n        }\n        vst->codecpar->codec_tag = 0;\n        vst->codecpar->width     = avio_rb32(pb);\n        vst->codecpar->height    = avio_rb32(pb);\n        avio_skip(pb, 12);\n\n        ast->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;\n        ast->nb_frames          = vst->nb_frames;\n        ast->codecpar->sample_rate = avio_rb32(pb);\n        avpriv_set_pts_info(ast, 33, 1, ast->codecpar->sample_rate);\n        if (set_channels(avctx, ast, avio_rb32(pb)) < 0)\n            return AVERROR_INVALIDDATA;\n\n        v = avio_rb32(pb);\n        if (v == AUDIO_FORMAT_SIGNED) {\n            ast->codecpar->codec_id = AV_CODEC_ID_PCM_S16BE;\n        } else {\n            avpriv_request_sample(avctx, \"Audio compression (format %i)\", v);\n        }\n\n        avio_skip(pb, 12);\n        var_read_metadata(avctx, \"title\", 0x80);\n        var_read_metadata(avctx, \"comment\", 0x100);\n        avio_skip(pb, 0x80);\n\n        timestamp = 0;\n        for (i = 0; i < vst->nb_frames; i++) {\n            uint32_t pos   = avio_rb32(pb);\n            uint32_t asize = avio_rb32(pb);\n            uint32_t vsize = avio_rb32(pb);\n            avio_skip(pb, 8);\n            av_add_index_entry(ast, pos, timestamp, asize, 0, AVINDEX_KEYFRAME);\n            av_add_index_entry(vst, pos + asize, i, vsize, 0, AVINDEX_KEYFRAME);\n            timestamp += asize / (ast->codecpar->channels * 2);\n        }\n    } else if (!version && avio_rb16(pb) == 3) {\n        avio_skip(pb, 4);\n\n        read_table(avctx, NULL, parse_global_var);\n\n        if (mv->nb_audio_tracks > 1) {\n            avpriv_request_sample(avctx, \"Multiple audio streams support\");\n            return AVERROR_PATCHWELCOME;\n        } else if (mv->nb_audio_tracks) {\n            ast = avformat_new_stream(avctx, NULL);\n            if (!ast)\n                return AVERROR(ENOMEM);\n            ast->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;\n            read_table(avctx, ast, parse_audio_var);\n            if (mv->acompression == 100 &&\n                mv->aformat == AUDIO_FORMAT_SIGNED &&\n                ast->codecpar->bits_per_coded_sample == 16) {\n                ast->codecpar->codec_id = AV_CODEC_ID_PCM_S16BE;\n            } else {\n                avpriv_request_sample(avctx,\n                                      \"Audio compression %i (format %i, sr %i)\",\n                                      mv->acompression, mv->aformat,\n                                      ast->codecpar->bits_per_coded_sample);\n                ast->codecpar->codec_id = AV_CODEC_ID_NONE;\n            }\n            if (ast->codecpar->channels <= 0) {\n                av_log(avctx, AV_LOG_ERROR, \"No valid channel count found.\\n\");\n                return AVERROR_INVALIDDATA;\n            }\n        }\n\n        if (mv->nb_video_tracks > 1) {\n            avpriv_request_sample(avctx, \"Multiple video streams support\");\n            return AVERROR_PATCHWELCOME;\n        } else if (mv->nb_video_tracks) {\n            vst = avformat_new_stream(avctx, NULL);\n            if (!vst)\n                return AVERROR(ENOMEM);\n            vst->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;\n            read_table(avctx, vst, parse_video_var);\n        }\n\n        if (mv->nb_audio_tracks)\n            read_index(pb, ast);\n\n        if (mv->nb_video_tracks)\n            read_index(pb, vst);\n    } else {\n        avpriv_request_sample(avctx, \"Version %i\", version);\n        return AVERROR_PATCHWELCOME;\n    }\n\n    return 0;\n}",
+    "index": 84
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "mv_read_header",
+        "var_name": "ast",
+        "target": "read_index(pb, ast);",
+        "code": "static int mv_read_header(AVFormatContext *avctx)\n{\n    MvContext *mv = avctx->priv_data;\n    AVIOContext *pb = avctx->pb;\n    AVStream *ast = NULL, *vst = NULL;\n    int version, i;\n\n    avio_skip(pb, 4);\n\n    version = avio_rb16(pb);\n    if (version == 2) {\n        uint64_t timestamp;\n        int v;\n        avio_skip(pb, 22);\n\n        /* allocate audio track first to prevent unnecessary seeking\n         * (audio packet always precede video packet for a given frame) */\n        ast = avformat_new_stream(avctx, NULL);\n        if (!ast)\n            return AVERROR(ENOMEM);\n\n        vst = avformat_new_stream(avctx, NULL);\n        if (!vst)\n            return AVERROR(ENOMEM);\n        avpriv_set_pts_info(vst, 64, 1, 15);\n        vst->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;\n        vst->avg_frame_rate    = av_inv_q(vst->time_base);\n        vst->nb_frames         = avio_rb32(pb);\n        v = avio_rb32(pb);\n        switch (v) {\n        case 1:\n            vst->codecpar->codec_id = AV_CODEC_ID_MVC1;\n            break;\n        case 2:\n            vst->codecpar->format = AV_PIX_FMT_ARGB;\n            vst->codecpar->codec_id = AV_CODEC_ID_RAWVIDEO;\n            break;\n        default:\n            avpriv_request_sample(avctx, \"Video compression %i\", v);\n            break;\n        }\n        vst->codecpar->codec_tag = 0;\n        vst->codecpar->width     = avio_rb32(pb);\n        vst->codecpar->height    = avio_rb32(pb);\n        avio_skip(pb, 12);\n\n        ast->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;\n        ast->nb_frames          = vst->nb_frames;\n        ast->codecpar->sample_rate = avio_rb32(pb);\n        avpriv_set_pts_info(ast, 33, 1, ast->codecpar->sample_rate);\n        if (set_channels(avctx, ast, avio_rb32(pb)) < 0)\n            return AVERROR_INVALIDDATA;\n\n        v = avio_rb32(pb);\n        if (v == AUDIO_FORMAT_SIGNED) {\n            ast->codecpar->codec_id = AV_CODEC_ID_PCM_S16BE;\n        } else {\n            avpriv_request_sample(avctx, \"Audio compression (format %i)\", v);\n        }\n\n        avio_skip(pb, 12);\n        var_read_metadata(avctx, \"title\", 0x80);\n        var_read_metadata(avctx, \"comment\", 0x100);\n        avio_skip(pb, 0x80);\n\n        timestamp = 0;\n        for (i = 0; i < vst->nb_frames; i++) {\n            uint32_t pos   = avio_rb32(pb);\n            uint32_t asize = avio_rb32(pb);\n            uint32_t vsize = avio_rb32(pb);\n            avio_skip(pb, 8);\n            av_add_index_entry(ast, pos, timestamp, asize, 0, AVINDEX_KEYFRAME);\n            av_add_index_entry(vst, pos + asize, i, vsize, 0, AVINDEX_KEYFRAME);\n            timestamp += asize / (ast->codecpar->channels * 2);\n        }\n    } else if (!version && avio_rb16(pb) == 3) {\n        avio_skip(pb, 4);\n\n        read_table(avctx, NULL, parse_global_var);\n\n        if (mv->nb_audio_tracks > 1) {\n            avpriv_request_sample(avctx, \"Multiple audio streams support\");\n            return AVERROR_PATCHWELCOME;\n        } else if (mv->nb_audio_tracks) {\n            ast = avformat_new_stream(avctx, NULL);\n            if (!ast)\n                return AVERROR(ENOMEM);\n            ast->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;\n            read_table(avctx, ast, parse_audio_var);\n            if (mv->acompression == 100 &&\n                mv->aformat == AUDIO_FORMAT_SIGNED &&\n                ast->codecpar->bits_per_coded_sample == 16) {\n                ast->codecpar->codec_id = AV_CODEC_ID_PCM_S16BE;\n            } else {\n                avpriv_request_sample(avctx,\n                                      \"Audio compression %i (format %i, sr %i)\",\n                                      mv->acompression, mv->aformat,\n                                      ast->codecpar->bits_per_coded_sample);\n                ast->codecpar->codec_id = AV_CODEC_ID_NONE;\n            }\n            if (ast->codecpar->channels <= 0) {\n                av_log(avctx, AV_LOG_ERROR, \"No valid channel count found.\\n\");\n                return AVERROR_INVALIDDATA;\n            }\n        }\n\n        if (mv->nb_video_tracks > 1) {\n            avpriv_request_sample(avctx, \"Multiple video streams support\");\n            return AVERROR_PATCHWELCOME;\n        } else if (mv->nb_video_tracks) {\n            vst = avformat_new_stream(avctx, NULL);\n            if (!vst)\n                return AVERROR(ENOMEM);\n            vst->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;\n            read_table(avctx, vst, parse_video_var);\n        }\n\n        if (mv->nb_audio_tracks)\n            read_index(pb, ast);\n\n        if (mv->nb_video_tracks)\n            read_index(pb, vst);\n    } else {\n        avpriv_request_sample(avctx, \"Version %i\", version);\n        return AVERROR_PATCHWELCOME;\n    }\n\n    return 0;\n}",
+        "body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "read_index(pb, ast);",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static int mv_read_header(AVFormatContext *avctx)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": [
+                "!version && avio_rb16(pb) == 3",
+                "mv->nb_video_tracks",
+                "!vst"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "!version && avio_rb16(pb) == 3",
+                "mv->nb_video_tracks > 1"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "!version && avio_rb16(pb) == 3",
+                "mv->nb_audio_tracks",
+                "ast->codecpar->channels <= 0"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "!version && avio_rb16(pb) == 3",
+                "mv->nb_audio_tracks",
+                "!ast"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "!version && avio_rb16(pb) == 3",
+                "mv->nb_audio_tracks > 1"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "version == 2",
+                "set_channels(avctx, ast, avio_rb32(pb)) < 0"
+              ]
+            },
+            {
+              "text": "break",
+              "condition": [
+                "version == 2"
+              ]
+            },
+            {
+              "text": "break",
+              "condition": [
+                "version == 2"
+              ]
+            },
+            {
+              "text": "break",
+              "condition": [
+                "version == 2"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "version == 2",
+                "!vst"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "version == 2",
+                "!ast"
+              ]
+            }
+          ],
+          "filter_function_code": "static int mv_read_header(AVFormatContext *avctx)\n{\n    MvContext *mv = avctx->priv_data;\n    AVIOContext *pb = avctx->pb;\n    AVStream *ast = NULL, *vst = NULL;\n    int version, i;\n\n    avio_skip(pb, 4);\n\n    version = avio_rb16(pb);\n    if (version == 2) {\n        uint64_t timestamp;\n        int v;\n        avio_skip(pb, 22);\n\n        /* allocate audio track first to prevent unnecessary seeking\n         * (audio packet always precede video packet for a given frame) */\n        ast = avformat_new_stream(avctx, NULL);\n        if (!ast)\n            return AVERROR(ENOMEM);\n\n        vst = avformat_new_stream(avctx, NULL);\n        if (!vst)\n            return AVERROR(ENOMEM);\n        avpriv_set_pts_info(vst, 64, 1, 15);\n        vst->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;\n        vst->avg_frame_rate    = av_inv_q(vst->time_base);\n        vst->nb_frames         = avio_rb32(pb);\n        v = avio_rb32(pb);\n        switch (v) {\n        case 1:\n            vst->codecpar->codec_id = AV_CODEC_ID_MVC1;\n            break;\n        case 2:\n            vst->codecpar->format = AV_PIX_FMT_ARGB;\n            vst->codecpar->codec_id = AV_CODEC_ID_RAWVIDEO;\n            break;\n        default:\n            avpriv_request_sample(avctx, \"Video compression %i\", v);\n            break;\n        }\n        vst->codecpar->codec_tag = 0;\n        vst->codecpar->width     = avio_rb32(pb);\n        vst->codecpar->height    = avio_rb32(pb);\n        avio_skip(pb, 12);\n\n        ast->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;\n        ast->nb_frames          = vst->nb_frames;\n        ast->codecpar->sample_rate = avio_rb32(pb);\n        avpriv_set_pts_info(ast, 33, 1, ast->codecpar->sample_rate);\n        if (set_channels(avctx, ast, avio_rb32(pb)) < 0)\n            return AVERROR_INVALIDDATA;\n\n        v = avio_rb32(pb);\n        if (v == AUDIO_FORMAT_SIGNED) {\n            ast->codecpar->codec_id = AV_CODEC_ID_PCM_S16BE;\n        } else {\n            avpriv_request_sample(avctx, \"Audio compression (format %i)\", v);\n        }\n\n        avio_skip(pb, 12);\n        var_read_metadata(avctx, \"title\", 0x80);\n        var_read_metadata(avctx, \"comment\", 0x100);\n        avio_skip(pb, 0x80);\n\n        timestamp = 0;\n        for (i = 0; i < vst->nb_frames; i++) {\n            uint32_t pos   = avio_rb32(pb);\n            uint32_t asize = avio_rb32(pb);\n            uint32_t vsize = avio_rb32(pb);\n            avio_skip(pb, 8);\n            av_add_index_entry(ast, pos, timestamp, asize, 0, AVINDEX_KEYFRAME);\n            av_add_index_entry(vst, pos + asize, i, vsize, 0, AVINDEX_KEYFRAME);\n            timestamp += asize / (ast->codecpar->channels * 2);\n        }\n    } else if (!version && avio_rb16(pb) == 3) {\n        avio_skip(pb, 4);\n\n        read_table(avctx, NULL, parse_global_var);\n\n        if (mv->nb_audio_tracks > 1) {\n            avpriv_request_sample(avctx, \"Multiple audio streams support\");\n            return AVERROR_PATCHWELCOME;\n        } else if (mv->nb_audio_tracks) {\n            ast = avformat_new_stream(avctx, NULL);\n            if (!ast)\n                return AVERROR(ENOMEM);\n            ast->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;\n            read_table(avctx, ast, parse_audio_var);\n            if (mv->acompression == 100 &&\n                mv->aformat == AUDIO_FORMAT_SIGNED &&\n                ast->codecpar->bits_per_coded_sample == 16) {\n                ast->codecpar->codec_id = AV_CODEC_ID_PCM_S16BE;\n            } else {\n                avpriv_request_sample(avctx,\n                                      \"Audio compression %i (format %i, sr %i)\",\n                                      mv->acompression, mv->aformat,\n                                      ast->codecpar->bits_per_coded_sample);\n                ast->codecpar->codec_id = AV_CODEC_ID_NONE;\n            }\n            if (ast->codecpar->channels <= 0) {\n                av_log(avctx, AV_LOG_ERROR, \"No valid channel count found.\\n\");\n                return AVERROR_INVALIDDATA;\n            }\n        }\n\n        if (mv->nb_video_tracks > 1) {\n            avpriv_request_sample(avctx, \"Multiple video streams support\");\n            return AVERROR_PATCHWELCOME;\n        } else if (mv->nb_video_tracks) {\n            vst = avformat_new_stream(avctx, NULL);\n            if (!vst)\n                return AVERROR(ENOMEM);\n            vst->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;\n            read_table(avctx, vst, parse_video_var);\n        }\n\n        if (mv->nb_audio_tracks)\n            read_index(pb, ast);\n\n        if (mv->nb_video_tracks)\n            read_index(pb, vst);\n    } else {\n        avpriv_request_sample(avctx, \"Version %i\", version);\n        return AVERROR_PATCHWELCOME;\n    }\n\n    return 0;\n}"
+        }
+      },
+      {
+        "level": 1,
+        "function": "read_index",
+        "var_name": "st",
+        "target": "    for (i = 0; i < st->nb_frames; i++) {",
+        "code": "static void read_index(AVIOContext *pb, AVStream *st)\n{\n    uint64_t timestamp = 0;\n    int i;\n    for (i = 0; i < st->nb_frames; i++) {\n        uint32_t pos  = avio_rb32(pb);\n        uint32_t size = avio_rb32(pb);\n        avio_skip(pb, 8);\n        av_add_index_entry(st, pos, timestamp, size, 0, AVINDEX_KEYFRAME);\n        if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {\n            timestamp += size / (st->codecpar->channels * 2);\n        } else {\n            timestamp++;\n        }\n    }\n}",
+        "body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "    for (i = 0; i < st->nb_frames; i++) {",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static void read_index(AVIOContext *pb, AVStream *st)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [],
+          "filter_function_code": "static void read_index(AVIOContext *pb, AVStream *st)\n{\n    uint64_t timestamp = 0;\n    int i;\n    for (i = 0; i < st->nb_frames; i++) {\n        uint32_t pos  = avio_rb32(pb);\n        uint32_t size = avio_rb32(pb);\n        avio_skip(pb, 8);\n        av_add_index_entry(st, pos, timestamp, size, 0, AVINDEX_KEYFRAME);\n        if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {\n            timestamp += size / (st->codecpar->channels * 2);\n        } else {\n            timestamp++;\n        }\n    }\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static int mv_read_header(AVFormatContext *avctx)\n{\n    MvContext *mv = avctx->priv_data;\n    AVIOContext *pb = avctx->pb;\n    AVStream *ast = NULL, *vst = NULL;\n    int version, i;\n\n    avio_skip(pb, 4);\n\n    version = avio_rb16(pb);\n    if (version == 2) {\n        uint64_t timestamp;\n        int v;\n        avio_skip(pb, 22);\n\n        /* allocate audio track first to prevent unnecessary seeking\n         * (audio packet always precede video packet for a given frame) */\n        ast = avformat_new_stream(avctx, NULL);\n        if (!ast)\n            return AVERROR(ENOMEM);\n\n        vst = avformat_new_stream(avctx, NULL);\n        if (!vst)\n            return AVERROR(ENOMEM);\n        avpriv_set_pts_info(vst, 64, 1, 15);\n        vst->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;\n        vst->avg_frame_rate    = av_inv_q(vst->time_base);\n        vst->nb_frames         = avio_rb32(pb);\n        v = avio_rb32(pb);\n        switch (v) {\n        case 1:\n            vst->codecpar->codec_id = AV_CODEC_ID_MVC1;\n            break;\n        case 2:\n            vst->codecpar->format = AV_PIX_FMT_ARGB;\n            vst->codecpar->codec_id = AV_CODEC_ID_RAWVIDEO;\n            break;\n        default:\n            avpriv_request_sample(avctx, \"Video compression %i\", v);\n            break;\n        }\n        vst->codecpar->codec_tag = 0;\n        vst->codecpar->width     = avio_rb32(pb);\n        vst->codecpar->height    = avio_rb32(pb);\n        avio_skip(pb, 12);\n\n        ast->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;\n        ast->nb_frames          = vst->nb_frames;\n        ast->codecpar->sample_rate = avio_rb32(pb);\n        avpriv_set_pts_info(ast, 33, 1, ast->codecpar->sample_rate);\n        if (set_channels(avctx, ast, avio_rb32(pb)) < 0)\n            return AVERROR_INVALIDDATA;\n\n        v = avio_rb32(pb);\n        if (v == AUDIO_FORMAT_SIGNED) {\n            ast->codecpar->codec_id = AV_CODEC_ID_PCM_S16BE;\n        } else {\n            avpriv_request_sample(avctx, \"Audio compression (format %i)\", v);\n        }\n\n        avio_skip(pb, 12);\n        var_read_metadata(avctx, \"title\", 0x80);\n        var_read_metadata(avctx, \"comment\", 0x100);\n        avio_skip(pb, 0x80);\n\n        timestamp = 0;\n        for (i = 0; i < vst->nb_frames; i++) {\n            uint32_t pos   = avio_rb32(pb);\n            uint32_t asize = avio_rb32(pb);\n            uint32_t vsize = avio_rb32(pb);\n            avio_skip(pb, 8);\n            av_add_index_entry(ast, pos, timestamp, asize, 0, AVINDEX_KEYFRAME);\n            av_add_index_entry(vst, pos + asize, i, vsize, 0, AVINDEX_KEYFRAME);\n            timestamp += asize / (ast->codecpar->channels * 2);\n        }\n    } else if (!version && avio_rb16(pb) == 3) {\n        avio_skip(pb, 4);\n\n        read_table(avctx, NULL, parse_global_var);\n\n        if (mv->nb_audio_tracks > 1) {\n            avpriv_request_sample(avctx, \"Multiple audio streams support\");\n            return AVERROR_PATCHWELCOME;\n        } else if (mv->nb_audio_tracks) {\n            ast = avformat_new_stream(avctx, NULL);\n            if (!ast)\n                return AVERROR(ENOMEM);\n            ast->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;\n            read_table(avctx, ast, parse_audio_var);\n            if (mv->acompression == 100 &&\n                mv->aformat == AUDIO_FORMAT_SIGNED &&\n                ast->codecpar->bits_per_coded_sample == 16) {\n                ast->codecpar->codec_id = AV_CODEC_ID_PCM_S16BE;\n            } else {\n                avpriv_request_sample(avctx,\n                                      \"Audio compression %i (format %i, sr %i)\",\n                                      mv->acompression, mv->aformat,\n                                      ast->codecpar->bits_per_coded_sample);\n                ast->codecpar->codec_id = AV_CODEC_ID_NONE;\n            }\n            if (ast->codecpar->channels <= 0) {\n                av_log(avctx, AV_LOG_ERROR, \"No valid channel count found.\\n\");\n                return AVERROR_INVALIDDATA;\n            }\n        }\n\n        if (mv->nb_video_tracks > 1) {\n            avpriv_request_sample(avctx, \"Multiple video streams support\");\n            return AVERROR_PATCHWELCOME;\n        } else if (mv->nb_video_tracks) {\n            vst = avformat_new_stream(avctx, NULL);\n            if (!vst)\n                return AVERROR(ENOMEM);\n            vst->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;\n            read_table(avctx, vst, parse_video_var);\n        }\n\n        if (mv->nb_audio_tracks)\n            read_index(pb, ast);\n\n        if (mv->nb_video_tracks)\n            read_index(pb, vst);\n    } else {\n        avpriv_request_sample(avctx, \"Version %i\", version);\n        return AVERROR_PATCHWELCOME;\n    }\n\n    return 0;\n}",
+      "static void read_index(AVIOContext *pb, AVStream *st)\n{\n    uint64_t timestamp = 0;\n    int i;\n    for (i = 0; i < st->nb_frames; i++) {\n        uint32_t pos  = avio_rb32(pb);\n        uint32_t size = avio_rb32(pb);\n        avio_skip(pb, 8);\n        av_add_index_entry(st, pos, timestamp, size, 0, AVINDEX_KEYFRAME);\n        if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {\n            timestamp += size / (st->codecpar->channels * 2);\n        } else {\n            timestamp++;\n        }\n    }\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nast=Int('ast')\ns.add(ast == 0)\n```",
+      "response_filter_goto: ```json\n[\n  \"!(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(ast->codecpar->channels <= 0)\",\n  \"!(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(!ast)\",\n  \"!(version == 2) || !(set_channels(avctx, ast, avio_rb32(pb)) < 0)\",\n  \"!(version == 2) || !(!ast)\"\n]\n```",
+      "z3 script: ```python\nfrom z3 import *\n\n# Declare variables used in the constraints\n# 'ast' is a pointer-like variable; model as an integer (0 = NULL, non-zero = valid)\nast = Int('ast')\n\n# 'version' is an integer compared against 2\nversion = Int('version')\n\n# 'avio_rb16(pb)' is a function call returning a 16-bit value; model as an uninterpreted int\navio_rb16_pb = Int('avio_rb16_pb')\n\n# 'mv->nb_audio_tracks' is an integer field\nmv_nb_audio_tracks = Int('mv_nb_audio_tracks')\n\n# 'ast->codecpar->channels' is an integer field\nast_codecpar_channels = Int('ast_codecpar_channels')\n\n# 'set_channels(avctx, ast, avio_rb32(pb))' returns an int; model as uninterpreted\nset_channels_ret = Int('set_channels_ret')\n\n# 'avio_rb32(pb)' is a function call returning a 32-bit value; model as uninterpreted int\navio_rb32_pb = Int('avio_rb32_pb')\n\ns = Solver()\n\n# Constraint 1: !(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(ast->codecpar->channels <= 0)\n# Included because it references 'ast' (via ast->codecpar->channels) and constrains its behavior.\n# C semantics: !(x) means x == 0; !(a && b) means !(a && b); !(c <= 0) means c > 0.\ns.add(Or(\n    Not(And(version == 0, avio_rb16_pb == 3)),\n    mv_nb_audio_tracks == 0,\n    Not(ast_codecpar_channels <= 0)\n))\n\n# Constraint 2: !(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(!ast)\n# Included because it directly references 'ast' (as a pointer null-check).\n# !(!ast) means ast != 0 (i.e., ast is non-null).\ns.add(Or(\n    Not(And(version == 0, avio_rb16_pb == 3)),\n    mv_nb_audio_tracks == 0,\n    Not(ast == 0)\n))\n\n# Constraint 3: !(version == 2) || !(set_channels(avctx, ast, avio_rb32(pb)) < 0)\n# Included because it references 'ast' as an argument to set_channels.\n# !(version == 2) means version != 2; !(ret < 0) means ret >= 0.\ns.add(Or(\n    version != 2,\n    Not(set_channels_ret < 0)\n))\n\n# Constraint 4: !(version == 2) || !(!ast)\n# Included because it directly references 'ast' (null-check).\n# !(!ast) means ast != 0.\ns.add(Or(\n    version != 2,\n    Not(ast == 0)\n))\n\n# Check satisfiability and print result\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```",
+      "final z3 script: def check_constraints():\n    from z3 import Int, Solver, Or, Not, And, sat\n\n    ast = Int('ast')\n    version = Int('version')\n    avio_rb16_pb = Int('avio_rb16_pb')\n    mv_nb_audio_tracks = Int('mv_nb_audio_tracks')\n    ast_codecpar_channels = Int('ast_codecpar_channels')\n    set_channels_ret = Int('set_channels_ret')\n    avio_rb32_pb = Int('avio_rb32_pb')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(ast == 0)\n\n    # Constraint 1\n    s.add(Or(\n        Not(And(version == 0, avio_rb16_pb == 3)),\n        mv_nb_audio_tracks == 0,\n        Not(ast_codecpar_channels <= 0)\n    ))\n\n    # Constraint 2\n    s.add(Or(\n        Not(And(version == 0, avio_rb16_pb == 3)),\n        mv_nb_audio_tracks == 0,\n        Not(ast == 0)\n    ))\n\n    # Constraint 3\n    s.add(Or(\n        version != 2,\n        Not(set_channels_ret < 0)\n    ))\n\n    # Constraint 4\n    s.add(Or(\n        version != 2,\n        Not(ast == 0)\n    ))\n\n    return s.check() == sat",
+      "step 1 z3 script: ```python\nst=Int('st')\ns.add(st == 0)\n```"
+    ],
+    "function_name_list": [
+      "read_index"
+    ],
+    "function_body_list": [
+      "static void read_index(AVIOContext *pb, AVStream *st)\n{\n    uint64_t timestamp = 0;\n    int i;\n    for (i = 0; i < st->nb_frames; i++) {\n        uint32_t pos  = avio_rb32(pb);\n        uint32_t size = avio_rb32(pb);\n        avio_skip(pb, 8);\n        av_add_index_entry(st, pos, timestamp, size, 0, AVINDEX_KEYFRAME);\n        if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {\n            timestamp += size / (st->codecpar->channels * 2);\n        } else {\n            timestamp++;\n        }\n    }\n}"
+    ],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, Or, Not, And, sat\n\n    ast = Int('ast')\n    version = Int('version')\n    avio_rb16_pb = Int('avio_rb16_pb')\n    mv_nb_audio_tracks = Int('mv_nb_audio_tracks')\n    ast_codecpar_channels = Int('ast_codecpar_channels')\n    set_channels_ret = Int('set_channels_ret')\n    avio_rb32_pb = Int('avio_rb32_pb')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(ast == 0)\n\n    # Constraint 1\n    s.add(Or(\n        Not(And(version == 0, avio_rb16_pb == 3)),\n        mv_nb_audio_tracks == 0,\n        Not(ast_codecpar_channels <= 0)\n    ))\n\n    # Constraint 2\n    s.add(Or(\n        Not(And(version == 0, avio_rb16_pb == 3)),\n        mv_nb_audio_tracks == 0,\n        Not(ast == 0)\n    ))\n\n    # Constraint 3\n    s.add(Or(\n        version != 2,\n        Not(set_channels_ret < 0)\n    ))\n\n    # Constraint 4\n    s.add(Or(\n        version != 2,\n        Not(ast == 0)\n    ))\n\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ast () Int)\n(declare-fun ast_codecpar_channels () Int)\n(declare-fun mv_nb_audio_tracks () Int)\n(declare-fun avio_rb16_pb () Int)\n(declare-fun version () Int)\n(declare-fun set_channels_ret () Int)\n(assert\n (= ast 0))\n(assert\n (let (($x36 (= mv_nb_audio_tracks 0)))\n (let (($x35 (not (and (= version 0) (= avio_rb16_pb 3)))))\n (or $x35 $x36 (not (<= ast_codecpar_channels 0))))))\n(assert\n (let (($x13 (= ast 0)))\n (let (($x40 (not $x13)))\n (let (($x36 (= mv_nb_audio_tracks 0)))\n (let (($x35 (not (and (= version 0) (= avio_rb16_pb 3)))))\n (or $x35 $x36 $x40))))))\n(assert\n (let (($x43 (and (distinct version 2) true)))\n (or $x43 (not (< set_channels_ret 0)))))\n(assert\n (let (($x13 (= ast 0)))\n(let (($x40 (not $x13)))\n(let (($x43 (and (distinct version 2) true)))\n(or $x43 $x40)))))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    {
+      "event_id": 2,
+      "level": 1,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    st = Int('st')\n    s = Solver()\n    s.add(st == 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun st () Int)\n(assert\n (= st 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

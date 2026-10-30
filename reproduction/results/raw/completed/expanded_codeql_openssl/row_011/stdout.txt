@@ -1,0 +1,49 @@
+```python
+rcms=Int('rcms')
+s.add(rcms == 0)
+```
+```json
+["!(rctfile != NULL) || !(rcms == NULL)"]
+```
+```python
+# Z3 script generated from C constraints
+# Relevant variables: rcms (and rctfile, which appears in the constraint)
+
+from z3 import *
+
+# Declare pointer-like variables as integers (0 = NULL, non-zero = valid pointer)
+rctfile = Int('rctfile')
+rcms = Int('rcms')
+
+s = Solver()
+
+# Constraint: !(rctfile != NULL) || !(rcms == NULL)
+# In C: this is equivalent to (rctfile == NULL) || (rcms != NULL)
+# Included because it directly references rcms (and rctfile).
+# C-style translation:
+#   !(rctfile != NULL)  ->  rctfile == 0
+#   !(rcms == NULL)     ->  rcms != 0
+s.add(Or(rctfile == 0, rcms != 0))
+
+# Check satisfiability
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or
+    
+    rcms = Int('rcms')
+    rctfile = Int('rctfile')
+    
+    s = Solver()
+    
+    # Base script constraints
+    s.add(rcms == 0)
+    
+    # Constraint set 2 constraints
+    s.add(Or(rctfile == 0, rcms != 0))
+    
+    return s.check() == sat
+```
+goto result: True

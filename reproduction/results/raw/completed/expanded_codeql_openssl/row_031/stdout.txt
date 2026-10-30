@@ -1,0 +1,105 @@
+```python
+req=Int('req')
+s.add(req == 0)
+```
+```json
+["!(req != NULL && add_nonce) || !(!OCSP_request_add1_nonce(req, NULL, -1))", "!(req == NULL && (signfile != NULL || reqout != NULL || host != NULL || add_nonce || ridx_filename != NULL))", "!(req == NULL)", "!(req == NULL && reqin != NULL) || !(req == NULL)", "!(req == NULL && reqin != NULL) || !(derbio == NULL)", "!(req == NULL && reqin == NULL && respin == NULL && !(port != NULL && ridx_filename != NULL))"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# req: pointer (modeled as Int; 0 means NULL, non-zero means non-NULL)
+req = Int('req')
+
+# Other variables referenced in constraints (modeled as booleans for pointer non-NULL checks)
+add_nonce = Bool('add_nonce')
+signfile = Bool('signfile')
+reqout = Bool('reqout')
+host = Bool('host')
+ridx_filename = Bool('ridx_filename')
+reqin = Bool('reqin')
+derbio = Bool('derbio')
+respin = Bool('respin')
+port = Bool('port')
+
+# Helper: OCSP_request_add1_nonce(req, NULL, -1) return value
+# Modeled as an uninterpreted boolean (true = success/non-zero)
+ocsp_add1_nonce_ok = Bool('ocsp_add1_nonce_ok')
+
+s = Solver()
+
+# Constraint 1: !(req != NULL && add_nonce) || !(!OCSP_request_add1_nonce(req, NULL, -1))
+# Included because it directly references req and add_nonce.
+# C: !(req != NULL && add_nonce) || OCSP_request_add1_nonce(req, NULL, -1)
+s.add(Or(Not(And(req != 0, add_nonce)), ocsp_add1_nonce_ok))
+
+# Constraint 2: !(req == NULL && (signfile != NULL || reqout != NULL || host != NULL || add_nonce || ridx_filename != NULL))
+# Included because it references req (and add_nonce).
+# C: !(req == NULL && (signfile || reqout || host || add_nonce || ridx_filename))
+s.add(Not(And(req == 0,
+              Or(signfile, reqout, host, add_nonce, ridx_filename))))
+
+# Constraint 3: !(req == NULL)
+# Included because it directly references req.
+# C: req != NULL
+s.add(req != 0)
+
+# Constraint 4: !(req == NULL && reqin != NULL) || !(req == NULL)
+# Included because it references req and reqin.
+# C: !(req == NULL && reqin) || req != NULL
+s.add(Or(Not(And(req == 0, reqin)), req != 0))
+
+# Constraint 5: !(req == NULL && reqin != NULL) || !(derbio == NULL)
+# Included because it references req and reqin.
+# C: !(req == NULL && reqin) || derbio != NULL
+s.add(Or(Not(And(req == 0, reqin)), derbio))
+
+# Constraint 6: !(req == NULL && reqin == NULL && respin == NULL && !(port != NULL && ridx_filename != NULL))
+# Included because it references req (and reqin, respin, port, ridx_filename).
+# C: !(req == NULL && reqin == NULL && respin == NULL && !(port && ridx_filename))
+s.add(Not(And(req == 0, Not(reqin), Not(respin),
+              Not(And(port, ridx_filename)))))
+
+# Check satisfiability
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, And, sat
+
+    # Base script variable
+    req = Int('req')
+
+    # Variables from constraint set 2
+    add_nonce = Bool('add_nonce')
+    signfile = Bool('signfile')
+    reqout = Bool('reqout')
+    host = Bool('host')
+    ridx_filename = Bool('ridx_filename')
+    reqin = Bool('reqin')
+    derbio = Bool('derbio')
+    respin = Bool('respin')
+    port = Bool('port')
+    ocsp_add1_nonce_ok = Bool('ocsp_add1_nonce_ok')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(req == 0)
+
+    # Constraint set 2 constraints
+    s.add(Or(Not(And(req != 0, add_nonce)), ocsp_add1_nonce_ok))
+    s.add(Not(And(req == 0,
+                  Or(signfile, reqout, host, add_nonce, ridx_filename))))
+    s.add(req != 0)
+    s.add(Or(Not(And(req == 0, reqin)), req != 0))
+    s.add(Or(Not(And(req == 0, reqin)), derbio))
+    s.add(Not(And(req == 0, Not(reqin), Not(respin),
+                  Not(And(port, ridx_filename)))))
+
+    return s.check() == sat
+```
+goto result: False

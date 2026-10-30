@@ -1,0 +1,45 @@
+{
+  "call_id": 89,
+  "sample_id": "NPD/codeql/kernel69:row=16:index=34",
+  "timestamp": "2026-10-26T00:29:53.951256+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int inet6_validate_link_af(const struct net_device *dev,\n\t\t\t\t  const struct nlattr *nla,\n\t\t\t\t  struct netlink_ext_ack *extack)\n{\n\tstruct nlattr *tb[IFLA_INET6_MAX + 1];\n\tstruct inet6_dev *idev = NULL;\n\tint err;\n\n\tif (dev) {\n\t\tidev = __in6_dev_get(dev);\n\t\tif (!idev)\n\t\t\treturn -EAFNOSUPPORT;\n\t}\n\n\terr = nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla,\n\t\t\t\t\t  inet6_af_policy, extack);\n\tif (err)\n\t\treturn err;\n\n\tif (!tb[IFLA_INET6_TOKEN] && !tb[IFLA_INET6_ADDR_GEN_MODE])\n\t\treturn -EINVAL;\n\n\tif (tb[IFLA_INET6_ADDR_GEN_MODE]) {\n\t\tu8 mode = nla_get_u8(tb[IFLA_INET6_ADDR_GEN_MODE]);\n\n\t\tif (check_addr_gen_mode(mode) < 0)\n\t\t\treturn -EINVAL;\n\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)\n\t\t\treturn -EINVAL;\n\t}\n\n\treturn 0;\n}\n        - Target variables: [{'condition': 'if (tb[IFLA_INET6_ADDR_GEN_MODE])', 'line_number': 22}, {'condition': 'if (dev)', 'line_number': 27}], idev\n        - Constraints: ['!(tb[IFLA_INET6_ADDR_GEN_MODE]) || !(check_addr_gen_mode(mode) < 0)', '!(!tb[IFLA_INET6_TOKEN] && !tb[IFLA_INET6_ADDR_GEN_MODE])', '!(err)', '!(dev) || !(!idev)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "8eab7cca-078e-4c82-bc7e-3caef790792c",
+  "usage": {
+    "prompt_tokens": 487,
+    "completion_tokens": 45,
+    "total_tokens": 532,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 487
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(tb[IFLA_INET6_ADDR_GEN_MODE]) || !(check_addr_gen_mode(mode) < 0)\", \"!(dev) || !(!idev)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6484049000000596,
+  "cost_upper_bound_cny": 0.001334
+}

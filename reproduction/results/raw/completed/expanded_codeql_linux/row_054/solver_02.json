@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    # Create solver\n    s = Solver()\n    \n    # Define variables with Int type (per guidelines)\n    object_ptr = Int('object_ptr')          # the 'object' pointer\n    folio_test_slab = Int('folio_test_slab')  # result of folio_test_slab(folio)\n    \n    # Line 9: if (unlikely(ZERO_OR_NULL_PTR(object))) return;\n    # Model: object == 0 triggers early return\n    s.add(object_ptr == 0)\n    \n    # Line 13: if (unlikely(!folio_test_slab(folio))) - branch taken\n    # Represented as folio_test_slab == 0 (condition true, branch taken)\n    s.add(folio_test_slab == 0)\n    \n    # Check satisfiability\n    result = s.check()\n    \n    # Return True if constraints are satisfiable (consistent), False otherwise\n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun object_ptr () Int)\n(declare-fun folio_test_slab () Int)\n(assert\n (= object_ptr 0))\n(assert\n (= folio_test_slab 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

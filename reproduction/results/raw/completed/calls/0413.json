@@ -1,0 +1,45 @@
+{
+  "call_id": 413,
+  "sample_id": "NPD/codeql/kernel69:row=68:index=98",
+  "timestamp": "2026-10-26T00:51:46.791698+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(action_code == WLAN_TDLS_SETUP_RESPONSE) || !(WARN_ON_ONCE(!sta))']\n        Relevant conditions/variables: [{'condition': 'if (action_code == WLAN_TDLS_SETUP_RESPONSE)', 'line_number': 72}], sta\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "71769d97-b460-4297-80c4-d48938942ffd",
+  "usage": {
+    "prompt_tokens": 158,
+    "completion_tokens": 264,
+    "total_tokens": 422,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 158
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# action_code: integer/enum representing the TDLS action code\naction_code = Int('action_code')\n# sta: pointer (modeled as an integer address; 0 means NULL)\nsta = Int('sta')\n\n# Constant for WLAN_TDLS_SETUP_RESPONSE (enum value; symbolic constant)\nWLAN_TDLS_SETUP_RESPONSE = Int('WLAN_TDLS_SETUP_RESPONSE')\n\ns = Solver()\n\n# Constraint from line 72:\n#   if (action_code == WLAN_TDLS_SETUP_RESPONSE)\n#       WARN_ON_ONCE(!sta);\n# The C expression `!(action_code == WLAN_TDLS_SETUP_RESPONSE) || !(WARN_ON_ONCE(!sta))`\n# encodes: if action_code == WLAN_TDLS_SETUP_RESPONSE, then sta must be non-NULL.\n# In Z3: (action_code != WLAN_TDLS_SETUP_RESPONSE) OR (sta != 0)\ns.add(Or(action_code != WLAN_TDLS_SETUP_RESPONSE, sta != 0))\n\n# Print the solver state (for inspection)\nprint(s)\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.6682897000000594,
+  "cost_upper_bound_cny": 0.002428
+}

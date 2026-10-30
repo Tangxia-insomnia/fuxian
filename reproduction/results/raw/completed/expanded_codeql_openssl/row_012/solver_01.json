@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Const, DeclareSort, Function, Solver, sat\n\n    # Base script constraints\n    ectx_int = Int('ectx')\n    s = Solver()\n    s.add(ectx_int == 0)\n\n    # Constraint set 2: uninterpreted encoder context\n    EncoderCtx = DeclareSort('EncoderCtx')\n    ectx = Const('ectx', EncoderCtx)\n    get_num_encoders = Function('OSSL_ENCODER_CTX_get_num_encoders', EncoderCtx, Int)\n    s.add(get_num_encoders(ectx) != 0)\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: NameError: name 'DeclareSort' is not defined"
+}

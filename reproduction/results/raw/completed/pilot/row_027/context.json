@@ -1,0 +1,127 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "__mld_query_work",
+      "var_name": "mlh2",
+      "target": "\t\t\t    mld_marksources(ma, ntohs(mlh2->mld2q_nsrcs), mlh2->mld2q_srcs))",
+      "code": "static void __mld_query_work(struct sk_buff *skb)\n{\n\tstruct mld2_query *mlh2 = NULL;\n\tconst struct in6_addr *group;\n\tunsigned long max_delay;\n\tstruct inet6_dev *idev;\n\tstruct ifmcaddr6 *ma;\n\tstruct mld_msg *mld;\n\tint group_type;\n\tint mark = 0;\n\tint len, err;\n\n\tif (!pskb_may_pull(skb, sizeof(struct in6_addr)))\n\t\tgoto kfree_skb;\n\n\t/* compute payload length excluding extension headers */\n\tlen = ntohs(ipv6_hdr(skb)->payload_len) + sizeof(struct ipv6hdr);\n\tlen -= skb_network_header_len(skb);\n\n\t/* RFC3810 6.2\n\t * Upon reception of an MLD message that contains a Query, the node\n\t * checks if the source address of the message is a valid link-local\n\t * address, if the Hop Limit is set to 1, and if the Router Alert\n\t * option is present in the Hop-By-Hop Options header of the IPv6\n\t * packet.  If any of these checks fails, the packet is dropped.\n\t */\n\tif (!(ipv6_addr_type(&ipv6_hdr(skb)->saddr) & IPV6_ADDR_LINKLOCAL) ||\n\t    ipv6_hdr(skb)->hop_limit != 1 ||\n\t    !(IP6CB(skb)->flags & IP6SKB_ROUTERALERT) ||\n\t    IP6CB(skb)->ra != htons(IPV6_OPT_ROUTERALERT_MLD))\n\t\tgoto kfree_skb;\n\n\tidev = in6_dev_get(skb->dev);\n\tif (!idev)\n\t\tgoto kfree_skb;\n\n\tmld = (struct mld_msg *)icmp6_hdr(skb);\n\tgroup = &mld->mld_mca;\n\tgroup_type = ipv6_addr_type(group);\n\n\tif (group_type != IPV6_ADDR_ANY &&\n\t    !(group_type&IPV6_ADDR_MULTICAST))\n\t\tgoto out;\n\n\tif (len < MLD_V1_QUERY_LEN) {\n\t\tgoto out;\n\t} else if (len == MLD_V1_QUERY_LEN || mld_in_v1_mode(idev)) {\n\t\terr = mld_process_v1(idev, mld, &max_delay,\n\t\t\t\t     len == MLD_V1_QUERY_LEN);\n\t\tif (err < 0)\n\t\t\tgoto out;\n\t} else if (len >= MLD_V2_QUERY_LEN_MIN) {\n\t\tint srcs_offset = sizeof(struct mld2_query) -\n\t\t\t\t  sizeof(struct icmp6hdr);\n\n\t\tif (!pskb_may_pull(skb, srcs_offset))\n\t\t\tgoto out;\n\n\t\tmlh2 = (struct mld2_query *)skb_transport_header(skb);\n\n\t\tmld_process_v2(idev, mlh2, &max_delay);\n\n\t\tif (group_type == IPV6_ADDR_ANY) { /* general query */\n\t\t\tif (mlh2->mld2q_nsrcs)\n\t\t\t\tgoto out; /* no sources allowed */\n\n\t\t\tmld_gq_start_work(idev);\n\t\t\tgoto out;\n\t\t}\n\t\t/* mark sources to include, if group & source-specific */\n\t\tif (mlh2->mld2q_nsrcs != 0) {\n\t\t\tif (!pskb_may_pull(skb, srcs_offset +\n\t\t\t    ntohs(mlh2->mld2q_nsrcs) * sizeof(struct in6_addr)))\n\t\t\t\tgoto out;\n\n\t\t\tmlh2 = (struct mld2_query *)skb_transport_header(skb);\n\t\t\tmark = 1;\n\t\t}\n\t} else {\n\t\tgoto out;\n\t}\n\n\tif (group_type == IPV6_ADDR_ANY) {\n\t\tfor_each_mc_mclock(idev, ma) {\n\t\t\tigmp6_group_queried(ma, max_delay);\n\t\t}\n\t} else {\n\t\tfor_each_mc_mclock(idev, ma) {\n\t\t\tif (!ipv6_addr_equal(group, &ma->mca_addr))\n\t\t\t\tcontinue;\n\t\t\tif (ma->mca_flags & MAF_TIMER_RUNNING) {\n\t\t\t\t/* gsquery <- gsquery && mark */\n\t\t\t\tif (!mark)\n\t\t\t\t\tma->mca_flags &= ~MAF_GSQUERY;\n\t\t\t} else {\n\t\t\t\t/* gsquery <- mark */\n\t\t\t\tif (mark)\n\t\t\t\t\tma->mca_flags |= MAF_GSQUERY;\n\t\t\t\telse\n\t\t\t\t\tma->mca_flags &= ~MAF_GSQUERY;\n\t\t\t}\n\t\t\tif (!(ma->mca_flags & MAF_GSQUERY) ||\n\t\t\t    mld_marksources(ma, ntohs(mlh2->mld2q_nsrcs), mlh2->mld2q_srcs))\n\t\t\t\tigmp6_group_queried(ma, max_delay);\n\t\t\tbreak;\n\t\t}\n\t}\n\nout:\n\tin6_dev_put(idev);\nkfree_skb:\n\tconsume_skb(skb);\n}",
+      "body_sha256": "ff983b819f3ca0a5ab5c3c1848c3ced4981f93705213d190cc5cac9691391151",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\t\t    mld_marksources(ma, ntohs(mlh2->mld2q_nsrcs), mlh2->mld2q_srcs))",
+            "condition": [
+              {
+                "condition": "if(!(group_type == IPV6_ADDR_ANY))",
+                "line_number": 86
+              },
+              {
+                "condition": "for_each_mc_mclock(idev, ma)",
+                "line_number": 87
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if(!(group_type == IPV6_ADDR_ANY))",
+            "line_number": 86
+          },
+          {
+            "condition": "for_each_mc_mclock(idev, ma)",
+            "line_number": 87
+          }
+        ],
+        "variable_assignments": {
+          "text": "static void __mld_query_work(struct sk_buff *skb)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "out",
+            "condition": [
+              "!(len < MLD_V1_QUERY_LEN) && !(len == MLD_V1_QUERY_LEN || mld_in_v1_mode(idev)) && !(len >= MLD_V2_QUERY_LEN_MIN)"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "len >= MLD_V2_QUERY_LEN_MIN",
+              "mlh2->mld2q_nsrcs != 0",
+              "!pskb_may_pull(skb, srcs_offset + ntohs(mlh2->mld2q_nsrcs) * sizeof(struct in6_addr))"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "len >= MLD_V2_QUERY_LEN_MIN",
+              "group_type == IPV6_ADDR_ANY"
+            ]
+          },
+          {
+            "text": "out; /* no sources allowed */",
+            "condition": [
+              "len >= MLD_V2_QUERY_LEN_MIN",
+              "group_type == IPV6_ADDR_ANY",
+              "mlh2->mld2q_nsrcs"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "len >= MLD_V2_QUERY_LEN_MIN",
+              "!pskb_may_pull(skb, srcs_offset)"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "len == MLD_V1_QUERY_LEN || mld_in_v1_mode(idev)",
+              "err < 0"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "len < MLD_V1_QUERY_LEN"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "group_type != IPV6_ADDR_ANY && !(group_type&IPV6_ADDR_MULTICAST)"
+            ]
+          },
+          {
+            "text": "kfree_skb",
+            "condition": [
+              "!idev"
+            ]
+          },
+          {
+            "text": "kfree_skb",
+            "condition": [
+              "!(ipv6_addr_type(&ipv6_hdr(skb)->saddr) & IPV6_ADDR_LINKLOCAL) || ipv6_hdr(skb)->hop_limit != 1 || !(IP6CB(skb)->flags & IP6SKB_ROUTERALERT) || IP6CB(skb)->ra != htons(IPV6_OPT_ROUTERALERT_MLD)"
+            ]
+          },
+          {
+            "text": "kfree_skb",
+            "condition": [
+              "!pskb_may_pull(skb, sizeof(struct in6_addr))"
+            ]
+          }
+        ],
+        "filter_function_code": "static void __mld_query_work(struct sk_buff *skb)\n{\n\tstruct mld2_query *mlh2 = NULL;\n\tconst struct in6_addr *group;\n\tunsigned long max_delay;\n\tstruct inet6_dev *idev;\n\tstruct ifmcaddr6 *ma;\n\tstruct mld_msg *mld;\n\tint group_type;\n\tint mark = 0;\n\tint len, err;\n\n\tif (!pskb_may_pull(skb, sizeof(struct in6_addr)))\n\t\tgoto kfree_skb;\n\n\t/* compute payload length excluding extension headers */\n\tlen = ntohs(ipv6_hdr(skb)->payload_len) + sizeof(struct ipv6hdr);\n\tlen -= skb_network_header_len(skb);\n\n\t/* RFC3810 6.2\n\t * Upon reception of an MLD message that contains a Query, the node\n\t * checks if the source address of the message is a valid link-local\n\t * address, if the Hop Limit is set to 1, and if the Router Alert\n\t * option is present in the Hop-By-Hop Options header of the IPv6\n\t * packet.  If any of these checks fails, the packet is dropped.\n\t */\n\tif (!(ipv6_addr_type(&ipv6_hdr(skb)->saddr) & IPV6_ADDR_LINKLOCAL) ||\n\t    ipv6_hdr(skb)->hop_limit != 1 ||\n\t    !(IP6CB(skb)->flags & IP6SKB_ROUTERALERT) ||\n\t    IP6CB(skb)->ra != htons(IPV6_OPT_ROUTERALERT_MLD))\n\t\tgoto kfree_skb;\n\n\tidev = in6_dev_get(skb->dev);\n\tif (!idev)\n\t\tgoto kfree_skb;\n\n\tmld = (struct mld_msg *)icmp6_hdr(skb);\n\tgroup = &mld->mld_mca;\n\tgroup_type = ipv6_addr_type(group);\n\n\tif (group_type != IPV6_ADDR_ANY &&\n\t    !(group_type&IPV6_ADDR_MULTICAST))\n\t\tgoto out;\n\n\tif (len < MLD_V1_QUERY_LEN) {\n\t\tgoto out;\n\t} else if (len == MLD_V1_QUERY_LEN || mld_in_v1_mode(idev)) {\n\t\terr = mld_process_v1(idev, mld, &max_delay,\n\t\t\t\t     len == MLD_V1_QUERY_LEN);\n\t\tif (err < 0)\n\t\t\tgoto out;\n\t} else if (len >= MLD_V2_QUERY_LEN_MIN) {\n\t\tint srcs_offset = sizeof(struct mld2_query) -\n\t\t\t\t  sizeof(struct icmp6hdr);\n\n\t\tif (!pskb_may_pull(skb, srcs_offset))\n\t\t\tgoto out;\n\n\t\tmlh2 = (struct mld2_query *)skb_transport_header(skb);\n\n\t\tmld_process_v2(idev, mlh2, &max_delay);\n\n\t\tif (group_type == IPV6_ADDR_ANY) { /* general query */\n\t\t\tif (mlh2->mld2q_nsrcs)\n\t\t\t\tgoto out; /* no sources allowed */\n\n\t\t\tmld_gq_start_work(idev);\n\t\t\tgoto out;\n\t\t}\n\t\t/* mark sources to include, if group & source-specific */\n\t\tif (mlh2->mld2q_nsrcs != 0) {\n\t\t\tif (!pskb_may_pull(skb, srcs_offset +\n\t\t\t    ntohs(mlh2->mld2q_nsrcs) * sizeof(struct in6_addr)))\n\t\t\t\tgoto out;\n\n\t\t\tmlh2 = (struct mld2_query *)skb_transport_header(skb);\n\t\t\tmark = 1;\n\t\t}\n\t} else {\n\t\tgoto out;\n\t}\n\n\tif (group_type == IPV6_ADDR_ANY) {\n\t\tfor_each_mc_mclock(idev, ma) {\n\t\t\tigmp6_group_queried(ma, max_delay);\n\t\t}\n\t} else {\n\t\tfor_each_mc_mclock(idev, ma) {\n\t\t\tif (!ipv6_addr_equal(group, &ma->mca_addr))\n\t\t\t\tcontinue;\n\t\t\tif (ma->mca_flags & MAF_TIMER_RUNNING) {\n\t\t\t\t/* gsquery <- gsquery && mark */\n\t\t\t\tif (!mark)\n\t\t\t\t\tma->mca_flags &= ~MAF_GSQUERY;\n\t\t\t} else {\n\t\t\t\t/* gsquery <- mark */\n\t\t\t\tif (mark)\n\t\t\t\t\tma->mca_flags |= MAF_GSQUERY;\n\t\t\t\telse\n\t\t\t\t\tma->mca_flags &= ~MAF_GSQUERY;\n\t\t\t}\n\t\t\tif (!(ma->mca_flags & MAF_GSQUERY) ||\n\t\t\t    mld_marksources(ma, ntohs(mlh2->mld2q_nsrcs), mlh2->mld2q_srcs))\n\t\t\t\tigmp6_group_queried(ma, max_delay);\n\t\t\tbreak;\n\t\t}\n\t}\n\nout:\n\tin6_dev_put(idev);\nkfree_skb:\n\tconsume_skb(skb);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void __mld_query_work(struct sk_buff *skb)\n{\n\tstruct mld2_query *mlh2 = NULL;\n\tconst struct in6_addr *group;\n\tunsigned long max_delay;\n\tstruct inet6_dev *idev;\n\tstruct ifmcaddr6 *ma;\n\tstruct mld_msg *mld;\n\tint group_type;\n\tint mark = 0;\n\tint len, err;\n\n\tif (!pskb_may_pull(skb, sizeof(struct in6_addr)))\n\t\tgoto kfree_skb;\n\n\t/* compute payload length excluding extension headers */\n\tlen = ntohs(ipv6_hdr(skb)->payload_len) + sizeof(struct ipv6hdr);\n\tlen -= skb_network_header_len(skb);\n\n\t/* RFC3810 6.2\n\t * Upon reception of an MLD message that contains a Query, the node\n\t * checks if the source address of the message is a valid link-local\n\t * address, if the Hop Limit is set to 1, and if the Router Alert\n\t * option is present in the Hop-By-Hop Options header of the IPv6\n\t * packet.  If any of these checks fails, the packet is dropped.\n\t */\n\tif (!(ipv6_addr_type(&ipv6_hdr(skb)->saddr) & IPV6_ADDR_LINKLOCAL) ||\n\t    ipv6_hdr(skb)->hop_limit != 1 ||\n\t    !(IP6CB(skb)->flags & IP6SKB_ROUTERALERT) ||\n\t    IP6CB(skb)->ra != htons(IPV6_OPT_ROUTERALERT_MLD))\n\t\tgoto kfree_skb;\n\n\tidev = in6_dev_get(skb->dev);\n\tif (!idev)\n\t\tgoto kfree_skb;\n\n\tmld = (struct mld_msg *)icmp6_hdr(skb);\n\tgroup = &mld->mld_mca;\n\tgroup_type = ipv6_addr_type(group);\n\n\tif (group_type != IPV6_ADDR_ANY &&\n\t    !(group_type&IPV6_ADDR_MULTICAST))\n\t\tgoto out;\n\n\tif (len < MLD_V1_QUERY_LEN) {\n\t\tgoto out;\n\t} else if (len == MLD_V1_QUERY_LEN || mld_in_v1_mode(idev)) {\n\t\terr = mld_process_v1(idev, mld, &max_delay,\n\t\t\t\t     len == MLD_V1_QUERY_LEN);\n\t\tif (err < 0)\n\t\t\tgoto out;\n\t} else if (len >= MLD_V2_QUERY_LEN_MIN) {\n\t\tint srcs_offset = sizeof(struct mld2_query) -\n\t\t\t\t  sizeof(struct icmp6hdr);\n\n\t\tif (!pskb_may_pull(skb, srcs_offset))\n\t\t\tgoto out;\n\n\t\tmlh2 = (struct mld2_query *)skb_transport_header(skb);\n\n\t\tmld_process_v2(idev, mlh2, &max_delay);\n\n\t\tif (group_type == IPV6_ADDR_ANY) { /* general query */\n\t\t\tif (mlh2->mld2q_nsrcs)\n\t\t\t\tgoto out; /* no sources allowed */\n\n\t\t\tmld_gq_start_work(idev);\n\t\t\tgoto out;\n\t\t}\n\t\t/* mark sources to include, if group & source-specific */\n\t\tif (mlh2->mld2q_nsrcs != 0) {\n\t\t\tif (!pskb_may_pull(skb, srcs_offset +\n\t\t\t    ntohs(mlh2->mld2q_nsrcs) * sizeof(struct in6_addr)))\n\t\t\t\tgoto out;\n\n\t\t\tmlh2 = (struct mld2_query *)skb_transport_header(skb);\n\t\t\tmark = 1;\n\t\t}\n\t} else {\n\t\tgoto out;\n\t}\n\n\tif (group_type == IPV6_ADDR_ANY) {\n\t\tfor_each_mc_mclock(idev, ma) {\n\t\t\tigmp6_group_queried(ma, max_delay);\n\t\t}\n\t} else {\n\t\tfor_each_mc_mclock(idev, ma) {\n\t\t\tif (!ipv6_addr_equal(group, &ma->mca_addr))\n\t\t\t\tcontinue;\n\t\t\tif (ma->mca_flags & MAF_TIMER_RUNNING) {\n\t\t\t\t/* gsquery <- gsquery && mark */\n\t\t\t\tif (!mark)\n\t\t\t\t\tma->mca_flags &= ~MAF_GSQUERY;\n\t\t\t} else {\n\t\t\t\t/* gsquery <- mark */\n\t\t\t\tif (mark)\n\t\t\t\t\tma->mca_flags |= MAF_GSQUERY;\n\t\t\t\telse\n\t\t\t\t\tma->mca_flags &= ~MAF_GSQUERY;\n\t\t\t}\n\t\t\tif (!(ma->mca_flags & MAF_GSQUERY) ||\n\t\t\t    mld_marksources(ma, ntohs(mlh2->mld2q_nsrcs), mlh2->mld2q_srcs))\n\t\t\t\tigmp6_group_queried(ma, max_delay);\n\t\t\tbreak;\n\t\t}\n\t}\n\nout:\n\tin6_dev_put(idev);\nkfree_skb:\n\tconsume_skb(skb);\n}"
+  ]
+}

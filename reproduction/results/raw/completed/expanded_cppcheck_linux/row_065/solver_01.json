@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat, Not\n    \n    rb_node = Int('rb_node')\n    fde_tmp = Int('fde_tmp')\n    \n    s = Solver()\n    \n    # Base script constraints\n    s.add(rb_node != 0)\n    s.add(fde_tmp == 0)\n    \n    # Constraint set 2 constraints\n    s.add(Not(fde_tmp == 0))\n    \n    return s.check() == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun rb_node () Int)\n(declare-fun fde_tmp () Int)\n(assert\n (and (distinct rb_node 0) true))\n(assert\n (= fde_tmp 0))\n(assert\n (let (($x28 (= fde_tmp 0)))\n(not $x28)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

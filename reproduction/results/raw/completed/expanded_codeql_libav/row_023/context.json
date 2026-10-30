@@ -1,0 +1,48 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ff_jpeg2000_tag_tree_init",
+      "var_name": "t",
+      "target": "t[i * pw + j].parent = &t2[(i >> 1) * w + (j >> 1)];",
+      "code": "static Jpeg2000TgtNode *ff_jpeg2000_tag_tree_init(int w, int h)\n{\n    int pw = w, ph = h;\n    Jpeg2000TgtNode *res, *t, *t2;\n    int32_t tt_size;\n\n    tt_size = tag_tree_size(w, h);\n    if (tt_size == -1)\n        return NULL;\n\n    t = res = av_mallocz_array(tt_size, sizeof(*t));\n    if (!res)\n        return NULL;\n\n    while (w > 1 || h > 1) {\n        int i, j;\n        pw = w;\n        ph = h;\n\n        w  = (w + 1) >> 1;\n        h  = (h + 1) >> 1;\n        t2 = t + pw * ph;\n\n        for (i = 0; i < ph; i++)\n            for (j = 0; j < pw; j++)\n                t[i * pw + j].parent = &t2[(i >> 1) * w + (j >> 1)];\n\n        t = t2;\n    }\n    t[0].parent = NULL;\n    return res;\n}",
+      "body_sha256": "421089f7635f03da3e9e5313999943561796cd2368d7d55612ae3da506c415d3",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "t[i * pw + j].parent = &t2[(i >> 1) * w + (j >> 1)];",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static Jpeg2000TgtNode *ff_jpeg2000_tag_tree_init(int w, int h)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "!res"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "tt_size == -1"
+            ]
+          }
+        ],
+        "filter_function_code": "static Jpeg2000TgtNode *ff_jpeg2000_tag_tree_init(int w, int h)\n{\n    int pw = w, ph = h;\n    Jpeg2000TgtNode *res, *t, *t2;\n    int32_t tt_size;\n\n    tt_size = tag_tree_size(w, h);\n    if (tt_size == -1)\n        return NULL;\n\n    t = res = av_mallocz_array(tt_size, sizeof(*t));\n    if (!res)\n        return NULL;\n\n    while (w > 1 || h > 1) {\n        int i, j;\n        pw = w;\n        ph = h;\n\n        w  = (w + 1) >> 1;\n        h  = (h + 1) >> 1;\n        t2 = t + pw * ph;\n\n        for (i = 0; i < ph; i++)\n            for (j = 0; j < pw; j++)\n                t[i * pw + j].parent = &t2[(i >> 1) * w + (j >> 1)];\n\n        t = t2;\n    }\n    t[0].parent = NULL;\n    return res;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static Jpeg2000TgtNode *ff_jpeg2000_tag_tree_init(int w, int h)\n{\n    int pw = w, ph = h;\n    Jpeg2000TgtNode *res, *t, *t2;\n    int32_t tt_size;\n\n    tt_size = tag_tree_size(w, h);\n    if (tt_size == -1)\n        return NULL;\n\n    t = res = av_mallocz_array(tt_size, sizeof(*t));\n    if (!res)\n        return NULL;\n\n    while (w > 1 || h > 1) {\n        int i, j;\n        pw = w;\n        ph = h;\n\n        w  = (w + 1) >> 1;\n        h  = (h + 1) >> 1;\n        t2 = t + pw * ph;\n\n        for (i = 0; i < ph; i++)\n            for (j = 0; j < pw; j++)\n                t[i * pw + j].parent = &t2[(i >> 1) * w + (j >> 1)];\n\n        t = t2;\n    }\n    t[0].parent = NULL;\n    return res;\n}"
+  ]
+}

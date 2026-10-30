@@ -1,0 +1,53 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ieee80211_report_used_skb",
+      "var_name": "sdata",
+      "target": "\t\t\tieee80211_handle_smps_status(sdata, acked,",
+      "code": "static void ieee80211_report_used_skb(struct ieee80211_local *local,\n\t\t\t\t      struct sk_buff *skb, bool dropped,\n\t\t\t\t      ktime_t ack_hwtstamp)\n{\n\tstruct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);\n\tu16 tx_time_est = ieee80211_info_get_tx_time_est(info);\n\tstruct ieee80211_hdr *hdr = (void *)skb->data;\n\tbool acked = info->flags & IEEE80211_TX_STAT_ACK;\n\n\tif (dropped)\n\t\tacked = false;\n\n\tif (tx_time_est) {\n\t\tstruct sta_info *sta;\n\n\t\trcu_read_lock();\n\n\t\tsta = sta_info_get_by_addrs(local, hdr->addr1, hdr->addr2);\n\t\tieee80211_sta_update_pending_airtime(local, sta,\n\t\t\t\t\t\t     skb_get_queue_mapping(skb),\n\t\t\t\t\t\t     tx_time_est,\n\t\t\t\t\t\t     true);\n\t\trcu_read_unlock();\n\t}\n\n\tif (info->flags & IEEE80211_TX_INTFL_MLME_CONN_TX) {\n\t\tstruct ieee80211_sub_if_data *sdata;\n\n\t\trcu_read_lock();\n\n\t\tsdata = ieee80211_sdata_from_skb(local, skb);\n\n\t\tif (!sdata) {\n\t\t\tskb->dev = NULL;\n\t\t} else if (!dropped) {\n\t\t\t/* Check to see if packet is a TDLS teardown packet */\n\t\t\tif (ieee80211_is_data(hdr->frame_control) &&\n\t\t\t    (ieee80211_get_tdls_action(skb) ==\n\t\t\t     WLAN_TDLS_TEARDOWN)) {\n\t\t\t\tieee80211_tdls_td_tx_handle(local, sdata, skb,\n\t\t\t\t\t\t\t    info->flags);\n\t\t\t} else if (ieee80211_s1g_is_twt_setup(skb)) {\n\t\t\t\tif (!acked) {\n\t\t\t\t\tstruct sk_buff *qskb;\n\n\t\t\t\t\tqskb = skb_clone(skb, GFP_ATOMIC);\n\t\t\t\t\tif (qskb) {\n\t\t\t\t\t\tskb_queue_tail(&sdata->status_queue,\n\t\t\t\t\t\t\t       qskb);\n\t\t\t\t\t\twiphy_work_queue(local->hw.wiphy,\n\t\t\t\t\t\t\t\t &sdata->work);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\tieee80211_mgd_conn_tx_status(sdata,\n\t\t\t\t\t\t\t     hdr->frame_control,\n\t\t\t\t\t\t\t     acked);\n\t\t\t}\n\t\t}\n\n\t\trcu_read_unlock();\n\t} else if (info->status_data_idr) {\n\t\tieee80211_report_ack_skb(local, skb, acked, dropped,\n\t\t\t\t\t ack_hwtstamp);\n\t} else if (info->status_data) {\n\t\tstruct ieee80211_sub_if_data *sdata;\n\n\t\trcu_read_lock();\n\n\t\tsdata = ieee80211_sdata_from_skb(local, skb);\n\n\t\tswitch (u16_get_bits(info->status_data,\n\t\t\t\t     IEEE80211_STATUS_TYPE_MASK)) {\n\t\tcase IEEE80211_STATUS_TYPE_SMPS:\n\t\t\tieee80211_handle_smps_status(sdata, acked,\n\t\t\t\t\t\t     info->status_data);\n\t\t\tbreak;\n\t\t}\n\t\trcu_read_unlock();\n\t}\n\n\tif (!dropped && skb->destructor) {\n\t\tskb->wifi_acked_valid = 1;\n\t\tskb->wifi_acked = acked;\n\t}\n\n\tieee80211_led_tx(local);\n\n\tif (skb_has_frag_list(skb)) {\n\t\tkfree_skb_list(skb_shinfo(skb)->frag_list);\n\t\tskb_shinfo(skb)->frag_list = NULL;\n\t}\n}",
+      "body_sha256": "aa371b2fd26e389d22dabf250923b46d67a48fb0f0d46a30ee6bfad4063a6dad",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\t\tieee80211_handle_smps_status(sdata, acked,",
+            "condition": [
+              {
+                "condition": "if (info->status_data)",
+                "line_number": 64
+              },
+              {
+                "condition": "if(switch (u16_get_bits(info->status_data, == IEEE80211_STATUS_TYPE_SMPS)",
+                "line_number": 73
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (info->status_data)",
+            "line_number": 64
+          },
+          {
+            "condition": "if(switch (u16_get_bits(info->status_data, == IEEE80211_STATUS_TYPE_SMPS)",
+            "line_number": 73
+          }
+        ],
+        "variable_assignments": {
+          "text": "static void ieee80211_report_used_skb(struct ieee80211_local *local,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static void ieee80211_report_used_skb(struct ieee80211_local *local,\n\t\t\t\t      struct sk_buff *skb, bool dropped,\n\t\t\t\t      ktime_t ack_hwtstamp)\n{\n\tstruct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);\n\tu16 tx_time_est = ieee80211_info_get_tx_time_est(info);\n\tstruct ieee80211_hdr *hdr = (void *)skb->data;\n\tbool acked = info->flags & IEEE80211_TX_STAT_ACK;\n\n\tif (dropped)\n\t\tacked = false;\n\n\tif (tx_time_est) {\n\t\tstruct sta_info *sta;\n\n\t\trcu_read_lock();\n\n\t\tsta = sta_info_get_by_addrs(local, hdr->addr1, hdr->addr2);\n\t\tieee80211_sta_update_pending_airtime(local, sta,\n\t\t\t\t\t\t     skb_get_queue_mapping(skb),\n\t\t\t\t\t\t     tx_time_est,\n\t\t\t\t\t\t     true);\n\t\trcu_read_unlock();\n\t}\n\n\tif (info->flags & IEEE80211_TX_INTFL_MLME_CONN_TX) {\n\t\tstruct ieee80211_sub_if_data *sdata;\n\n\t\trcu_read_lock();\n\n\t\tsdata = ieee80211_sdata_from_skb(local, skb);\n\n\t\tif (!sdata) {\n\t\t\tskb->dev = NULL;\n\t\t} else if (!dropped) {\n\t\t\t/* Check to see if packet is a TDLS teardown packet */\n\t\t\tif (ieee80211_is_data(hdr->frame_control) &&\n\t\t\t    (ieee80211_get_tdls_action(skb) ==\n\t\t\t     WLAN_TDLS_TEARDOWN)) {\n\t\t\t\tieee80211_tdls_td_tx_handle(local, sdata, skb,\n\t\t\t\t\t\t\t    info->flags);\n\t\t\t} else if (ieee80211_s1g_is_twt_setup(skb)) {\n\t\t\t\tif (!acked) {\n\t\t\t\t\tstruct sk_buff *qskb;\n\n\t\t\t\t\tqskb = skb_clone(skb, GFP_ATOMIC);\n\t\t\t\t\tif (qskb) {\n\t\t\t\t\t\tskb_queue_tail(&sdata->status_queue,\n\t\t\t\t\t\t\t       qskb);\n\t\t\t\t\t\twiphy_work_queue(local->hw.wiphy,\n\t\t\t\t\t\t\t\t &sdata->work);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\tieee80211_mgd_conn_tx_status(sdata,\n\t\t\t\t\t\t\t     hdr->frame_control,\n\t\t\t\t\t\t\t     acked);\n\t\t\t}\n\t\t}\n\n\t\trcu_read_unlock();\n\t} else if (info->status_data_idr) {\n\t\tieee80211_report_ack_skb(local, skb, acked, dropped,\n\t\t\t\t\t ack_hwtstamp);\n\t} else if (info->status_data) {\n\t\tstruct ieee80211_sub_if_data *sdata;\n\n\t\trcu_read_lock();\n\n\t\tsdata = ieee80211_sdata_from_skb(local, skb);\n\n\t\tswitch (u16_get_bits(info->status_data,\n\t\t\t\t     IEEE80211_STATUS_TYPE_MASK)) {\n\t\tcase IEEE80211_STATUS_TYPE_SMPS:\n\t\t\tieee80211_handle_smps_status(sdata, acked,\n\t\t\t\t\t\t     info->status_data);\n\t\t\tbreak;\n\t\t}\n\t\trcu_read_unlock();\n\t}\n\n\tif (!dropped && skb->destructor) {\n\t\tskb->wifi_acked_valid = 1;\n\t\tskb->wifi_acked = acked;\n\t}\n\n\tieee80211_led_tx(local);\n\n\tif (skb_has_frag_list(skb)) {\n\t\tkfree_skb_list(skb_shinfo(skb)->frag_list);\n\t\tskb_shinfo(skb)->frag_list = NULL;\n\t}\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void ieee80211_report_used_skb(struct ieee80211_local *local,\n\t\t\t\t      struct sk_buff *skb, bool dropped,\n\t\t\t\t      ktime_t ack_hwtstamp)\n{\n\tstruct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);\n\tu16 tx_time_est = ieee80211_info_get_tx_time_est(info);\n\tstruct ieee80211_hdr *hdr = (void *)skb->data;\n\tbool acked = info->flags & IEEE80211_TX_STAT_ACK;\n\n\tif (dropped)\n\t\tacked = false;\n\n\tif (tx_time_est) {\n\t\tstruct sta_info *sta;\n\n\t\trcu_read_lock();\n\n\t\tsta = sta_info_get_by_addrs(local, hdr->addr1, hdr->addr2);\n\t\tieee80211_sta_update_pending_airtime(local, sta,\n\t\t\t\t\t\t     skb_get_queue_mapping(skb),\n\t\t\t\t\t\t     tx_time_est,\n\t\t\t\t\t\t     true);\n\t\trcu_read_unlock();\n\t}\n\n\tif (info->flags & IEEE80211_TX_INTFL_MLME_CONN_TX) {\n\t\tstruct ieee80211_sub_if_data *sdata;\n\n\t\trcu_read_lock();\n\n\t\tsdata = ieee80211_sdata_from_skb(local, skb);\n\n\t\tif (!sdata) {\n\t\t\tskb->dev = NULL;\n\t\t} else if (!dropped) {\n\t\t\t/* Check to see if packet is a TDLS teardown packet */\n\t\t\tif (ieee80211_is_data(hdr->frame_control) &&\n\t\t\t    (ieee80211_get_tdls_action(skb) ==\n\t\t\t     WLAN_TDLS_TEARDOWN)) {\n\t\t\t\tieee80211_tdls_td_tx_handle(local, sdata, skb,\n\t\t\t\t\t\t\t    info->flags);\n\t\t\t} else if (ieee80211_s1g_is_twt_setup(skb)) {\n\t\t\t\tif (!acked) {\n\t\t\t\t\tstruct sk_buff *qskb;\n\n\t\t\t\t\tqskb = skb_clone(skb, GFP_ATOMIC);\n\t\t\t\t\tif (qskb) {\n\t\t\t\t\t\tskb_queue_tail(&sdata->status_queue,\n\t\t\t\t\t\t\t       qskb);\n\t\t\t\t\t\twiphy_work_queue(local->hw.wiphy,\n\t\t\t\t\t\t\t\t &sdata->work);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\tieee80211_mgd_conn_tx_status(sdata,\n\t\t\t\t\t\t\t     hdr->frame_control,\n\t\t\t\t\t\t\t     acked);\n\t\t\t}\n\t\t}\n\n\t\trcu_read_unlock();\n\t} else if (info->status_data_idr) {\n\t\tieee80211_report_ack_skb(local, skb, acked, dropped,\n\t\t\t\t\t ack_hwtstamp);\n\t} else if (info->status_data) {\n\t\tstruct ieee80211_sub_if_data *sdata;\n\n\t\trcu_read_lock();\n\n\t\tsdata = ieee80211_sdata_from_skb(local, skb);\n\n\t\tswitch (u16_get_bits(info->status_data,\n\t\t\t\t     IEEE80211_STATUS_TYPE_MASK)) {\n\t\tcase IEEE80211_STATUS_TYPE_SMPS:\n\t\t\tieee80211_handle_smps_status(sdata, acked,\n\t\t\t\t\t\t     info->status_data);\n\t\t\tbreak;\n\t\t}\n\t\trcu_read_unlock();\n\t}\n\n\tif (!dropped && skb->destructor) {\n\t\tskb->wifi_acked_valid = 1;\n\t\tskb->wifi_acked = acked;\n\t}\n\n\tieee80211_led_tx(local);\n\n\tif (skb_has_frag_list(skb)) {\n\t\tkfree_skb_list(skb_shinfo(skb)->frag_list);\n\t\tskb_shinfo(skb)->frag_list = NULL;\n\t}\n}"
+  ]
+}

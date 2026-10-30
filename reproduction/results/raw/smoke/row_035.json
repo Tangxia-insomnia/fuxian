@@ -1,0 +1,164 @@
+{
+  "sample": {
+    "sample_id": "NPD/codeql/kernel69:row=35:index=56",
+    "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+    "row_position": 35,
+    "original_index": 56,
+    "original_label": 1,
+    "prediction": null,
+    "end_to_end_status": "not_run_blocked",
+    "end_to_end_attempted": false,
+    "official_entry_error": "ModuleNotFoundError: No module named 'util'",
+    "llm_status": "not_run",
+    "solver_status": "not_run_on_sample",
+    "api_calls": 0,
+    "cost_cny": 0,
+    "component_status": "extraction_and_prompt_passed",
+    "target_condition_count": 1,
+    "early_jump_count": 13,
+    "component_error": null,
+    "component_duration_seconds": 0.00036399999999048305
+  },
+  "location": {
+    "file_path": "net/ipv6/route.c",
+    "region": {
+      "startLine": 3635,
+      "startColumn": 24,
+      "endColumn": 27
+    },
+    "context": {
+      "startLine": 3633,
+      "endLine": 3637,
+      "snippet": {
+        "text": "\tfib6_nh->fib_nh_oif = dev->ifindex;"
+      }
+    }
+  },
+  "var_name": "dev",
+  "function_name": "fib6_nh_init",
+  "function_code_sha256": "56f210543ceb96ebae66772111dcebc286df59bd91686b27a96aeadcd3ebcc84",
+  "source_adaptation": {
+    "kind": "diagnostic_only_in_memory_import_adaptation",
+    "source": "llm4pfa/extract_util_plus.py",
+    "source_sha256": "c69bd09ef04bbf49fd1c6bc4e7609bdc59c795255b4863c770122b82de94f546",
+    "removed_import": "from LLM4Detection.m_agent.conditions_info import ContextHelper,Conditions",
+    "postponed_annotations": true,
+    "reason": "ContextHelper is used only in an uncalled helper annotation; selected extract_conditions path has no dependency on either missing type.",
+    "function_bodies_changed": false,
+    "upstream_files_changed": false,
+    "not_a_repaired_full_pipeline": true
+  },
+  "extracted_conditions": {
+    "bug_line_constraints": [
+      {
+        "text": "\tfib6_nh->fib_nh_oif = dev->ifindex;",
+        "condition": [
+          {
+            "condition": "goto pcpu_alloc",
+            "line_number": 106
+          }
+        ]
+      }
+    ],
+    "target_conditions": [
+      {
+        "condition": "goto pcpu_alloc",
+        "line_number": 106
+      }
+    ],
+    "variable_assignments": {
+      "text": "int fib6_nh_init(struct net *net, struct fib6_nh *fib6_nh,",
+      "condition": []
+    },
+    "variable_non_empty": [],
+    "early_jump_constraints": [
+      {
+        "text": "out",
+        "condition": [
+          "!fib6_nh->rt6i_pcpu"
+        ]
+      },
+      {
+        "text": "out",
+        "condition": [
+          "err"
+        ]
+      },
+      {
+        "text": "out",
+        "condition": [
+          "!(dev->flags & IFF_UP) && !cfg->fc_ignore_dev_down"
+        ]
+      },
+      {
+        "text": "out",
+        "condition": [
+          "idev->cnf.disable_ipv6"
+        ]
+      },
+      {
+        "text": "out",
+        "condition": [
+          "!dev"
+        ]
+      },
+      {
+        "text": "out",
+        "condition": [
+          "cfg->fc_flags & RTF_GATEWAY",
+          "err"
+        ]
+      },
+      {
+        "text": "pcpu_alloc",
+        "condition": [
+          "fib6_is_reject(cfg->fc_flags, dev, addr_type)"
+        ]
+      },
+      {
+        "text": "out",
+        "condition": [
+          "fib6_is_reject(cfg->fc_flags, dev, addr_type)",
+          "dev != net->loopback_dev",
+          "!idev"
+        ]
+      },
+      {
+        "text": "out",
+        "condition": [
+          "cfg->fc_flags & RTNH_F_ONLINK",
+          "!(dev->flags & IFF_UP)"
+        ]
+      },
+      {
+        "text": "out",
+        "condition": [
+          "cfg->fc_flags & RTNH_F_ONLINK",
+          "!dev"
+        ]
+      },
+      {
+        "text": "out",
+        "condition": [
+          "cfg->fc_ifindex",
+          "!idev"
+        ]
+      },
+      {
+        "text": "out",
+        "condition": [
+          "cfg->fc_ifindex",
+          "!dev"
+        ]
+      },
+      {
+        "text": "return",
+        "condition": [
+          "cfg->fc_is_fdb"
+        ]
+      }
+    ],
+    "filter_function_code": "int fib6_nh_init(struct net *net, struct fib6_nh *fib6_nh,\n\t\t struct fib6_config *cfg, gfp_t gfp_flags,\n\t\t struct netlink_ext_ack *extack)\n{\n\tnetdevice_tracker *dev_tracker = &fib6_nh->fib_nh_dev_tracker;\n\tstruct net_device *dev = NULL;\n\tstruct inet6_dev *idev = NULL;\n\tint addr_type;\n\tint err;\n\n\tfib6_nh->fib_nh_family = AF_INET6;\n#ifdef CONFIG_IPV6_ROUTER_PREF\n\tfib6_nh->last_probe = jiffies;\n#endif\n\tif (cfg->fc_is_fdb) {\n\t\tfib6_nh->fib_nh_gw6 = cfg->fc_gateway;\n\t\tfib6_nh->fib_nh_gw_family = AF_INET6;\n\t\treturn 0;\n\t}\n\n\terr = -ENODEV;\n\tif (cfg->fc_ifindex) {\n\t\tdev = netdev_get_by_index(net, cfg->fc_ifindex,\n\t\t\t\t\t  dev_tracker, gfp_flags);\n\t\tif (!dev)\n\t\t\tgoto out;\n\t\tidev = in6_dev_get(dev);\n\t\tif (!idev)\n\t\t\tgoto out;\n\t}\n\n\tif (cfg->fc_flags & RTNH_F_ONLINK) {\n\t\tif (!dev) {\n\t\t\tNL_SET_ERR_MSG(extack,\n\t\t\t\t       \"Nexthop device required for onlink\");\n\t\t\tgoto out;\n\t\t}\n\n\t\tif (!(dev->flags & IFF_UP)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop device is not up\");\n\t\t\terr = -ENETDOWN;\n\t\t\tgoto out;\n\t\t}\n\n\t\tfib6_nh->fib_nh_flags |= RTNH_F_ONLINK;\n\t}\n\n\tfib6_nh->fib_nh_weight = 1;\n\n\t/* We cannot add true routes via loopback here,\n\t * they would result in kernel looping; promote them to reject routes\n\t */\n\taddr_type = ipv6_addr_type(&cfg->fc_dst);\n\tif (fib6_is_reject(cfg->fc_flags, dev, addr_type)) {\n\t\t/* hold loopback dev/idev if we haven't done so. */\n\t\tif (dev != net->loopback_dev) {\n\t\t\tif (dev) {\n\t\t\t\tnetdev_put(dev, dev_tracker);\n\t\t\t\tin6_dev_put(idev);\n\t\t\t}\n\t\t\tdev = net->loopback_dev;\n\t\t\tnetdev_hold(dev, dev_tracker, gfp_flags);\n\t\t\tidev = in6_dev_get(dev);\n\t\t\tif (!idev) {\n\t\t\t\terr = -ENODEV;\n\t\t\t\tgoto out;\n\t\t\t}\n\t\t}\n\t\tgoto pcpu_alloc;\n\t}\n\n\tif (cfg->fc_flags & RTF_GATEWAY) {\n\t\terr = ip6_validate_gw(net, cfg, &dev, dev_tracker,\n\t\t\t\t      &idev, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\n\t\tfib6_nh->fib_nh_gw6 = cfg->fc_gateway;\n\t\tfib6_nh->fib_nh_gw_family = AF_INET6;\n\t}\n\n\terr = -ENODEV;\n\tif (!dev)\n\t\tgoto out;\n\n\tif (idev->cnf.disable_ipv6) {\n\t\tNL_SET_ERR_MSG(extack, \"IPv6 is disabled on nexthop device\");\n\t\terr = -EACCES;\n\t\tgoto out;\n\t}\n\n\tif (!(dev->flags & IFF_UP) && !cfg->fc_ignore_dev_down) {\n\t\tNL_SET_ERR_MSG(extack, \"Nexthop device is not up\");\n\t\terr = -ENETDOWN;\n\t\tgoto out;\n\t}\n\n\tif (!(cfg->fc_flags & (RTF_LOCAL | RTF_ANYCAST)) &&\n\t    !netif_carrier_ok(dev))\n\t\tfib6_nh->fib_nh_flags |= RTNH_F_LINKDOWN;\n\n\terr = fib_nh_common_init(net, &fib6_nh->nh_common, cfg->fc_encap,\n\t\t\t\t cfg->fc_encap_type, cfg, gfp_flags, extack);\n\tif (err)\n\t\tgoto out;\n\npcpu_alloc:\n\tfib6_nh->rt6i_pcpu = alloc_percpu_gfp(struct rt6_info *, gfp_flags);\n\tif (!fib6_nh->rt6i_pcpu) {\n\t\terr = -ENOMEM;\n\t\tgoto out;\n\t}\n\n\tfib6_nh->fib_nh_dev = dev;\n\tfib6_nh->fib_nh_oif = dev->ifindex;\n\terr = 0;\nout:\n\tif (idev)\n\t\tin6_dev_put(idev);\n\n\tif (err) {\n\t\tlwtstate_put(fib6_nh->fib_nh_lws);\n\t\tfib6_nh->fib_nh_lws = NULL;\n\t\tnetdev_put(dev, dev_tracker);\n\t}\n\n\treturn err;\n}"
+  },
+  "generated_initial_prompt": "\n        Convert C code constraints into Z3 solver script.\n        Current constraints: [{'condition': 'goto pcpu_alloc', 'line_number': 106}, 'dev == 0']\n\n        Guidelines:\n        \nImportant guidelines for generating Z3 scripts:\n1. Variable Type Guidelines:\n   - Prefer Int type over Bool type\n   - Default to Int type for unknown variables\n   - Convert !ptr to ptr==0 for Int variables\n   \n2. Boolean Representation:\n   - Represent False as Int variable == 0\n   - Represent True as Int variable == 1\n   \n3. Critical Rules:\n   - Use And, Or, Not instead of &, |, ! operators\n   - Avoid assigning Int values to Bool variables\n   - Convert !ptr or Not(ptr) to ptr==0 only\n   \n4. Constraint Guidelines:\n   - Prefer using ==1 or ==0 over inequality operators\n   - Skip constraints for uncertain value ranges\n   - Only interpret function returns when names clearly indicate meaning\n\n\n        Format response strictly as:\n        ```python\n        var_name1=Int('var1')\n        var_name2=Bool('var2')\n        s.add(constraint 1)\n        s.add(constraint 2)\n        ...\n        ```\n        "
+}

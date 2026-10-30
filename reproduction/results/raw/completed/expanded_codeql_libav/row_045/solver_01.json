@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, And, sat\n\n    # Declarations for relevant variables/conditions\n    filepositions = Int('filepositions')\n    cond_tell = Bool('cond_tell')\n    cond_getstr = Bool('cond_getstr')\n    strcmp_ts = Bool('strcmp_ts')\n    strcmp_bo = Bool('strcmp_bo')\n    times = Bool('times')\n    arraylen = Int('arraylen')\n    alloc_ok = Bool('alloc_ok')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(filepositions == 0)\n\n    # Constraint 1\n    s.add(Or(Not(And(cond_tell, cond_getstr)),\n             Not(And(times, filepositions != 0))))\n\n    # Constraint 2\n    s.add(Or(Not(And(cond_tell, cond_getstr)),\n             Not(And(Or(strcmp_ts, times),\n                     Or(strcmp_bo, filepositions != 0)))))\n\n    # Constraint 3\n    s.add(alloc_ok == (filepositions != 0))\n    s.add(Or(Not(And(cond_tell, cond_getstr)),\n             Not(And(Not(strcmp_bo), filepositions == 0)),\n             Not(Not(alloc_ok))))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun filepositions () Int)\n(declare-fun times () Bool)\n(declare-fun cond_getstr () Bool)\n(declare-fun cond_tell () Bool)\n(declare-fun strcmp_bo () Bool)\n(declare-fun strcmp_ts () Bool)\n(declare-fun alloc_ok () Bool)\n(assert\n (= filepositions 0))\n(assert\n (let (($x33 (not (and cond_tell cond_getstr))))\n (or $x33 (not (and times (and (distinct filepositions 0) true))))))\n(assert\n (let (($x42 (or strcmp_ts times)))\n (let (($x33 (not (and cond_tell cond_getstr))))\n (or $x33 (not (and $x42 (or strcmp_bo (and (distinct filepositions 0) true))))))))\n(assert\n (let (($x34 (and (distinct filepositions 0) true)))\n (= alloc_ok $x34)))\n(assert\n (let (($x56 (not (and (not strcmp_bo) (= filepositions 0)))))\n(let (($x33 (not (and cond_tell cond_getstr))))\n(or $x33 $x56 (not (not alloc_ok))))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

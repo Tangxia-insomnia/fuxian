@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    \n    # Define all variables\n    list_empty_sublist = Int('list_empty_sublist')\n    \n    # Create solver\n    s = Solver()\n    \n    # Constraint: !list_empty(&sublist) is true, meaning list_empty returns 0\n    # (list is NOT empty)\n    s.add(list_empty_sublist == 0)\n    \n    # Check satisfiability\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun list_empty_sublist () Int)\n(assert\n (= list_empty_sublist 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,45 @@
+{
+  "call_id": 1022,
+  "sample_id": "NPD/cppcheck/linux:row=56:index=None",
+  "timestamp": "2026-10-26T01:06:03.967271+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static ssize_t drc_pmem_query_stats(struct papr_scm_priv *p,\n\t\t\t\t    struct papr_scm_perf_stats *buff_stats,\n\t\t\t\t    unsigned int num_stats)\n{\n\tunsigned long ret[PLPAR_HCALL_BUFSIZE];\n\tsize_t size;\n\ts64 rc;\n\n\t/* Setup the out buffer */\n\tif (buff_stats) {\n\t\tmemcpy(buff_stats->eye_catcher,\n\t\t       PAPR_SCM_PERF_STATS_EYECATCHER, 8);\n\t\tbuff_stats->stats_version =\n\t\t\tcpu_to_be32(PAPR_SCM_PERF_STATS_VERSION);\n\t\tbuff_stats->num_statistics =\n\t\t\tcpu_to_be32(num_stats);\n\n\t\t/*\n\t\t * Calculate the buffer size based on num-stats provided\n\t\t * or use the prefetched max buffer length\n\t\t */\n\t\tif (num_stats)\n\t\t\t/* Calculate size from the num_stats */\n\t\t\tsize = sizeof(struct papr_scm_perf_stats) +\n\t\t\t\tnum_stats * sizeof(struct papr_scm_perf_stat);\n\t\telse\n\t\t\tsize = p->stat_buffer_len;\n\t} else {\n\t\t/* In case of no out buffer ignore the size */\n\t\tsize = 0;\n\t}\n\n\t/* Do the HCALL asking PHYP for info */\n\trc = plpar_hcall(H_SCM_PERFORMANCE_STATS, ret, p->drc_index,\n\t\t\t buff_stats ? virt_to_phys(buff_stats) : 0,\n\t\t\t size);\n\n\t/* Check if the error was due to an unknown stat-id */\n\tif (rc == H_PARTIAL) {\n\t\tdev_err(&p->pdev->dev,\n\t\t\t\"Unknown performance stats, Err:0x%016lX\\n\", ret[0]);\n\t\treturn -ENOENT;\n\t} else if (rc == H_AUTHORITY) {\n\t\tdev_info(&p->pdev->dev,\n\t\t\t \"Permission denied while accessing performance stats\");\n\t\treturn -EPERM;\n\t} else if (rc == H_UNSUPPORTED) {\n\t\tdev_dbg(&p->pdev->dev, \"Performance stats unsupported\\n\");\n\t\treturn -EOPNOTSUPP;\n\t} else if (rc != H_SUCCESS) {\n\t\tdev_err(&p->pdev->dev,\n\t\t\t\"Failed to query performance stats, Err:%lld\\n\", rc);\n\t\treturn -EIO;\n\n\t} else if (!size) {\n\t\t/* Handle case where stat buffer size was requested */\n\t\tdev_dbg(&p->pdev->dev,\n\t\t\t\"Performance stats size %ld\\n\", ret[0]);\n\t\treturn ret[0];\n\t}\n\n\t/* Successfully fetched the requested stats from phyp */\n\tdev_dbg(&p->pdev->dev,\n\t\t\"Performance stats returned %d stats\\n\",\n\t\tbe32_to_cpu(buff_stats->num_statistics));\n\treturn 0;\n}\n        - Target variables: [], buff_stats\n        - Constraints: ['!(!size)', '!(rc != H_SUCCESS)', '!(rc == H_UNSUPPORTED)', '!(rc == H_AUTHORITY)', '!(rc == H_PARTIAL)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "9e99890f-fc43-4db8-be23-945a6948bc43",
+  "usage": {
+    "prompt_tokens": 743,
+    "completion_tokens": 5,
+    "total_tokens": 748,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 743
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.4166382000003068,
+  "cost_upper_bound_cny": 0.001526
+}

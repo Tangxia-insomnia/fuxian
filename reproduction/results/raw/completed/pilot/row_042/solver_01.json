@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    \n    # Define all variables as Int type (per guidelines)\n    ctx = Int('ctx')\n    link = Int('link')\n    old_ctx = Int('old_ctx')\n    \n    s = Solver()\n    \n    # ctx is a valid non-NULL pointer -> ctx != 0\n    s.add(ctx != 0)\n    \n    # link is a valid non-NULL pointer -> link != 0\n    s.add(link != 0)\n    \n    # old_ctx is NULL -> old_ctx == 0\n    s.add(old_ctx == 0)\n    \n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ctx () Int)\n(declare-fun link () Int)\n(declare-fun old_ctx () Int)\n(assert\n (and (distinct ctx 0) true))\n(assert\n (and (distinct link 0) true))\n(assert\n (= old_ctx 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat, unsat\n    \n    s = Solver()\n    \n    # Define all variables as Int type\n    use_cache = Int('use_cache')\n    md = Int('md')\n    connected = Int('connected')\n    rt = Int('rt')\n    \n    # Constraint: use_cache is false (0)\n    s.add(use_cache == 0)\n    \n    # Constraint: md is false (0)\n    s.add(md == 0)\n    \n    # Constraint: connected is false (0)\n    s.add(connected == 0)\n    \n    # Constraint: rt is non-NULL (not equal to 0)\n    s.add(rt != 0)\n    \n    # Check satisfiability\n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun use_cache () Int)\n(declare-fun md () Int)\n(declare-fun connected () Int)\n(declare-fun rt () Int)\n(assert\n (= use_cache 0))\n(assert\n (= md 0))\n(assert\n (= connected 0))\n(assert\n (and (distinct rt 0) true))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

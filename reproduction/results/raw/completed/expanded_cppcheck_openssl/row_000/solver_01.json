@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Or, Not, sat\n\n    # Base script variables and constraints\n    key_param = Int('key_param')\n\n    # Constraint set 2 variables\n    key_param_idx = Int('key_param_idx')\n    keyidx = Int('keyidx')\n    nparam_param = Int('nparam_param')\n    sk_new_null_ret = Int('sk_new_null_ret')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(key_param == 0)\n\n    # Constraint set 2, constraint 1\n    constraint1 = Or(\n        Not(Or(key_param == 0, key_param_idx != keyidx)),\n        Not(sk_new_null_ret == 0)\n    )\n    s.add(constraint1)\n\n    # Constraint set 2, constraint 2\n    constraint2 = Not(keyidx < 0)\n    s.add(constraint2)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun key_param () Int)\n(declare-fun sk_new_null_ret () Int)\n(declare-fun keyidx () Int)\n(declare-fun key_param_idx () Int)\n(assert\n (= key_param 0))\n(assert\n (let (($x33 (not (= sk_new_null_ret 0))))\n (or (not (or (= key_param 0) (and (distinct key_param_idx keyidx) true))) $x33)))\n(assert\n (not (< keyidx 0)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

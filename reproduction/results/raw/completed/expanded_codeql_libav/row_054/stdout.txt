@@ -1,0 +1,100 @@
+```python
+comment=Int('comment')
+s.add(comment == 0)
+```
+```json
+["!((header_size + 4) & 7 || header_size < SOX_FIXED_HDR + comment_size || st->codecpar->channels > 65535)", "!(comment_size > 0xFFFFFFFFU - SOX_FIXED_HDR - 4U)"]
+```
+```python
+from z3 import *
+
+# Declare variables used in the constraints
+# header_size: size of the header (C integer)
+# comment_size: size of the comment field (C integer)
+# SOX_FIXED_HDR: fixed header size constant (treated as a symbolic constant)
+# channels: st->codecpar->channels (C integer)
+header_size = Int('header_size')
+comment_size = Int('comment_size')
+SOX_FIXED_HDR = Int('SOX_FIXED_HDR')
+channels = Int('channels')
+
+s = Solver()
+
+# Constraint 1:
+#   !((header_size + 4) & 7 || header_size < SOX_FIXED_HDR + comment_size || st->codecpar->channels > 65535)
+# This is a negated disjunction, so it is equivalent to the conjunction of the negations:
+#   (header_size + 4) & 7 == 0
+#   header_size >= SOX_FIXED_HDR + comment_size
+#   channels <= 65535
+# Included because it constrains header_size, comment_size, and channels together.
+s.add((header_size + 4) & 7 == 0)
+s.add(header_size >= SOX_FIXED_HDR + comment_size)
+s.add(channels <= 65535)
+
+# Constraint 2:
+#   !(comment_size > 0xFFFFFFFFU - SOX_FIXED_HDR - 4U)
+# Negation of a strict greater-than, so it becomes:
+#   comment_size <= 0xFFFFFFFF - SOX_FIXED_HDR - 4
+# Included because it bounds comment_size (and indirectly header_size via constraint 1).
+s.add(comment_size <= 0xFFFFFFFF - SOX_FIXED_HDR - 4)
+
+# Print the resulting Z3 script constraints
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+
+    # Variables from base script
+    comment = Int('comment')
+
+    # Variables from constraint set 2
+    header_size = Int('header_size')
+    comment_size = Int('comment_size')
+    SOX_FIXED_HDR = Int('SOX_FIXED_HDR')
+    channels = Int('channels')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(comment == 0)
+
+    # Constraint set 2 constraints
+    s.add((header_size + 4) & 7 == 0)
+    s.add(header_size >= SOX_FIXED_HDR + comment_size)
+    s.add(channels <= 65535)
+    s.add(comment_size <= 0xFFFFFFFF - SOX_FIXED_HDR - 4)
+
+    return s.check() == sat
+```
+TypeError: unsupported operand type(s) for &: 'ArithRef' and 'int'
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+
+    comment = Int('comment')
+    header_size = Int('header_size')
+    comment_size = Int('comment_size')
+    SOX_FIXED_HDR = Int('SOX_FIXED_HDR')
+    channels = Int('channels')
+
+    s = Solver()
+
+    s.add(comment == 0)
+
+    # (header_size + 4) & 7 == 0  ->  (header_size + 4) % 8 == 0
+    s.add((header_size + 4) % 8 == 0)
+    s.add(header_size >= SOX_FIXED_HDR + comment_size)
+    s.add(channels <= 65535)
+    s.add(comment_size <= 0xFFFFFFFF - SOX_FIXED_HDR - 4)
+
+    return s.check() == sat
+```
+goto result: True
+```python
+buf=Int('buf')
+s.add(buf == 0)
+```
+```json
+[]
+```

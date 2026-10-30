@@ -1,0 +1,78 @@
+{
+  "bug_line_constraints": [
+    {
+      "text": "\tif (idev->cnf.disable_ipv6) {",
+      "condition": []
+    }
+  ],
+  "target_conditions": [],
+  "variable_assignments": {
+    "text": "int fib6_nh_init(struct net *net, struct fib6_nh *fib6_nh,",
+    "condition": []
+  },
+  "variable_non_empty": [],
+  "early_jump_constraints": [
+    {
+      "text": "out",
+      "condition": [
+        "!dev"
+      ]
+    },
+    {
+      "text": "out",
+      "condition": [
+        "cfg->fc_flags & RTF_GATEWAY",
+        "err"
+      ]
+    },
+    {
+      "text": "pcpu_alloc",
+      "condition": [
+        "fib6_is_reject(cfg->fc_flags, dev, addr_type)"
+      ]
+    },
+    {
+      "text": "out",
+      "condition": [
+        "fib6_is_reject(cfg->fc_flags, dev, addr_type)",
+        "dev != net->loopback_dev",
+        "!idev"
+      ]
+    },
+    {
+      "text": "out",
+      "condition": [
+        "cfg->fc_flags & RTNH_F_ONLINK",
+        "!(dev->flags & IFF_UP)"
+      ]
+    },
+    {
+      "text": "out",
+      "condition": [
+        "cfg->fc_flags & RTNH_F_ONLINK",
+        "!dev"
+      ]
+    },
+    {
+      "text": "out",
+      "condition": [
+        "cfg->fc_ifindex",
+        "!idev"
+      ]
+    },
+    {
+      "text": "out",
+      "condition": [
+        "cfg->fc_ifindex",
+        "!dev"
+      ]
+    },
+    {
+      "text": "return",
+      "condition": [
+        "cfg->fc_is_fdb"
+      ]
+    }
+  ],
+  "filter_function_code": "int fib6_nh_init(struct net *net, struct fib6_nh *fib6_nh,\n\t\t struct fib6_config *cfg, gfp_t gfp_flags,\n\t\t struct netlink_ext_ack *extack)\n{\n\tnetdevice_tracker *dev_tracker = &fib6_nh->fib_nh_dev_tracker;\n\tstruct net_device *dev = NULL;\n\tstruct inet6_dev *idev = NULL;\n\tint addr_type;\n\tint err;\n\n\tfib6_nh->fib_nh_family = AF_INET6;\n#ifdef CONFIG_IPV6_ROUTER_PREF\n\tfib6_nh->last_probe = jiffies;\n#endif\n\tif (cfg->fc_is_fdb) {\n\t\tfib6_nh->fib_nh_gw6 = cfg->fc_gateway;\n\t\tfib6_nh->fib_nh_gw_family = AF_INET6;\n\t\treturn 0;\n\t}\n\n\terr = -ENODEV;\n\tif (cfg->fc_ifindex) {\n\t\tdev = netdev_get_by_index(net, cfg->fc_ifindex,\n\t\t\t\t\t  dev_tracker, gfp_flags);\n\t\tif (!dev)\n\t\t\tgoto out;\n\t\tidev = in6_dev_get(dev);\n\t\tif (!idev)\n\t\t\tgoto out;\n\t}\n\n\tif (cfg->fc_flags & RTNH_F_ONLINK) {\n\t\tif (!dev) {\n\t\t\tNL_SET_ERR_MSG(extack,\n\t\t\t\t       \"Nexthop device required for onlink\");\n\t\t\tgoto out;\n\t\t}\n\n\t\tif (!(dev->flags & IFF_UP)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop device is not up\");\n\t\t\terr = -ENETDOWN;\n\t\t\tgoto out;\n\t\t}\n\n\t\tfib6_nh->fib_nh_flags |= RTNH_F_ONLINK;\n\t}\n\n\tfib6_nh->fib_nh_weight = 1;\n\n\t/* We cannot add true routes via loopback here,\n\t * they would result in kernel looping; promote them to reject routes\n\t */\n\taddr_type = ipv6_addr_type(&cfg->fc_dst);\n\tif (fib6_is_reject(cfg->fc_flags, dev, addr_type)) {\n\t\t/* hold loopback dev/idev if we haven't done so. */\n\t\tif (dev != net->loopback_dev) {\n\t\t\tif (dev) {\n\t\t\t\tnetdev_put(dev, dev_tracker);\n\t\t\t\tin6_dev_put(idev);\n\t\t\t}\n\t\t\tdev = net->loopback_dev;\n\t\t\tnetdev_hold(dev, dev_tracker, gfp_flags);\n\t\t\tidev = in6_dev_get(dev);\n\t\t\tif (!idev) {\n\t\t\t\terr = -ENODEV;\n\t\t\t\tgoto out;\n\t\t\t}\n\t\t}\n\t\tgoto pcpu_alloc;\n\t}\n\n\tif (cfg->fc_flags & RTF_GATEWAY) {\n\t\terr = ip6_validate_gw(net, cfg, &dev, dev_tracker,\n\t\t\t\t      &idev, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\n\t\tfib6_nh->fib_nh_gw6 = cfg->fc_gateway;\n\t\tfib6_nh->fib_nh_gw_family = AF_INET6;\n\t}\n\n\terr = -ENODEV;\n\tif (!dev)\n\t\tgoto out;\n\n\tif (idev->cnf.disable_ipv6) {\n\t\tNL_SET_ERR_MSG(extack, \"IPv6 is disabled on nexthop device\");\n\t\terr = -EACCES;\n\t\tgoto out;\n\t}\n\n\tif (!(dev->flags & IFF_UP) && !cfg->fc_ignore_dev_down) {\n\t\tNL_SET_ERR_MSG(extack, \"Nexthop device is not up\");\n\t\terr = -ENETDOWN;\n\t\tgoto out;\n\t}\n\n\tif (!(cfg->fc_flags & (RTF_LOCAL | RTF_ANYCAST)) &&\n\t    !netif_carrier_ok(dev))\n\t\tfib6_nh->fib_nh_flags |= RTNH_F_LINKDOWN;\n\n\terr = fib_nh_common_init(net, &fib6_nh->nh_common, cfg->fc_encap,\n\t\t\t\t cfg->fc_encap_type, cfg, gfp_flags, extack);\n\tif (err)\n\t\tgoto out;\n\npcpu_alloc:\n\tfib6_nh->rt6i_pcpu = alloc_percpu_gfp(struct rt6_info *, gfp_flags);\n\tif (!fib6_nh->rt6i_pcpu) {\n\t\terr = -ENOMEM;\n\t\tgoto out;\n\t}\n\n\tfib6_nh->fib_nh_dev = dev;\n\tfib6_nh->fib_nh_oif = dev->ifindex;\n\terr = 0;\nout:\n\tif (idev)\n\t\tin6_dev_put(idev);\n\n\tif (err) {\n\t\tlwtstate_put(fib6_nh->fib_nh_lws);\n\t\tfib6_nh->fib_nh_lws = NULL;\n\t\tnetdev_put(dev, dev_tracker);\n\t}\n\n\treturn err;\n}"
+}

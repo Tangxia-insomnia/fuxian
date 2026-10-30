@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, And, sat\n\n    # Base script variable\n    req = Int('req')\n\n    # Variables from constraint set 2\n    add_nonce = Bool('add_nonce')\n    signfile = Bool('signfile')\n    reqout = Bool('reqout')\n    host = Bool('host')\n    ridx_filename = Bool('ridx_filename')\n    reqin = Bool('reqin')\n    derbio = Bool('derbio')\n    respin = Bool('respin')\n    port = Bool('port')\n    ocsp_add1_nonce_ok = Bool('ocsp_add1_nonce_ok')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(req == 0)\n\n    # Constraint set 2 constraints\n    s.add(Or(Not(And(req != 0, add_nonce)), ocsp_add1_nonce_ok))\n    s.add(Not(And(req == 0,\n                  Or(signfile, reqout, host, add_nonce, ridx_filename))))\n    s.add(req != 0)\n    s.add(Or(Not(And(req == 0, reqin)), req != 0))\n    s.add(Or(Not(And(req == 0, reqin)), derbio))\n    s.add(Not(And(req == 0, Not(reqin), Not(respin),\n                  Not(And(port, ridx_filename)))))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun req () Int)\n(declare-fun ocsp_add1_nonce_ok () Bool)\n(declare-fun add_nonce () Bool)\n(declare-fun ridx_filename () Bool)\n(declare-fun host () Bool)\n(declare-fun reqout () Bool)\n(declare-fun signfile () Bool)\n(declare-fun reqin () Bool)\n(declare-fun derbio () Bool)\n(declare-fun port () Bool)\n(declare-fun respin () Bool)\n(assert\n (= req 0))\n(assert\n (or (not (and (and (distinct req 0) true) add_nonce)) ocsp_add1_nonce_ok))\n(assert\n (let (($x17 (= req 0)))\n (not (and $x17 (or signfile reqout host add_nonce ridx_filename)))))\n(assert\n (and (distinct req 0) true))\n(assert\n (let (($x35 (and (distinct req 0) true)))\n (let (($x50 (not (and (= req 0) reqin))))\n (or $x50 $x35))))\n(assert\n (let (($x50 (not (and (= req 0) reqin))))\n (or $x50 derbio)))\n(assert\n (let (($x17 (= req 0)))\n(let (($x59 (and $x17 (not reqin) (not respin) (not (and port ridx_filename)))))\n(not $x59))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

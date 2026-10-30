@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Or, And, Not, sat\n\n    dev_out = Int('dev_out')\n    fl4_flowi4_oif = Int('fl4_flowi4_oif')\n    fl4_saddr      = Int('fl4_saddr')\n    fl4_daddr      = Int('fl4_daddr')\n    dev_out_flags  = Int('dev_out_flags')\n    in_dev_rcu     = Int('in_dev_rcu')\n    is_multicast   = Int('is_multicast')\n    is_lbcast      = Int('is_lbcast')\n\n    IFF_UP = 0x1\n\n    s = Solver()\n\n    # Base constraint\n    s.add(dev_out == 0)\n\n    # Constraint 1:\n    # !(fl4->flowi4_oif) || !(!(dev_out->flags & IFF_UP) || !__in_dev_get_rcu(dev_out))\n    # Model (dev_out_flags & IFF_UP) == 0 as a separate Int variable since\n    # bitwise & on ArithRef is unsupported.\n    flags_up = Int('flags_up')\n    s.add(flags_up == 0)  # placeholder: (dev_out_flags & IFF_UP) == 0\n    c1 = Or(\n        fl4_flowi4_oif == 0,\n        Not(Or(\n            flags_up == 1,\n            in_dev_rcu == 0\n        ))\n    )\n    s.add(c1)\n\n    # Constraint 2: !(fl4->flowi4_oif) || !(!dev_out)\n    c2 = Or(\n        fl4_flowi4_oif == 0,\n        dev_out != 0\n    )\n    s.add(c2)\n\n    # Constraint 3:\n    # !(fl4->saddr) || !(fl4->flowi4_oif == 0 && (is_multicast || is_lbcast)) || !(!dev_out)\n    c3 = Or(\n        fl4_saddr == 0,\n        Not(And(\n            fl4_flowi4_oif == 0,\n            Or(is_multicast == 1, is_lbcast == 1)\n        )),\n        dev_out != 0\n    )\n    s.add(c3)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun dev_out () Int)\n(declare-fun flags_up () Int)\n(declare-fun in_dev_rcu () Int)\n(declare-fun fl4_flowi4_oif () Int)\n(declare-fun is_lbcast () Int)\n(declare-fun is_multicast () Int)\n(declare-fun fl4_saddr () Int)\n(assert\n (= dev_out 0))\n(assert\n (= flags_up 0))\n(assert\n (let (($x34 (= fl4_flowi4_oif 0)))\n (or $x34 (not (or (= flags_up 1) (= in_dev_rcu 0))))))\n(assert\n (let (($x41 (and (distinct dev_out 0) true)))\n (let (($x34 (= fl4_flowi4_oif 0)))\n (or $x34 $x41))))\n(assert\n (let (($x41 (and (distinct dev_out 0) true)))\n(let (($x34 (= fl4_flowi4_oif 0)))\n(let (($x50 (not (and $x34 (or (= is_multicast 1) (= is_lbcast 1))))))\n(let (($x45 (= fl4_saddr 0)))\n(or $x45 $x50 $x41))))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

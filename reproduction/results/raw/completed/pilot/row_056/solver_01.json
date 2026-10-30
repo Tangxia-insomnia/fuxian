@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Define all variables as Int type\n    bssid = Int('bssid')\n    rx_sdata_vif_type = Int('rx_sdata_vif_type')\n    ether_addr_equal_result = Int('ether_addr_equal_result')\n    inner_block_condition = Int('inner_block_condition')\n    \n    # Constraint: bssid is NULL (pointer == 0)\n    s.add(bssid == 0)\n    \n    # Constraint: vif type must be ADHOC (3) for this branch\n    s.add(rx_sdata_vif_type == 3)\n    \n    # Constraint: ether_addr_equal result is false (0) since bssid is NULL\n    s.add(ether_addr_equal_result == 0)\n    \n    # Constraint: inner block condition is false (0) since ether_addr_equal fails\n    s.add(inner_block_condition == 0)\n    \n    # Validate the constraints are satisfiable\n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun bssid () Int)\n(declare-fun rx_sdata_vif_type () Int)\n(declare-fun ether_addr_equal_result () Int)\n(declare-fun inner_block_condition () Int)\n(assert\n (= bssid 0))\n(assert\n (= rx_sdata_vif_type 3))\n(assert\n (= ether_addr_equal_result 0))\n(assert\n (= inner_block_condition 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

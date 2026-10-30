@@ -1,0 +1,7 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, IntSort, BoolSort, Function, Solver, Or, Not, And\n\n    # Base script variables and constraints\n    idev = Int('idev')\n\n    # Variables from constraint set 2\n    fib6_is_reject = Function('fib6_is_reject', IntSort(), IntSort(), IntSort(), BoolSort())\n    fc_flags = Int('fc_flags')\n    dev = Int('dev')\n    addr_type = Int('addr_type')\n    loopback_dev = Int('loopback_dev')\n    fc_ifindex = Int('fc_ifindex')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(idev == 0)\n\n    # Constraint set 2 - Constraint 1\n    # !(fib6_is_reject(...)) || !(dev != loopback_dev) || !(!idev)\n    # With idev == 0, !(!idev) is false, so we need the other disjuncts\n    s.add(Or(\n        Not(fib6_is_reject(fc_flags, dev, addr_type)),\n        dev == loopback_dev,\n        idev != 0\n    ))\n\n    # Constraint set 2 - Constraint 2\n    # !(fc_ifindex) || !(!idev)\n    s.add(Or(\n        fc_ifindex == 0,\n        idev != 0\n    ))\n\n    return s.check() == __import__('z3').sat",
+  "ok": false,
+  "error": "ValueError: ValueError: Unsupported generated-code operation"
+}

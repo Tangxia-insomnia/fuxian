@@ -1,0 +1,62 @@
+```python
+s2=Int('s2')
+s.add(s2 == 0)
+```
+Let's go through this step by step.
+
+**Step 1 – Understand the code and constraints**
+
+The function:
+
+```c
+int test_str_ne(const char *file, int line, const char *st1, const char *st2,
+                const char *s1, const char *s2)
+{
+    if ((s1 == NULL) ^ (s2 == NULL))
+      return 1;
+    if (s1 == NULL || strcmp(s1, s2) == 0) {
+        test_fail_string_message(...);
+        return 0;
+    }
+    return 1;
+}
+```
+
+The given constraint is:
+
+```
+!((s1 == NULL) ^ (s2 == NULL))
+```
+
+This means: **s1 and s2 are either both NULL or both non-NULL** (i.e., they have the same NULL-ness).
+
+**Step 2 – Target variables**
+
+Target variables: `[]` (empty list) and `s2`.
+
+So the only target variable here is `s2`.
+
+**Step 3 – Filter constraints affecting reachability**
+
+The constraint `!((s1 == NULL) ^ (s2 == NULL))` is exactly the negation of the first `if` condition.  
+If this constraint holds, the first `if` is false, so we don't return at that point — we proceed to the second `if`.  
+So this constraint is directly relevant to reachability of the code after the first `if`.
+
+**Step 4 – Include only constraints involving target variables**
+
+Target variable is `s2`. The constraint involves both `s1` and `s2`. Since `s2` is a target variable, the constraint qualifies for inclusion.
+
+**Step 5 – Verify step by step**
+
+- Constraint: `!((s1 == NULL) ^ (s2 == NULL))`
+- Involves `s2`? Yes.
+- Affects reachability? Yes (it's the condition to bypass the first return).
+- Therefore, keep it.
+
+No other constraints are given.
+
+**Final filtered constraints:**
+
+```json
+["!((s1 == NULL) ^ (s2 == NULL))"]
+```

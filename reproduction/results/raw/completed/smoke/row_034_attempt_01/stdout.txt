@@ -1,0 +1,210 @@
+```python
+idev=Int('idev')
+s.add(idev == 0)
+```
+```json
+["!(fib6_is_reject(cfg->fc_flags, dev, addr_type)) || !(dev != net->loopback_dev) || !(!idev)", "!(cfg->fc_ifindex) || !(!idev)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# idev: pointer (modeled as an integer address; 0 means NULL)
+idev = Int('idev')
+
+# cfg->fc_flags, dev, addr_type, net->loopback_dev are not in the
+# relevant conditions/variables list, so they are treated as uninterpreted
+# Booleans/values. We only need them to preserve the structure of the
+# constraints that involve `idev`.
+fib6_is_reject = Function('fib6_is_reject', IntSort(), IntSort(), IntSort(), BoolSort())
+fc_flags = Int('fc_flags')
+dev = Int('dev')
+addr_type = Int('addr_type')
+loopback_dev = Int('loopback_dev')
+fc_ifindex = Int('fc_ifindex')
+
+s = Solver()
+
+# Constraint 1:
+#   !(fib6_is_reject(cfg->fc_flags, dev, addr_type)) || !(dev != net->loopback_dev) || !(!idev)
+# This constraint is included because it contains `idev` (via `!(!idev)`).
+# C-style translation:
+#   !(!idev)  ==>  idev != 0
+#   !(dev != net->loopback_dev)  ==>  dev == loopback_dev
+#   !(fib6_is_reject(...))  ==>  Not(fib6_is_reject(...))
+s.add(Or(
+    Not(fib6_is_reject(fc_flags, dev, addr_type)),
+    dev == loopback_dev,
+    idev != 0
+))
+
+# Constraint 2:
+#   !(cfg->fc_ifindex) || !(!idev)
+# This constraint is included because it contains `idev` (via `!(!idev)`).
+# C-style translation:
+#   !(cfg->fc_ifindex)  ==>  fc_ifindex == 0
+#   !(!idev)            ==>  idev != 0
+s.add(Or(
+    fc_ifindex == 0,
+    idev != 0
+))
+
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, IntSort, BoolSort, Function, Solver, Or, Not
+
+    # Base script variables and constraints
+    idev = Int('idev')
+
+    # Variables from constraint set 2
+    fib6_is_reject = Function('fib6_is_reject', IntSort(), IntSort(), IntSort(), BoolSort())
+    fc_flags = Int('fc_flags')
+    dev = Int('dev')
+    addr_type = Int('addr_type')
+    loopback_dev = Int('loopback_dev')
+    fc_ifindex = Int('fc_ifindex')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(idev == 0)
+
+    # Constraint set 2 - Constraint 1
+    s.add(Or(
+        Not(fib6_is_reject(fc_flags, dev, addr_type)),
+        dev == loopback_dev,
+        idev != 0
+    ))
+
+    # Constraint set 2 - Constraint 2
+    s.add(Or(
+        fc_ifindex == 0,
+        idev != 0
+    ))
+
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+```python
+def check_constraints():
+    from z3 import Int, IntSort, BoolSort, Function, Solver, Or, Not, And
+
+    # Base script variables and constraints
+    idev = Int('idev')
+
+    # Variables from constraint set 2
+    fib6_is_reject = Function('fib6_is_reject', IntSort(), IntSort(), IntSort(), BoolSort())
+    fc_flags = Int('fc_flags')
+    dev = Int('dev')
+    addr_type = Int('addr_type')
+    loopback_dev = Int('loopback_dev')
+    fc_ifindex = Int('fc_ifindex')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(idev == 0)
+
+    # Constraint set 2 - Constraint 1
+    # !(fib6_is_reject(...)) || !(dev != loopback_dev) || !(!idev)
+    # With idev == 0, !(!idev) is false, so we need the other disjuncts
+    s.add(Or(
+        Not(fib6_is_reject(fc_flags, dev, addr_type)),
+        dev == loopback_dev,
+        idev != 0
+    ))
+
+    # Constraint set 2 - Constraint 2
+    # !(fc_ifindex) || !(!idev)
+    s.add(Or(
+        fc_ifindex == 0,
+        idev != 0
+    ))
+
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import Int, Solver, Or, And
+
+    # Base script variables and constraints
+    idev = Int('idev')
+
+    # Variables from constraint set 2 (modeled as Int per guidelines)
+    fib6_is_reject = Int('fib6_is_reject')
+    fc_flags = Int('fc_flags')
+    dev = Int('dev')
+    addr_type = Int('addr_type')
+    loopback_dev = Int('loopback_dev')
+    fc_ifindex = Int('fc_ifindex')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(idev == 0)
+
+    # Constraint set 2 - Constraint 1
+    # !(fib6_is_reject(...)) || !(dev != loopback_dev) || !(!idev)
+    # fib6_is_reject modeled as Int: !fib6_is_reject -> fib6_is_reject == 0
+    # !(dev != loopback_dev) -> dev == loopback_dev
+    # !(!idev) -> idev != 0
+    s.add(Or(
+        fib6_is_reject == 0,
+        dev == loopback_dev,
+        idev != 0
+    ))
+
+    # Constraint set 2 - Constraint 2
+    # !(fc_ifindex) || !(!idev)
+    # !fc_ifindex -> fc_ifindex == 0
+    # !(!idev) -> idev != 0
+    s.add(Or(
+        fc_ifindex == 0,
+        idev != 0
+    ))
+
+    return s.check() == __import__('z3').sat
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import Int, Solver, Or
+
+    # Base script variables and constraints
+    idev = Int('idev')
+
+    # Variables from constraint set 2 (modeled as Int per guidelines)
+    fib6_is_reject = Int('fib6_is_reject')
+    fc_flags = Int('fc_flags')
+    dev = Int('dev')
+    addr_type = Int('addr_type')
+    loopback_dev = Int('loopback_dev')
+    fc_ifindex = Int('fc_ifindex')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(idev == 0)
+
+    # Constraint set 2 - Constraint 1
+    # !(fib6_is_reject(...)) || !(dev != loopback_dev) || !(!idev)
+    # fib6_is_reject modeled as Int: !fib6_is_reject -> fib6_is_reject == 0
+    # !(dev != loopback_dev) -> dev == loopback_dev
+    # !(!idev) -> idev != 0
+    s.add(Or(
+        fib6_is_reject == 0,
+        dev == loopback_dev,
+        idev != 0
+    ))
+
+    # Constraint set 2 - Constraint 2
+    # !(fc_ifindex) || !(!idev)
+    # !fc_ifindex -> fc_ifindex == 0
+    # !(!idev) -> idev != 0
+    s.add(Or(
+        fc_ifindex == 0,
+        idev != 0
+    ))
+
+    return s.check() == __import__('z3').sat
+ValueError: Unsupported generated-code operation

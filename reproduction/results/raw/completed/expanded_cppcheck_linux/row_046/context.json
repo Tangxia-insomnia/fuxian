@@ -1,0 +1,48 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "hpcd_final_uli5288",
+      "var_name": "hose",
+      "target": "laddr[0] = (hose->first_busno << 16) | (PCI_DEVFN(31, 0) << 8);",
+      "code": "static void hpcd_final_uli5288(struct pci_dev *dev)\n{\n\tstruct pci_controller *hose = pci_bus_to_host(dev->bus);\n\tstruct device_node *hosenode = hose ? hose->dn : NULL;\n\tstruct of_phandle_args oirq;\n\tu32 laddr[3];\n\n\tif (!machine_is(mpc86xx_hpcd))\n\t\treturn;\n\n\tif (!hosenode)\n\t\treturn;\n\n\toirq.np = hosenode;\n\toirq.args[0] = 2;\n\toirq.args_count = 1;\n\tladdr[0] = (hose->first_busno << 16) | (PCI_DEVFN(31, 0) << 8);\n\tladdr[1] = laddr[2] = 0;\n\tof_irq_parse_raw(laddr, &oirq);\n\tdev->irq = irq_create_of_mapping(&oirq);\n}",
+      "body_sha256": "1bfc19b4924faa2aea4cef6b6c406faab0ca93e7d32ca0b6955f7e4b0d8b8c1c",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "laddr[0] = (hose->first_busno << 16) | (PCI_DEVFN(31, 0) << 8);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void hpcd_final_uli5288(struct pci_dev *dev)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "!hosenode"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!machine_is(mpc86xx_hpcd)"
+            ]
+          }
+        ],
+        "filter_function_code": "static void hpcd_final_uli5288(struct pci_dev *dev)\n{\n\tstruct pci_controller *hose = pci_bus_to_host(dev->bus);\n\tstruct device_node *hosenode = hose ? hose->dn : NULL;\n\tstruct of_phandle_args oirq;\n\tu32 laddr[3];\n\n\tif (!machine_is(mpc86xx_hpcd))\n\t\treturn;\n\n\tif (!hosenode)\n\t\treturn;\n\n\toirq.np = hosenode;\n\toirq.args[0] = 2;\n\toirq.args_count = 1;\n\tladdr[0] = (hose->first_busno << 16) | (PCI_DEVFN(31, 0) << 8);\n\tladdr[1] = laddr[2] = 0;\n\tof_irq_parse_raw(laddr, &oirq);\n\tdev->irq = irq_create_of_mapping(&oirq);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void hpcd_final_uli5288(struct pci_dev *dev)\n{\n\tstruct pci_controller *hose = pci_bus_to_host(dev->bus);\n\tstruct device_node *hosenode = hose ? hose->dn : NULL;\n\tstruct of_phandle_args oirq;\n\tu32 laddr[3];\n\n\tif (!machine_is(mpc86xx_hpcd))\n\t\treturn;\n\n\tif (!hosenode)\n\t\treturn;\n\n\toirq.np = hosenode;\n\toirq.args[0] = 2;\n\toirq.args_count = 1;\n\tladdr[0] = (hose->first_busno << 16) | (PCI_DEVFN(31, 0) << 8);\n\tladdr[1] = laddr[2] = 0;\n\tof_irq_parse_raw(laddr, &oirq);\n\tdev->irq = irq_create_of_mapping(&oirq);\n}"
+  ]
+}

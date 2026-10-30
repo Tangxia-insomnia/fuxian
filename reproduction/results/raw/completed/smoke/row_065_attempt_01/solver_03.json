@@ -1,0 +1,7 @@
+{
+  "event_id": 3,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Not, Or, sat\n\n    sta = Int('sta')\n    ap_sta = Int('ap_sta')\n\n    s = Solver()\n\n    s.add(sta == 0)\n    s.add(Not(Or(sta == 0, ap_sta == 0)))\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: ImportError: __import__ not found"
+}

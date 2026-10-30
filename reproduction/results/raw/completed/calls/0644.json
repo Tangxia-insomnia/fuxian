@@ -1,0 +1,45 @@
+{
+  "call_id": 644,
+  "sample_id": "NPD/codeql/openssl:row=2:index=2",
+  "timestamp": "2026-10-26T00:56:42.531666+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static ASN1_STRING *bn_to_asn1_string(const BIGNUM *bn, ASN1_STRING *ai,\n                                      int atype)\n{\n    ASN1_INTEGER *ret;\n    int len;\n\n    if (ai == NULL) {\n        ret = ASN1_STRING_type_new(atype);\n    } else {\n        ret = ai;\n        ret->type = atype;\n    }\n\n    if (ret == NULL) {\n        ERR_raise(ERR_LIB_ASN1, ERR_R_NESTED_ASN1_ERROR);\n        goto err;\n    }\n\n    if (BN_is_negative(bn) && !BN_is_zero(bn))\n        ret->type |= V_ASN1_NEG_INTEGER;\n\n    len = BN_num_bytes(bn);\n\n    if (len == 0)\n        len = 1;\n\n    if (ASN1_STRING_set(ret, NULL, len) == 0) {\n        ERR_raise(ERR_LIB_ASN1, ERR_R_ASN1_LIB);\n        goto err;\n    }\n\n    /* Correct zero case */\n    if (BN_is_zero(bn))\n        ret->data[0] = 0;\n    else\n        len = BN_bn2bin(bn, ret->data);\n    ret->length = len;\n    return ret;\n err:\n    if (ret != ai)\n        ASN1_INTEGER_free(ret);\n    return NULL;\n}\n        - Target variables: [], bn\n        - Constraints: ['!(ASN1_STRING_set(ret, NULL, len) == 0)', '!(ret == NULL)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "70165c90-c7ac-49f3-aabd-ef9ad1eb4db9",
+  "usage": {
+    "prompt_tokens": 412,
+    "completion_tokens": 5,
+    "total_tokens": 417,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 412
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.7500778000003265,
+  "cost_upper_bound_cny": 0.000864
+}

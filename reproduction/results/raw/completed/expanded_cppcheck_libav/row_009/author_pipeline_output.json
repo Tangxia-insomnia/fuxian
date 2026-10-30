@@ -1,0 +1,11 @@
+{
+  "response": [
+    "step 1 z3 script: ```python\npkt=Int('pkt')\ns.add(pkt == 0)\n```",
+    "response_filter_goto: ```json\n[\"!(st->codecpar->codec_id == AV_CODEC_ID_PROBE) || !(pkt) || !((err = av_reallocp(&pd->buf, pd->buf_size + pkt->size + AVPROBE_PADDING_SIZE)) < 0)\"]\n```",
+    "z3 script: ```python\nfrom z3 import *\n\n# Declare variables used in the constraint\n# pkt is a pointer; model as an integer (0 = NULL, non-zero = valid pointer)\npkt = Int('pkt')\n\n# st->codecpar->codec_id is compared against AV_CODEC_ID_PROBE.\n# We model the boolean \"codec_id == AV_CODEC_ID_PROBE\" as a symbolic Bool.\ncodec_id_is_probe = Bool('codec_id_is_probe')\n\n# av_reallocp returns an int; the constraint checks (err < 0).\n# Model err as an Int and the call result as a symbolic Int.\nerr = Int('err')\n\n# The constraint:\n#   !(st->codecpar->codec_id == AV_CODEC_ID_PROBE) || !(pkt) || !((err = av_reallocp(...)) < 0)\n#\n# In C, `!(pkt)` is true when pkt is NULL (i.e., pkt == 0).\n# `!(err < 0)` is true when err >= 0.\n# The whole expression is a disjunction; we assert it as a constraint.\n#\n# Included because it is the only constraint given and it references `pkt`.\n\nconstraint = Or(\n    Not(codec_id_is_probe),   # codec_id != AV_CODEC_ID_PROBE\n    pkt == 0,                 # pkt is NULL\n    err >= 0                  # av_reallocp did not fail (err >= 0)\n)\n\ns = Solver()\ns.add(constraint)\n\n# Check satisfiability and print a model if satisfiable\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```",
+    "final z3 script: def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, sat\n\n    # Variables from base script\n    pkt = Int('pkt')\n\n    # Variables from constraint set 2\n    codec_id_is_probe = Bool('codec_id_is_probe')\n    err = Int('err')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(pkt == 0)\n\n    # Constraint set 2 constraint\n    s.add(Or(\n        Not(codec_id_is_probe),\n        pkt == 0,\n        err >= 0\n    ))\n\n    return s.check() == sat"
+  ],
+  "function_name_list": [],
+  "function_body_list": [],
+  "result": true
+}

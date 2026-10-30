@@ -1,0 +1,45 @@
+{
+  "call_id": 1182,
+  "sample_id": "NPD/infer/openssl:row=14:index=None",
+  "timestamp": "2026-10-26T01:09:18.036913+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!((sc = SSL_CONNECTION_FROM_CONST_SSL(ssl)) == NULL)']\n        Relevant conditions/variables: [], sc\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "d90ddb83-38cb-45ee-ba61-eb400dfd2863",
+  "usage": {
+    "prompt_tokens": 124,
+    "completion_tokens": 517,
+    "total_tokens": 641,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 124
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\n# Z3 script converting C constraint to Z3\n# Original C constraint: !((sc = SSL_CONNECTION_FROM_CONST_SSL(ssl)) == NULL)\n#\n# Analysis:\n#   - SSL_CONNECTION_FROM_CONST_SSL(ssl) is a macro/function that returns a pointer\n#     (SSL_CONNECTION*) derived from the SSL object. In Z3 we model its result as\n#     an uninterpreted function returning an uninterpreted sort (pointer-like).\n#   - The assignment `sc = ...` binds `sc` to that returned pointer.\n#   - The comparison `(... == NULL)` checks whether the returned pointer is NULL.\n#   - The outer `!` negates it, so the constraint asserts the pointer is NOT NULL.\n#   - Therefore the effective constraint on `sc` is: sc != NULL.\n#\n# We model NULL as a distinguished constant of the pointer sort, and\n# SSL_CONNECTION_FROM_CONST_SSL as an uninterpreted function from SSL to pointer.\n\nfrom z3 import *\n\n# Sort representing SSL objects (opaque)\nSSL = DeclareSort('SSL')\n\n# Sort representing SSL_CONNECTION pointers (opaque)\nSSL_CONNECTION = DeclareSort('SSL_CONNECTION')\n\n# NULL pointer constant\nNULL = Const('NULL', SSL_CONNECTION)\n\n# Uninterpreted function modeling the macro SSL_CONNECTION_FROM_CONST_SSL(ssl)\nSSL_CONNECTION_FROM_CONST_SSL = Function(\n    'SSL_CONNECTION_FROM_CONST_SSL', SSL, SSL_CONNECTION\n)\n\n# The SSL object referenced in the original expression\nssl = Const('ssl', SSL)\n\n# The variable `sc` (result of the assignment)\nsc = Const('sc', SSL_CONNECTION)\n\ns = Solver()\n\n# Constraint 1: sc equals the pointer returned by SSL_CONNECTION_FROM_CONST_SSL(ssl).\n# This captures the assignment `sc = SSL_CONNECTION_FROM_CONST_SSL(ssl)`.\ns.add(sc == SSL_CONNECTION_FROM_CONST_SSL(ssl))\n\n# Constraint 2: the negated NULL check, i.e. !(sc == NULL)  <=>  sc != NULL.\n# This is the actual assertion enforced by the original C expression.\ns.add(sc != NULL)\n\n# Check satisfiability and print result\nprint(s.check())\nprint(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.953932899999927,
+  "cost_upper_bound_cny": 0.004384
+}

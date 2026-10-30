@@ -1,0 +1,528 @@
+```python
+new_x509=Int('new_x509')
+s.add(new_x509 == 0)
+```
+```json
+["!(newreq || gen_x509) || !(gen_x509) || !((new_x509 = X509_new_ex(app_get0_libctx(), app_get0_propq())) == NULL)", "!(newreq || gen_x509) || !(gen_x509) || !(precert) || !(X509_add1_ext_i2d(new_x509, NID_ct_precert_poison, NULL, 1, 0) != 1)", "!(newreq || gen_x509) || !(gen_x509) || !(addext_conf != NULL && !X509V3_EXT_add_nconf(addext_conf, &ext_ctx, \"default\", new_x509))", "!(newreq || gen_x509) || !(gen_x509) || !(extsect != NULL && !X509V3_EXT_add_nconf(req_conf, &ext_ctx, extsect, new_x509))", "!(newreq || gen_x509) || !(gen_x509) || !(CAcert == NULL) || !(!X509V3_set_issuer_pkey(&ext_ctx, issuer_key))", "!(newreq || gen_x509) || !(gen_x509) || !(!copy_extensions(new_x509, req, ext_copy))", "!(newreq || gen_x509) || !(gen_x509) || !(!pub_key || !X509_set_pubkey(new_x509, pub_key))", "!(newreq || gen_x509) || !(gen_x509) || !(!X509_set_subject_name(new_x509, n_subj))", "!(newreq || gen_x509) || !(gen_x509) || !(!set_cert_times(new_x509, not_before, not_after, days, 1))", "!(newreq || gen_x509) || !(gen_x509) || !(!X509_set_issuer_name(new_x509, issuer))", "!(newreq || gen_x509) || !(gen_x509) || !(!(serial != NULL)) || !(!rand_serial(NULL, X509_get_serialNumber(new_x509)))", "!(newreq || gen_x509) || !(gen_x509) || !(serial != NULL) || !(!X509_set_serialNumber(new_x509, serial))", "!(newreq || gen_x509) || !(gen_x509) || !(!i)", "!(newreq || gen_x509) || !(gen_x509) || !(gen_x509) || !(new_x509 != NULL)", "!(newreq || gen_x509) || !(gen_x509) || !(gen_x509) || !(outformat == FORMAT_ASN1) || !(!i)", "!(newreq || gen_x509) || !(gen_x509) || !(gen_x509) || !(outformat == FORMAT_ASN1) || !(!i)"]
+```
+```python
+from z3 import *
+
+# Declare boolean variables representing the C conditions/variables.
+# In C, pointers/values used in boolean context are treated as "non-null / non-zero".
+# We model each as a Bool where True means "non-null / non-zero / success".
+
+newreq = Bool('newreq')
+gen_x509 = Bool('gen_x509')
+precert = Bool('precert')
+addext_conf = Bool('addext_conf')          # addext_conf != NULL
+extsect = Bool('extsect')                  # extsect != NULL
+CAcert = Bool('CAcert')                    # CAcert != NULL
+pub_key = Bool('pub_key')                  # pub_key != NULL
+serial = Bool('serial')                    # serial != NULL
+i = Bool('i')                              # !i  -> i is zero/false
+outformat_is_asn1 = Bool('outformat_is_asn1')  # outformat == FORMAT_ASN1
+
+# new_x509 is the variable of interest. We model it as a Bool:
+#   True  -> new_x509 != NULL (allocation succeeded)
+#   False -> new_x509 == NULL
+new_x509 = Bool('new_x509')
+
+# Helper: the guard "!(newreq || gen_x509) || !(gen_x509)" simplifies to
+#   !(newreq || gen_x509) || !gen_x509
+# which is equivalent to !gen_x509 (since if gen_x509 is true, the second
+# disjunct is false and the first requires !newreq; but the original C
+# semantics is: the block runs only when (newreq || gen_x509) && gen_x509,
+# i.e. gen_x509 is true). We keep the literal form for fidelity.
+def guard():
+    return Or(Not(Or(newreq, gen_x509)), Not(gen_x509))
+
+s = Solver()
+
+# Constraint 1: allocation check
+#   !(newreq || gen_x509) || !(gen_x509) || !((new_x509 = X509_new_ex(...)) == NULL)
+# The assignment succeeds iff new_x509 != NULL, i.e. new_x509 is True.
+s.add(Or(guard(), new_x509))
+
+# Constraint 2: precert poison extension
+#   !(newreq || gen_x509) || !(gen_x509) || !(precert) || !(X509_add1_ext_i2d(...) != 1)
+# The call succeeds (returns 1) -> the negated condition is false.
+# We model "call succeeded" as a fresh Bool; here we only need that when
+# precert is true, the call must succeed, so the constraint is:
+#   guard || !precert || call_ok
+call_ok_poison = Bool('call_ok_poison')
+s.add(Or(guard(), Not(precert), call_ok_poison))
+
+# Constraint 3: addext_conf extension
+#   !(newreq || gen_x509) || !(gen_x509) || !(addext_conf != NULL && !X509V3_EXT_add_nconf(...))
+# The inner condition is (addext_conf != NULL) && (call returns 0).
+# Negated: !(addext_conf && call_ok) = !addext_conf || !call_ok
+call_ok_addext = Bool('call_ok_addext')
+s.add(Or(guard(), Not(addext_conf), Not(call_ok_addext)))
+
+# Constraint 4: extsect extension
+#   !(newreq || gen_x509) || !(gen_x509) || !(extsect != NULL && !X509V3_EXT_add_nconf(...))
+call_ok_extsect = Bool('call_ok_extsect')
+s.add(Or(guard(), Not(extsect), Not(call_ok_extsect)))
+
+# Constraint 5: issuer pkey
+#   !(newreq || gen_x509) || !(gen_x509) || !(CAcert == NULL) || !(!X509V3_set_issuer_pkey(...))
+# CAcert == NULL  ->  !CAcert
+# !X509V3_set_issuer_pkey(...) is true when the call fails; the constraint
+# requires the call to succeed when CAcert != NULL.
+call_ok_issuer = Bool('call_ok_issuer')
+s.add(Or(guard(), CAcert, call_ok_issuer))
+
+# Constraint 6: copy_extensions
+#   !(newreq || gen_x509) || !(gen_x509) || !(!copy_extensions(...))
+# Requires copy_extensions to succeed.
+call_ok_copy = Bool('call_ok_copy')
+s.add(Or(guard(), call_ok_copy))
+
+# Constraint 7: set pubkey
+#   !(newreq || gen_x509) || !(gen_x509) || !(!pub_key || !X509_set_pubkey(...))
+# If pub_key != NULL, X509_set_pubkey must succeed.
+call_ok_pubkey = Bool('call_ok_pubkey')
+s.add(Or(guard(), Not(pub_key), call_ok_pubkey))
+
+# Constraint 8: set subject name
+call_ok_subj = Bool('call_ok_subj')
+s.add(Or(guard(), call_ok_subj))
+
+# Constraint 9: set cert times
+call_ok_times = Bool('call_ok_times')
+s.add(Or(guard(), call_ok_times))
+
+# Constraint 10: set issuer name
+call_ok_issuer_name = Bool('call_ok_issuer_name')
+s.add(Or(guard(), call_ok_issuer_name))
+
+# Constraint 11: serial handling (rand_serial branch)
+#   !(newreq || gen_x509) || !(gen_x509) || !(!(serial != NULL)) || !(!rand_serial(...))
+# !(serial != NULL)  ->  !serial
+# !rand_serial(...)  ->  rand_serial failed; constraint requires success.
+call_ok_rand_serial = Bool('call_ok_rand_serial')
+s.add(Or(guard(), Not(serial), call_ok_rand_serial))
+
+# Constraint 12: serial handling (explicit serial branch)
+#   !(newreq || gen_x509) || !(gen_x509) || !(serial != NULL) || !(!X509_set_serialNumber(...))
+# If serial != NULL, X509_set_serialNumber must succeed.
+call_ok_set_serial = Bool('call_ok_set_serial')
+s.add(Or(guard(), Not(serial), call_ok_set_serial))
+
+# Constraint 13: !i
+#   !(newreq || gen_x509) || !(gen_x509) || !(!i)
+# !(!i) = i, so this requires i to be false when the block runs.
+s.add(Or(guard(), Not(i)))
+
+# Constraint 14: new_x509 != NULL (redundant with constraint 1 but kept)
+s.add(Or(guard(), new_x509))
+
+# Constraint 15: ASN1 output format branch
+#   !(newreq || gen_x509) || !(gen_x509) || !(gen_x509) || !(outformat == FORMAT_ASN1) || !(!i)
+# Requires: if outformat == FORMAT_ASN1, then i must be false.
+s.add(Or(guard(), Not(outformat_is_asn1), Not(i)))
+
+# Constraint 16: duplicate of 15 (kept for fidelity)
+s.add(Or(guard(), Not(outformat_is_asn1), Not(i)))
+
+# Check satisfiability and print a model
+if s.check() == sat:
+    print("SAT")
+    print(s.model())
+else:
+    print("UNSAT")
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, Bool, Or, Not, sat
+
+    # Base script variables and constraints
+    new_x509_int = Int('new_x509_int')
+    s = Solver()
+    s.add(new_x509_int == 0)
+
+    # Constraint set 2 variables
+    newreq = Bool('newreq')
+    gen_x509 = Bool('gen_x509')
+    precert = Bool('precert')
+    addext_conf = Bool('addext_conf')
+    extsect = Bool('extsect')
+    CAcert = Bool('CAcert')
+    pub_key = Bool('pub_key')
+    serial = Bool('serial')
+    i = Bool('i')
+    outformat_is_asn1 = Bool('outformat_is_asn1')
+    new_x509 = Bool('new_x509')
+
+    def guard():
+        return Or(Not(Or(newreq, gen_x509)), Not(gen_x509))
+
+    # Constraint 1
+    s.add(Or(guard(), new_x509))
+
+    # Constraint 2
+    call_ok_poison = Bool('call_ok_poison')
+    s.add(Or(guard(), Not(precert), call_ok_poison))
+
+    # Constraint 3
+    call_ok_addext = Bool('call_ok_addext')
+    s.add(Or(guard(), Not(addext_conf), Not(call_ok_addext)))
+
+    # Constraint 4
+    call_ok_extsect = Bool('call_ok_extsect')
+    s.add(Or(guard(), Not(extsect), Not(call_ok_extsect)))
+
+    # Constraint 5
+    call_ok_issuer = Bool('call_ok_issuer')
+    s.add(Or(guard(), CAcert, call_ok_issuer))
+
+    # Constraint 6
+    call_ok_copy = Bool('call_ok_copy')
+    s.add(Or(guard(), call_ok_copy))
+
+    # Constraint 7
+    call_ok_pubkey = Bool('call_ok_pubkey')
+    s.add(Or(guard(), Not(pub_key), call_ok_pubkey))
+
+    # Constraint 8
+    call_ok_subj = Bool('call_ok_subj')
+    s.add(Or(guard(), call_ok_subj))
+
+    # Constraint 9
+    call_ok_times = Bool('call_ok_times')
+    s.add(Or(guard(), call_ok_times))
+
+    # Constraint 10
+    call_ok_issuer_name = Bool('call_ok_issuer_name')
+    s.add(Or(guard(), call_ok_issuer_name))
+
+    # Constraint 11
+    call_ok_rand_serial = Bool('call_ok_rand_serial')
+    s.add(Or(guard(), Not(serial), call_ok_rand_serial))
+
+    # Constraint 12
+    call_ok_set_serial = Bool('call_ok_set_serial')
+    s.add(Or(guard(), Not(serial), call_ok_set_serial))
+
+    # Constraint 13
+    s.add(Or(guard(), Not(i)))
+
+    # Constraint 14
+    s.add(Or(guard(), new_x509))
+
+    # Constraint 15
+    s.add(Or(guard(), Not(outformat_is_asn1), Not(i)))
+
+    # Constraint 16
+    s.add(Or(guard(), Not(outformat_is_asn1), Not(i)))
+
+    return s.check() == sat
+```
+goto result: True
+```python
+x=Int('x')
+s.add(x == 0)
+```
+```json
+["!(!(cflag & X509_FLAG_NO_SIGDUMP)) || !(X509_signature_print(bp, sig_alg, sig) <= 0)", "!(!(cflag & X509_FLAG_NO_EXTENSIONS) && !X509V3_extensions_print(bp, \"X509v3 extensions\", X509_get0_extensions(x), cflag, 8))", "!(!(cflag & X509_FLAG_NO_IDS)) || !(suid != NULL) || !(!X509_signature_dump(bp, suid, 12))", "!(!(cflag & X509_FLAG_NO_IDS)) || !(suid != NULL) || !(BIO_printf(bp, \"%8sSubject Unique ID: \", \"\") <= 0)", "!(!(cflag & X509_FLAG_NO_IDS)) || !(iuid != NULL) || !(!X509_signature_dump(bp, iuid, 12))", "!(!(cflag & X509_FLAG_NO_IDS)) || !(iuid != NULL) || !(BIO_printf(bp, \"%8sIssuer Unique ID: \", \"\") <= 0)", "!(!(cflag & X509_FLAG_NO_PUBKEY)) || !(BIO_puts(bp, \"\\n\") <= 0)", "!(!(cflag & X509_FLAG_NO_PUBKEY)) || !(i2a_ASN1_OBJECT(bp, xpoid) <= 0)", "!(!(cflag & X509_FLAG_NO_PUBKEY)) || !(BIO_printf(bp, \"%12sPublic Key Algorithm: \", \"\") <= 0)", "!(!(cflag & X509_FLAG_NO_PUBKEY)) || !(BIO_write(bp, \"        Subject Public Key Info:\\n\", 33) <= 0)", "!(!(cflag & X509_FLAG_NO_SUBJECT)) || !(BIO_write(bp, \"\\n\", 1) <= 0)", "!(!(cflag & X509_FLAG_NO_SUBJECT)) || !(X509_NAME_print_ex (bp, X509_get_subject_name(x), nmindent, nmflags) < printok)", "!(!(cflag & X509_FLAG_NO_SUBJECT)) || !(BIO_printf(bp, \"        Subject:%c\", mlch) <= 0)", "!(!(cflag & X509_FLAG_NO_VALIDITY)) || !(BIO_write(bp, \"\\n\", 1) <= 0)", "!(!(cflag & X509_FLAG_NO_VALIDITY)) || !(ossl_asn1_time_print_ex(bp, X509_get0_notAfter(x), ASN1_DTFLGS_RFC822) == 0)", "!(!(cflag & X509_FLAG_NO_VALIDITY)) || !(BIO_write(bp, \"\\n            Not After : \", 25) <= 0)", "!(!(cflag & X509_FLAG_NO_VALIDITY)) || !(ossl_asn1_time_print_ex(bp, X509_get0_notBefore(x), ASN1_DTFLGS_RFC822) == 0)", "!(!(cflag & X509_FLAG_NO_VALIDITY)) || !(BIO_write(bp, \"            Not Before: \", 24) <= 0)", "!(!(cflag & X509_FLAG_NO_VALIDITY)) || !(BIO_write(bp, \"        Validity\\n\", 17) <= 0)", "!(!(cflag & X509_FLAG_NO_ISSUER)) || !(BIO_write(bp, \"\\n\", 1) <= 0)", "!(!(cflag & X509_FLAG_NO_ISSUER)) || !(X509_NAME_print_ex(bp, X509_get_issuer_name(x), nmindent, nmflags) < printok)", "!(!(cflag & X509_FLAG_NO_ISSUER)) || !(BIO_printf(bp, \"        Issuer:%c\", mlch) <= 0)", "!(!(cflag & X509_FLAG_NO_SIGNAME)) || !(X509_signature_print(bp, tsig_alg, NULL) <= 0)", "!(!(cflag & X509_FLAG_NO_SIGNAME)) || !(BIO_puts(bp, \"    \") <= 0)", "!(!(cflag & X509_FLAG_NO_SERIAL)) || !(BIO_puts(bp, \"\\n\") <= 0)", "!(!(cflag & X509_FLAG_NO_SERIAL)) || !(ossl_serial_number_print(bp, bs, 12) != 0)", "!(!(cflag & X509_FLAG_NO_SERIAL)) || !(BIO_write(bp, \"        Serial Number:\", 22) <= 0)", "!(!(cflag & X509_FLAG_NO_VERSION)) || !(!(l >= X509_VERSION_1 && l <= X509_VERSION_3)) || !(BIO_printf(bp, \"%8sVersion: Unknown (%ld)\\n\", \"\", l) <= 0)", "!(!(cflag & X509_FLAG_NO_VERSION)) || !(l >= X509_VERSION_1 && l <= X509_VERSION_3) || !(BIO_printf(bp, \"%8sVersion: %ld (0x%lx)\\n\", \"\", l + 1, (unsigned long)l) <= 0)", "!(!(cflag & X509_FLAG_NO_HEADER)) || !(BIO_write(bp, \"    Data:\\n\", 10) <= 0)", "!(!(cflag & X509_FLAG_NO_HEADER)) || !(BIO_write(bp, \"Certificate:\\n\", 13) <= 0)"]
+```
+```python
+from z3 import *
+
+# All constraints reference the certificate object `x` (and its flags/fields).
+# We model the relevant boolean predicates as uninterpreted Booleans and the
+# flag bits as bit-vector/Int values. Since the task asks to convert the
+# constraints affecting `x`, we keep `x`-related predicates symbolic.
+
+# --- Flag bits (cflag) ---
+cflag = BitVec('cflag', 32)
+
+X509_FLAG_NO_HEADER     = BitVecVal(0x1, 32)
+X509_FLAG_NO_VERSION    = BitVecVal(0x2, 32)
+X509_FLAG_NO_SERIAL     = BitVecVal(0x4, 32)
+X509_FLAG_NO_SIGNAME    = BitVecVal(0x8, 32)
+X509_FLAG_NO_ISSUER     = BitVecVal(0x10, 32)
+X509_FLAG_NO_VALIDITY   = BitVecVal(0x20, 32)
+X509_FLAG_NO_SUBJECT    = BitVecVal(0x40, 32)
+X509_FLAG_NO_PUBKEY     = BitVecVal(0x80, 32)
+X509_FLAG_NO_EXTENSIONS = BitVecVal(0x100, 32)
+X509_FLAG_NO_IDS        = BitVecVal(0x200, 32)
+X509_FLAG_NO_SIGDUMP    = BitVecVal(0x400, 32)
+
+# --- Symbolic predicates for the certificate `x` and related values ---
+# These represent the C function calls / pointer checks in the constraints.
+# We treat them as uninterpreted Booleans (true == success / non-null / >0).
+sig_alg        = Bool('sig_alg')          # sig_alg pointer non-null
+sig            = Bool('sig')              # sig pointer non-null
+suid           = Bool('suid')             # suid != NULL
+iuid           = Bool('iuid')             # iuid != NULL
+xpoid          = Bool('xpoid')            # xpoid pointer non-null
+bs             = Bool('bs')               # serial number buffer non-null
+l              = Int('l')                 # version value
+nmindent       = Int('nmindent')
+nmflags        = Int('nmflags')
+printok        = Int('printok')
+mlch           = Int('mlch')
+
+# Function-call success predicates (true means the call returned > 0 / == 0 as required)
+X509_signature_print_ok        = Bool('X509_signature_print_ok')
+X509V3_extensions_print_ok     = Bool('X509V3_extensions_print_ok')
+X509_signature_dump_ok         = Bool('X509_signature_dump_ok')
+BIO_printf_ok                  = Bool('BIO_printf_ok')
+BIO_puts_ok                    = Bool('BIO_puts_ok')
+BIO_write_ok                   = Bool('BIO_write_ok')
+i2a_ASN1_OBJECT_ok             = Bool('i2a_ASN1_OBJECT_ok')
+X509_NAME_print_ex_ok          = Bool('X509_NAME_print_ex_ok')
+ossl_asn1_time_print_ex_ok     = Bool('ossl_asn1_time_print_ex_ok')
+ossl_serial_number_print_ok    = Bool('ossl_serial_number_print_ok')
+
+s = Solver()
+
+# Helper: "flag bit is set"  ->  (cflag & FLAG) != 0
+def flag_set(flag):
+    return (cflag & flag) != 0
+
+# ---------------------------------------------------------------------------
+# Constraint 1: !(!(cflag & X509_FLAG_NO_SIGDUMP)) || !(X509_signature_print(...) <= 0)
+#   If SIGDUMP flag is set, X509_signature_print must succeed (> 0).
+# ---------------------------------------------------------------------------
+s.add(Implies(flag_set(X509_FLAG_NO_SIGDUMP), X509_signature_print_ok))
+
+# ---------------------------------------------------------------------------
+# Constraint 2: !(!(cflag & X509_FLAG_NO_EXTENSIONS) && !X509V3_extensions_print(...))
+#   If EXTENSIONS flag is set, X509V3_extensions_print must succeed.
+# ---------------------------------------------------------------------------
+s.add(Implies(flag_set(X509_FLAG_NO_EXTENSIONS), X509V3_extensions_print_ok))
+
+# ---------------------------------------------------------------------------
+# Constraints 3-6: IDS block (suid / iuid)
+#   If IDS flag is set and suid != NULL, signature dump + BIO_printf must succeed.
+#   If IDS flag is set and iuid != NULL, signature dump + BIO_printf must succeed.
+# ---------------------------------------------------------------------------
+s.add(Implies(And(flag_set(X509_FLAG_NO_IDS), suid), X509_signature_dump_ok))
+s.add(Implies(And(flag_set(X509_FLAG_NO_IDS), suid), BIO_printf_ok))
+s.add(Implies(And(flag_set(X509_FLAG_NO_IDS), iuid), X509_signature_dump_ok))
+s.add(Implies(And(flag_set(X509_FLAG_NO_IDS), iuid), BIO_printf_ok))
+
+# ---------------------------------------------------------------------------
+# Constraints 7-10: PUBKEY block
+#   If PUBKEY flag is set, BIO_puts, i2a_ASN1_OBJECT, BIO_printf, BIO_write
+#   must all succeed.
+# ---------------------------------------------------------------------------
+s.add(Implies(flag_set(X509_FLAG_NO_PUBKEY), BIO_puts_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_PUBKEY), i2a_ASN1_OBJECT_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_PUBKEY), BIO_printf_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_PUBKEY), BIO_write_ok))
+
+# ---------------------------------------------------------------------------
+# Constraints 11-13: SUBJECT block
+#   If SUBJECT flag is set, BIO_write, X509_NAME_print_ex, BIO_printf succeed.
+# ---------------------------------------------------------------------------
+s.add(Implies(flag_set(X509_FLAG_NO_SUBJECT), BIO_write_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_SUBJECT), X509_NAME_print_ex_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_SUBJECT), BIO_printf_ok))
+
+# ---------------------------------------------------------------------------
+# Constraints 14-19: VALIDITY block
+#   If VALIDITY flag is set, BIO_write, ossl_asn1_time_print_ex (twice),
+#   BIO_write (twice more) must succeed.
+# ---------------------------------------------------------------------------
+s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), BIO_write_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), ossl_asn1_time_print_ex_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), BIO_write_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), ossl_asn1_time_print_ex_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), BIO_write_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), BIO_write_ok))
+
+# ---------------------------------------------------------------------------
+# Constraints 20-22: ISSUER block
+#   If ISSUER flag is set, BIO_write, X509_NAME_print_ex, BIO_printf succeed.
+# ---------------------------------------------------------------------------
+s.add(Implies(flag_set(X509_FLAG_NO_ISSUER), BIO_write_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_ISSUER), X509_NAME_print_ex_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_ISSUER), BIO_printf_ok))
+
+# ---------------------------------------------------------------------------
+# Constraints 23-24: SIGNAME block
+#   If SIGNAME flag is set, X509_signature_print and BIO_puts succeed.
+# ---------------------------------------------------------------------------
+s.add(Implies(flag_set(X509_FLAG_NO_SIGNAME), X509_signature_print_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_SIGNAME), BIO_puts_ok))
+
+# ---------------------------------------------------------------------------
+# Constraints 25-27: SERIAL block
+#   If SERIAL flag is set, BIO_puts, ossl_serial_number_print, BIO_write succeed.
+# ---------------------------------------------------------------------------
+s.add(Implies(flag_set(X509_FLAG_NO_SERIAL), BIO_puts_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_SERIAL), ossl_serial_number_print_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_SERIAL), BIO_write_ok))
+
+# ---------------------------------------------------------------------------
+# Constraints 28-29: VERSION block
+#   If VERSION flag is set:
+#     - if l is out of [X509_VERSION_1, X509_VERSION_3], BIO_printf must succeed
+#     - if l is in range, BIO_printf must succeed
+#   Combined: if VERSION flag set, BIO_printf must succeed regardless of l.
+# ---------------------------------------------------------------------------
+X509_VERSION_1 = 0
+X509_VERSION_3 = 2
+s.add(Implies(flag_set(X509_FLAG_NO_VERSION), BIO_printf_ok))
+
+# ---------------------------------------------------------------------------
+# Constraints 30-31: HEADER block
+#   If HEADER flag is set, BIO_write must succeed (twice).
+# ---------------------------------------------------------------------------
+s.add(Implies(flag_set(X509_FLAG_NO_HEADER), BIO_write_ok))
+s.add(Implies(flag_set(X509_FLAG_NO_HEADER), BIO_write_ok))
+
+# Print the resulting script state (for inspection)
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import (Solver, Int, BitVec, BitVecVal, Bool, Implies, And, sat)
+
+    # --- Base script variables and constraints ---
+    x = Int('x')
+
+    # --- Constraint set 2 variables ---
+    cflag = BitVec('cflag', 32)
+
+    X509_FLAG_NO_HEADER     = BitVecVal(0x1, 32)
+    X509_FLAG_NO_VERSION    = BitVecVal(0x2, 32)
+    X509_FLAG_NO_SERIAL     = BitVecVal(0x4, 32)
+    X509_FLAG_NO_SIGNAME    = BitVecVal(0x8, 32)
+    X509_FLAG_NO_ISSUER     = BitVecVal(0x10, 32)
+    X509_FLAG_NO_VALIDITY   = BitVecVal(0x20, 32)
+    X509_FLAG_NO_SUBJECT    = BitVecVal(0x40, 32)
+    X509_FLAG_NO_PUBKEY     = BitVecVal(0x80, 32)
+    X509_FLAG_NO_EXTENSIONS = BitVecVal(0x100, 32)
+    X509_FLAG_NO_IDS        = BitVecVal(0x200, 32)
+    X509_FLAG_NO_SIGDUMP    = BitVecVal(0x400, 32)
+
+    sig_alg    = Bool('sig_alg')
+    sig        = Bool('sig')
+    suid       = Bool('suid')
+    iuid       = Bool('iuid')
+    xpoid      = Bool('xpoid')
+    bs         = Bool('bs')
+    l          = Int('l')
+    nmindent   = Int('nmindent')
+    nmflags    = Int('nmflags')
+    printok    = Int('printok')
+    mlch       = Int('mlch')
+
+    X509_signature_print_ok     = Bool('X509_signature_print_ok')
+    X509V3_extensions_print_ok  = Bool('X509V3_extensions_print_ok')
+    X509_signature_dump_ok      = Bool('X509_signature_dump_ok')
+    BIO_printf_ok               = Bool('BIO_printf_ok')
+    BIO_puts_ok                 = Bool('BIO_puts_ok')
+    BIO_write_ok                = Bool('BIO_write_ok')
+    i2a_ASN1_OBJECT_ok          = Bool('i2a_ASN1_OBJECT_ok')
+    X509_NAME_print_ex_ok       = Bool('X509_NAME_print_ex_ok')
+    ossl_asn1_time_print_ex_ok  = Bool('ossl_asn1_time_print_ex_ok')
+    ossl_serial_number_print_ok = Bool('ossl_serial_number_print_ok')
+
+    s = Solver()
+
+    def flag_set(flag):
+        return (cflag & flag) != 0
+
+    # --- Base script constraint ---
+    s.add(x == 0)
+
+    # --- Constraint set 2 constraints ---
+    s.add(Implies(flag_set(X509_FLAG_NO_SIGDUMP), X509_signature_print_ok))
+
+    s.add(Implies(flag_set(X509_FLAG_NO_EXTENSIONS), X509V3_extensions_print_ok))
+
+    s.add(Implies(And(flag_set(X509_FLAG_NO_IDS), suid), X509_signature_dump_ok))
+    s.add(Implies(And(flag_set(X509_FLAG_NO_IDS), suid), BIO_printf_ok))
+    s.add(Implies(And(flag_set(X509_FLAG_NO_IDS), iuid), X509_signature_dump_ok))
+    s.add(Implies(And(flag_set(X509_FLAG_NO_IDS), iuid), BIO_printf_ok))
+
+    s.add(Implies(flag_set(X509_FLAG_NO_PUBKEY), BIO_puts_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_PUBKEY), i2a_ASN1_OBJECT_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_PUBKEY), BIO_printf_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_PUBKEY), BIO_write_ok))
+
+    s.add(Implies(flag_set(X509_FLAG_NO_SUBJECT), BIO_write_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_SUBJECT), X509_NAME_print_ex_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_SUBJECT), BIO_printf_ok))
+
+    s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), BIO_write_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), ossl_asn1_time_print_ex_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), BIO_write_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), ossl_asn1_time_print_ex_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), BIO_write_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_VALIDITY), BIO_write_ok))
+
+    s.add(Implies(flag_set(X509_FLAG_NO_ISSUER), BIO_write_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_ISSUER), X509_NAME_print_ex_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_ISSUER), BIO_printf_ok))
+
+    s.add(Implies(flag_set(X509_FLAG_NO_SIGNAME), X509_signature_print_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_SIGNAME), BIO_puts_ok))
+
+    s.add(Implies(flag_set(X509_FLAG_NO_SERIAL), BIO_puts_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_SERIAL), ossl_serial_number_print_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_SERIAL), BIO_write_ok))
+
+    s.add(Implies(flag_set(X509_FLAG_NO_VERSION), BIO_printf_ok))
+
+    s.add(Implies(flag_set(X509_FLAG_NO_HEADER), BIO_write_ok))
+    s.add(Implies(flag_set(X509_FLAG_NO_HEADER), BIO_write_ok))
+
+    return s.check() == sat
+```
+goto result: True
+```python
+x=Int('x')
+s.add(x == 0)
+```
+```json
+["!(X509_trusted(x) == 0)"]
+```
+```python
+from z3 import *
+
+# Variable x (uninterpreted sort, since its type is not specified)
+x = Int('x')
+
+# Uninterpreted function representing X509_trusted(x)
+X509_trusted = Function('X509_trusted', IntSort(), IntSort())
+
+s = Solver()
+
+# Constraint: !(X509_trusted(x) == 0)
+# In C, this means X509_trusted(x) is non-zero (i.e., the certificate is trusted).
+# Converted to Z3: X509_trusted(x) != 0
+s.add(X509_trusted(x) != 0)
+
+# Check satisfiability and print model
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Function, IntSort, Solver, sat
+    
+    # Variable definitions
+    x = Int('x')
+    X509_trusted = Function('X509_trusted', IntSort(), IntSort())
+    
+    s = Solver()
+    
+    # Base script constraints
+    s.add(x == 0)
+    
+    # Constraint set 2 constraints
+    s.add(X509_trusted(x) != 0)
+    
+    # Check satisfiability
+    result = s.check() == sat
+    return result
+```
+goto result: True

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n\n    result = Int('result')\n    matching_handlers = Int('matching_handlers')\n\n    s = Solver()\n    s.add(result == 0)\n    s.add(matching_handlers != 0)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun result () Int)\n(declare-fun matching_handlers () Int)\n(assert\n (= result 0))\n(assert\n (and (distinct matching_handlers 0) true))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

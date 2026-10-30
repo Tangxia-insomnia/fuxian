@@ -1,0 +1,22 @@
+{
+  "var_name": "tmp",
+  "function_name": "radix_sort",
+  "location": {
+    "file_path": "libavcodec/dnxhdenc.c",
+    "region": {
+      "startLine": 956,
+      "startColumn": 21,
+      "endColumn": 24
+    },
+    "context": {
+      "startLine": 954,
+      "endLine": 958,
+      "snippet": {
+        "text": "radix_sort_pass(tmp, data, size, buckets[0], 0);"
+      }
+    }
+  },
+  "function_code": "static void radix_sort(RCCMPEntry *data, int size)\n{\n    int buckets[RADIX_PASSES][NBUCKETS];\n    RCCMPEntry *tmp = av_malloc(sizeof(*tmp) * size);\n    radix_count(data, size, buckets);\n    radix_sort_pass(tmp, data, size, buckets[0], 0);\n    radix_sort_pass(data, tmp, size, buckets[1], 1);\n    if (buckets[2][NBUCKETS - 1] || buckets[3][NBUCKETS - 1]) {\n        radix_sort_pass(tmp, data, size, buckets[2], 2);\n        radix_sort_pass(data, tmp, size, buckets[3], 3);\n    }\n    av_free(tmp);\n}",
+  "result": 0,
+  "index": 20
+}

@@ -1,0 +1,95 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/infer/openssl:row=11:index=None",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "sc",
+    "function_name": "ossl_quic_tls_is_cert_request",
+    "location": {
+      "file_path": "ssl/quic/quic_tls.c",
+      "region": {
+        "startLine": 862,
+        "startColumn": 12,
+        "endColumn": 14
+      },
+      "context": {
+        "startLine": 860,
+        "endLine": 864,
+        "snippet": {
+          "text": "return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;"
+        }
+      }
+    },
+    "function_code": "int ossl_quic_tls_is_cert_request(QUIC_TLS *qtls)\n{\n    SSL_CONNECTION *sc = SSL_CONNECTION_FROM_SSL(qtls->args.s);\n\n    return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;\n}"
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "ossl_quic_tls_is_cert_request",
+        "var_name": "sc",
+        "target": "return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;",
+        "code": "int ossl_quic_tls_is_cert_request(QUIC_TLS *qtls)\n{\n    SSL_CONNECTION *sc = SSL_CONNECTION_FROM_SSL(qtls->args.s);\n\n    return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;\n}",
+        "body_sha256": "541c1087c652cd957da042ca0f68876b8e8a64f7de37345ea818d18e6dad7435",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "int ossl_quic_tls_is_cert_request(QUIC_TLS *qtls)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": []
+            }
+          ],
+          "filter_function_code": "int ossl_quic_tls_is_cert_request(QUIC_TLS *qtls)\n{\n    SSL_CONNECTION *sc = SSL_CONNECTION_FROM_SSL(qtls->args.s);\n\n    return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "int ossl_quic_tls_is_cert_request(QUIC_TLS *qtls)\n{\n    SSL_CONNECTION *sc = SSL_CONNECTION_FROM_SSL(qtls->args.s);\n\n    return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nsc=Int('sc')\ns.add(sc == 0)\n```"
+    ],
+    "function_name_list": [],
+    "function_body_list": [],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    sc = Int('sc')\n    s = Solver()\n    s.add(sc == 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sc () Int)\n(assert\n (= sc 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

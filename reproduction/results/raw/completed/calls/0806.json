@@ -1,0 +1,45 @@
+{
+  "call_id": 806,
+  "sample_id": "NPD/codeql/openssl:row=35:index=37",
+  "timestamp": "2026-10-26T01:01:04.761431+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(in == NULL) || !(!do_passwd(passed_salt, &salt, &salt_malloc, passwd, bio_out, quiet, table, reverse, pw_maxlen, mode))', '!(in == NULL) || !(EVP_read_pw_string (passwd_malloc, passwd_malloc_size, \"Password: \", !(passed_salt || in_noverify)) != 0)']\n        Relevant conditions/variables: [], passwds\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "11638717-6852-44d4-b94a-a11e417fef28",
+  "usage": {
+    "prompt_tokens": 195,
+    "completion_tokens": 453,
+    "total_tokens": 648,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 195
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables referenced in the constraints.\n# `in` is a pointer; model it as an integer address (0 == NULL).\nin_ptr = Int('in')\n# `passed_salt` is a pointer; model as integer address (0 == NULL).\npassed_salt = Int('passed_salt')\n# `in_noverify` is a boolean flag.\nin_noverify = Bool('in_noverify')\n\n# `do_passwd(...)` is an opaque C function returning a boolean-ish int.\n# Model its return value as an uninterpreted boolean.\ndo_passwd_ret = Bool('do_passwd_ret')\n\n# `EVP_read_pw_string(...)` returns an int; the constraint checks `!= 0`.\n# Model its return value as an uninterpreted integer.\nevp_read_pw_string_ret = Int('evp_read_pw_string_ret')\n\ns = Solver()\n\n# Constraint 1:\n#   !(in == NULL) || !(!do_passwd(...))\n# In C: if `in` is non-NULL, then `do_passwd(...)` must be truthy.\n# Rewritten: (in != 0) => do_passwd_ret\n# (double negation of do_passwd collapses to do_passwd_ret)\ns.add(Implies(in_ptr != 0, do_passwd_ret))\n\n# Constraint 2:\n#   !(in == NULL) || !(EVP_read_pw_string(...) != 0)\n# In C: if `in` is non-NULL, then EVP_read_pw_string(...) must return 0.\n# Rewritten: (in != 0) => (evp_read_pw_string_ret == 0)\ns.add(Implies(in_ptr != 0, evp_read_pw_string_ret == 0))\n\n# Note: `passed_salt` and `in_noverify` appear only inside the opaque\n# EVP_read_pw_string call, so they do not constrain the solver directly.\n# They are declared above for completeness / future refinement.\n\nprint(s)\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.657394999999269,
+  "cost_upper_bound_cny": 0.004014
+}

@@ -1,0 +1,45 @@
+{
+  "call_id": 501,
+  "sample_id": "NPD/codeql/libav:row=24:index=31",
+  "timestamp": "2026-10-26T00:53:40.860446+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static Jpeg2000TgtNode *ff_jpeg2000_tag_tree_init(int w, int h)\n{\n    int pw = w, ph = h;\n    Jpeg2000TgtNode *res, *t, *t2;\n    int32_t tt_size;\n\n    tt_size = tag_tree_size(w, h);\n    if (tt_size == -1)\n        return NULL;\n\n    t = res = av_mallocz_array(tt_size, sizeof(*t));\n    if (!res)\n        return NULL;\n\n    while (w > 1 || h > 1) {\n        int i, j;\n        pw = w;\n        ph = h;\n\n        w  = (w + 1) >> 1;\n        h  = (h + 1) >> 1;\n        t2 = t + pw * ph;\n\n        for (i = 0; i < ph; i++)\n            for (j = 0; j < pw; j++)\n                t[i * pw + j].parent = &t2[(i >> 1) * w + (j >> 1)];\n\n        t = t2;\n    }\n    t[0].parent = NULL;\n    return res;\n}\n        - Target variables: [], t\n        - Constraints: ['!(!res)', '!(tt_size == -1)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "390b4417-0723-4ea3-8b18-64c15157a59a",
+  "usage": {
+    "prompt_tokens": 351,
+    "completion_tokens": 5,
+    "total_tokens": 356,
+    "prompt_tokens_details": {
+      "cached_tokens": 128
+    },
+    "prompt_cache_hit_tokens": 128,
+    "prompt_cache_miss_tokens": 223
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.5974187000001621,
+  "cost_upper_bound_cny": 0.000742
+}

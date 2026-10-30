@@ -1,0 +1,202 @@
+{
+  "audit_id": "A05",
+  "sample_id": "NPD/codeql/kernel69:row=55:index=81",
+  "selection_reason": "上下文阻塞；复合实参",
+  "selection": "purposive diagnostic; not random and not representative",
+  "label": 0,
+  "prediction": null,
+  "status": "blocked_context",
+  "error": "Tracked value passed via an unsupported compound argument",
+  "source_status": "No explicit source location/complete SARIF codeFlow in published row; raw function_list/assignment hints preserved, not invented",
+  "sink": {
+    "file_path": "net/mac80211/mlme.c",
+    "region": {
+      "startLine": 3428,
+      "startColumn": 28,
+      "endColumn": 31
+    },
+    "context": {
+      "startLine": 3426,
+      "endLine": 3430,
+      "snippet": {
+        "text": "\t\t\tieee80211_check_fast_rx(sta);"
+      }
+    }
+  },
+  "saved_context_exists": false,
+  "function_chain": [],
+  "final_attempt_call_ids": [],
+  "earlier_attempt_call_ids_not_reused": [],
+  "solver_evidence": [],
+  "argument_parameter_mapping": [
+    {
+      "function_level": 0,
+      "diagnostic_only": true,
+      "call": {
+        "name": "WARN_ON",
+        "arguments": [
+          "!sta"
+        ],
+        "start": 949,
+        "end": 962,
+        "text": "WARN_ON(!sta)"
+      }
+    },
+    {
+      "function_level": 0,
+      "diagnostic_only": true,
+      "call": {
+        "name": "ieee80211_check_fast_rx",
+        "arguments": [
+          "sta"
+        ],
+        "start": 967,
+        "end": 995,
+        "text": "ieee80211_check_fast_rx(sta)"
+      }
+    },
+    {
+      "function_level": 1,
+      "diagnostic_only": true,
+      "call": {
+        "name": "ieee80211_check_fast_rx",
+        "arguments": [
+          "struct sta_info *sta"
+        ],
+        "start": 5,
+        "end": 50,
+        "text": "ieee80211_check_fast_rx(struct sta_info *sta)"
+      }
+    },
+    {
+      "function_level": 1,
+      "diagnostic_only": true,
+      "call": {
+        "name": "test_sta_flag",
+        "arguments": [
+          "sta",
+          "WLAN_STA_AUTHORIZED"
+        ],
+        "start": 3082,
+        "end": 3121,
+        "text": "test_sta_flag(sta, WLAN_STA_AUTHORIZED)"
+      }
+    },
+    {
+      "function_level": 1,
+      "diagnostic_only": true,
+      "call": {
+        "name": "rcu_dereference",
+        "arguments": [
+          "sta->ptk[sta->ptk_idx]"
+        ],
+        "start": 3163,
+        "end": 3202,
+        "text": "rcu_dereference(sta->ptk[sta->ptk_idx])"
+      }
+    },
+    {
+      "function_level": 1,
+      "diagnostic_only": true,
+      "call": {
+        "name": "test_and_set_sta_flag",
+        "arguments": [
+          "sta",
+          "WLAN_STA_DECAP_OFFLOAD"
+        ],
+        "start": 4037,
+        "end": 4087,
+        "text": "test_and_set_sta_flag(sta, WLAN_STA_DECAP_OFFLOAD)"
+      }
+    },
+    {
+      "function_level": 1,
+      "diagnostic_only": true,
+      "call": {
+        "name": "test_and_clear_sta_flag",
+        "arguments": [
+          "sta",
+          "WLAN_STA_DECAP_OFFLOAD"
+        ],
+        "start": 4111,
+        "end": 4163,
+        "text": "test_and_clear_sta_flag(sta, WLAN_STA_DECAP_OFFLOAD)"
+      }
+    },
+    {
+      "function_level": 1,
+      "diagnostic_only": true,
+      "call": {
+        "name": "drv_sta_set_decap_offload",
+        "arguments": [
+          "local",
+          "sdata",
+          "&sta->sta",
+          "assign"
+        ],
+        "start": 4186,
+        "end": 4244,
+        "text": "drv_sta_set_decap_offload(local, sdata, &sta->sta, assign)"
+      }
+    },
+    {
+      "function_level": 1,
+      "diagnostic_only": true,
+      "call": {
+        "name": "spin_lock_bh",
+        "arguments": [
+          "&sta->lock"
+        ],
+        "start": 4248,
+        "end": 4272,
+        "text": "spin_lock_bh(&sta->lock)"
+      }
+    },
+    {
+      "function_level": 1,
+      "diagnostic_only": true,
+      "call": {
+        "name": "rcu_dereference_protected",
+        "arguments": [
+          "sta->fast_rx",
+          "true"
+        ],
+        "start": 4281,
+        "end": 4326,
+        "text": "rcu_dereference_protected(sta->fast_rx, true)"
+      }
+    },
+    {
+      "function_level": 1,
+      "diagnostic_only": true,
+      "call": {
+        "name": "rcu_assign_pointer",
+        "arguments": [
+          "sta->fast_rx",
+          "new"
+        ],
+        "start": 4329,
+        "end": 4366,
+        "text": "rcu_assign_pointer(sta->fast_rx, new)"
+      }
+    },
+    {
+      "function_level": 1,
+      "diagnostic_only": true,
+      "call": {
+        "name": "spin_unlock_bh",
+        "arguments": [
+          "&sta->lock"
+        ],
+        "start": 4369,
+        "end": 4395,
+        "text": "spin_unlock_bh(&sta->lock)"
+      }
+    }
+  ],
+  "duration_seconds": 0.00830249999944499,
+  "cost_upper_bound_cny": 0.0,
+  "missing_steps": [
+    "See recorded error; unexecuted steps have no LLM/SMT output and are not fabricated"
+  ]
+}

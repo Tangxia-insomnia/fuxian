@@ -1,0 +1,759 @@
+--- /dev/null
++++ safety/__init__.py
+@@ -0,0 +1 @@
++"""Conservative final decisions over saved evidence; no model client imports."""
+--- /dev/null
++++ safety/metrics.py
+@@ -0,0 +1,73 @@
++"""Separate retained alerts (KEEP+UNKNOWN) from confident KEEP predictions."""
++from collections import Counter
++from statistics import mean
++
++
++def ratio(a, b):
++    return a / b if b else None
++
++
++def evaluate(rows):
++    ids = [r['sample_id'] for r in rows]
++    if len(set(ids)) != len(ids):
++        raise ValueError('Duplicate sample IDs')
++    counts = {str(label): Counter({'FILTER': 0, 'KEEP': 0, 'UNKNOWN': 0}) for label in (0, 1)}
++    unlabeled = Counter()
++    deleted = []
++    evidence = []
++    for row in rows:
++        verdict = row['verdict']
++        if verdict not in ('FILTER', 'KEEP', 'UNKNOWN'):
++            raise ValueError('Unknown verdict')
++        expected = 'FILTER' if verdict == 'FILTER' else 'KEEP'
++        if row.get('action') != expected:
++            raise ValueError('UNKNOWN/KEEP must retain alert')
++        label = row.get('dataset_label')
++        if type(label) is int and label in (0, 1):
++            counts[str(label)][verdict] += 1
++            if label == 1 and verdict == 'FILTER':
++                deleted.append(row['sample_id'])
++        else:
++            unlabeled[verdict] += 1
++        if verdict == 'FILTER':
++            if row.get('filter_evidence_complete') is not True:
++                raise ValueError('Filtered record without complete evidence')
++            evidence.append({'sample_id': row['sample_id'], 'evidence_complete': True,
++                             'evidence_sha256': row.get('evidence_sha256'),
++                             'review_sha256': row.get('review_sha256')})
++    fp, bug = counts['0'], counts['1']
++    n_fp, n_bug = sum(fp.values()), sum(bug.values())
++    precision = ratio(fp['FILTER'], fp['FILTER'] + bug['FILTER'])
++    recall = ratio(fp['FILTER'], n_fp)
++    f1 = (None if precision is None or recall is None else
++          (2*precision*recall/(precision+recall) if precision+recall else 0.0))
++    return {
++        'sample_count': len(rows), 'dataset_label_status': 'published_labels_not_independently_verified',
++        'confusion_matrix': {'rows': ['published_false_alarm', 'published_real_bug'],
++                             'columns': ['FILTER', 'KEEP', 'UNKNOWN'],
++                             'values': [[counts[str(y)][v] for v in ('FILTER', 'KEEP', 'UNKNOWN')] for y in (0, 1)]},
++        'unverified_or_missing_label_count': sum(unlabeled.values()),
++        'unverified_or_missing_label_verdicts': dict(unlabeled),
++        'false_alarm_count': n_fp, 'real_bug_count': n_bug,
++        'operational_real_bug_retention_rate': ratio(bug['KEEP'] + bug['UNKNOWN'], n_bug),
++        'explicit_keep_real_bug_rate': ratio(bug['KEEP'], n_bug),
++        'unknown_real_bug_rate': ratio(bug['UNKNOWN'], n_bug),
++        'real_bug_deletion_rate': ratio(bug['FILTER'], n_bug),
++        'real_bug_deletion_cases': deleted,
++        'false_positive_filter_rate': ratio(fp['FILTER'], n_fp),
++        'unknown_count': sum(r['verdict'] == 'UNKNOWN' for r in rows),
++        'unknown_rate': ratio(sum(r['verdict'] == 'UNKNOWN' for r in rows), len(rows)),
++        'auto_filter_count': len(evidence), 'auto_filter_evidence': evidence,
++        'positive_class': 'published_false_alarm_to_filter',
++        'precision': precision, 'recall': recall, 'f1': f1,
++        'undefined_metric_policy': 'precision/F1 null when no positive prediction; not perfect performance',
++        'original_execution_success_count': sum(r.get('original_status') == 'success' for r in rows),
++        'original_execution_success_rate': ratio(sum(r.get('original_status') == 'success' for r in rows), len(rows)),
++        'mean_original_final_attempt_seconds': mean(r['original_duration_seconds'] for r in rows) if rows else None,
++        'mean_offline_gate_seconds': mean(r['decision_seconds'] for r in rows) if rows else None,
++        'historical_final_attempt_api_calls': sum(r['original_api_calls'] for r in rows),
++        'historical_final_attempt_cost_upper_cny': sum(r['original_cost_upper_cny'] for r in rows),
++        'new_model_calls': sum(r['new_model_calls'] for r in rows),
++        'new_api_cost_cny': sum(r['new_api_cost_cny'] for r in rows),
++        'retention_meaning': 'KEEP+UNKNOWN means alert not deleted; not proof of semantic detection, completeness, or generalization',
++    }
+--- /dev/null
++++ safety/policy.py
+@@ -0,0 +1,242 @@
++"""Keep alerts unless a separately reviewed, bound UNSAT justifies filtering.
++
++Reviews are attestations by a human/trusted analyzer, not proofs of C semantics.
++Historical logs contain no such complete attestations. Dataset labels are never
++an input to this policy. This module does not execute generated Python.
++"""
++import hashlib
++import json
++import time
++
++import z3
++
++VERSION = 'real-bugs-first-v1'
++CONDITIONS = (
++    'target_location', 'control_conditions', 'variable_identity',
++    'constraint_semantics', 'solver_validity', 'context_integrity',
++)
++
++
++def digest(value):
++    return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False,
++                                     separators=(',', ':')).encode()).hexdigest()
++
++
++def text_digest(value):
++    return hashlib.sha256(value.encode()).hexdigest()
++
++
++def source_texts(bundle):
++    return {f'frame/{i}': f['code'] for i, f in
++            enumerate((bundle.get('context') or {}).get('frames', []))}
++
++
++def _check(state, reason):
++    return {'status': state, 'reason': reason}
++
++
++def replay_last_query(bundle):
++    """Independently check the decisive saved formula, not its C meaning."""
++    events = bundle.get('solver_events', [])
++    if not events:
++        return {'valid': False, 'reason': 'no_saved_solver_event'}
++    event = events[-1]
++    queries = event.get('queries', [])
++    if event.get('ok') is not True or type(event.get('feasible')) is not bool or not queries:
++        return {'valid': False, 'reason': 'last_solver_event_incomplete'}
++    if any(q.get('result') not in ('sat', 'unsat') for q in queries):
++        return {'valid': False, 'reason': 'unknown_or_invalid_saved_query'}
++    query = queries[-1]
++    text = query.get('smt2')
++    if not isinstance(text, str) or not text.strip() or len(text) > 512_000:
++        return {'valid': False, 'reason': 'invalid_smt2_payload'}
++    try:
++        solver = z3.Solver()
++        solver.from_string(text)
++        solver.set(timeout=5000)
++        assertions = [a.sexpr() for a in solver.assertions()]
++        actual = str(solver.check())
++    except z3.Z3Exception:
++        return {'valid': False, 'reason': 'smt2_cannot_be_loaded_unambiguously'}
++    if not assertions:
++        return {'valid': False, 'reason': 'empty_constraint_set'}
++    if actual not in ('sat', 'unsat') or actual != query['result']:
++        return {'valid': False, 'reason': 'solver_replay_mismatch_or_unknown', 'actual': actual}
++    if event['feasible'] != (actual == 'sat'):
++        return {'valid': False, 'reason': 'saved_boolean_disagrees_with_solver'}
++    return {'valid': True, 'result': actual, 'query_sha256': text_digest(text),
++            'assertions': assertions, 'event_id': event.get('event_id'),
++            'meaning': 'formula replay only; source semantics not established'}
++
++
++def machine_checks(bundle, replay):
++    """Mechanical facts may reject filtering, but cannot certify all semantics."""
++    checks = {k: _check('needs_review', 'no_complete_source_semantics_review')
++              for k in CONDITIONS}
++    frames = (bundle.get('context') or {}).get('frames', [])
++    if not frames:
++        checks['target_location'] = _check('failed', 'no_recorded_context')
++    else:
++        bad = []
++        for frame in frames:
++            code, target = frame.get('code', ''), frame.get('target', '').strip()
++            if not target or code.count(target) != 1:
++                bad.append('missing_or_ambiguous_target')
++            if frame.get('body_sha256') != text_digest(code):
++                bad.append('body_hash_mismatch')
++        alert = bundle.get('alert', {})
++        snippet = alert.get('location', {}).get('context', {}).get('snippet', {}).get('text', '').strip()
++        original_code = alert.get('function_code', alert.get('func_info', ''))
++        if (frames[0].get('target', '').strip() != snippet or
++                frames[0].get('code') != original_code or
++                frames[0].get('var_name') != alert.get('var_name')):
++            bad.append('alert_context_mismatch')
++        checks['target_location'] = _check(
++            'failed' if bad else 'needs_review',
++            ','.join(sorted(set(bad))) if bad else
++            'unique_text_and_body_hash_match; absolute_source_location_not_proven')
++        if any(not isinstance(f.get('extracted'), dict) for f in frames):
++            checks['control_conditions'] = _check('failed', 'missing_saved_extraction')
++    checks['solver_validity'] = _check('verified' if replay['valid'] else 'failed',
++                                      'actual_query_replayed' if replay['valid'] else replay['reason'])
++    record = bundle['candidate']
++    if record.get('status') != 'success' or record.get('error'):
++        checks['context_integrity'] = _check('failed', 'original_execution_not_successful')
++    elif bundle.get('issues'):
++        checks['context_integrity'] = _check('failed', 'known_audit_or_evidence_issue')
++    elif (type((bundle.get('recorded_answer') or {}).get('result')) is not bool or
++          ('keep' if bundle['recorded_answer']['result'] else 'filter') != record.get('prediction')):
++        checks['context_integrity'] = _check('failed', 'saved_answer_candidate_mismatch')
++    elif any(e.get('ok') is not True for e in bundle.get('solver_events', [])):
++        checks['context_integrity'] = _check('needs_review', 'solver_repair_history_needs_semantics_review')
++    else:
++        checks['context_integrity'] = _check('needs_review', 'no_complete_context_review')
++    return checks
++
++
++def review_errors(bundle, review, replay):
++    """Bind review to the exact evidence and every submitted assertion.
++
++    This validates the review's identity, coverage and freshness. A reviewer
++    must actually check the C semantics; matching hashes cannot establish that.
++    """
++    if not isinstance(review, dict):
++        return ['missing_semantic_review']
++    errors = []
++    if review.get('evidence_sha256') != digest(bundle):
++        errors.append('review_evidence_mismatch')
++    if review.get('scope') != bundle.get('scope'):
++        errors.append('review_scope_mismatch')
++    allowed = {'manual_source_review', 'trusted_analyzer'}
++    if bundle.get('scope') == 'synthetic_fixture':
++        allowed.add('synthetic_fixture_review')
++    if review.get('verification_mode') not in allowed:
++        errors.append('untrusted_review_mode')
++    if not str(review.get('reviewer') or '').strip() or not str(review.get('reviewed_at') or '').strip():
++        errors.append('review_identity_missing')
++    if review.get('unresolved_issues') != []:
++        errors.append('review_has_unresolved_or_unspecified_issues')
++    if review.get('query_sha256') != replay.get('query_sha256'):
++        errors.append('review_query_mismatch')
++    sources = source_texts(bundle)
++
++    def valid_refs(refs):
++        if not isinstance(refs, list) or not refs:
++            return False
++        for ref in refs:
++            if not isinstance(ref, dict) or ref.get('source') not in sources:
++                return False
++            text = sources[ref['source']]
++            start, end = ref.get('start_line'), ref.get('end_line')
++            if (type(start) is not int or type(end) is not int or
++                    not (1 <= start <= end <= len(text.splitlines())) or
++                    ref.get('source_sha256') != text_digest(text)):
++                return False
++        return True
++
++    checks = review.get('conditions')
++    if not isinstance(checks, dict) or set(checks) != set(CONDITIONS):
++        errors.append('six_review_conditions_required')
++        checks = {}
++    for name in CONDITIONS:
++        item = checks.get(name)
++        if (not isinstance(item, dict) or item.get('status') != 'verified' or
++                not str(item.get('rationale') or '').strip() or not valid_refs(item.get('source_refs'))):
++            errors.append('review_condition_incomplete:' + name)
++    trace = review.get('assertion_provenance')
++    assertions = replay.get('assertions', [])
++    if not isinstance(trace, list) or len(trace) != len(assertions) or not assertions:
++        errors.append('incomplete_assertion_provenance')
++    else:
++        for i, (item, formula) in enumerate(zip(trace, assertions)):
++            if (not isinstance(item, dict) or type(item.get('index')) is not int or
++                    item['index'] != i or item.get('formula') != formula or
++                    item.get('role') not in ('bug_assumption', 'reachability') or
++                    not str(item.get('rationale') or '').strip() or not valid_refs(item.get('source_refs'))):
++                errors.append('invalid_assertion_provenance:' + str(i))
++    return errors
++
++
++def _decide(bundle, review=None):
++    """Return FILTER, KEEP or UNKNOWN. UNKNOWN always keeps the alert.
++
++    KEEP is a conservative action supported by a consistent SAT candidate,
++    not a claim that a real bug has been proved. FILTER additionally requires
++    all six checks and a separate, source-directed semantic review.
++    """
++    start = time.perf_counter()
++    replay = replay_last_query(bundle)
++    checks = machine_checks(bundle, replay)
++    candidate = bundle['candidate']
++    issues = list(bundle.get('issues', []))
++    reasons = [issue['code'] for issue in issues]
++    blockers = [k + ':' + v['reason'] for k, v in checks.items() if v['status'] == 'failed']
++    reasons.extend(blockers)
++    verdict = 'UNKNOWN'
++    complete = False
++    review_validation = []
++    if not blockers:
++        predicted = candidate.get('prediction')
++        expected = 'sat' if predicted == 'keep' else 'unsat' if predicted == 'filter' else None
++        if replay.get('result') != expected or expected is None:
++            reasons.append('candidate_solver_decision_mismatch')
++        elif predicted == 'keep':
++            verdict = 'KEEP'
++            reasons.append('consistent_sat_candidate; alert_retained_not_bug_proved')
++        else:
++            review_validation = review_errors(bundle, review, replay)
++            reasons.extend(review_validation)
++            if not review_validation:
++                complete = True
++                verdict = 'FILTER'
++                for name in CONDITIONS:
++                    if name != 'solver_validity':
++                        checks[name] = _check('verified', 'bound_source_review_attestation')
++                reasons.append('six_checks_verified_and_bound_unsat_replayed')
++    return {
++        'policy_version': VERSION, 'sample_id': candidate['sample_id'],
++        'verdict': verdict, 'action': 'FILTER' if verdict == 'FILTER' else 'KEEP',
++        'reason_codes': sorted(set(reasons)), 'filter_evidence_complete': complete,
++        'checks': checks, 'solver_replay': replay,
++        'evidence_sha256': digest(bundle),
++        'review_sha256': digest(review) if review is not None else None,
++        'decision_seconds': time.perf_counter() - start,
++        'new_model_calls': 0, 'new_api_cost_cny': 0,
++    }
++
++
++def decide(bundle, review=None):
++    """Malformed evidence/reviews fail closed; no exception grants FILTER."""
++    try:
++        return _decide(bundle, review)
++    except (KeyError, TypeError, ValueError, AttributeError, z3.Z3Exception):
++        candidate = bundle.get('candidate', {}) if isinstance(bundle, dict) else {}
++        sid = candidate.get('sample_id', '<missing>') if isinstance(candidate, dict) else '<missing>'
++        return {
++            'policy_version': VERSION, 'sample_id': sid, 'verdict': 'UNKNOWN', 'action': 'KEEP',
++            'reason_codes': ['malformed_evidence_or_review'], 'filter_evidence_complete': False,
++            'checks': {k: _check('failed', 'malformed_evidence_or_review') for k in CONDITIONS},
++            'solver_replay': {'valid': False, 'reason': 'malformed_evidence_or_review'},
++            'evidence_sha256': None, 'review_sha256': None, 'decision_seconds': 0,
++            'new_model_calls': 0, 'new_api_cost_cny': 0,
++        }
+--- /dev/null
++++ safety/replay.py
+@@ -0,0 +1,166 @@
++"""Offline-only regression on 10 audit cases and a sealed 20-case holdout.
++
++Run from reproduction/: python -B -m safety.replay
++This is the new guarded replay entry; historical run_* scripts remain baseline.
++"""
++from collections import Counter
++from datetime import datetime, timedelta, timezone
++import csv
++import hashlib
++import json
++from pathlib import Path
++import sys
++import time
++
++from .metrics import evaluate
++from .policy import decide, digest, text_digest, VERSION
++
++ROOT = Path(__file__).resolve().parents[1]
++RUN = ROOT / 'safety_runs/20261029_v1'
++AUDIT = ROOT / 'audit/failure_audit_20261029'
++
++
++def read(path):
++    return json.loads(path.read_text(encoding='utf-8'))
++
++
++def file_sha(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def save_new(path, value):
++    path.parent.mkdir(parents=True, exist_ok=True)
++    with path.open('x', encoding='utf-8') as handle:
++        json.dump(value, handle, ensure_ascii=False, indent=2)
++
++
++def baseline_unchanged():
++    frozen = read(AUDIT / 'frozen_state.json')
++    changed = [n for n, v in frozen['files'].items()
++               if not (ROOT/n).is_file() or file_sha(ROOT/n) != v['sha256']]
++    if changed:
++        raise ValueError('Frozen baseline changed: ' + ','.join(changed))
++    ref = read(RUN/'baseline_reference.json')
++    if file_sha(RUN/'fixed_holdout.json') != ref['holdout_manifest_sha256']:
++        raise ValueError('Holdout manifest changed')
++    return len(frozen['files'])
++
++
++def load_bundle(row, audit_id=None):
++    """Drop evaluation labels before the decision; copy saved evidence only."""
++    alert = read(ROOT/'upstream'/row['dataset'])[row['row_position']]
++    alert = {k: v for k, v in alert.items() if k not in ('result', 'label')}
++    folder = ROOT/row['raw_output']
++    context_file, answer_file = folder/'context.json', folder/'author_pipeline_output.json'
++    bundle = {
++        'scope': 'benchmark',
++        'candidate': {k: row.get(k) for k in ('sample_id', 'status', 'prediction', 'error', 'decision_basis')},
++        'alert': alert,
++        'context': read(context_file) if context_file.exists() else None,
++        'recorded_answer': read(answer_file) if answer_file.exists() else None,
++        'solver_events': [read(p) for p in sorted(folder.glob('solver_*.json'))],
++        'issues': [],
++    }
++    if audit_id:
++        findings = read(AUDIT/'review_findings.json')[audit_id]
++        # Data-label suspicions must never influence a model-side decision.
++        categories = [x for x in findings['confirmed'] + findings['suspected'] if x != '数据或标签错误']
++        bundle['issues'] = [{'code': 'unresolved_prior_audit:' + x,
++                             'evidence_ref': f'audit/failure_audit_20261029/samples/{audit_id}/audit.md'}
++                            for x in sorted(set(categories))]
++    files = [ROOT/'upstream'/row['dataset']] + sorted(p for p in folder.iterdir() if p.is_file())
++    binding = {'sample_id': row['sample_id'], 'evidence_sha256': digest(bundle),
++               'artifact_sha256': {p.relative_to(ROOT).as_posix(): file_sha(p) for p in files}}
++    return bundle, binding
++
++
++def baseline_summary(rows):
++    matrix = [[0, 0, 0], [0, 0, 0]]
++    for r in rows:
++        column = {'filter': 0, 'keep': 1}.get(r['prediction'], 2) if r['status'] == 'success' else 2
++        matrix[r['label']][column] += 1
++    fp, bug = matrix
++    return {'confusion_matrix': matrix, 'columns': ['filter', 'keep', 'unclassified'],
++            'sample_count': len(rows), 'false_alarm_count': sum(fp), 'real_bug_count': sum(bug),
++            'real_bug_deletion_cases': [r['sample_id'] for r in rows if r['label'] == 1 and r['status'] == 'success' and r['prediction'] == 'filter'],
++            'note': 'Historical unclassified did not define a deletion action. Do not equate missing prediction with deleted bug.'}
++
++
++def main():
++    # No user-provided list/full-dataset switch: this run is bounded to 30 IDs.
++    if len(sys.argv) != 1:
++        raise SystemExit('This entry accepts no arguments and only replays the sealed 30 cases')
++    target = RUN/'offline_regression'
++    if target.exists():
++        raise SystemExit('Output already exists; refusing overwrite. Use saved regression results.')
++    baseline_count = baseline_unchanged()
++    all_rows = read(ROOT/'results/processed/expanded_all_npd.json')
++    by_id = {r['sample_id']: r for r in all_rows}
++    audited = read(AUDIT/'audit_samples.json')
++    holdout = read(RUN/'fixed_holdout.json')
++    selections = [('audit', r['sample_id'], r['audit_id']) for r in audited]
++    selections += [('holdout', r['sample_id'], None) for r in holdout['samples']]
++    assert len(selections) == 30 and len({s[1] for s in selections}) == 30
++    target.mkdir()
++    started = time.perf_counter()
++    output, bindings = [], []
++    for group, sid, aid in selections:
++        row = by_id[sid]
++        if group == 'holdout':
++            locked = next(x for x in holdout['samples'] if x['sample_id'] == sid)
++            assert file_sha(ROOT/'upstream'/row['dataset']) == locked['dataset_sha256']
++            assert row['label'] == locked['dataset_label']
++        bundle, binding = load_bundle(row, aid)
++        result = decide(bundle)  # No semantic approvals are fabricated for historical logs.
++        item = {**result, 'cohort': group, 'audit_id': aid, 'dataset_label': row['label'],
++                'label_confidence': 'published_label_unverified_individually',
++                'original_prediction': row['prediction'], 'original_status': row['status'],
++                'original_duration_seconds': row['duration_seconds'],
++                'original_api_calls': row['api_calls'],
++                'original_cost_upper_cny': row['cost_upper_bound_cny']}
++        output.append(item)
++        bindings.append(binding)
++        save_new(target/'evidence'/f'{len(output):02d}.json', bundle)
++    save_new(target/'decisions.json', output)
++    save_new(target/'evidence_bindings.json', bindings)
++    with (target/'decisions.csv').open('x', encoding='utf-8-sig', newline='') as handle:
++        fields = ['sample_id', 'cohort', 'audit_id', 'dataset_label', 'label_confidence',
++                  'original_status', 'original_prediction', 'verdict', 'action',
++                  'filter_evidence_complete', 'evidence_sha256', 'review_sha256',
++                  'decision_seconds', 'original_duration_seconds', 'original_api_calls',
++                  'original_cost_upper_cny', 'new_model_calls', 'new_api_cost_cny', 'reason_codes']
++        writer = csv.DictWriter(handle, fields, extrasaction='ignore')
++        writer.writeheader()
++        for row in output:
++            writer.writerow({**row, 'reason_codes': json.dumps(row['reason_codes'], ensure_ascii=False)})
++    metrics = {}
++    for group in ('audit', 'holdout', 'combined'):
++        subset = [r for r in output if group == 'combined' or r['cohort'] == group]
++        metrics[group] = {'guarded': evaluate(subset),
++                          'baseline': baseline_summary([by_id[r['sample_id']] for r in subset]),
++                          'verdict_counts': dict(Counter(r['verdict'] for r in subset))}
++    save_new(target/'metrics.json', metrics)
++    assert baseline_unchanged() == baseline_count
++    ledger = read(ROOT/'results/raw/completed/budget_ledger.json')
++    ref = read(RUN/'baseline_reference.json')
++    assert len(ledger['calls']) == ref['model_calls_before']
++    assert ledger['cost_upper_bound_cny'] == ref['cost_upper_bound_cny_before']
++    save_new(target/'verification.json', {
++        'time': datetime.now(timezone(timedelta(hours=8))).isoformat(),
++        'policy_version': VERSION, 'baseline_files_unchanged': baseline_count,
++        'sample_count': len(output), 'full_benchmark_rerun': False,
++        'model_calls_before': ref['model_calls_before'], 'model_calls_after': len(ledger['calls']),
++        'api_calls_added': 0, 'api_cost_added_cny': 0,
++        'holdout_manifest_sha256': file_sha(RUN/'fixed_holdout.json'),
++        'elapsed_seconds': time.perf_counter() - started,
++        'policy_source_sha256': {p.relative_to(ROOT).as_posix(): file_sha(p) for p in sorted((ROOT/'safety').glob('*.py'))},
++    })
++    print(json.dumps({g: {'verdicts': v['verdict_counts'],
++                         'retention': v['guarded']['operational_real_bug_retention_rate'],
++                         'deletion': v['guarded']['real_bug_deletion_rate'],
++                         'filtering': v['guarded']['false_positive_filter_rate']}
++                      for g, v in metrics.items()}, ensure_ascii=True, indent=2))
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ safety/test_policy.py
+@@ -0,0 +1,234 @@
++"""Safety invariants and original-log regression; synthetic results stay separate."""
++import copy
++import json
++from pathlib import Path
++import unittest
++
++import z3
++
++from .metrics import evaluate
++from .policy import CONDITIONS, decide, digest, replay_last_query, text_digest
++
++ROOT = Path(__file__).resolve().parents[1]
++AUDIT = ROOT/'audit/failure_audit_20261029/samples'
++
++
++def fixture():
++    """Fully visible null guard; no macros, calls, aliases, assignments or gotos."""
++    code = 'int f(int *p) {\n    if (p == 0) return 0;\n    return *p;\n}\n'
++    target = 'return *p;'
++    p = z3.Int('p')
++    solver = z3.Solver()
++    solver.add(p == 0, p != 0)
++    assert str(solver.check()) == 'unsat'
++    bundle = {
++        'scope': 'synthetic_fixture',
++        'candidate': {'sample_id': 'synthetic_null_guard', 'status': 'success', 'prediction': 'filter', 'error': None},
++        'alert': {'var_name': 'p', 'function_code': code,
++                  'location': {'context': {'snippet': {'text': target}}}},
++        'context': {'frames': [{'code': code, 'target': target, 'var_name': 'p',
++                               'body_sha256': text_digest(code), 'extracted': {
++                                   'early_jump_constraints': [{'condition': ['p == 0'], 'text': 'return 0;'}]}}]},
++        'recorded_answer': {'result': False}, 'issues': [],
++        'solver_events': [{'event_id': 1, 'ok': True, 'feasible': False,
++                           'queries': [{'result': 'unsat', 'smt2': solver.to_smt2()}]}],
++    }
++    replay = replay_last_query(bundle)
++    ref = {'source': 'frame/0', 'source_sha256': text_digest(code), 'start_line': 1, 'end_line': 4}
++    rationales = {
++        'target_location': 'Only one *p in fully visible fixture, at line 3.',
++        'control_conditions': 'Only guard exits at line 2; the only sink is after it; no alternate entry.',
++        'variable_identity': 'p is one int pointer parameter, never reassigned or aliased, no interprocedural transition.',
++        'constraint_semantics': 'Bug needs p==0 at line 3; reaching line 3 requires p!=0 because line 2 returns.',
++        'solver_validity': 'Actual independent replay of these two assertions is UNSAT.',
++        'context_integrity': 'Whole fixture visible, no missing macros/calls or parsing/modeling issues.',
++    }
++    review = {
++        'scope': 'synthetic_fixture', 'verification_mode': 'synthetic_fixture_review',
++        'reviewer': 'explicitly-reviewed-local-fixture', 'reviewed_at': '2026-10-29',
++        'evidence_sha256': digest(bundle), 'query_sha256': replay['query_sha256'],
++        'unresolved_issues': [],
++        'conditions': {k: {'status': 'verified', 'rationale': rationales[k], 'source_refs': [ref]}
++                       for k in CONDITIONS},
++        'assertion_provenance': [
++            {'index': i, 'formula': f, 'role': 'bug_assumption' if i == 0 else 'reachability',
++             'rationale': 'Null dereference requirement.' if i == 0 else 'Negation of unconditional null-guard exit.',
++             'source_refs': [ref]} for i, f in enumerate(replay['assertions'])],
++    }
++    return bundle, review
++
++
++class SafetyTests(unittest.TestCase):
++    def test_unsat_alone_is_unknown_and_kept(self):
++        bundle, _ = fixture()
++        result = decide(bundle)
++        self.assertEqual((result['verdict'], result['action']), ('UNKNOWN', 'KEEP'))
++
++    def test_fully_reviewed_simple_guard_can_filter(self):
++        bundle, review = fixture()
++        result = decide(bundle, review)
++        self.assertEqual(result['verdict'], 'FILTER')
++        self.assertTrue(result['filter_evidence_complete'])
++        self.assertTrue(all(c['status'] == 'verified' for c in result['checks'].values()))
++
++    def test_each_missing_safety_condition_prevents_filter(self):
++        for name in CONDITIONS:
++            with self.subTest(name=name):
++                bundle, review = fixture()
++                del review['conditions'][name]
++                self.assertEqual(decide(bundle, review)['verdict'], 'UNKNOWN')
++
++    def test_string_true_and_missing_provenance_are_rejected(self):
++        bundle, review = fixture()
++        review['conditions']['constraint_semantics']['status'] = True
++        self.assertEqual(decide(bundle, review)['verdict'], 'UNKNOWN')
++        _, review = fixture()
++        review['assertion_provenance'] = []
++        self.assertEqual(decide(bundle, review)['verdict'], 'UNKNOWN')
++
++    def test_stale_review_after_code_or_query_change_is_rejected(self):
++        for kind in ('code', 'query'):
++            with self.subTest(kind=kind):
++                bundle, review = fixture()
++                if kind == 'code':
++                    bundle['context']['frames'][0]['code'] += '// changed source\n'
++                else:
++                    bundle['solver_events'][0]['queries'][0]['smt2'] += '\n; modified query\n'
++                self.assertEqual(decide(bundle, review)['verdict'], 'UNKNOWN')
++
++    def test_wrong_source_line_or_hash_prevents_filter(self):
++        for field, bad in [('start_line', 0), ('source_sha256', '0'*64), ('end_line', 999)]:
++            with self.subTest(field=field):
++                bundle, review = fixture()
++                review['assertion_provenance'][0]['source_refs'] = [
++                    {**review['assertion_provenance'][0]['source_refs'][0], field: bad}]
++                self.assertEqual(decide(bundle, review)['verdict'], 'UNKNOWN')
++
++    def test_synthetic_review_cannot_approve_benchmark(self):
++        bundle, review = fixture()
++        bundle['scope'] = 'benchmark'
++        review.update(scope='benchmark', evidence_sha256=digest(bundle))
++        self.assertEqual(decide(bundle, review)['verdict'], 'UNKNOWN')
++
++    def test_duplicate_target_and_variable_conflict_cannot_be_approved(self):
++        for issue in ('target', 'identity'):
++            with self.subTest(issue=issue):
++                bundle, review = fixture()
++                if issue == 'target':
++                    bundle['context']['frames'][0]['code'] += 'return *p;\n'
++                    bundle['context']['frames'][0]['body_sha256'] = text_digest(bundle['context']['frames'][0]['code'])
++                else:
++                    bundle['issues'] = [{'code': 'same_pointer_split_into_independent_symbols'}]
++                review['evidence_sha256'] = digest(bundle)
++                self.assertEqual(decide(bundle, review)['verdict'], 'UNKNOWN')
++
++    def test_failed_execution_cannot_become_filter_even_with_review(self):
++        for status in ('failed', 'blocked_context', 'started'):
++            with self.subTest(status=status):
++                bundle, review = fixture()
++                bundle['candidate']['status'] = status
++                review['evidence_sha256'] = digest(bundle)
++                self.assertEqual(decide(bundle, review)['verdict'], 'UNKNOWN')
++
++    def test_inconsistent_unknown_missing_solver_and_answer_rejected(self):
++        for kind in ('unknown', 'missing', 'boolean', 'answer'):
++            with self.subTest(kind=kind):
++                bundle, review = fixture()
++                if kind == 'missing':
++                    bundle['solver_events'] = []
++                elif kind == 'boolean':
++                    bundle['solver_events'][0]['feasible'] = True
++                elif kind == 'answer':
++                    bundle['recorded_answer'] = {'result': True}
++                else:
++                    bundle['solver_events'][0]['queries'][0]['result'] = 'unknown'
++                review['evidence_sha256'] = digest(bundle)
++                self.assertEqual(decide(bundle, review)['verdict'], 'UNKNOWN')
++
++    def test_raw_a01_a02_a04_a10_not_filtered_without_review(self):
++        for aid in ('A01', 'A02', 'A04', 'A10'):
++            with self.subTest(audit_id=aid):
++                def read(p): return json.loads(p.read_text(encoding='utf-8'))
++                folder = AUDIT/aid
++                row = read(folder/'recorded_result.json')
++                bundle = {'scope': 'benchmark',
++                          'candidate': {k: row.get(k) for k in ('sample_id', 'status', 'prediction', 'error')},
++                          'alert': {k: v for k, v in read(folder/'original_alert.json').items() if k != 'result'},
++                          'context': read(folder/'recorded_raw/context.json'),
++                          'recorded_answer': read(folder/'recorded_raw/author_pipeline_output.json'),
++                          'solver_events': [read(p) for p in sorted((folder/'recorded_raw').glob('solver_*.json'))],
++                          'issues': [{'code': 'unresolved_pointer_identity'}] if aid == 'A04' else []}
++                result = decide(bundle)
++                self.assertNotEqual(result['verdict'], 'FILTER')
++                self.assertEqual(result['action'], 'KEEP')
++
++    def test_candidate_is_independent_of_dataset_labels(self):
++        bundle, review = fixture()
++        # Label changes are ignored by the gate but invalidate a stale review.
++        # Real adapter removes all labels before binding the review.
++        for label in (0, 1, -1, None):
++            changed = copy.deepcopy(bundle)
++            changed['evaluation_label_not_read_by_policy'] = label
++            self.assertEqual(decide(changed)['verdict'], 'UNKNOWN')
++        from .replay import load_bundle, read
++        row = read(ROOT/'results/processed/expanded_all_npd.json')[0]
++        left, _ = load_bundle({**row, 'label': 0})
++        right, _ = load_bundle({**row, 'label': 1})
++        self.assertEqual(left, right)
++        self.assertNotIn('result', left['alert'])
++
++    def test_unknown_never_counts_as_filtering_success(self):
++        template = {'action': 'KEEP', 'filter_evidence_complete': False, 'decision_seconds': 0,
++                    'original_duration_seconds': 1, 'original_api_calls': 0, 'original_cost_upper_cny': 0,
++                    'new_model_calls': 0, 'new_api_cost_cny': 0, 'original_status': 'failed'}
++        rows = [{**template, 'sample_id': str(y), 'dataset_label': y, 'verdict': 'UNKNOWN'} for y in (0, 1)]
++        result = evaluate(rows)
++        self.assertEqual(result['false_positive_filter_rate'], 0)
++        self.assertEqual(result['operational_real_bug_retention_rate'], 1)
++        self.assertEqual(result['explicit_keep_real_bug_rate'], 0)
++        self.assertEqual(result['real_bug_deletion_rate'], 0)
++        self.assertIsNone(result['precision'])
++        self.assertIsNone(result['f1'])
++        with self.assertRaises(ValueError):
++            evaluate([{**rows[0], 'action': 'FILTER'}])
++
++    def test_malformed_evidence_and_review_fail_closed(self):
++        for malformed in (None, {}, {'candidate': None}, {'candidate': {}, 'solver_events': [None]}):
++            with self.subTest(value=malformed):
++                result = decide(malformed)
++                self.assertEqual((result['verdict'], result['action']), ('UNKNOWN', 'KEEP'))
++        bundle, review = fixture()
++        review['assertion_provenance'] = [None, None]
++        self.assertEqual(decide(bundle, review)['verdict'], 'UNKNOWN')
++
++    def test_mixed_metrics_do_not_hide_deleted_bug_or_unknown(self):
++        template = {'decision_seconds': 0, 'original_duration_seconds': 1, 'original_api_calls': 0,
++                    'original_cost_upper_cny': 0, 'new_model_calls': 0, 'new_api_cost_cny': 0}
++        rows = [{**template, 'sample_id': str(i), 'dataset_label': y, 'verdict': verdict,
++                 'action': 'FILTER' if verdict == 'FILTER' else 'KEEP',
++                 'filter_evidence_complete': verdict == 'FILTER'}
++                for i, (y, verdict) in enumerate([(0, 'FILTER'), (0, 'UNKNOWN'), (1, 'FILTER'), (1, 'UNKNOWN')])]
++        result = evaluate(rows)
++        self.assertEqual(result['confusion_matrix']['values'], [[1, 0, 1], [1, 0, 1]])
++        self.assertEqual(result['real_bug_deletion_rate'], 0.5)
++        self.assertEqual(result['operational_real_bug_retention_rate'], 0.5)
++        self.assertEqual(result['false_positive_filter_rate'], 0.5)
++        self.assertEqual(result['real_bug_deletion_cases'], ['2'])
++        result = evaluate([rows[2]])
++        self.assertEqual((result['precision'], result['recall']), (0.0, None))
++        self.assertIsNone(result['f1'])
++        result = evaluate([rows[1], rows[2]])
++        self.assertEqual(result['f1'], 0.0)
++
++    def test_unverified_labels_not_silently_converted_to_truth(self):
++        template = {'sample_id': 'unlabeled', 'dataset_label': True, 'verdict': 'KEEP', 'action': 'KEEP',
++                    'filter_evidence_complete': False, 'decision_seconds': 0, 'original_duration_seconds': 1,
++                    'original_api_calls': 0, 'original_cost_upper_cny': 0, 'new_model_calls': 0, 'new_api_cost_cny': 0}
++        result = evaluate([template])
++        self.assertEqual(result['real_bug_count'], 0)
++        self.assertEqual(result['unverified_or_missing_label_count'], 1)
++        self.assertIsNone(result['operational_real_bug_retention_rate'])
++
++
++if __name__ == '__main__':
++    unittest.main()
+--- /dev/null
++++ safety/README.md
+@@ -0,0 +1,25 @@
++# 真实缺陷优先的离线最终判定层
++
++本轮仅新增最终判定与指标，不改变作者算法、提示词、原始标签、模型配置或基线结果。
++正式说明和结果在 `../safety_runs/20261029_v1/safety_policy_report.md`。
++
++- `policy.py`：独立读取已保存的 SMT2 并重放。FILTER 还必须通过六项检查，以及绑定源码、查询和逐条断言的独立复核记录。缺失、冲突或格式异常均不得自动过滤。
++- `metrics.py`：分别统计 FILTER/KEEP/UNKNOWN；UNKNOWN 的实际动作是 KEEP，绝不计为过滤成功；将操作保留率与明确 KEEP 比例分开。
++- `replay.py`：只回放固定的十条审计样本与二十条回归留出样本，保存新结果，拒绝覆盖。
++- `test_policy.py`：原始日志回归、缺证据/异常/篡改/标签隔离和指标检查；正向过滤使用完全可见的合成空指针保护程序，不计为基准实验。
++
++在 reproduction/ 执行：
++
++```powershell
++.\.venv\Scripts\python.exe -B -m unittest safety.test_policy -v
++.\.venv\Scripts\python.exe -B -m safety.replay
++```
++
++第二个命令已经执行完成，再次执行会拒绝覆盖，应读取保存的结果。不能删除旧结果冒充新实验。
++
++**当前生效范围**：只在新离线入口 `safety.replay` 生效。旧 `scripts/run_completed.py` / `run_expanded.py` 保留为冻结的基线，不提供这套保护，不能将其旧预测直接当作新的安全决策。
++下次获得授权运行新实验时，应让最终发布结果显式经过 `policy.decide`；本轮没有启动任何在线入口。
++
++KEEP 表示继续保留告警，并不证明存在真实缺陷；UNKNOWN 表示证据不足/异常，继续保留并记录原因。
++安全层不读取评估标签。日志中的 SAT/UNSAT 只验证所提交公式；复核文件的哈希、来源覆盖和格式校验也不能证明任意 C 程序语义。
++本轮真实日志没有足够的完整复核记录，所有原 FILTER 候选降级为 UNKNOWN；没有伪造人工复核来恢复过滤率。

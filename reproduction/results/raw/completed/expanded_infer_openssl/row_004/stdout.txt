@@ -1,0 +1,33 @@
+```python
+sc=Int('sc')
+s.add(sc == 0)
+```
+Looking at the code and the target variables `[]` (empty) and `sc`:
+
+**Step 1: Filter constraints affecting reachability**
+
+The two constraints are:
+1. `!((sc = SSL_CONNECTION_FROM_SSL_ONLY(ssl)) == NULL)` — this is an assignment to `sc` combined with a null check
+2. `!(ssl == NULL && cmd != BIO_C_SET_SSL)` — this guards the early return
+
+**Step 2: Include only constraints involving target variables**
+
+Target variables are `[]` (none) and `sc`.
+
+- Constraint 1 involves `sc` (it assigns to `sc` and checks it's non-NULL). **Include.**
+- Constraint 2 involves `ssl` and `cmd`, not `sc`. **Exclude.**
+
+**Step 3: Verify filtered constraints step by step**
+
+Constraint 1: `!((sc = SSL_CONNECTION_FROM_SSL_ONLY(ssl)) == NULL)`
+
+This appears in the `BIO_CTRL_RESET` case:
+```c
+if ((sc = SSL_CONNECTION_FROM_SSL_ONLY(ssl)) == NULL)
+    return 0;
+```
+So the constraint `sc != NULL` (after assignment) is required to proceed past this check. This is a valid reachability constraint involving `sc`.
+
+```json
+["!((sc = SSL_CONNECTION_FROM_SSL_ONLY(ssl)) == NULL)"]
+```

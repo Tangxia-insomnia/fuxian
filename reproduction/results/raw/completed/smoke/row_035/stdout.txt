@@ -1,0 +1,150 @@
+```python
+dev=Int('dev')
+s.add(dev == 0)
+```
+```json
+["!(cfg->fc_ifindex) || !(!dev)", "!(cfg->fc_flags & RTNH_F_ONLINK) || !(!dev)", "!(fib6_is_reject(cfg->fc_flags, dev, addr_type)) || !(dev != net->loopback_dev) || !(!idev)", "!(!dev)", "!(cfg->fc_flags & RTF_GATEWAY) || !(err)", "!(cfg->fc_flags & RTNH_F_ONLINK) || !(!(dev->flags & IFF_UP))", "!(idev->cnf.disable_ipv6)", "!(!(dev->flags & IFF_UP) && !cfg->fc_ignore_dev_down)", "!(!fib6_nh->rt6i_pcpu)", "!(err)"]
+```
+```python
+from z3 import *
+
+# Declarations for relevant variables/pointers (modeled as booleans for null-checks)
+dev = Bool('dev')          # pointer: dev != NULL
+idev = Bool('idev')        # pointer: idev != NULL
+err = Bool('err')          # error flag (nonzero => true)
+fib6_nh_rt6i_pcpu = Bool('fib6_nh_rt6i_pcpu')  # pointer: fib6_nh->rt6i_pcpu != NULL
+
+# cfg fields
+cfg_fc_ifindex = Bool('cfg_fc_ifindex')        # nonzero ifindex
+cfg_fc_flags_RTNH_F_ONLINK = Bool('cfg_fc_flags_RTNH_F_ONLINK')
+cfg_fc_flags_RTF_GATEWAY = Bool('cfg_fc_flags_RTF_GATEWAY')
+cfg_fc_ignore_dev_down = Bool('cfg_fc_ignore_dev_down')
+
+# dev fields
+dev_flags_IFF_UP = Bool('dev_flags_IFF_UP')
+
+# other predicates
+fib6_is_reject = Bool('fib6_is_reject')
+idev_cnf_disable_ipv6 = Bool('idev_cnf_disable_ipv6')
+net_loopback_dev = Bool('net_loopback_dev')    # pointer: net->loopback_dev != NULL
+dev_eq_net_loopback_dev = Bool('dev_eq_net_loopback_dev')  # dev == net->loopback_dev
+
+s = Solver()
+
+# Constraint 1: !(cfg->fc_ifindex) || !(!dev)
+#   If fc_ifindex is set, dev must be non-NULL.
+#   Included because it directly constrains `dev`.
+s.add(Or(Not(cfg_fc_ifindex), dev))
+
+# Constraint 2: !(cfg->fc_flags & RTNH_F_ONLINK) || !(!dev)
+#   If ONLINK flag set, dev must be non-NULL.
+#   Included because it directly constrains `dev`.
+s.add(Or(Not(cfg_fc_flags_RTNH_F_ONLINK), dev))
+
+# Constraint 3: !(fib6_is_reject(...)) || !(dev != net->loopback_dev) || !(!idev)
+#   If not reject and dev != loopback_dev, then idev must be non-NULL.
+#   Included because it constrains `dev` (via dev != loopback_dev) and `idev`.
+s.add(Or(Not(fib6_is_reject),
+         Not(dev_eq_net_loopback_dev == False),  # !(dev != loopback) == (dev == loopback)
+         idev))
+
+# Constraint 4: !(!dev)
+#   dev must be non-NULL.
+#   Included because it directly constrains `dev`.
+s.add(dev)
+
+# Constraint 5: !(cfg->fc_flags & RTF_GATEWAY) || !(err)
+#   If GATEWAY flag set, err must be false.
+#   Included because it constrains `err`.
+s.add(Or(Not(cfg_fc_flags_RTF_GATEWAY), Not(err)))
+
+# Constraint 6: !(cfg->fc_flags & RTNH_F_ONLINK) || !(!(dev->flags & IFF_UP))
+#   If ONLINK flag set, dev->flags & IFF_UP must be true.
+#   Included because it constrains `dev` (via dev->flags).
+s.add(Or(Not(cfg_fc_flags_RTNH_F_ONLINK), dev_flags_IFF_UP))
+
+# Constraint 7: !(idev->cnf.disable_ipv6)
+#   idev->cnf.disable_ipv6 must be false.
+#   Included because it constrains `idev`.
+s.add(Not(idev_cnf_disable_ipv6))
+
+# Constraint 8: !(!(dev->flags & IFF_UP) && !cfg->fc_ignore_dev_down)
+#   Not (dev is down AND ignore_dev_down is false).
+#   Included because it constrains `dev` (via dev->flags).
+s.add(Not(And(Not(dev_flags_IFF_UP), Not(cfg_fc_ignore_dev_down))))
+
+# Constraint 9: !(!fib6_nh->rt6i_pcpu)
+#   fib6_nh->rt6i_pcpu must be non-NULL.
+#   Included as a related pointer constraint in the same code path.
+s.add(fib6_nh_rt6i_pcpu)
+
+# Constraint 10: !(err)
+#   err must be false.
+#   Included because it constrains `err`.
+s.add(Not(err))
+
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, And, sat
+
+    # Base script variable
+    dev_int = Int('dev')
+    s = Solver()
+    s.add(dev_int == 0)
+
+    # Constraint set 2 declarations
+    dev = Bool('dev')
+    idev = Bool('idev')
+    err = Bool('err')
+    fib6_nh_rt6i_pcpu = Bool('fib6_nh_rt6i_pcpu')
+
+    cfg_fc_ifindex = Bool('cfg_fc_ifindex')
+    cfg_fc_flags_RTNH_F_ONLINK = Bool('cfg_fc_flags_RTNH_F_ONLINK')
+    cfg_fc_flags_RTF_GATEWAY = Bool('cfg_fc_flags_RTF_GATEWAY')
+    cfg_fc_ignore_dev_down = Bool('cfg_fc_ignore_dev_down')
+
+    dev_flags_IFF_UP = Bool('dev_flags_IFF_UP')
+
+    fib6_is_reject = Bool('fib6_is_reject')
+    idev_cnf_disable_ipv6 = Bool('idev_cnf_disable_ipv6')
+    net_loopback_dev = Bool('net_loopback_dev')
+    dev_eq_net_loopback_dev = Bool('dev_eq_net_loopback_dev')
+
+    # Constraint 1
+    s.add(Or(Not(cfg_fc_ifindex), dev))
+
+    # Constraint 2
+    s.add(Or(Not(cfg_fc_flags_RTNH_F_ONLINK), dev))
+
+    # Constraint 3
+    s.add(Or(Not(fib6_is_reject),
+             Not(dev_eq_net_loopback_dev == False),
+             idev))
+
+    # Constraint 4
+    s.add(dev)
+
+    # Constraint 5
+    s.add(Or(Not(cfg_fc_flags_RTF_GATEWAY), Not(err)))
+
+    # Constraint 6
+    s.add(Or(Not(cfg_fc_flags_RTNH_F_ONLINK), dev_flags_IFF_UP))
+
+    # Constraint 7
+    s.add(Not(idev_cnf_disable_ipv6))
+
+    # Constraint 8
+    s.add(Not(And(Not(dev_flags_IFF_UP), Not(cfg_fc_ignore_dev_down))))
+
+    # Constraint 9
+    s.add(fib6_nh_rt6i_pcpu)
+
+    # Constraint 10
+    s.add(Not(err))
+
+    return s.check() == sat
+```
+goto result: True

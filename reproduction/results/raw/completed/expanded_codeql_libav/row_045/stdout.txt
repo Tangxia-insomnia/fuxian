@@ -1,0 +1,98 @@
+```python
+filepositions=Int('filepositions')
+s.add(filepositions == 0)
+```
+```json
+["!(avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0) || !(times && filepositions)", "!(avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0) || !(!(!strcmp(KEYFRAMES_TIMESTAMP_TAG, str_val) && !times) && !(!strcmp(KEYFRAMES_BYTEOFFSET_TAG, str_val) && !filepositions))", "!(avio_tell(ioc) < max_pos - 2 && amf_get_string(ioc, str_val, sizeof(str_val)) > 0) || !(!strcmp(KEYFRAMES_BYTEOFFSET_TAG, str_val) && !filepositions) || !(!(filepositions = av_mallocz(sizeof(*filepositions) * arraylen)))"]
+```
+```python
+from z3 import *
+
+# Declarations for relevant variables/conditions
+# filepositions: pointer-like value; model as Int (0 = NULL, nonzero = valid pointer)
+filepositions = Int('filepositions')
+
+# avio_tell(ioc) < max_pos - 2 : boolean condition (opaque, uninterpreted)
+cond_tell = Bool('cond_tell')  # represents (avio_tell(ioc) < max_pos - 2)
+
+# amf_get_string(ioc, str_val, sizeof(str_val)) > 0 : boolean condition
+cond_getstr = Bool('cond_getstr')  # represents (amf_get_string(...) > 0)
+
+# strcmp results (uninterpreted booleans)
+strcmp_ts = Bool('strcmp_ts')   # strcmp(KEYFRAMES_TIMESTAMP_TAG, str_val) == 0
+strcmp_bo = Bool('strcmp_bo')   # strcmp(KEYFRAMES_BYTEOFFSET_TAG, str_val) == 0
+
+# times: boolean flag
+times = Bool('times')
+
+# arraylen: integer used in allocation size
+arraylen = Int('arraylen')
+
+s = Solver()
+
+# Constraint 1:
+# !(cond_tell && cond_getstr) || !(times && filepositions)
+# Included because it directly references filepositions.
+s.add(Or(Not(And(cond_tell, cond_getstr)),
+         Not(And(times, filepositions != 0))))
+
+# Constraint 2:
+# !(cond_tell && cond_getstr) || !(!(!strcmp_ts && !times) && !(!strcmp_bo && !filepositions))
+# Included because it references filepositions (via !filepositions).
+# Simplify inner: !(!strcmp_ts && !times) = (strcmp_ts || times)
+#                 !(!strcmp_bo && !filepositions) = (strcmp_bo || filepositions != 0)
+s.add(Or(Not(And(cond_tell, cond_getstr)),
+         Not(And(Or(strcmp_ts, times),
+                 Or(strcmp_bo, filepositions != 0)))))
+
+# Constraint 3:
+# !(cond_tell && cond_getstr) || !(!strcmp_bo && !filepositions) || !(!(filepositions = av_mallocz(...)))
+# The assignment (filepositions = av_mallocz(...)) is modeled as: filepositions != 0 (successful alloc)
+# So !(!(filepositions = av_mallocz(...))) becomes (filepositions == 0) i.e. allocation failed.
+# Included because it directly assigns/checks filepositions.
+alloc_ok = Bool('alloc_ok')  # represents (filepositions = av_mallocz(...)) succeeded
+s.add(alloc_ok == (filepositions != 0))
+s.add(Or(Not(And(cond_tell, cond_getstr)),
+         Not(And(Not(strcmp_bo), filepositions == 0)),
+         Not(Not(alloc_ok))))
+
+# Print the solver state for inspection
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, And, sat
+
+    # Declarations for relevant variables/conditions
+    filepositions = Int('filepositions')
+    cond_tell = Bool('cond_tell')
+    cond_getstr = Bool('cond_getstr')
+    strcmp_ts = Bool('strcmp_ts')
+    strcmp_bo = Bool('strcmp_bo')
+    times = Bool('times')
+    arraylen = Int('arraylen')
+    alloc_ok = Bool('alloc_ok')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(filepositions == 0)
+
+    # Constraint 1
+    s.add(Or(Not(And(cond_tell, cond_getstr)),
+             Not(And(times, filepositions != 0))))
+
+    # Constraint 2
+    s.add(Or(Not(And(cond_tell, cond_getstr)),
+             Not(And(Or(strcmp_ts, times),
+                     Or(strcmp_bo, filepositions != 0)))))
+
+    # Constraint 3
+    s.add(alloc_ok == (filepositions != 0))
+    s.add(Or(Not(And(cond_tell, cond_getstr)),
+             Not(And(Not(strcmp_bo), filepositions == 0)),
+             Not(Not(alloc_ok))))
+
+    return s.check() == sat
+```
+goto result: True

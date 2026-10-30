@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, sat\n\n    # Base script variables and constraints\n    st = Int('st')\n\n    # Constraint set 2 variables\n    i = Int('i')\n    nb_streams = Int('s->nb_streams')\n    is_audio = Bool('is_audio')\n    codec_type_is_video = Bool('st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO')\n    codec_type_is_audio = Bool('st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO')\n    flv_same_video_codec = Bool('flv_same_video_codec(st->codecpar, flags)')\n    flv_same_audio_codec = Bool('flv_same_audio_codec(st->codecpar, flags)')\n\n    s = Solver()\n\n    # Base constraint\n    s.add(st == 0)\n\n    # Constraint 1\n    s.add(Or(i != nb_streams, st == 0))\n\n    # Constraint 2\n    loop_cond = (i < nb_streams)\n    not_video_branch = Or(is_audio, Not(codec_type_is_video))\n    s.add(Or(Not(loop_cond), not_video_branch, Not(flv_same_video_codec)))\n\n    # Constraint 3\n    not_audio_branch = Or(Not(is_audio), Not(codec_type_is_audio))\n    s.add(Or(Not(loop_cond), not_audio_branch, Not(flv_same_audio_codec)))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun st () Int)\n(declare-fun s->nb_streams () Int)\n(declare-fun i () Int)\n(declare-fun |flv_same_video_codec(st->codecpar, flags)| () Bool)\n(declare-fun |st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO| () Bool)\n(declare-fun is_audio () Bool)\n(declare-fun |flv_same_audio_codec(st->codecpar, flags)| () Bool)\n(declare-fun |st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO| () Bool)\n(assert\n (= st 0))\n(assert\n (let (($x14 (= st 0)))\n (or (and (distinct i s->nb_streams) true) $x14)))\n(assert\n (let (($x41 (not |flv_same_video_codec(st->codecpar, flags)|)))\n (let (($x38 (not |st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO|)))\n (let (($x39 (or is_audio $x38)))\n (let (($x37 (< i s->nb_streams)))\n (let (($x40 (not $x37)))\n (or $x40 $x39 $x41)))))))\n(assert\n (let (($x54 (not |flv_same_audio_codec(st->codecpar, flags)|)))\n(let (($x52 (not |st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO|)))\n(let (($x51 (not is_audio)))\n(let (($x53 (or $x51 $x52)))\n(let (($x37 (< i s->nb_streams)))\n(let (($x40 (not $x37)))\n(or $x40 $x53 $x54))))))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

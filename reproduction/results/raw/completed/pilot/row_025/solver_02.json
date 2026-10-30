@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Or, Not, sat\n\n    # Base script constraints\n    new = Int('new')\n    s = Solver()\n    s.add(new == 0)\n\n    # Constraint set 2 variables (modeled as Int per guidelines)\n    optlen = Int('optlen')\n    ipv6_optlen_new = Int('ipv6_optlen_new')\n    IS_ERR_new = Int('IS_ERR_new')\n\n    # Constraint 1: optlen > 0 ==> ipv6_optlen(new) <= optlen\n    s.add(Or(Not(optlen > 0), Not(ipv6_optlen_new > optlen)))\n\n    # Constraint 2: optlen > 0 ==> !IS_ERR(new)  (IS_ERR_new == 0 means not error)\n    s.add(Or(Not(optlen > 0), IS_ERR_new == 0))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun new () Int)\n(declare-fun optlen () Int)\n(declare-fun ipv6_optlen_new () Int)\n(declare-fun IS_ERR_new () Int)\n(assert\n (= new 0))\n(assert\n (let (($x29 (not (> optlen 0))))\n (or $x29 (not (> ipv6_optlen_new optlen)))))\n(assert\n (let (($x43 (= IS_ERR_new 0)))\n(let (($x29 (not (> optlen 0))))\n(or $x29 $x43))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

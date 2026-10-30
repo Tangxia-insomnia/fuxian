@@ -1,0 +1,45 @@
+{
+  "call_id": 78,
+  "sample_id": "NPD/codeql/kernel69:row=13:index=27",
+  "timestamp": "2026-10-26T00:29:21.807383+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int tcp_mtu_probe(struct sock *sk)\n{\n\tstruct inet_connection_sock *icsk = inet_csk(sk);\n\tstruct tcp_sock *tp = tcp_sk(sk);\n\tstruct sk_buff *skb, *nskb, *next;\n\tstruct net *net = sock_net(sk);\n\tint probe_size;\n\tint size_needed;\n\tint copy, len;\n\tint mss_now;\n\tint interval;\n\n\t/* Not currently probing/verifying,\n\t * not in recovery,\n\t * have enough cwnd, and\n\t * not SACKing (the variable headers throw things off)\n\t */\n\tif (likely(!icsk->icsk_mtup.enabled ||\n\t\t   icsk->icsk_mtup.probe_size ||\n\t\t   inet_csk(sk)->icsk_ca_state != TCP_CA_Open ||\n\t\t   tcp_snd_cwnd(tp) < 11 ||\n\t\t   tp->rx_opt.num_sacks || tp->rx_opt.dsack))\n\t\treturn -1;\n\n\t/* Use binary search for probe_size between tcp_mss_base,\n\t * and current mss_clamp. if (search_high - search_low)\n\t * smaller than a threshold, backoff from probing.\n\t */\n\tmss_now = tcp_current_mss(sk);\n\tprobe_size = tcp_mtu_to_mss(sk, (icsk->icsk_mtup.search_high +\n\t\t\t\t    icsk->icsk_mtup.search_low) >> 1);\n\tsize_needed = probe_size + (tp->reordering + 1) * tp->mss_cache;\n\tinterval = icsk->icsk_mtup.search_high - icsk->icsk_mtup.search_low;\n\t/* When misfortune happens, we are reprobing actively,\n\t * and then reprobe timer has expired. We stick with current\n\t * probing process by not resetting search range to its orignal.\n\t */\n\tif (probe_size > tcp_mtu_to_mss(sk, icsk->icsk_mtup.search_high) ||\n\t    interval < READ_ONCE(net->ipv4.sysctl_tcp_probe_threshold)) {\n\t\t/* Check whether enough time has elaplased for\n\t\t * another round of probing.\n\t\t */\n\t\ttcp_mtu_check_reprobe(sk);\n\t\treturn -1;\n\t}\n\n\t/* Have enough data in the send queue to probe? */\n\tif (tp->write_seq - tp->snd_nxt < size_needed)\n\t\treturn -1;\n\n\tif (tp->snd_wnd < size_needed)\n\t\treturn -1;\n\tif (after(tp->snd_nxt + size_needed, tcp_wnd_end(tp)))\n\t\treturn 0;\n\n\t/* Do we need to wait to drain cwnd? With none in flight, don't stall */\n\tif (tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)) {\n\t\tif (!tcp_packets_in_flight(tp))\n\t\t\treturn -1;\n\t\telse\n\t\t\treturn 0;\n\t}\n\n\tif (!tcp_can_coalesce_send_queue_head(sk, probe_size))\n\t\treturn -1;\n\n\t/* We're allowed to probe.  Build it now. */\n\tnskb = tcp_stream_alloc_skb(sk, GFP_ATOMIC, false);\n\tif (!nskb)\n\t\treturn -1;\n\n\t/* build the payload, and be prepared to abort if this fails. */\n\tif (tcp_clone_payload(sk, nskb, probe_size)) {\n\t\ttcp_skb_tsorted_anchor_cleanup(nskb);\n\t\tconsume_skb(nskb);\n\t\treturn -1;\n\t}\n\tsk_wmem_queued_add(sk, nskb->truesize);\n\tsk_mem_charge(sk, nskb->truesize);\n\n\tskb = tcp_send_head(sk);\n\tskb_copy_decrypted(nskb, skb);\n\tmptcp_skb_ext_copy(nskb, skb);\n\n\tTCP_SKB_CB(nskb)->seq = TCP_SKB_CB(skb)->seq;\n\tTCP_SKB_CB(nskb)->end_seq = TCP_SKB_CB(skb)->seq + probe_size;\n\tTCP_SKB_CB(nskb)->tcp_flags = TCPHDR_ACK;\n\n\ttcp_insert_write_queue_before(nskb, skb, sk);\n\ttcp_highest_sack_replace(sk, skb, nskb);\n\n\tlen = 0;\n\ttcp_for_write_queue_from_safe(skb, next, sk) {\n\t\tcopy = min_t(int, skb->len, probe_size - len);\n\n\t\tif (skb->len <= copy) {\n\t\t\t/* We've eaten all the data from this skb.\n\t\t\t * Throw it away. */\n\t\t\tTCP_SKB_CB(nskb)->tcp_flags |= TCP_SKB_CB(skb)->tcp_flags;\n\t\t\t/* If this is the last SKB we copy and eor is set\n\t\t\t * we need to propagate it to the new skb.\n\t\t\t */\n\t\t\tTCP_SKB_CB(nskb)->eor = TCP_SKB_CB(skb)->eor;\n\t\t\ttcp_skb_collapse_tstamp(nskb, skb);\n\t\t\ttcp_unlink_write_queue(skb, sk);\n\t\t\ttcp_wmem_free_skb(sk, skb);\n\t\t} else {\n\t\t\tTCP_SKB_CB(nskb)->tcp_flags |= TCP_SKB_CB(skb)->tcp_flags &\n\t\t\t\t\t\t   ~(TCPHDR_FIN|TCPHDR_PSH);\n\t\t\t__pskb_trim_head(skb, copy);\n\t\t\ttcp_set_skb_tso_segs(skb, mss_now);\n\t\t\tTCP_SKB_CB(skb)->seq += copy;\n\t\t}\n\n\t\tlen += copy;\n\n\t\tif (len >= probe_size)\n\t\t\tbreak;\n\t}\n\ttcp_init_tso_segs(nskb, nskb->len);\n\n\t/* We're ready to send.  If this fails, the probe will\n\t * be resegmented into mss-sized pieces by tcp_write_xmit().\n\t */\n\tif (!tcp_transmit_skb(sk, nskb, 1, GFP_ATOMIC)) {\n\t\t/* Decrement cwnd here because we are sending\n\t\t * effectively two packets. */\n\t\ttcp_snd_cwnd_set(tp, tcp_snd_cwnd(tp) - 1);\n\t\ttcp_event_new_data_sent(sk, nskb);\n\n\t\ticsk->icsk_mtup.probe_size = tcp_mss_to_mtu(sk, nskb->len);\n\t\ttp->mtu_probe.probe_seq_start = TCP_SKB_CB(nskb)->seq;\n\t\ttp->mtu_probe.probe_seq_end = TCP_SKB_CB(nskb)->end_seq;\n\n\t\treturn 1;\n\t}\n\n\treturn -1;\n}\n        - Target variables: [], skb\n        - Constraints: ['!(tcp_clone_payload(sk, nskb, probe_size))', '!(!nskb)', '!(!tcp_can_coalesce_send_queue_head(sk, probe_size))', '!(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)) || !(!(!tcp_packets_in_flight(tp)))', '!(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)) || !(!tcp_packets_in_flight(tp))', '!(after(tp->snd_nxt + size_needed, tcp_wnd_end(tp)))', '!(tp->snd_wnd < size_needed)', '!(tp->write_seq - tp->snd_nxt < size_needed)', '!(probe_size > tcp_mtu_to_mss(sk, icsk->icsk_mtup.search_high) || interval < READ_ONCE(net->ipv4.sysctl_tcp_probe_threshold))', '!(likely(!icsk->icsk_mtup.enabled || icsk->icsk_mtup.probe_size || inet_csk(sk)->icsk_ca_state != TCP_CA_Open || tcp_snd_cwnd(tp) < 11 || tp->rx_opt.num_sacks || tp->rx_opt.dsack))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "39a7019e-3bc3-44ec-876c-723a83955923",
+  "usage": {
+    "prompt_tokens": 1966,
+    "completion_tokens": 323,
+    "total_tokens": 2289,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1966
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(tcp_clone_payload(sk, nskb, probe_size))\", \"!(!nskb)\", \"!(!tcp_can_coalesce_send_queue_head(sk, probe_size))\", \"!(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)) || !(!(!tcp_packets_in_flight(tp)))\", \"!(tcp_packets_in_flight(tp) + 2 > tcp_snd_cwnd(tp)) || !(!tcp_packets_in_flight(tp))\", \"!(after(tp->snd_nxt + size_needed, tcp_wnd_end(tp)))\", \"!(tp->snd_wnd < size_needed)\", \"!(tp->write_seq - tp->snd_nxt < size_needed)\", \"!(probe_size > tcp_mtu_to_mss(sk, icsk->icsk_mtup.search_high) || interval < READ_ONCE(net->ipv4.sysctl_tcp_probe_threshold))\", \"!(likely(!icsk->icsk_mtup.enabled || icsk->icsk_mtup.probe_size || inet_csk(sk)->icsk_ca_state != TCP_CA_Open || tcp_snd_cwnd(tp) < 11 || tp->rx_opt.num_sacks || tp->rx_opt.dsack))\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.3127379000002293,
+  "cost_upper_bound_cny": 0.006516
+}

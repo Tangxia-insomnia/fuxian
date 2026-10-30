@@ -1,0 +1,40 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ossl_quic_tls_is_cert_request",
+      "var_name": "sc",
+      "target": "return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;",
+      "code": "int ossl_quic_tls_is_cert_request(QUIC_TLS *qtls)\n{\n    SSL_CONNECTION *sc = SSL_CONNECTION_FROM_SSL(qtls->args.s);\n\n    return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;\n}",
+      "body_sha256": "541c1087c652cd957da042ca0f68876b8e8a64f7de37345ea818d18e6dad7435",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "int ossl_quic_tls_is_cert_request(QUIC_TLS *qtls)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": []
+          }
+        ],
+        "filter_function_code": "int ossl_quic_tls_is_cert_request(QUIC_TLS *qtls)\n{\n    SSL_CONNECTION *sc = SSL_CONNECTION_FROM_SSL(qtls->args.s);\n\n    return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "int ossl_quic_tls_is_cert_request(QUIC_TLS *qtls)\n{\n    SSL_CONNECTION *sc = SSL_CONNECTION_FROM_SSL(qtls->args.s);\n\n    return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;\n}"
+  ]
+}

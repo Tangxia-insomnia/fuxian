@@ -1,0 +1,219 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/openssl:row=30:index=31",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "bs",
+    "function_name": "make_ocsp_response",
+    "location": {
+      "file_path": "apps/ocsp.c",
+      "region": {
+        "startLine": 1139,
+        "startColumn": 21,
+        "endColumn": 23
+      },
+      "context": {
+        "startLine": 1137,
+        "endLine": 1141,
+        "snippet": {
+          "text": "OCSP_copy_nonce(bs, req);"
+        }
+      }
+    },
+    "function_code": "static void make_ocsp_response(BIO *err, OCSP_RESPONSE **resp, OCSP_REQUEST *req,\n                              CA_DB *db, STACK_OF(X509) *ca, X509 *rcert,\n                              EVP_PKEY *rkey, const EVP_MD *rmd,\n                              STACK_OF(OPENSSL_STRING) *sigopts,\n                              STACK_OF(X509) *rother, unsigned long flags,\n                              int nmin, int ndays, int badsig,\n                              const EVP_MD *resp_md)\n{\n    ASN1_TIME *thisupd = NULL, *nextupd = NULL;\n    OCSP_CERTID *cid;\n    OCSP_BASICRESP *bs = NULL;\n    int i, id_count;\n    EVP_MD_CTX *mctx = NULL;\n    EVP_PKEY_CTX *pkctx = NULL;\n\n    id_count = OCSP_request_onereq_count(req);\n\n    if (id_count <= 0) {\n        *resp =\n            OCSP_response_create(OCSP_RESPONSE_STATUS_MALFORMEDREQUEST, NULL);\n        goto end;\n    }\n\n    bs = OCSP_BASICRESP_new();\n    thisupd = X509_gmtime_adj(NULL, 0);\n    if (ndays != -1)\n        nextupd = X509_time_adj_ex(NULL, ndays, nmin * 60, NULL);\n\n    /* Examine each certificate id in the request */\n    for (i = 0; i < id_count; i++) {\n        OCSP_ONEREQ *one;\n        ASN1_INTEGER *serial;\n        char **inf;\n        int jj;\n        int found = 0;\n        ASN1_OBJECT *cert_id_md_oid;\n        const EVP_MD *cert_id_md;\n        OCSP_CERTID *cid_resp_md = NULL;\n\n        one = OCSP_request_onereq_get0(req, i);\n        cid = OCSP_onereq_get0_id(one);\n\n        OCSP_id_get0_info(NULL, &cert_id_md_oid, NULL, NULL, cid);\n\n        cert_id_md = EVP_get_digestbyobj(cert_id_md_oid);\n        if (cert_id_md == NULL) {\n            *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                         NULL);\n            goto end;\n        }\n        for (jj = 0; jj < sk_X509_num(ca) && !found; jj++) {\n            X509 *ca_cert = sk_X509_value(ca, jj);\n            OCSP_CERTID *ca_id = OCSP_cert_to_id(cert_id_md, NULL, ca_cert);\n\n            if (OCSP_id_issuer_cmp(ca_id, cid) == 0) {\n                found = 1;\n                if (resp_md != NULL)\n                    cid_resp_md = OCSP_cert_to_id(resp_md, NULL, ca_cert);\n            }\n            OCSP_CERTID_free(ca_id);\n        }\n        OCSP_id_get0_info(NULL, NULL, NULL, &serial, cid);\n        inf = lookup_serial(db, serial);\n\n        /* at this point, we can have cid be an alias of cid_resp_md */\n        cid = (cid_resp_md != NULL) ? cid_resp_md : cid;\n\n        if (!found) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_UNKNOWN,\n                                   0, NULL, thisupd, nextupd);\n            continue;\n        }\n        if (inf == NULL) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_UNKNOWN,\n                                   0, NULL, thisupd, nextupd);\n        } else if (inf[DB_type][0] == DB_TYPE_VAL) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_GOOD,\n                                   0, NULL, thisupd, nextupd);\n        } else if (inf[DB_type][0] == DB_TYPE_REV) {\n            ASN1_OBJECT *inst = NULL;\n            ASN1_TIME *revtm = NULL;\n            ASN1_GENERALIZEDTIME *invtm = NULL;\n            OCSP_SINGLERESP *single;\n            int reason = -1;\n\n            unpack_revinfo(&revtm, &reason, &inst, &invtm, inf[DB_rev_date]);\n            single = OCSP_basic_add1_status(bs, cid,\n                                            V_OCSP_CERTSTATUS_REVOKED,\n                                            reason, revtm, thisupd, nextupd);\n            if (single == NULL) {\n                *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                             NULL);\n                goto end;\n            }\n            if (invtm != NULL)\n                OCSP_SINGLERESP_add1_ext_i2d(single, NID_invalidity_date,\n                                             invtm, 0, 0);\n            else if (inst != NULL)\n                OCSP_SINGLERESP_add1_ext_i2d(single,\n                                             NID_hold_instruction_code, inst,\n                                             0, 0);\n            ASN1_OBJECT_free(inst);\n            ASN1_TIME_free(revtm);\n            ASN1_GENERALIZEDTIME_free(invtm);\n        }\n        OCSP_CERTID_free(cid_resp_md);\n    }\n\n    OCSP_copy_nonce(bs, req);\n\n    mctx = EVP_MD_CTX_new();\n    if (mctx == NULL || !EVP_DigestSignInit(mctx, &pkctx, rmd, NULL, rkey)) {\n        *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR, NULL);\n        goto end;\n    }\n    for (i = 0; i < sk_OPENSSL_STRING_num(sigopts); i++) {\n        char *sigopt = sk_OPENSSL_STRING_value(sigopts, i);\n\n        if (pkey_ctrl_string(pkctx, sigopt) <= 0) {\n            BIO_printf(err, \"parameter error \\\"%s\\\"\\n\", sigopt);\n            ERR_print_errors(bio_err);\n            *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                         NULL);\n            goto end;\n        }\n    }\n    if (!OCSP_basic_sign_ctx(bs, rcert, mctx, rother, flags)) {\n        *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR, bs);\n        goto end;\n    }\n\n    if (badsig) {\n        const ASN1_OCTET_STRING *sig = OCSP_resp_get0_signature(bs);\n        corrupt_signature(sig);\n    }\n\n    *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_SUCCESSFUL, bs);\n\n end:\n    EVP_MD_CTX_free(mctx);\n    ASN1_TIME_free(thisupd);\n    ASN1_TIME_free(nextupd);\n    OCSP_BASICRESP_free(bs);\n}",
+    "index": 31
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "make_ocsp_response",
+        "var_name": "bs",
+        "target": "OCSP_copy_nonce(bs, req);",
+        "code": "static void make_ocsp_response(BIO *err, OCSP_RESPONSE **resp, OCSP_REQUEST *req,\n                              CA_DB *db, STACK_OF(X509) *ca, X509 *rcert,\n                              EVP_PKEY *rkey, const EVP_MD *rmd,\n                              STACK_OF(OPENSSL_STRING) *sigopts,\n                              STACK_OF(X509) *rother, unsigned long flags,\n                              int nmin, int ndays, int badsig,\n                              const EVP_MD *resp_md)\n{\n    ASN1_TIME *thisupd = NULL, *nextupd = NULL;\n    OCSP_CERTID *cid;\n    OCSP_BASICRESP *bs = NULL;\n    int i, id_count;\n    EVP_MD_CTX *mctx = NULL;\n    EVP_PKEY_CTX *pkctx = NULL;\n\n    id_count = OCSP_request_onereq_count(req);\n\n    if (id_count <= 0) {\n        *resp =\n            OCSP_response_create(OCSP_RESPONSE_STATUS_MALFORMEDREQUEST, NULL);\n        goto end;\n    }\n\n    bs = OCSP_BASICRESP_new();\n    thisupd = X509_gmtime_adj(NULL, 0);\n    if (ndays != -1)\n        nextupd = X509_time_adj_ex(NULL, ndays, nmin * 60, NULL);\n\n    /* Examine each certificate id in the request */\n    for (i = 0; i < id_count; i++) {\n        OCSP_ONEREQ *one;\n        ASN1_INTEGER *serial;\n        char **inf;\n        int jj;\n        int found = 0;\n        ASN1_OBJECT *cert_id_md_oid;\n        const EVP_MD *cert_id_md;\n        OCSP_CERTID *cid_resp_md = NULL;\n\n        one = OCSP_request_onereq_get0(req, i);\n        cid = OCSP_onereq_get0_id(one);\n\n        OCSP_id_get0_info(NULL, &cert_id_md_oid, NULL, NULL, cid);\n\n        cert_id_md = EVP_get_digestbyobj(cert_id_md_oid);\n        if (cert_id_md == NULL) {\n            *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                         NULL);\n            goto end;\n        }\n        for (jj = 0; jj < sk_X509_num(ca) && !found; jj++) {\n            X509 *ca_cert = sk_X509_value(ca, jj);\n            OCSP_CERTID *ca_id = OCSP_cert_to_id(cert_id_md, NULL, ca_cert);\n\n            if (OCSP_id_issuer_cmp(ca_id, cid) == 0) {\n                found = 1;\n                if (resp_md != NULL)\n                    cid_resp_md = OCSP_cert_to_id(resp_md, NULL, ca_cert);\n            }\n            OCSP_CERTID_free(ca_id);\n        }\n        OCSP_id_get0_info(NULL, NULL, NULL, &serial, cid);\n        inf = lookup_serial(db, serial);\n\n        /* at this point, we can have cid be an alias of cid_resp_md */\n        cid = (cid_resp_md != NULL) ? cid_resp_md : cid;\n\n        if (!found) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_UNKNOWN,\n                                   0, NULL, thisupd, nextupd);\n            continue;\n        }\n        if (inf == NULL) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_UNKNOWN,\n                                   0, NULL, thisupd, nextupd);\n        } else if (inf[DB_type][0] == DB_TYPE_VAL) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_GOOD,\n                                   0, NULL, thisupd, nextupd);\n        } else if (inf[DB_type][0] == DB_TYPE_REV) {\n            ASN1_OBJECT *inst = NULL;\n            ASN1_TIME *revtm = NULL;\n            ASN1_GENERALIZEDTIME *invtm = NULL;\n            OCSP_SINGLERESP *single;\n            int reason = -1;\n\n            unpack_revinfo(&revtm, &reason, &inst, &invtm, inf[DB_rev_date]);\n            single = OCSP_basic_add1_status(bs, cid,\n                                            V_OCSP_CERTSTATUS_REVOKED,\n                                            reason, revtm, thisupd, nextupd);\n            if (single == NULL) {\n                *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                             NULL);\n                goto end;\n            }\n            if (invtm != NULL)\n                OCSP_SINGLERESP_add1_ext_i2d(single, NID_invalidity_date,\n                                             invtm, 0, 0);\n            else if (inst != NULL)\n                OCSP_SINGLERESP_add1_ext_i2d(single,\n                                             NID_hold_instruction_code, inst,\n                                             0, 0);\n            ASN1_OBJECT_free(inst);\n            ASN1_TIME_free(revtm);\n            ASN1_GENERALIZEDTIME_free(invtm);\n        }\n        OCSP_CERTID_free(cid_resp_md);\n    }\n\n    OCSP_copy_nonce(bs, req);\n\n    mctx = EVP_MD_CTX_new();\n    if (mctx == NULL || !EVP_DigestSignInit(mctx, &pkctx, rmd, NULL, rkey)) {\n        *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR, NULL);\n        goto end;\n    }\n    for (i = 0; i < sk_OPENSSL_STRING_num(sigopts); i++) {\n        char *sigopt = sk_OPENSSL_STRING_value(sigopts, i);\n\n        if (pkey_ctrl_string(pkctx, sigopt) <= 0) {\n            BIO_printf(err, \"parameter error \\\"%s\\\"\\n\", sigopt);\n            ERR_print_errors(bio_err);\n            *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                         NULL);\n            goto end;\n        }\n    }\n    if (!OCSP_basic_sign_ctx(bs, rcert, mctx, rother, flags)) {\n        *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR, bs);\n        goto end;\n    }\n\n    if (badsig) {\n        const ASN1_OCTET_STRING *sig = OCSP_resp_get0_signature(bs);\n        corrupt_signature(sig);\n    }\n\n    *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_SUCCESSFUL, bs);\n\n end:\n    EVP_MD_CTX_free(mctx);\n    ASN1_TIME_free(thisupd);\n    ASN1_TIME_free(nextupd);\n    OCSP_BASICRESP_free(bs);\n}",
+        "body_sha256": "0710255ad6325f07f68ca2e2b35754df6a9c26fbf063e37b6c9f66555683feca",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "OCSP_copy_nonce(bs, req);",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static void make_ocsp_response(BIO *err, OCSP_RESPONSE **resp, OCSP_REQUEST *req,",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "end",
+              "condition": [
+                "i = 0; i < id_count; i++",
+                "inf[DB_type][0] == DB_TYPE_REV",
+                "single == NULL"
+              ]
+            },
+            {
+              "text": "end",
+              "condition": [
+                "i = 0; i < id_count; i++",
+                "cert_id_md == NULL"
+              ]
+            },
+            {
+              "text": "end",
+              "condition": [
+                "id_count <= 0"
+              ]
+            }
+          ],
+          "filter_function_code": "static void make_ocsp_response(BIO *err, OCSP_RESPONSE **resp, OCSP_REQUEST *req,\n                              CA_DB *db, STACK_OF(X509) *ca, X509 *rcert,\n                              EVP_PKEY *rkey, const EVP_MD *rmd,\n                              STACK_OF(OPENSSL_STRING) *sigopts,\n                              STACK_OF(X509) *rother, unsigned long flags,\n                              int nmin, int ndays, int badsig,\n                              const EVP_MD *resp_md)\n{\n    ASN1_TIME *thisupd = NULL, *nextupd = NULL;\n    OCSP_CERTID *cid;\n    OCSP_BASICRESP *bs = NULL;\n    int i, id_count;\n    EVP_MD_CTX *mctx = NULL;\n    EVP_PKEY_CTX *pkctx = NULL;\n\n    id_count = OCSP_request_onereq_count(req);\n\n    if (id_count <= 0) {\n        *resp =\n            OCSP_response_create(OCSP_RESPONSE_STATUS_MALFORMEDREQUEST, NULL);\n        goto end;\n    }\n\n    bs = OCSP_BASICRESP_new();\n    thisupd = X509_gmtime_adj(NULL, 0);\n    if (ndays != -1)\n        nextupd = X509_time_adj_ex(NULL, ndays, nmin * 60, NULL);\n\n    /* Examine each certificate id in the request */\n    for (i = 0; i < id_count; i++) {\n        OCSP_ONEREQ *one;\n        ASN1_INTEGER *serial;\n        char **inf;\n        int jj;\n        int found = 0;\n        ASN1_OBJECT *cert_id_md_oid;\n        const EVP_MD *cert_id_md;\n        OCSP_CERTID *cid_resp_md = NULL;\n\n        one = OCSP_request_onereq_get0(req, i);\n        cid = OCSP_onereq_get0_id(one);\n\n        OCSP_id_get0_info(NULL, &cert_id_md_oid, NULL, NULL, cid);\n\n        cert_id_md = EVP_get_digestbyobj(cert_id_md_oid);\n        if (cert_id_md == NULL) {\n            *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                         NULL);\n            goto end;\n        }\n        for (jj = 0; jj < sk_X509_num(ca) && !found; jj++) {\n            X509 *ca_cert = sk_X509_value(ca, jj);\n            OCSP_CERTID *ca_id = OCSP_cert_to_id(cert_id_md, NULL, ca_cert);\n\n            if (OCSP_id_issuer_cmp(ca_id, cid) == 0) {\n                found = 1;\n                if (resp_md != NULL)\n                    cid_resp_md = OCSP_cert_to_id(resp_md, NULL, ca_cert);\n            }\n            OCSP_CERTID_free(ca_id);\n        }\n        OCSP_id_get0_info(NULL, NULL, NULL, &serial, cid);\n        inf = lookup_serial(db, serial);\n\n        /* at this point, we can have cid be an alias of cid_resp_md */\n        cid = (cid_resp_md != NULL) ? cid_resp_md : cid;\n\n        if (!found) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_UNKNOWN,\n                                   0, NULL, thisupd, nextupd);\n            continue;\n        }\n        if (inf == NULL) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_UNKNOWN,\n                                   0, NULL, thisupd, nextupd);\n        } else if (inf[DB_type][0] == DB_TYPE_VAL) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_GOOD,\n                                   0, NULL, thisupd, nextupd);\n        } else if (inf[DB_type][0] == DB_TYPE_REV) {\n            ASN1_OBJECT *inst = NULL;\n            ASN1_TIME *revtm = NULL;\n            ASN1_GENERALIZEDTIME *invtm = NULL;\n            OCSP_SINGLERESP *single;\n            int reason = -1;\n\n            unpack_revinfo(&revtm, &reason, &inst, &invtm, inf[DB_rev_date]);\n            single = OCSP_basic_add1_status(bs, cid,\n                                            V_OCSP_CERTSTATUS_REVOKED,\n                                            reason, revtm, thisupd, nextupd);\n            if (single == NULL) {\n                *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                             NULL);\n                goto end;\n            }\n            if (invtm != NULL)\n                OCSP_SINGLERESP_add1_ext_i2d(single, NID_invalidity_date,\n                                             invtm, 0, 0);\n            else if (inst != NULL)\n                OCSP_SINGLERESP_add1_ext_i2d(single,\n                                             NID_hold_instruction_code, inst,\n                                             0, 0);\n            ASN1_OBJECT_free(inst);\n            ASN1_TIME_free(revtm);\n            ASN1_GENERALIZEDTIME_free(invtm);\n        }\n        OCSP_CERTID_free(cid_resp_md);\n    }\n\n    OCSP_copy_nonce(bs, req);\n\n    mctx = EVP_MD_CTX_new();\n    if (mctx == NULL || !EVP_DigestSignInit(mctx, &pkctx, rmd, NULL, rkey)) {\n        *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR, NULL);\n        goto end;\n    }\n    for (i = 0; i < sk_OPENSSL_STRING_num(sigopts); i++) {\n        char *sigopt = sk_OPENSSL_STRING_value(sigopts, i);\n\n        if (pkey_ctrl_string(pkctx, sigopt) <= 0) {\n            BIO_printf(err, \"parameter error \\\"%s\\\"\\n\", sigopt);\n            ERR_print_errors(bio_err);\n            *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                         NULL);\n            goto end;\n        }\n    }\n    if (!OCSP_basic_sign_ctx(bs, rcert, mctx, rother, flags)) {\n        *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR, bs);\n        goto end;\n    }\n\n    if (badsig) {\n        const ASN1_OCTET_STRING *sig = OCSP_resp_get0_signature(bs);\n        corrupt_signature(sig);\n    }\n\n    *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_SUCCESSFUL, bs);\n\n end:\n    EVP_MD_CTX_free(mctx);\n    ASN1_TIME_free(thisupd);\n    ASN1_TIME_free(nextupd);\n    OCSP_BASICRESP_free(bs);\n}"
+        }
+      },
+      {
+        "level": 1,
+        "function": "OCSP_copy_nonce",
+        "var_name": "resp",
+        "target": "    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);",
+        "code": "int OCSP_copy_nonce(OCSP_BASICRESP *resp, OCSP_REQUEST *req)\n{\n    X509_EXTENSION *req_ext;\n    int req_idx;\n    /* Check for nonce in request */\n    req_idx = OCSP_REQUEST_get_ext_by_NID(req, NID_id_pkix_OCSP_Nonce, -1);\n    /* If no nonce that's OK */\n    if (req_idx < 0)\n        return 2;\n    req_ext = OCSP_REQUEST_get_ext(req, req_idx);\n    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);\n}",
+        "body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "int OCSP_copy_nonce(OCSP_BASICRESP *resp, OCSP_REQUEST *req)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": []
+            },
+            {
+              "text": "return",
+              "condition": [
+                "req_idx < 0"
+              ]
+            }
+          ],
+          "filter_function_code": "int OCSP_copy_nonce(OCSP_BASICRESP *resp, OCSP_REQUEST *req)\n{\n    X509_EXTENSION *req_ext;\n    int req_idx;\n    /* Check for nonce in request */\n    req_idx = OCSP_REQUEST_get_ext_by_NID(req, NID_id_pkix_OCSP_Nonce, -1);\n    /* If no nonce that's OK */\n    if (req_idx < 0)\n        return 2;\n    req_ext = OCSP_REQUEST_get_ext(req, req_idx);\n    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);\n}"
+        }
+      },
+      {
+        "level": 2,
+        "function": "OCSP_BASICRESP_add_ext",
+        "var_name": "x",
+        "target": "    return (X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)",
+        "code": "int OCSP_BASICRESP_add_ext(OCSP_BASICRESP *x, X509_EXTENSION *ex, int loc)\n{\n    return (X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)\n            != NULL);\n}",
+        "body_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "    return (X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "int OCSP_BASICRESP_add_ext(OCSP_BASICRESP *x, X509_EXTENSION *ex, int loc)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": []
+            }
+          ],
+          "filter_function_code": "int OCSP_BASICRESP_add_ext(OCSP_BASICRESP *x, X509_EXTENSION *ex, int loc)\n{\n    return (X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)\n            != NULL);\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static void make_ocsp_response(BIO *err, OCSP_RESPONSE **resp, OCSP_REQUEST *req,\n                              CA_DB *db, STACK_OF(X509) *ca, X509 *rcert,\n                              EVP_PKEY *rkey, const EVP_MD *rmd,\n                              STACK_OF(OPENSSL_STRING) *sigopts,\n                              STACK_OF(X509) *rother, unsigned long flags,\n                              int nmin, int ndays, int badsig,\n                              const EVP_MD *resp_md)\n{\n    ASN1_TIME *thisupd = NULL, *nextupd = NULL;\n    OCSP_CERTID *cid;\n    OCSP_BASICRESP *bs = NULL;\n    int i, id_count;\n    EVP_MD_CTX *mctx = NULL;\n    EVP_PKEY_CTX *pkctx = NULL;\n\n    id_count = OCSP_request_onereq_count(req);\n\n    if (id_count <= 0) {\n        *resp =\n            OCSP_response_create(OCSP_RESPONSE_STATUS_MALFORMEDREQUEST, NULL);\n        goto end;\n    }\n\n    bs = OCSP_BASICRESP_new();\n    thisupd = X509_gmtime_adj(NULL, 0);\n    if (ndays != -1)\n        nextupd = X509_time_adj_ex(NULL, ndays, nmin * 60, NULL);\n\n    /* Examine each certificate id in the request */\n    for (i = 0; i < id_count; i++) {\n        OCSP_ONEREQ *one;\n        ASN1_INTEGER *serial;\n        char **inf;\n        int jj;\n        int found = 0;\n        ASN1_OBJECT *cert_id_md_oid;\n        const EVP_MD *cert_id_md;\n        OCSP_CERTID *cid_resp_md = NULL;\n\n        one = OCSP_request_onereq_get0(req, i);\n        cid = OCSP_onereq_get0_id(one);\n\n        OCSP_id_get0_info(NULL, &cert_id_md_oid, NULL, NULL, cid);\n\n        cert_id_md = EVP_get_digestbyobj(cert_id_md_oid);\n        if (cert_id_md == NULL) {\n            *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                         NULL);\n            goto end;\n        }\n        for (jj = 0; jj < sk_X509_num(ca) && !found; jj++) {\n            X509 *ca_cert = sk_X509_value(ca, jj);\n            OCSP_CERTID *ca_id = OCSP_cert_to_id(cert_id_md, NULL, ca_cert);\n\n            if (OCSP_id_issuer_cmp(ca_id, cid) == 0) {\n                found = 1;\n                if (resp_md != NULL)\n                    cid_resp_md = OCSP_cert_to_id(resp_md, NULL, ca_cert);\n            }\n            OCSP_CERTID_free(ca_id);\n        }\n        OCSP_id_get0_info(NULL, NULL, NULL, &serial, cid);\n        inf = lookup_serial(db, serial);\n\n        /* at this point, we can have cid be an alias of cid_resp_md */\n        cid = (cid_resp_md != NULL) ? cid_resp_md : cid;\n\n        if (!found) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_UNKNOWN,\n                                   0, NULL, thisupd, nextupd);\n            continue;\n        }\n        if (inf == NULL) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_UNKNOWN,\n                                   0, NULL, thisupd, nextupd);\n        } else if (inf[DB_type][0] == DB_TYPE_VAL) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_GOOD,\n                                   0, NULL, thisupd, nextupd);\n        } else if (inf[DB_type][0] == DB_TYPE_REV) {\n            ASN1_OBJECT *inst = NULL;\n            ASN1_TIME *revtm = NULL;\n            ASN1_GENERALIZEDTIME *invtm = NULL;\n            OCSP_SINGLERESP *single;\n            int reason = -1;\n\n            unpack_revinfo(&revtm, &reason, &inst, &invtm, inf[DB_rev_date]);\n            single = OCSP_basic_add1_status(bs, cid,\n                                            V_OCSP_CERTSTATUS_REVOKED,\n                                            reason, revtm, thisupd, nextupd);\n            if (single == NULL) {\n                *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                             NULL);\n                goto end;\n            }\n            if (invtm != NULL)\n                OCSP_SINGLERESP_add1_ext_i2d(single, NID_invalidity_date,\n                                             invtm, 0, 0);\n            else if (inst != NULL)\n                OCSP_SINGLERESP_add1_ext_i2d(single,\n                                             NID_hold_instruction_code, inst,\n                                             0, 0);\n            ASN1_OBJECT_free(inst);\n            ASN1_TIME_free(revtm);\n            ASN1_GENERALIZEDTIME_free(invtm);\n        }\n        OCSP_CERTID_free(cid_resp_md);\n    }\n\n    OCSP_copy_nonce(bs, req);\n\n    mctx = EVP_MD_CTX_new();\n    if (mctx == NULL || !EVP_DigestSignInit(mctx, &pkctx, rmd, NULL, rkey)) {\n        *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR, NULL);\n        goto end;\n    }\n    for (i = 0; i < sk_OPENSSL_STRING_num(sigopts); i++) {\n        char *sigopt = sk_OPENSSL_STRING_value(sigopts, i);\n\n        if (pkey_ctrl_string(pkctx, sigopt) <= 0) {\n            BIO_printf(err, \"parameter error \\\"%s\\\"\\n\", sigopt);\n            ERR_print_errors(bio_err);\n            *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                         NULL);\n            goto end;\n        }\n    }\n    if (!OCSP_basic_sign_ctx(bs, rcert, mctx, rother, flags)) {\n        *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR, bs);\n        goto end;\n    }\n\n    if (badsig) {\n        const ASN1_OCTET_STRING *sig = OCSP_resp_get0_signature(bs);\n        corrupt_signature(sig);\n    }\n\n    *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_SUCCESSFUL, bs);\n\n end:\n    EVP_MD_CTX_free(mctx);\n    ASN1_TIME_free(thisupd);\n    ASN1_TIME_free(nextupd);\n    OCSP_BASICRESP_free(bs);\n}",
+      "int OCSP_copy_nonce(OCSP_BASICRESP *resp, OCSP_REQUEST *req)\n{\n    X509_EXTENSION *req_ext;\n    int req_idx;\n    /* Check for nonce in request */\n    req_idx = OCSP_REQUEST_get_ext_by_NID(req, NID_id_pkix_OCSP_Nonce, -1);\n    /* If no nonce that's OK */\n    if (req_idx < 0)\n        return 2;\n    req_ext = OCSP_REQUEST_get_ext(req, req_idx);\n    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);\n}",
+      "int OCSP_BASICRESP_add_ext(OCSP_BASICRESP *x, X509_EXTENSION *ex, int loc)\n{\n    return (X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)\n            != NULL);\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nbs=Int('bs')\ns.add(bs == 0)\n```",
+      "response_filter_goto: ```json\n[\"!(i = 0; i < id_count; i++) || !(inf[DB_type][0] == DB_TYPE_REV) || !(single == NULL)\"]\n```",
+      "z3 script: ```python\n# Z3 script generated from C constraints\n# Relevant conditions/variables: bs\n#\n# The original C expression is:\n#   !(i = 0; i < id_count; i++) || !(inf[DB_type][0] == DB_TYPE_REV) || !(single == NULL)\n#\n# Notes on translation:\n#   - The first clause \"!(i = 0; i < id_count; i++)\" is not a valid C boolean\n#     expression (it is a for-loop header). It is treated here as the negation\n#     of the loop condition, i.e. the loop does NOT execute: NOT(i < id_count).\n#     Since no loop variable is provided in the relevant variables, we model\n#     the loop guard as a boolean flag `loop_guard` (i < id_count).\n#   - \"inf[DB_type][0] == DB_TYPE_REV\" is modeled as a boolean flag\n#     `inf_DB_type_0_eq_DB_TYPE_REV`.\n#   - \"single == NULL\" is modeled as a boolean flag `single_is_null`.\n#   - The disjunction is: (NOT loop_guard) OR (NOT inf_eq) OR (NOT single_is_null)\n#     which is equivalent to: NOT(loop_guard AND inf_eq AND single_is_null).\n#\n# Since the only relevant variable is `bs`, and `bs` does not appear in the\n# original constraint, the constraint is asserted as a standalone boolean\n# formula. If `bs` were tied to any of the flags, that linkage would be added\n# here; none is present in the input.\n\nfrom z3 import *\n\n# Boolean flags representing the sub-expressions of the C constraint\nloop_guard = Bool('loop_guard')          # represents (i < id_count)\ninf_eq_rev = Bool('inf_eq_rev')          # represents (inf[DB_type][0] == DB_TYPE_REV)\nsingle_is_null = Bool('single_is_null')  # represents (single == NULL)\n\n# Relevant variable from the input\nbs = Bool('bs')\n\ns = Solver()\n\n# Constraint: !(loop_guard) || !(inf_eq_rev) || !(single_is_null)\n# i.e. at least one of the three sub-conditions must be false.\ns.add(Or(Not(loop_guard), Not(inf_eq_rev), Not(single_is_null)))\n\n# `bs` is listed as a relevant variable but does not appear in the constraint;\n# it is declared above for completeness. No additional constraint is added.\n\nprint(s.check())\nprint(s.model())\n```",
+      "final z3 script: def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, sat\n\n    # Base script variables and constraints\n    bs = Int('bs')\n    s = Solver()\n    s.add(bs == 0)\n\n    # Constraint set 2 variables and constraints\n    loop_guard = Bool('loop_guard')\n    inf_eq_rev = Bool('inf_eq_rev')\n    single_is_null = Bool('single_is_null')\n    s.add(Or(Not(loop_guard), Not(inf_eq_rev), Not(single_is_null)))\n\n    return s.check() == sat",
+      "step 1 z3 script: ```python\nresp=Int('resp')\ns.add(resp == 0)\n```",
+      "response_filter_goto: ```json\n[]\n```",
+      "step 1 z3 script: ```python\nx=Int('x')\ns.add(x == 0)\n```"
+    ],
+    "function_name_list": [
+      "OCSP_copy_nonce",
+      "OCSP_BASICRESP_add_ext"
+    ],
+    "function_body_list": [
+      "int OCSP_copy_nonce(OCSP_BASICRESP *resp, OCSP_REQUEST *req)\n{\n    X509_EXTENSION *req_ext;\n    int req_idx;\n    /* Check for nonce in request */\n    req_idx = OCSP_REQUEST_get_ext_by_NID(req, NID_id_pkix_OCSP_Nonce, -1);\n    /* If no nonce that's OK */\n    if (req_idx < 0)\n        return 2;\n    req_ext = OCSP_REQUEST_get_ext(req, req_idx);\n    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);\n}",
+      "int OCSP_BASICRESP_add_ext(OCSP_BASICRESP *x, X509_EXTENSION *ex, int loc)\n{\n    return (X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)\n            != NULL);\n}"
+    ],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, sat\n\n    # Base script variables and constraints\n    bs = Int('bs')\n    s = Solver()\n    s.add(bs == 0)\n\n    # Constraint set 2 variables and constraints\n    loop_guard = Bool('loop_guard')\n    inf_eq_rev = Bool('inf_eq_rev')\n    single_is_null = Bool('single_is_null')\n    s.add(Or(Not(loop_guard), Not(inf_eq_rev), Not(single_is_null)))\n\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun bs () Int)\n(declare-fun single_is_null () Bool)\n(declare-fun inf_eq_rev () Bool)\n(declare-fun loop_guard () Bool)\n(assert\n (= bs 0))\n(assert\n (or (not loop_guard) (not inf_eq_rev) (not single_is_null)))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    {
+      "event_id": 2,
+      "level": 1,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    resp = Int('resp')\n    s = Solver()\n    s.add(resp == 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun resp () Int)\n(assert\n (= resp 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    {
+      "event_id": 3,
+      "level": 2,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    x = Int('x')\n    s = Solver()\n    s.add(x == 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun x () Int)\n(assert\n (= x 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

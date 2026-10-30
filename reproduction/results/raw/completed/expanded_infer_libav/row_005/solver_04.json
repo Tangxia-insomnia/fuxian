@@ -1,0 +1,14 @@
+{
+  "event_id": 4,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Array, IntSort, Solver, Or, Implies, And, Select, sat\n\n    # Base script variables and constraints\n    sub_rects = Int('sub_rects')\n\n    # Constraint set 2 variables\n    sub_num_rects = Int('sub_num_rects')\n    sub_rects_arr = Array('sub_rects_arr', IntSort(), IntSort())\n    sub_rects_is_null = Int('sub_rects_is_null')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(sub_rects == 0)\n\n    # Constraint set 2 - Constraint 1\n    # Since ForAll is not available, we skip the universal quantifier constraint\n    # (uncertain value range per guidelines) and only keep the short-circuit clause.\n    constraint1 = Or(sub_num_rects <= 0, sub_num_rects == 0)\n    s.add(constraint1)\n\n    # Constraint set 2 - Constraint 2\n    constraint2 = Or(sub_num_rects <= 0, sub_rects_is_null == 0)\n    s.add(constraint2)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sub_rects () Int)\n(declare-fun sub_num_rects () Int)\n(declare-fun sub_rects_is_null () Int)\n(assert\n (= sub_rects 0))\n(assert\n (let (($x28 (<= sub_num_rects 0)))\n (or $x28 (= sub_num_rects 0))))\n(assert\n (let (($x28 (<= sub_num_rects 0)))\n(or $x28 (= sub_rects_is_null 0))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

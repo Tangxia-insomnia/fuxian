@@ -1,0 +1,45 @@
+{
+  "call_id": 1049,
+  "sample_id": "NPD/cppcheck/linux:row=66:index=None",
+  "timestamp": "2026-10-26T01:06:30.327164+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: struct dwarf_frame *dwarf_unwind_stack(unsigned long pc,\n\t\t\t\t       struct dwarf_frame *prev)\n{\n\tstruct dwarf_frame *frame;\n\tstruct dwarf_cie *cie;\n\tstruct dwarf_fde *fde;\n\tstruct dwarf_reg *reg;\n\tunsigned long addr;\n\n\t/*\n\t * If we've been called in to before initialization has\n\t * completed, bail out immediately.\n\t */\n\tif (!dwarf_unwinder_ready)\n\t\treturn NULL;\n\n\t/*\n\t * If we're starting at the top of the stack we need get the\n\t * contents of a physical register to get the CFA in order to\n\t * begin the virtual unwinding of the stack.\n\t *\n\t * NOTE: the return address is guaranteed to be setup by the\n\t * time this function makes its first function call.\n\t */\n\tif (!pc || !prev)\n\t\tpc = _THIS_IP_;\n\n#ifdef CONFIG_FUNCTION_GRAPH_TRACER\n\t/*\n\t * If our stack has been patched by the function graph tracer\n\t * then we might see the address of return_to_handler() where we\n\t * expected to find the real return address.\n\t */\n\tif (pc == (unsigned long)&return_to_handler) {\n\t\tstruct ftrace_ret_stack *ret_stack;\n\n\t\tret_stack = ftrace_graph_get_ret_stack(current, 0);\n\t\tif (ret_stack)\n\t\t\tpc = ret_stack->ret;\n\t\t/*\n\t\t * We currently have no way of tracking how many\n\t\t * return_to_handler()'s we've seen. If there is more\n\t\t * than one patched return address on our stack,\n\t\t * complain loudly.\n\t\t */\n\t\tWARN_ON(ftrace_graph_get_ret_stack(current, 1));\n\t}\n#endif\n\n\tframe = mempool_alloc(dwarf_frame_pool, GFP_ATOMIC);\n\tif (!frame) {\n\t\tprintk(KERN_ERR \"Unable to allocate a dwarf frame\\n\");\n\t\tUNWINDER_BUG();\n\t}\n\n\tINIT_LIST_HEAD(&frame->reg_list);\n\tframe->flags = 0;\n\tframe->prev = prev;\n\tframe->return_addr = 0;\n\n\tfde = dwarf_lookup_fde(pc);\n\tif (!fde) {\n\t\t/*\n\t\t * This is our normal exit path. There are two reasons\n\t\t * why we might exit here,\n\t\t *\n\t\t *\ta) pc has no asscociated DWARF frame info and so\n\t\t *\twe don't know how to unwind this frame. This is\n\t\t *\tusually the case when we're trying to unwind a\n\t\t *\tframe that was called from some assembly code\n\t\t *\tthat has no DWARF info, e.g. syscalls.\n\t\t *\n\t\t *\tb) the DEBUG info for pc is bogus. There's\n\t\t *\treally no way to distinguish this case from the\n\t\t *\tcase above, which sucks because we could print a\n\t\t *\twarning here.\n\t\t */\n\t\tgoto bail;\n\t}\n\n\tcie = dwarf_lookup_cie(fde->cie_pointer);\n\n\tframe->pc = fde->initial_location;\n\n\t/* CIE initial instructions */\n\tdwarf_cfa_execute_insns(cie->initial_instructions,\n\t\t\t\tcie->instructions_end, cie, fde,\n\t\t\t\tframe, pc);\n\n\t/* FDE instructions */\n\tdwarf_cfa_execute_insns(fde->instructions, fde->end, cie,\n\t\t\t\tfde, frame, pc);\n\n\t/* Calculate the CFA */\n\tswitch (frame->flags) {\n\tcase DWARF_FRAME_CFA_REG_OFFSET:\n\t\tif (prev) {\n\t\t\treg = dwarf_frame_reg(prev, frame->cfa_register);\n\t\t\tUNWINDER_BUG_ON(!reg);\n\t\t\tUNWINDER_BUG_ON(reg->flags != DWARF_REG_OFFSET);\n\n\t\t\taddr = prev->cfa + reg->addr;\n\t\t\tframe->cfa = __raw_readl(addr);\n\n\t\t} else {\n\t\t\t/*\n\t\t\t * Again, we're starting from the top of the\n\t\t\t * stack. We need to physically read\n\t\t\t * the contents of a register in order to get\n\t\t\t * the Canonical Frame Address for this\n\t\t\t * function.\n\t\t\t */\n\t\t\tframe->cfa = dwarf_read_arch_reg(frame->cfa_register);\n\t\t}\n\n\t\tframe->cfa += frame->cfa_offset;\n\t\tbreak;\n\tdefault:\n\t\tUNWINDER_BUG();\n\t}\n\n\treg = dwarf_frame_reg(frame, DWARF_ARCH_RA_REG);\n\n\t/*\n\t * If we haven't seen the return address register or the return\n\t * address column is undefined then we must assume that this is\n\t * the end of the callstack.\n\t */\n\tif (!reg || reg->flags == DWARF_UNDEFINED)\n\t\tgoto bail;\n\n\tUNWINDER_BUG_ON(reg->flags != DWARF_REG_OFFSET);\n\n\taddr = frame->cfa + reg->addr;\n\tframe->return_addr = __raw_readl(addr);\n\n\t/*\n\t * Ah, the joys of unwinding through interrupts.\n\t *\n\t * Interrupts are tricky - the DWARF info needs to be _really_\n\t * accurate and unfortunately I'm seeing a lot of bogus DWARF\n\t * info. For example, I've seen interrupts occur in epilogues\n\t * just after the frame pointer (r14) had been restored. The\n\t * problem was that the DWARF info claimed that the CFA could be\n\t * reached by using the value of the frame pointer before it was\n\t * restored.\n\t *\n\t * So until the compiler can be trusted to produce reliable\n\t * DWARF info when it really matters, let's stop unwinding once\n\t * we've calculated the function that was interrupted.\n\t */\n\tif (prev && prev->pc == (unsigned long)ret_from_irq)\n\t\tframe->return_addr = 0;\n\n\treturn frame;\n\nbail:\n\tdwarf_free_frame(frame);\n\treturn NULL;\n}\n        - Target variables: [], reg\n        - Constraints: ['!(UNWINDER_if(reg->flags != DWARF_REG_OFFSET))', '!(!reg || reg->flags == DWARF_UNDEFINED)', '!(!fde)', '!(!dwarf_unwinder_ready)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "18df7254-d327-40cf-966a-5fb791ad8c55",
+  "usage": {
+    "prompt_tokens": 1437,
+    "completion_tokens": 25,
+    "total_tokens": 1462,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1437
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(UNWINDER_if(reg->flags != DWARF_REG_OFFSET))\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.7621256000002177,
+  "cost_upper_bound_cny": 0.003074
+}

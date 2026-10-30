@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, sat\n\n    # Base script variables and constraints\n    st = Int('st')\n\n    # Variables from constraint set 2\n    i = Int('i')\n    nb_streams = Int('nb_streams')\n    st_nonnull = Bool('st_nonnull')\n    codec_type = Int('codec_type')\n    AVMEDIA_TYPE_DATA = 5\n\n    s = Solver()\n\n    # Base constraint\n    s.add(st == 0)\n\n    # Constraint set 2 - Constraint 1\n    s.add(Or(i != nb_streams, st_nonnull))\n\n    # Constraint set 2 - Constraint 2\n    s.add(Or(i < 0, i >= nb_streams, codec_type != AVMEDIA_TYPE_DATA))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun st () Int)\n(declare-fun st_nonnull () Bool)\n(declare-fun nb_streams () Int)\n(declare-fun i () Int)\n(declare-fun codec_type () Int)\n(assert\n (= st 0))\n(assert\n (or (and (distinct i nb_streams) true) st_nonnull))\n(assert\n (or (< i 0) (>= i nb_streams) (and (distinct codec_type 5) true)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

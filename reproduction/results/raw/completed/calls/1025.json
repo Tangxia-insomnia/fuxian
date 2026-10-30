@@ -1,0 +1,45 @@
+{
+  "call_id": 1025,
+  "sample_id": "NPD/cppcheck/linux:row=58:index=None",
+  "timestamp": "2026-10-26T01:06:06.302051+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: unsigned int mpic_get_coreint_irq(void)\n{\n#ifdef CONFIG_BOOKE\n\tstruct mpic *mpic = mpic_primary;\n\tu32 src;\n\n\tBUG_ON(mpic == NULL);\n\n\tsrc = mfspr(SPRN_EPR);\n\n\tif (unlikely(src == mpic->spurious_vec)) {\n\t\tif (mpic->flags & MPIC_SPV_EOI)\n\t\t\tmpic_eoi(mpic);\n\t\treturn 0;\n\t}\n\tif (unlikely(mpic->protected && test_bit(src, mpic->protected))) {\n\t\tprintk_ratelimited(KERN_WARNING \"%s: Got protected source %d !\\n\",\n\t\t\t\t   mpic->name, (int)src);\n\t\treturn 0;\n\t}\n\n\treturn irq_linear_revmap(mpic->irqhost, src);\n#else\n\treturn 0;\n#endif\n}\n        - Target variables: [], mpic\n        - Constraints: ['!(mpic ==0)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "6a7e3df0-c8ad-4664-932a-7662aceede62",
+  "usage": {
+    "prompt_tokens": 283,
+    "completion_tokens": 12,
+    "total_tokens": 295,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 283
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(mpic ==0)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.5713732999993226,
+  "cost_upper_bound_cny": 0.000662
+}

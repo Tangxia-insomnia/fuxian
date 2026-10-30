@@ -1,0 +1,117 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/cppcheck/linux:row=63:index=None",
+    "status": "success",
+    "prediction": "filter",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "cie_tmp",
+    "function_name": "dwarf_lookup_cie",
+    "location": {
+      "file_path": "arch/sh/kernel/dwarf.c",
+      "region": {
+        "startLine": 326,
+        "startColumn": 18,
+        "endColumn": 25
+      },
+      "context": {
+        "startLine": 324,
+        "endLine": 328,
+        "snippet": {
+          "text": "if (cie_ptr == cie_tmp->cie_pointer) {"
+        }
+      }
+    },
+    "function_code": "static struct dwarf_cie *dwarf_lookup_cie(unsigned long cie_ptr)\n{\n\tstruct rb_node **rb_node = &cie_root.rb_node;\n\tstruct dwarf_cie *cie = NULL;\n\tunsigned long flags;\n\n\tspin_lock_irqsave(&dwarf_cie_lock, flags);\n\n\t/*\n\t * We've cached the last CIE we looked up because chances are\n\t * that the FDE wants this CIE.\n\t */\n\tif (cached_cie && cached_cie->cie_pointer == cie_ptr) {\n\t\tcie = cached_cie;\n\t\tgoto out;\n\t}\n\n\twhile (*rb_node) {\n\t\tstruct dwarf_cie *cie_tmp;\n\n\t\tcie_tmp = rb_entry(*rb_node, struct dwarf_cie, node);\n\t\tBUG_ON(!cie_tmp);\n\n\t\tif (cie_ptr == cie_tmp->cie_pointer) {\n\t\t\tcie = cie_tmp;\n\t\t\tcached_cie = cie_tmp;\n\t\t\tgoto out;\n\t\t} else {\n\t\t\tif (cie_ptr < cie_tmp->cie_pointer)\n\t\t\t\trb_node = &(*rb_node)->rb_left;\n\t\t\telse\n\t\t\t\trb_node = &(*rb_node)->rb_right;\n\t\t}\n\t}\n\nout:\n\tspin_unlock_irqrestore(&dwarf_cie_lock, flags);\n\treturn cie;\n}"
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "dwarf_lookup_cie",
+        "var_name": "cie_tmp",
+        "target": "if (cie_ptr == cie_tmp->cie_pointer) {",
+        "code": "static struct dwarf_cie *dwarf_lookup_cie(unsigned long cie_ptr)\n{\n\tstruct rb_node **rb_node = &cie_root.rb_node;\n\tstruct dwarf_cie *cie = NULL;\n\tunsigned long flags;\n\n\tspin_lock_irqsave(&dwarf_cie_lock, flags);\n\n\t/*\n\t * We've cached the last CIE we looked up because chances are\n\t * that the FDE wants this CIE.\n\t */\n\tif (cached_cie && cached_cie->cie_pointer == cie_ptr) {\n\t\tcie = cached_cie;\n\t\tgoto out;\n\t}\n\n\twhile (*rb_node) {\n\t\tstruct dwarf_cie *cie_tmp;\n\n\t\tcie_tmp = rb_entry(*rb_node, struct dwarf_cie, node);\n\t\tBUG_ON(!cie_tmp);\n\n\t\tif (cie_ptr == cie_tmp->cie_pointer) {\n\t\t\tcie = cie_tmp;\n\t\t\tcached_cie = cie_tmp;\n\t\t\tgoto out;\n\t\t} else {\n\t\t\tif (cie_ptr < cie_tmp->cie_pointer)\n\t\t\t\trb_node = &(*rb_node)->rb_left;\n\t\t\telse\n\t\t\t\trb_node = &(*rb_node)->rb_right;\n\t\t}\n\t}\n\nout:\n\tspin_unlock_irqrestore(&dwarf_cie_lock, flags);\n\treturn cie;\n}",
+        "body_sha256": "05ec37a3e03aa0c41998ccd3a4ccf6fa7be20d3a2cc59551bda5d02001c2f840",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "if (cie_ptr == cie_tmp->cie_pointer) {",
+              "condition": [
+                {
+                  "condition": "while (*rb_node)",
+                  "line_number": 17
+                }
+              ]
+            }
+          ],
+          "target_conditions": [
+            {
+              "condition": "while (*rb_node)",
+              "line_number": 17
+            }
+          ],
+          "variable_assignments": {
+            "text": "static struct dwarf_cie *dwarf_lookup_cie(unsigned long cie_ptr)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": [
+                "cie_tmp ==0"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "cached_cie && cached_cie->cie_pointer == cie_ptr"
+              ]
+            }
+          ],
+          "filter_function_code": "static struct dwarf_cie *dwarf_lookup_cie(unsigned long cie_ptr)\n{\n\tstruct rb_node **rb_node = &cie_root.rb_node;\n\tstruct dwarf_cie *cie = NULL;\n\tunsigned long flags;\n\n\tspin_lock_irqsave(&dwarf_cie_lock, flags);\n\n\t/*\n\t * We've cached the last CIE we looked up because chances are\n\t * that the FDE wants this CIE.\n\t */\n\tif (cached_cie && cached_cie->cie_pointer == cie_ptr) {\n\t\tcie = cached_cie;\n\t\tgoto out;\n\t}\n\n\twhile (*rb_node) {\n\t\tstruct dwarf_cie *cie_tmp;\n\n\t\tcie_tmp = rb_entry(*rb_node, struct dwarf_cie, node);\n\t\tBUG_ON(!cie_tmp);\n\n\t\tif (cie_ptr == cie_tmp->cie_pointer) {\n\t\t\tcie = cie_tmp;\n\t\t\tcached_cie = cie_tmp;\n\t\t\tgoto out;\n\t\t} else {\n\t\t\tif (cie_ptr < cie_tmp->cie_pointer)\n\t\t\t\trb_node = &(*rb_node)->rb_left;\n\t\t\telse\n\t\t\t\trb_node = &(*rb_node)->rb_right;\n\t\t}\n\t}\n\nout:\n\tspin_unlock_irqrestore(&dwarf_cie_lock, flags);\n\treturn cie;\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static struct dwarf_cie *dwarf_lookup_cie(unsigned long cie_ptr)\n{\n\tstruct rb_node **rb_node = &cie_root.rb_node;\n\tstruct dwarf_cie *cie = NULL;\n\tunsigned long flags;\n\n\tspin_lock_irqsave(&dwarf_cie_lock, flags);\n\n\t/*\n\t * We've cached the last CIE we looked up because chances are\n\t * that the FDE wants this CIE.\n\t */\n\tif (cached_cie && cached_cie->cie_pointer == cie_ptr) {\n\t\tcie = cached_cie;\n\t\tgoto out;\n\t}\n\n\twhile (*rb_node) {\n\t\tstruct dwarf_cie *cie_tmp;\n\n\t\tcie_tmp = rb_entry(*rb_node, struct dwarf_cie, node);\n\t\tBUG_ON(!cie_tmp);\n\n\t\tif (cie_ptr == cie_tmp->cie_pointer) {\n\t\t\tcie = cie_tmp;\n\t\t\tcached_cie = cie_tmp;\n\t\t\tgoto out;\n\t\t} else {\n\t\t\tif (cie_ptr < cie_tmp->cie_pointer)\n\t\t\t\trb_node = &(*rb_node)->rb_left;\n\t\t\telse\n\t\t\t\trb_node = &(*rb_node)->rb_right;\n\t\t}\n\t}\n\nout:\n\tspin_unlock_irqrestore(&dwarf_cie_lock, flags);\n\treturn cie;\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nrb_node=Int('rb_node')\ncie_tmp=Int('cie_tmp')\ns.add(rb_node != 0)\ns.add(cie_tmp == 0)\n```",
+      "response_filter_goto: ```json\n[\"!(cie_tmp ==0)\"]\n```",
+      "z3 script: ```python\nfrom z3 import *\n\n# Declare variable from the C code\ncie_tmp = Int('cie_tmp')\n\n# Constraint: !(cie_tmp == 0)\n# In C, this asserts that cie_tmp is non-zero.\n# Converted to Z3 as cie_tmp != 0.\ns = Solver()\ns.add(cie_tmp != 0)\n\n# Check satisfiability and print a model if one exists\nif s.check() == sat:\n    print(s.model())\nelse:\n    print(\"unsat\")\n```",
+      "final z3 script: def check_constraints():\n    from z3 import Int, Solver, sat\n    rb_node = Int('rb_node')\n    cie_tmp = Int('cie_tmp')\n    s = Solver()\n    s.add(rb_node != 0)\n    s.add(cie_tmp == 0)\n    s.add(cie_tmp != 0)\n    return s.check() == sat"
+    ],
+    "function_name_list": [],
+    "function_body_list": [],
+    "z3_script": "def check_constraints():\n    from z3 import Int, Solver, sat\n    rb_node = Int('rb_node')\n    cie_tmp = Int('cie_tmp')\n    s = Solver()\n    s.add(rb_node != 0)\n    s.add(cie_tmp == 0)\n    s.add(cie_tmp != 0)\n    return s.check() == sat",
+    "result": false
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    rb_node = Int('rb_node')\n    cie_tmp = Int('cie_tmp')\n    s = Solver()\n    s.add(rb_node != 0)\n    s.add(cie_tmp == 0)\n    s.add(cie_tmp != 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": false,
+      "queries": [
+        {
+          "result": "unsat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun rb_node () Int)\n(declare-fun cie_tmp () Int)\n(assert\n (and (distinct rb_node 0) true))\n(assert\n (= cie_tmp 0))\n(assert\n (and (distinct cie_tmp 0) true))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

@@ -1,0 +1,100 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "nexthop_create_group",
+      "var_name": "nhe",
+      "target": "\t\tif (!nexthop_get(nhe)) {",
+      "code": "static struct nexthop *nexthop_create_group(struct net *net,\n\t\t\t\t\t    struct nh_config *cfg)\n{\n\tstruct nlattr *grps_attr = cfg->nh_grp;\n\tstruct nexthop_grp *entry = nla_data(grps_attr);\n\tu16 num_nh = nla_len(grps_attr) / sizeof(*entry);\n\tstruct nh_group *nhg;\n\tstruct nexthop *nh;\n\tint err;\n\tint i;\n\n\tif (WARN_ON(!num_nh))\n\t\treturn ERR_PTR(-EINVAL);\n\n\tnh = nexthop_alloc();\n\tif (!nh)\n\t\treturn ERR_PTR(-ENOMEM);\n\n\tnh->is_group = 1;\n\n\tnhg = nexthop_grp_alloc(num_nh);\n\tif (!nhg) {\n\t\tkfree(nh);\n\t\treturn ERR_PTR(-ENOMEM);\n\t}\n\n\t/* spare group used for removals */\n\tnhg->spare = nexthop_grp_alloc(num_nh);\n\tif (!nhg->spare) {\n\t\tkfree(nhg);\n\t\tkfree(nh);\n\t\treturn ERR_PTR(-ENOMEM);\n\t}\n\tnhg->spare->spare = nhg;\n\n\tfor (i = 0; i < nhg->num_nh; ++i) {\n\t\tstruct nexthop *nhe;\n\t\tstruct nh_info *nhi;\n\n\t\tnhe = nexthop_find_by_id(net, entry[i].id);\n\t\tif (!nexthop_get(nhe)) {\n\t\t\terr = -ENOENT;\n\t\t\tgoto out_no_nh;\n\t\t}\n\n\t\tnhi = rtnl_dereference(nhe->nh_info);\n\t\tif (nhi->family == AF_INET)\n\t\t\tnhg->has_v4 = true;\n\n\t\tnhg->nh_entries[i].stats =\n\t\t\tnetdev_alloc_pcpu_stats(struct nh_grp_entry_stats);\n\t\tif (!nhg->nh_entries[i].stats) {\n\t\t\terr = -ENOMEM;\n\t\t\tnexthop_put(nhe);\n\t\t\tgoto out_no_nh;\n\t\t}\n\t\tnhg->nh_entries[i].nh = nhe;\n\t\tnhg->nh_entries[i].weight = entry[i].weight + 1;\n\t\tlist_add(&nhg->nh_entries[i].nh_list, &nhe->grp_list);\n\t\tnhg->nh_entries[i].nh_parent = nh;\n\t}\n\n\tif (cfg->nh_grp_type == NEXTHOP_GRP_TYPE_MPATH) {\n\t\tnhg->hash_threshold = 1;\n\t\tnhg->is_multipath = true;\n\t} else if (cfg->nh_grp_type == NEXTHOP_GRP_TYPE_RES) {\n\t\tstruct nh_res_table *res_table;\n\n\t\tres_table = nexthop_res_table_alloc(net, cfg->nh_id, cfg);\n\t\tif (!res_table) {\n\t\t\terr = -ENOMEM;\n\t\t\tgoto out_no_nh;\n\t\t}\n\n\t\trcu_assign_pointer(nhg->spare->res_table, res_table);\n\t\trcu_assign_pointer(nhg->res_table, res_table);\n\t\tnhg->resilient = true;\n\t\tnhg->is_multipath = true;\n\t}\n\n\tWARN_ON_ONCE(nhg->hash_threshold + nhg->resilient != 1);\n\n\tif (nhg->hash_threshold)\n\t\tnh_hthr_group_rebalance(nhg);\n\n\tif (cfg->nh_fdb)\n\t\tnhg->fdb_nh = 1;\n\n\tif (cfg->nh_hw_stats)\n\t\tnhg->hw_stats = true;\n\n\trcu_assign_pointer(nh->nh_grp, nhg);\n\n\treturn nh;\n\nout_no_nh:\n\tfor (i--; i >= 0; --i) {\n\t\tlist_del(&nhg->nh_entries[i].nh_list);\n\t\tfree_percpu(nhg->nh_entries[i].stats);\n\t\tnexthop_put(nhg->nh_entries[i].nh);\n\t}\n\n\tkfree(nhg->spare);\n\tkfree(nhg);\n\tkfree(nh);\n\n\treturn ERR_PTR(err);\n}",
+      "body_sha256": "7450d6bb1fea524acf9a21ba566b8217e529ed13aa5976bf53a1007a7ef92f3c",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\tif (!nexthop_get(nhe)) {",
+            "condition": [
+              {
+                "condition": "for (i = 0; i < nhg->num_nh; ++i)",
+                "line_number": 35
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "for (i = 0; i < nhg->num_nh; ++i)",
+            "line_number": 35
+          }
+        ],
+        "variable_assignments": {
+          "text": "static struct nexthop *nexthop_create_group(struct net *net,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "!nhg->spare"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!nhg"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!nh"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "WARN_ON(!num_nh)"
+            ]
+          }
+        ],
+        "filter_function_code": "static struct nexthop *nexthop_create_group(struct net *net,\n\t\t\t\t\t    struct nh_config *cfg)\n{\n\tstruct nlattr *grps_attr = cfg->nh_grp;\n\tstruct nexthop_grp *entry = nla_data(grps_attr);\n\tu16 num_nh = nla_len(grps_attr) / sizeof(*entry);\n\tstruct nh_group *nhg;\n\tstruct nexthop *nh;\n\tint err;\n\tint i;\n\n\tif (WARN_ON(!num_nh))\n\t\treturn ERR_PTR(-EINVAL);\n\n\tnh = nexthop_alloc();\n\tif (!nh)\n\t\treturn ERR_PTR(-ENOMEM);\n\n\tnh->is_group = 1;\n\n\tnhg = nexthop_grp_alloc(num_nh);\n\tif (!nhg) {\n\t\tkfree(nh);\n\t\treturn ERR_PTR(-ENOMEM);\n\t}\n\n\t/* spare group used for removals */\n\tnhg->spare = nexthop_grp_alloc(num_nh);\n\tif (!nhg->spare) {\n\t\tkfree(nhg);\n\t\tkfree(nh);\n\t\treturn ERR_PTR(-ENOMEM);\n\t}\n\tnhg->spare->spare = nhg;\n\n\tfor (i = 0; i < nhg->num_nh; ++i) {\n\t\tstruct nexthop *nhe;\n\t\tstruct nh_info *nhi;\n\n\t\tnhe = nexthop_find_by_id(net, entry[i].id);\n\t\tif (!nexthop_get(nhe)) {\n\t\t\terr = -ENOENT;\n\t\t\tgoto out_no_nh;\n\t\t}\n\n\t\tnhi = rtnl_dereference(nhe->nh_info);\n\t\tif (nhi->family == AF_INET)\n\t\t\tnhg->has_v4 = true;\n\n\t\tnhg->nh_entries[i].stats =\n\t\t\tnetdev_alloc_pcpu_stats(struct nh_grp_entry_stats);\n\t\tif (!nhg->nh_entries[i].stats) {\n\t\t\terr = -ENOMEM;\n\t\t\tnexthop_put(nhe);\n\t\t\tgoto out_no_nh;\n\t\t}\n\t\tnhg->nh_entries[i].nh = nhe;\n\t\tnhg->nh_entries[i].weight = entry[i].weight + 1;\n\t\tlist_add(&nhg->nh_entries[i].nh_list, &nhe->grp_list);\n\t\tnhg->nh_entries[i].nh_parent = nh;\n\t}\n\n\tif (cfg->nh_grp_type == NEXTHOP_GRP_TYPE_MPATH) {\n\t\tnhg->hash_threshold = 1;\n\t\tnhg->is_multipath = true;\n\t} else if (cfg->nh_grp_type == NEXTHOP_GRP_TYPE_RES) {\n\t\tstruct nh_res_table *res_table;\n\n\t\tres_table = nexthop_res_table_alloc(net, cfg->nh_id, cfg);\n\t\tif (!res_table) {\n\t\t\terr = -ENOMEM;\n\t\t\tgoto out_no_nh;\n\t\t}\n\n\t\trcu_assign_pointer(nhg->spare->res_table, res_table);\n\t\trcu_assign_pointer(nhg->res_table, res_table);\n\t\tnhg->resilient = true;\n\t\tnhg->is_multipath = true;\n\t}\n\n\tWARN_ON_ONCE(nhg->hash_threshold + nhg->resilient != 1);\n\n\tif (nhg->hash_threshold)\n\t\tnh_hthr_group_rebalance(nhg);\n\n\tif (cfg->nh_fdb)\n\t\tnhg->fdb_nh = 1;\n\n\tif (cfg->nh_hw_stats)\n\t\tnhg->hw_stats = true;\n\n\trcu_assign_pointer(nh->nh_grp, nhg);\n\n\treturn nh;\n\nout_no_nh:\n\tfor (i--; i >= 0; --i) {\n\t\tlist_del(&nhg->nh_entries[i].nh_list);\n\t\tfree_percpu(nhg->nh_entries[i].stats);\n\t\tnexthop_put(nhg->nh_entries[i].nh);\n\t}\n\n\tkfree(nhg->spare);\n\tkfree(nhg);\n\tkfree(nh);\n\n\treturn ERR_PTR(err);\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "nexthop_get",
+      "var_name": "nh",
+      "target": "\treturn refcount_inc_not_zero(&nh->refcnt);",
+      "code": "static inline bool nexthop_get(struct nexthop *nh)\n{\n\treturn refcount_inc_not_zero(&nh->refcnt);\n}",
+      "body_sha256": "034c82d958e04bb5a94f314ec88a187c2aabee4d735307625b06895a6b478ae2",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\treturn refcount_inc_not_zero(&nh->refcnt);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static inline bool nexthop_get(struct nexthop *nh)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": []
+          }
+        ],
+        "filter_function_code": "static inline bool nexthop_get(struct nexthop *nh)\n{\n\treturn refcount_inc_not_zero(&nh->refcnt);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static struct nexthop *nexthop_create_group(struct net *net,\n\t\t\t\t\t    struct nh_config *cfg)\n{\n\tstruct nlattr *grps_attr = cfg->nh_grp;\n\tstruct nexthop_grp *entry = nla_data(grps_attr);\n\tu16 num_nh = nla_len(grps_attr) / sizeof(*entry);\n\tstruct nh_group *nhg;\n\tstruct nexthop *nh;\n\tint err;\n\tint i;\n\n\tif (WARN_ON(!num_nh))\n\t\treturn ERR_PTR(-EINVAL);\n\n\tnh = nexthop_alloc();\n\tif (!nh)\n\t\treturn ERR_PTR(-ENOMEM);\n\n\tnh->is_group = 1;\n\n\tnhg = nexthop_grp_alloc(num_nh);\n\tif (!nhg) {\n\t\tkfree(nh);\n\t\treturn ERR_PTR(-ENOMEM);\n\t}\n\n\t/* spare group used for removals */\n\tnhg->spare = nexthop_grp_alloc(num_nh);\n\tif (!nhg->spare) {\n\t\tkfree(nhg);\n\t\tkfree(nh);\n\t\treturn ERR_PTR(-ENOMEM);\n\t}\n\tnhg->spare->spare = nhg;\n\n\tfor (i = 0; i < nhg->num_nh; ++i) {\n\t\tstruct nexthop *nhe;\n\t\tstruct nh_info *nhi;\n\n\t\tnhe = nexthop_find_by_id(net, entry[i].id);\n\t\tif (!nexthop_get(nhe)) {\n\t\t\terr = -ENOENT;\n\t\t\tgoto out_no_nh;\n\t\t}\n\n\t\tnhi = rtnl_dereference(nhe->nh_info);\n\t\tif (nhi->family == AF_INET)\n\t\t\tnhg->has_v4 = true;\n\n\t\tnhg->nh_entries[i].stats =\n\t\t\tnetdev_alloc_pcpu_stats(struct nh_grp_entry_stats);\n\t\tif (!nhg->nh_entries[i].stats) {\n\t\t\terr = -ENOMEM;\n\t\t\tnexthop_put(nhe);\n\t\t\tgoto out_no_nh;\n\t\t}\n\t\tnhg->nh_entries[i].nh = nhe;\n\t\tnhg->nh_entries[i].weight = entry[i].weight + 1;\n\t\tlist_add(&nhg->nh_entries[i].nh_list, &nhe->grp_list);\n\t\tnhg->nh_entries[i].nh_parent = nh;\n\t}\n\n\tif (cfg->nh_grp_type == NEXTHOP_GRP_TYPE_MPATH) {\n\t\tnhg->hash_threshold = 1;\n\t\tnhg->is_multipath = true;\n\t} else if (cfg->nh_grp_type == NEXTHOP_GRP_TYPE_RES) {\n\t\tstruct nh_res_table *res_table;\n\n\t\tres_table = nexthop_res_table_alloc(net, cfg->nh_id, cfg);\n\t\tif (!res_table) {\n\t\t\terr = -ENOMEM;\n\t\t\tgoto out_no_nh;\n\t\t}\n\n\t\trcu_assign_pointer(nhg->spare->res_table, res_table);\n\t\trcu_assign_pointer(nhg->res_table, res_table);\n\t\tnhg->resilient = true;\n\t\tnhg->is_multipath = true;\n\t}\n\n\tWARN_ON_ONCE(nhg->hash_threshold + nhg->resilient != 1);\n\n\tif (nhg->hash_threshold)\n\t\tnh_hthr_group_rebalance(nhg);\n\n\tif (cfg->nh_fdb)\n\t\tnhg->fdb_nh = 1;\n\n\tif (cfg->nh_hw_stats)\n\t\tnhg->hw_stats = true;\n\n\trcu_assign_pointer(nh->nh_grp, nhg);\n\n\treturn nh;\n\nout_no_nh:\n\tfor (i--; i >= 0; --i) {\n\t\tlist_del(&nhg->nh_entries[i].nh_list);\n\t\tfree_percpu(nhg->nh_entries[i].stats);\n\t\tnexthop_put(nhg->nh_entries[i].nh);\n\t}\n\n\tkfree(nhg->spare);\n\tkfree(nhg);\n\tkfree(nh);\n\n\treturn ERR_PTR(err);\n}",
+    "static inline bool nexthop_get(struct nexthop *nh)\n{\n\treturn refcount_inc_not_zero(&nh->refcnt);\n}"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "call_id": 711,
+  "sample_id": "NPD/codeql/openssl:row=13:index=14",
+  "timestamp": "2026-10-26T00:58:44.297625+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(outformat == FORMAT_PVK) || !(!OSSL_ENCODER_CTX_set_params(ectx, params))', '!(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)']\n        Relevant conditions/variables: [], ectx\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "4de06445-6985-4361-835f-14acc75e2797",
+  "usage": {
+    "prompt_tokens": 158,
+    "completion_tokens": 474,
+    "total_tokens": 632,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 158
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# ectx: pointer to OSSL_ENCODER_CTX (modeled as an integer address)\nectx = Int('ectx')\n\n# OSSL_ENCODER_CTX_set_params(ectx, params) returns int (1 on success, 0 on failure)\n# Modeled as an uninterpreted function returning Int\nOSSL_ENCODER_CTX_set_params = Function('OSSL_ENCODER_CTX_set_params', IntSort(), IntSort())\n\n# OSSL_ENCODER_CTX_get_num_encoders(ectx) returns int (number of encoders)\nOSSL_ENCODER_CTX_get_num_encoders = Function('OSSL_ENCODER_CTX_get_num_encoders', IntSort(), IntSort())\n\n# FORMAT_PVK is a constant format identifier\nFORMAT_PVK = Int('FORMAT_PVK')\n\n# outformat: the output format variable\noutformat = Int('outformat')\n\ns = Solver()\n\n# Constraint 1: !(outformat == FORMAT_PVK) || !(!OSSL_ENCODER_CTX_set_params(ectx, params))\n# This is included because it constrains ectx via OSSL_ENCODER_CTX_set_params.\n# In C, !x is true when x == 0. So !OSSL_ENCODER_CTX_set_params(...) means the call returned 0.\n# The constraint says: either outformat is not FORMAT_PVK, or the set_params call did NOT fail\n# (i.e., it succeeded, returning non-zero).\ns.add(Or(outformat != FORMAT_PVK, OSSL_ENCODER_CTX_set_params(ectx) != 0))\n\n# Constraint 2: !(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)\n# This is included because it directly constrains ectx: the number of encoders must be non-zero.\ns.add(OSSL_ENCODER_CTX_get_num_encoders(ectx) != 0)\n\n# Check satisfiability\nprint(s.check())\nprint(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.1969355999999607,
+  "cost_upper_bound_cny": 0.004108
+}

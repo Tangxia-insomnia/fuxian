@@ -1,0 +1,66 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ieee80211_chsw_switch_vifs",
+      "var_name": "old_ctx",
+      "target": "\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;",
+      "code": "static int ieee80211_chsw_switch_vifs(struct ieee80211_local *local,\n\t\t\t\t      int n_vifs)\n{\n\tstruct ieee80211_vif_chanctx_switch *vif_chsw;\n\tstruct ieee80211_link_data *link;\n\tstruct ieee80211_chanctx *ctx, *old_ctx;\n\tint i, err;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\tvif_chsw = kcalloc(n_vifs, sizeof(vif_chsw[0]), GFP_KERNEL);\n\tif (!vif_chsw)\n\t\treturn -ENOMEM;\n\n\ti = 0;\n\tlist_for_each_entry(ctx, &local->chanctx_list, list) {\n\t\tif (ctx->replace_state != IEEE80211_CHANCTX_REPLACES_OTHER)\n\t\t\tcontinue;\n\n\t\tif (WARN_ON(!ctx->replace_ctx)) {\n\t\t\terr = -EINVAL;\n\t\t\tgoto out;\n\t\t}\n\n\t\tlist_for_each_entry(link, &ctx->reserved_links,\n\t\t\t\t    reserved_chanctx_list) {\n\t\t\tif (!ieee80211_link_has_in_place_reservation(link))\n\t\t\t\tcontinue;\n\n\t\t\told_ctx = ieee80211_link_get_chanctx(link);\n\t\t\tvif_chsw[i].vif = &link->sdata->vif;\n\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;\n\t\t\tvif_chsw[i].new_ctx = &ctx->conf;\n\t\t\tvif_chsw[i].link_conf = link->conf;\n\n\t\t\ti++;\n\t\t}\n\t}\n\n\terr = drv_switch_vif_chanctx(local, vif_chsw, n_vifs,\n\t\t\t\t     CHANCTX_SWMODE_SWAP_CONTEXTS);\n\nout:\n\tkfree(vif_chsw);\n\treturn err;\n}",
+      "body_sha256": "202c29c9d72986b8d1fae35c5355d05dcc6e3cff3b7c88e014b314c449a9476d",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;",
+            "condition": [
+              {
+                "condition": "list_for_each_entry(ctx, &local->chanctx_list, list)",
+                "line_number": 15
+              },
+              {
+                "condition": "list_for_each_entry(link, &ctx->reserved_links, reserved_chanctx_list)",
+                "line_number": 24
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "list_for_each_entry(ctx, &local->chanctx_list, list)",
+            "line_number": 15
+          },
+          {
+            "condition": "list_for_each_entry(link, &ctx->reserved_links, reserved_chanctx_list)",
+            "line_number": 24
+          }
+        ],
+        "variable_assignments": {
+          "text": "static int ieee80211_chsw_switch_vifs(struct ieee80211_local *local,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "out",
+            "condition": [
+              "WARN_ON(!ctx->replace_ctx)"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!vif_chsw"
+            ]
+          }
+        ],
+        "filter_function_code": "static int ieee80211_chsw_switch_vifs(struct ieee80211_local *local,\n\t\t\t\t      int n_vifs)\n{\n\tstruct ieee80211_vif_chanctx_switch *vif_chsw;\n\tstruct ieee80211_link_data *link;\n\tstruct ieee80211_chanctx *ctx, *old_ctx;\n\tint i, err;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\tvif_chsw = kcalloc(n_vifs, sizeof(vif_chsw[0]), GFP_KERNEL);\n\tif (!vif_chsw)\n\t\treturn -ENOMEM;\n\n\ti = 0;\n\tlist_for_each_entry(ctx, &local->chanctx_list, list) {\n\t\tif (ctx->replace_state != IEEE80211_CHANCTX_REPLACES_OTHER)\n\t\t\tcontinue;\n\n\t\tif (WARN_ON(!ctx->replace_ctx)) {\n\t\t\terr = -EINVAL;\n\t\t\tgoto out;\n\t\t}\n\n\t\tlist_for_each_entry(link, &ctx->reserved_links,\n\t\t\t\t    reserved_chanctx_list) {\n\t\t\tif (!ieee80211_link_has_in_place_reservation(link))\n\t\t\t\tcontinue;\n\n\t\t\told_ctx = ieee80211_link_get_chanctx(link);\n\t\t\tvif_chsw[i].vif = &link->sdata->vif;\n\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;\n\t\t\tvif_chsw[i].new_ctx = &ctx->conf;\n\t\t\tvif_chsw[i].link_conf = link->conf;\n\n\t\t\ti++;\n\t\t}\n\t}\n\n\terr = drv_switch_vif_chanctx(local, vif_chsw, n_vifs,\n\t\t\t\t     CHANCTX_SWMODE_SWAP_CONTEXTS);\n\nout:\n\tkfree(vif_chsw);\n\treturn err;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int ieee80211_chsw_switch_vifs(struct ieee80211_local *local,\n\t\t\t\t      int n_vifs)\n{\n\tstruct ieee80211_vif_chanctx_switch *vif_chsw;\n\tstruct ieee80211_link_data *link;\n\tstruct ieee80211_chanctx *ctx, *old_ctx;\n\tint i, err;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\tvif_chsw = kcalloc(n_vifs, sizeof(vif_chsw[0]), GFP_KERNEL);\n\tif (!vif_chsw)\n\t\treturn -ENOMEM;\n\n\ti = 0;\n\tlist_for_each_entry(ctx, &local->chanctx_list, list) {\n\t\tif (ctx->replace_state != IEEE80211_CHANCTX_REPLACES_OTHER)\n\t\t\tcontinue;\n\n\t\tif (WARN_ON(!ctx->replace_ctx)) {\n\t\t\terr = -EINVAL;\n\t\t\tgoto out;\n\t\t}\n\n\t\tlist_for_each_entry(link, &ctx->reserved_links,\n\t\t\t\t    reserved_chanctx_list) {\n\t\t\tif (!ieee80211_link_has_in_place_reservation(link))\n\t\t\t\tcontinue;\n\n\t\t\told_ctx = ieee80211_link_get_chanctx(link);\n\t\t\tvif_chsw[i].vif = &link->sdata->vif;\n\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;\n\t\t\tvif_chsw[i].new_ctx = &ctx->conf;\n\t\t\tvif_chsw[i].link_conf = link->conf;\n\n\t\t\ti++;\n\t\t}\n\t}\n\n\terr = drv_switch_vif_chanctx(local, vif_chsw, n_vifs,\n\t\t\t\t     CHANCTX_SWMODE_SWAP_CONTEXTS);\n\nout:\n\tkfree(vif_chsw);\n\treturn err;\n}"
+  ]
+}

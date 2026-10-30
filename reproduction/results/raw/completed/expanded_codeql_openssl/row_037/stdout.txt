@@ -1,0 +1,60 @@
+```python
+mctx=Int('mctx')
+s.add(mctx == 0)
+```
+```json
+["!(rawin) || !((mctx = EVP_MD_CTX_new()) == NULL)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# mctx: pointer returned by EVP_MD_CTX_new(); modeled as an integer address (0 = NULL)
+mctx = Int('mctx')
+
+# rawin: boolean flag (its value is not constrained here, only used in the guard)
+rawin = Bool('rawin')
+
+s = Solver()
+
+# Original C constraint: !(rawin) || !((mctx = EVP_MD_CTX_new()) == NULL)
+#
+# Interpretation:
+#   - The assignment `mctx = EVP_MD_CTX_new()` is modeled by treating `mctx`
+#     as the (nondeterministic) result of the call.
+#   - `(mctx == NULL)` becomes `mctx == 0`.
+#   - `!(...)` becomes `Not(...)`.
+#   - `||` becomes `Or(...)`.
+#
+# The constraint says: either `rawin` is false, OR the newly created context
+# is non-NULL. In other words, if `rawin` is true, then `mctx` must be non-NULL.
+s.add(Or(Not(rawin), Not(mctx == 0)))
+
+# Check satisfiability and print a model
+if s.check() == sat:
+    print("sat")
+    print(s.model())
+else:
+    print("unsat")
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, sat
+
+    # Base script constraints
+    mctx = Int('mctx')
+
+    # Constraint set 2 variables
+    rawin = Bool('rawin')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(mctx == 0)
+
+    # Constraint set 2 constraint
+    s.add(Or(Not(rawin), Not(mctx == 0)))
+
+    return s.check() == sat
+```
+goto result: True

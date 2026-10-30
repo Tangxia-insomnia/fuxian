@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, String, Solver, Contains, IndexOf, And, Or, Not, sat\n\n    # Base script constraints\n    cmd_int = Int('cmd_int')\n    s = Solver()\n    s.add(cmd_int == 0)\n\n    # Constraint set 2: string-based cmd constraints\n    cmd = String('cmd')\n\n    arg_is_null = Not(Contains(cmd, \":\"))\n    arg_offset_ok = And(Contains(cmd, \":\"), IndexOf(cmd, \":\") <= 254)\n\n    s.add(Or(arg_is_null, arg_offset_ok))\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: NameError: name 'String' is not defined"
+}

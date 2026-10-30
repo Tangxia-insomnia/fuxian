@@ -1,0 +1,45 @@
+{
+  "call_id": 835,
+  "sample_id": "NPD/codeql/openssl:row=40:index=42",
+  "timestamp": "2026-10-26T01:02:15.458778+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(X509_trusted(x) == 0)']\n        Relevant conditions/variables: [], x\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "e10e0a9c-6234-4ba2-993d-a8b3990eb1ed",
+  "usage": {
+    "prompt_tokens": 116,
+    "completion_tokens": 166,
+    "total_tokens": 282,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 116
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Variable x (uninterpreted sort, since its type is not specified)\nx = Int('x')\n\n# Uninterpreted function representing X509_trusted(x)\nX509_trusted = Function('X509_trusted', IntSort(), IntSort())\n\ns = Solver()\n\n# Constraint: !(X509_trusted(x) == 0)\n# In C, this means X509_trusted(x) is non-zero (i.e., the certificate is trusted).\n# Converted to Z3: X509_trusted(x) != 0\ns.add(X509_trusted(x) != 0)\n\n# Check satisfiability and print model\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.27633490000062,
+  "cost_upper_bound_cny": 0.00156
+}

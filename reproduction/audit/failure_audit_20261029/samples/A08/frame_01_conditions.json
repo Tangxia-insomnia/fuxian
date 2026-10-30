@@ -1,0 +1,16 @@
+{
+  "bug_line_constraints": [
+    {
+      "text": "        dst[pos] = data[i];",
+      "condition": []
+    }
+  ],
+  "target_conditions": [],
+  "variable_assignments": {
+    "text": "static void radix_sort_pass(RCCMPEntry *dst, const RCCMPEntry *data,",
+    "condition": []
+  },
+  "variable_non_empty": [],
+  "early_jump_constraints": [],
+  "filter_function_code": "static void radix_sort_pass(RCCMPEntry *dst, const RCCMPEntry *data,\n                            int size, int buckets[NBUCKETS], int pass)\n{\n    int shift = pass * BUCKET_BITS;\n    int i;\n    for (i = 0; i < size; i++) {\n        int v   = get_bucket(data[i].value, shift);\n        int pos = buckets[v]++;\n        dst[pos] = data[i];\n    }\n}"
+}

@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n\n    # Variables from base script\n    comment = Int('comment')\n\n    # Variables from constraint set 2\n    header_size = Int('header_size')\n    comment_size = Int('comment_size')\n    SOX_FIXED_HDR = Int('SOX_FIXED_HDR')\n    channels = Int('channels')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(comment == 0)\n\n    # Constraint set 2 constraints\n    s.add((header_size + 4) & 7 == 0)\n    s.add(header_size >= SOX_FIXED_HDR + comment_size)\n    s.add(channels <= 65535)\n    s.add(comment_size <= 0xFFFFFFFF - SOX_FIXED_HDR - 4)\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: TypeError: unsupported operand type(s) for &: 'ArithRef' and 'int'"
+}

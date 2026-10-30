@@ -1,0 +1,14 @@
+{
+  "event_id": 5,
+  "level": 0,
+  "source": "def check_constraints():\n    fraggap = Int('fraggap')\n    skb_prev = Int('skb_prev')\n    skb_len = Int('skb_len')\n    maxfraglen = Int('maxfraglen')\n    \n    s = Solver()\n    \n    # Base script constraints\n    s.add(Not(fraggap == 0))\n    s.add(skb_prev == 0)\n    \n    # Constraint set 1\n    s.add(skb_prev == 0)\n    s.add(fraggap >= 0)\n    s.add(fraggap > 0)\n    s.add(fraggap == skb_len - maxfraglen)\n    s.add(skb_len > maxfraglen)\n    s.add(skb_len >= 0)\n    s.add(maxfraglen >= 0)\n    \n    # Constraint set 2: skb_prev != 0 (non-NULL pointer)\n    s.add(Not(skb_prev == 0))\n    \n    result = s.check()\n    \n    return result == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun fraggap () Int)\n(declare-fun skb_prev () Int)\n(declare-fun maxfraglen () Int)\n(declare-fun skb_len () Int)\n(assert\n (not (= fraggap 0)))\n(assert\n (= skb_prev 0))\n(assert\n (= skb_prev 0))\n(assert\n (>= fraggap 0))\n(assert\n (> fraggap 0))\n(assert\n (= fraggap (- skb_len maxfraglen)))\n(assert\n (> skb_len maxfraglen))\n(assert\n (>= skb_len 0))\n(assert\n (>= maxfraglen 0))\n(assert\n (let (($x29 (= skb_prev 0)))\n(not $x29)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

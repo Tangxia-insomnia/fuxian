@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Define all variables as Int type\n    IEEE80211_FCTL_STYPE = Int('IEEE80211_FCTL_STYPE')\n    IEEE80211_STYPE_ACTION = Int('IEEE80211_STYPE_ACTION')\n    WLAN_CATEGORY_SPECTRUM_MGMT = Int('WLAN_CATEGORY_SPECTRUM_MGMT')\n    elems = Int('elems')\n    ies_len = Int('ies_len')\n    skb_len = Int('skb_len')\n    \n    # Line 31: fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION\n    # IEEE80211_FCTL_STYPE = 0x00f0, IEEE80211_STYPE_ACTION = 0x00d0\n    s.add(IEEE80211_FCTL_STYPE == 0x00f0)\n    s.add(IEEE80211_STYPE_ACTION == 0x00d0)\n    \n    # Line 33: mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT\n    # WLAN_CATEGORY_SPECTRUM_MGMT = 0\n    s.add(WLAN_CATEGORY_SPECTRUM_MGMT == 0)\n    \n    # elems is NULL (assumed)\n    s.add(elems == 0)\n    \n    # ies_len = skb->len - offsetof(...); reaching parse call requires ies_len >= 0\n    s.add(ies_len == skb_len - 24)  # offsetof is a positive constant\n    s.add(ies_len >= 0)\n    \n    # After ieee802_11_parse_elems returns, elems is assigned the return value.\n    # Since we assume elems is NULL, the parse function returned NULL.\n    # The guard `if (elems && !elems->parse_error)` is false, so\n    # ieee80211_rx_mgmt_spectrum_mgmt is NOT called.\n    # kfree(elems) is called with NULL (safe).\n    \n    # Check satisfiability\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun IEEE80211_FCTL_STYPE () Int)\n(declare-fun IEEE80211_STYPE_ACTION () Int)\n(declare-fun WLAN_CATEGORY_SPECTRUM_MGMT () Int)\n(declare-fun elems () Int)\n(declare-fun skb_len () Int)\n(declare-fun ies_len () Int)\n(assert\n (= IEEE80211_FCTL_STYPE 240))\n(assert\n (= IEEE80211_STYPE_ACTION 208))\n(assert\n (= WLAN_CATEGORY_SPECTRUM_MGMT 0))\n(assert\n (= elems 0))\n(assert\n (= ies_len (- skb_len 24)))\n(assert\n (>= ies_len 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

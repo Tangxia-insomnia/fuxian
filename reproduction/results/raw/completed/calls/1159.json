@@ -1,0 +1,45 @@
+{
+  "call_id": 1159,
+  "sample_id": "NPD/infer/openssl:row=7:index=None",
+  "timestamp": "2026-10-26T01:08:48.378944+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int int_ts_RESP_verify_token(TS_VERIFY_CTX *ctx,\n                                    PKCS7 *token, TS_TST_INFO *tst_info)\n{\n    X509 *signer = NULL;\n    GENERAL_NAME *tsa_name = tst_info->tsa;\n    X509_ALGOR *md_alg = NULL;\n    unsigned char *imprint = NULL;\n    unsigned imprint_len = 0;\n    int ret = 0;\n    int flags = ctx->flags;\n\n    /* Some options require us to also check the signature */\n    if (((flags & TS_VFY_SIGNER) && tsa_name != NULL)\n            || (flags & TS_VFY_TSA_NAME)) {\n        flags |= TS_VFY_SIGNATURE;\n    }\n\n    if ((flags & TS_VFY_SIGNATURE)\n        && !TS_RESP_verify_signature(token, ctx->certs, ctx->store, &signer))\n        goto err;\n    if ((flags & TS_VFY_VERSION)\n        && TS_TST_INFO_get_version(tst_info) != 1) {\n        ERR_raise(ERR_LIB_TS, TS_R_UNSUPPORTED_VERSION);\n        goto err;\n    }\n    if ((flags & TS_VFY_POLICY)\n        && !ts_check_policy(ctx->policy, tst_info))\n        goto err;\n    if ((flags & TS_VFY_IMPRINT)\n        && !ts_check_imprints(ctx->md_alg, ctx->imprint, ctx->imprint_len,\n                              tst_info))\n        goto err;\n    if ((flags & TS_VFY_DATA)\n        && (!ts_compute_imprint(ctx->data, tst_info,\n                                &md_alg, &imprint, &imprint_len)\n            || !ts_check_imprints(md_alg, imprint, imprint_len, tst_info)))\n        goto err;\n    if ((flags & TS_VFY_NONCE)\n        && !ts_check_nonces(ctx->nonce, tst_info))\n        goto err;\n    if ((flags & TS_VFY_SIGNER)\n        && tsa_name && !ts_check_signer_name(tsa_name, signer)) {\n        ERR_raise(ERR_LIB_TS, TS_R_TSA_NAME_MISMATCH);\n        goto err;\n    }\n    if ((flags & TS_VFY_TSA_NAME)\n        && !ts_check_signer_name(ctx->tsa_name, signer)) {\n        ERR_raise(ERR_LIB_TS, TS_R_TSA_UNTRUSTED);\n        goto err;\n    }\n    ret = 1;\n\n err:\n    X509_free(signer);\n    X509_ALGOR_free(md_alg);\n    OPENSSL_free(imprint);\n    return ret;\n}\n        - Target variables: [{'condition': 'if ((flags & TS_VFY_SIGNER) && tsa_name)', 'line_number': 40}], signer\n        - Constraints: ['!((flags & TS_VFY_NONCE) && !ts_check_nonces(ctx->nonce, tst_info))', '!((flags & TS_VFY_DATA) && (!ts_compute_imprint(ctx->data, tst_info, &md_alg, &imprint, &imprint_len) || !ts_check_imprints(md_alg, imprint, imprint_len, tst_info)))', '!((flags & TS_VFY_IMPRINT) && !ts_check_imprints(ctx->md_alg, ctx->imprint, ctx->imprint_len, tst_info))', '!((flags & TS_VFY_POLICY) && !ts_check_policy(ctx->policy, tst_info))', '!((flags & TS_VFY_VERSION) && TS_TST_INFO_get_version(tst_info) != 1)', '!((flags & TS_VFY_SIGNATURE) && !TS_RESP_verify_signature(token, ctx->certs, ctx->store, &signer))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "19eabfcd-9bca-4c33-bd29-5e05f3094607",
+  "usage": {
+    "prompt_tokens": 926,
+    "completion_tokens": 41,
+    "total_tokens": 967,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 926
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!((flags & TS_VFY_SIGNATURE) && !TS_RESP_verify_signature(token, ctx->certs, ctx->store, &signer))\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6888343000000532,
+  "cost_upper_bound_cny": 0.00218
+}

@@ -1,0 +1,45 @@
+{
+  "call_id": 531,
+  "sample_id": "NPD/codeql/libav:row=30:index=38",
+  "timestamp": "2026-10-26T00:54:16.665770+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a Z3 constraint solver expert, merge the following constraint sets into a single function.\n\n        Input:\n        1. Base Z3 script: ```python\nsrc=Int('src')\ns.add(src == 0)\n```\n        2. Constraint set 1: \n        3. Constraint set 2: ```python\nfrom z3 import *\n\n# Declare variables used in the constraints\n# src: pointer to source buffer (modeled as an integer address)\nsrc = Int('src')\n\n# n: size of the source buffer (modeled as an integer)\nn = Int('n')\n\n# dst: pointer to destination buffer (modeled as an integer address)\ndst = Int('dst')\n\n# zlen: output length from compression (modeled as an integer)\nzlen = Int('zlen')\n\n# check_size(s, n): modeled as an uninterpreted boolean predicate\n# Returns True if size check passes for buffer s with length n\ncheck_size = Function('check_size', IntSort(), IntSort(), BoolSort())\n\n# compress(dst, &zlen, src, n): modeled as an uninterpreted function\n# Returns an integer status code (e.g., Z_OK == 0)\ncompress = Function('compress', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())\n\n# Z_OK constant (zlib success code)\nZ_OK = 0\n\n# Constraint 1: !(check_size(s, n))\n# Included because it directly constrains the size-check condition on the source buffer.\n# In C, !(expr) means the expression evaluates to false (0).\n# Here we assert that check_size(src, n) is false.\nsolver = Solver()\nsolver.add(Not(check_size(src, n)))\n\n# Constraint 2: !(compress(dst, &zlen, src, n) != Z_OK)\n# Included because it constrains the compression result on the source buffer.\n# In C, !(x != Z_OK) is equivalent to (x == Z_OK).\n# We model &zlen as passing zlen by reference; here we treat zlen as an\n# output variable whose value is determined by the compress call.\nsolver.add(compress(dst, zlen, src, n) == Z_OK)\n\n# Check satisfiability and print the model\nif solver.check() == sat:\n    print(\"SAT\")\n    print(solver.model())\nelse:\n    print(\"UNSAT\")\n```\n\n        Requirements:\n        1. Merge all constraints into a check_constraints() function\n        2. Retain ALL original constraints from the base script\n        3. Add any missing variable definitions from constraint sets\n        4. Function must return boolean (True if constraints are satisfied)\n        5. Return ONLY the function code without imports\n        6. Ensure code is directly executable\n\n        Function signature:\n        def check_constraints():\n            # Your merged constraints here\n            return result  # boolean\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "d21680e8-a82e-466a-a867-2867c2f6535e",
+  "usage": {
+    "prompt_tokens": 620,
+    "completion_tokens": 214,
+    "total_tokens": 834,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 620
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\ndef check_constraints():\n    from z3 import Int, IntSort, BoolSort, Function, Solver, Not, sat\n\n    # Base script variables and constraints\n    src = Int('src')\n\n    # Constraint set 2 variables\n    n = Int('n')\n    dst = Int('dst')\n    zlen = Int('zlen')\n\n    # Uninterpreted functions\n    check_size = Function('check_size', IntSort(), IntSort(), BoolSort())\n    compress = Function('compress', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())\n\n    Z_OK = 0\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(src == 0)\n\n    # Constraint set 2, constraint 1\n    s.add(Not(check_size(src, n)))\n\n    # Constraint set 2, constraint 2\n    s.add(compress(dst, zlen, src, n) == Z_OK)\n\n    return s.check() == sat\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.5388132999996742,
+  "cost_upper_bound_cny": 0.002952
+}

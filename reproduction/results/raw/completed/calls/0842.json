@@ -1,0 +1,45 @@
+{
+  "call_id": 842,
+  "sample_id": "NPD/codeql/openssl:row=42:index=44",
+  "timestamp": "2026-10-26T01:02:41.013738+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)', '!(!(outformat == FORMAT_ASN1) && !(outformat == FORMAT_PEM) && !(outformat == FORMAT_MSBLOB) && !(outformat == FORMAT_PVK))', '!(outformat == FORMAT_PVK) || !(pubin)', '!(noout)', '!(check) || !(r < 0)', '!(check) || !(pctx == NULL)', '!(text) || !((pubin && EVP_PKEY_print_public(out, pkey, 0, NULL) <= 0) || (!pubin && EVP_PKEY_print_private(out, pkey, 0, NULL) <= 0))', '!(out == NULL)', '!(!EVP_PKEY_is_a(pkey, \"RSA\") && !EVP_PKEY_is_a(pkey, \"RSA-PSS\"))', '!(pkey == NULL)', '!(check && pubin)', '!(!app_passwd(passinarg, passoutarg, &passin, &passout))', '!(!opt_cipher(ciphername, &enc))', '!(!opt_check_rest_arg(NULL))', '!(!opt_provider(o))', '!(!opt_format(opt_arg(), OPT_FMT_ANY, &outformat))', '!(!opt_format(opt_arg(), OPT_FMT_ANY, &informat))']\n        Relevant conditions/variables: [], ectx\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "1ed5954d-4af3-4ef2-98fa-9c7a187f407f",
+  "usage": {
+    "prompt_tokens": 432,
+    "completion_tokens": 199,
+    "total_tokens": 631,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 432
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Relevant variable: ectx (treated as an integer/pointer handle)\nectx = Int('ectx')\n\n# Constraint: !(OSSL_ENCODER_CTX_get_num_encoders(ectx) == 0)\n# This is the only constraint that references ectx.\n# We model OSSL_ENCODER_CTX_get_num_encoders(ectx) as an uninterpreted function\n# returning an integer count. The constraint asserts the count is not zero.\nOSSL_ENCODER_CTX_get_num_encoders = Function('OSSL_ENCODER_CTX_get_num_encoders', IntSort(), IntSort())\n\ns = Solver()\n# !(count == 0)  <=>  count != 0\ns.add(OSSL_ENCODER_CTX_get_num_encoders(ectx) != 0)\n\nprint(s.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.4049147000005178,
+  "cost_upper_bound_cny": 0.002456
+}

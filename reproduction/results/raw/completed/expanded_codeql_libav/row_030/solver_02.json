@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Int, IntSort, BoolSort, Function, Solver, Not, sat\n\n    # Base script variables and constraints\n    src = Int('src')\n\n    # Constraint set 2 variables\n    n = Int('n')\n    dst = Int('dst')\n    zlen = Int('zlen')\n\n    # Uninterpreted functions\n    check_size = Function('check_size', IntSort(), IntSort(), BoolSort())\n    compress = Function('compress', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())\n\n    Z_OK = 0\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(src == 0)\n\n    # Constraint set 2, constraint 1\n    s.add(Not(check_size(src, n)))\n\n    # Constraint set 2, constraint 2\n    s.add(compress(dst, zlen, src, n) == Z_OK)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun src () Int)\n(declare-fun check_size (Int Int) Bool)\n(declare-fun n () Int)\n(declare-fun compress (Int Int Int Int) Int)\n(declare-fun zlen () Int)\n(declare-fun dst () Int)\n(assert\n (= src 0))\n(assert\n (not (check_size src n)))\n(assert\n (= (compress dst zlen src n) 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

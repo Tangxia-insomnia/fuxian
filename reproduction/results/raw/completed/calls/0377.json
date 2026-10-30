@@ -1,0 +1,45 @@
+{
+  "call_id": 377,
+  "sample_id": "NPD/codeql/kernel69:row=60:index=90",
+  "timestamp": "2026-10-26T00:51:01.699436+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(WARN_ON_ONCE(skb_headroom(skb) < rtap_len))']\n        Relevant conditions/variables: [], skb\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "a546fbd0-0d23-455a-8f17-90ce84c46ce1",
+  "usage": {
+    "prompt_tokens": 123,
+    "completion_tokens": 297,
+    "total_tokens": 420,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 123
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# The C constraint is:\n#   !(WARN_ON_ONCE(skb_headroom(skb) < rtap_len))\n#\n# WARN_ON_ONCE(cond) evaluates to cond (it returns the condition value and\n# emits a warning the first time it is true). The outer '!' negates it, so\n# the constraint effectively asserts that the inner condition is FALSE:\n#\n#   skb_headroom(skb) < rtap_len   must be false\n#   i.e.  skb_headroom(skb) >= rtap_len\n#\n# We model skb_headroom(skb) as an uninterpreted integer function of skb,\n# and rtap_len as an integer variable (its value is not otherwise constrained\n# in the given input, so it is left free).\n\nskb = Int('skb')                 # opaque handle to the skb structure\nrtap_len = Int('rtap_len')       # length of radiotap header (unconstrained here)\nskb_headroom = Function('skb_headroom', IntSort(), IntSort())\n\ns = Solver()\n\n# Constraint: !(skb_headroom(skb) < rtap_len)\n#   => skb_headroom(skb) >= rtap_len\ns.add(skb_headroom(skb) >= rtap_len)\n\nprint(s.check())\nprint(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.0173023999996076,
+  "cost_upper_bound_cny": 0.002622
+}

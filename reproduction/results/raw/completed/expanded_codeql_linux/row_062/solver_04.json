@@ -1,0 +1,14 @@
+{
+  "event_id": 4,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, And, sat\n\n    # Base script variables and constraints\n    folio_test_slab = Int('folio_test_slab')\n    object = Int('object')\n\n    s = Solver()\n    s.add(folio_test_slab == 0)\n    s.add(object == 0)\n\n    # Constraint set 1 variables and constraints\n    ptr = Int('ptr')\n    zero_or_null_ptr = Int('zero_or_null_ptr')\n    kfree_early_return = Int('kfree_early_return')\n    folio_test_slab_evaluated = Int('folio_test_slab_evaluated')\n\n    s.add(ptr == 0)\n    s.add(zero_or_null_ptr == 1)\n    s.add(kfree_early_return == 1)\n    s.add(folio_test_slab_evaluated == 0)\n\n    # Constraint set 2 constraints (object already declared above)\n    PAGE_SIZE = 4096\n    s.add(object != 0)\n    s.add(object >= PAGE_SIZE)\n\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun folio_test_slab () Int)\n(declare-fun object () Int)\n(declare-fun ptr () Int)\n(declare-fun zero_or_null_ptr () Int)\n(declare-fun kfree_early_return () Int)\n(declare-fun folio_test_slab_evaluated () Int)\n(assert\n (= folio_test_slab 0))\n(assert\n (= object 0))\n(assert\n (= ptr 0))\n(assert\n (= zero_or_null_ptr 1))\n(assert\n (= kfree_early_return 1))\n(assert\n (= folio_test_slab_evaluated 0))\n(assert\n (and (distinct object 0) true))\n(assert\n (>= object 4096))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

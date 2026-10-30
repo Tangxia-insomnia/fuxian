@@ -1,0 +1,243 @@
+```python
+ectx_params=Int('ectx_params')
+s.add(ectx_params == 0)
+```
+```json
+["!(check || check_named) || !(pctx == NULL || EVP_PKEY_param_check(pctx) <= 0)", "!(check || check_named) || !(check_named && !EVP_PKEY_set_utf8_string_param(params_key, OSSL_PKEY_PARAM_EC_GROUP_CHECK_TYPE, OSSL_PKEY_EC_GROUP_CHECK_NAMED))", "!(text && !EVP_PKEY_print_params(out, params_key, 0, NULL))", "!(list_curves)", "!(out == NULL)", "!(no_seed && !EVP_PKEY_set_octet_string_param(params_key, OSSL_PKEY_PARAM_EC_SEED, NULL, 0))", "!(!(curve_name != NULL)) || !(asn1_encoding != NULL && !EVP_PKEY_set_utf8_string_param( params_key, OSSL_PKEY_PARAM_EC_ENCODING, asn1_encoding))", "!(!(curve_name != NULL)) || !(point_format && !EVP_PKEY_set_utf8_string_param( params_key, OSSL_PKEY_PARAM_EC_POINT_CONVERSION_FORMAT, point_format))", "!(!(curve_name != NULL)) || !(params_key == NULL)", "!(curve_name != NULL) || !(gctx_params == NULL || EVP_PKEY_keygen_init(gctx_params) <= 0 || EVP_PKEY_CTX_set_params(gctx_params, params) <= 0 || EVP_PKEY_keygen(gctx_params, &params_key) <= 0)", "!(!app_RAND_load())", "!(!opt_check_rest_arg(NULL))", "!(!opt_provider(o))", "!(!opt_rand(o))", "!(!opt_string(asn1_encoding, asn1_encoding_options))", "!(!opt_string(point_format, point_format_options))", "!(!opt_format(opt_arg(), OPT_FMT_PEMDER, &outformat))", "!(!opt_format(opt_arg(), OPT_FMT_PEMDER, &informat))"]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints
+# (Only those appearing in the constraints are declared; booleans for C conditions,
+#  Ints for functions returning int, and uninterpreted sorts for pointers/objects.)
+
+# Boolean conditions from the C code
+check = Bool('check')
+check_named = Bool('check_named')
+text = Bool('text')
+list_curves = Bool('list_curves')
+no_seed = Bool('no_seed')
+point_format = Bool('point_format')
+
+# Pointer / object nullity flags (encoded as Bool: True means non-NULL)
+pctx_nonnull = Bool('pctx_nonnull')
+params_key_nonnull = Bool('params_key_nonnull')
+out_nonnull = Bool('out_nonnull')
+curve_name_nonnull = Bool('curve_name_nonnull')
+asn1_encoding_nonnull = Bool('asn1_encoding_nonnull')
+gctx_params_nonnull = Bool('gctx_params_nonnull')
+
+# Function return values (modeled as Int; <=0 means failure)
+EVP_PKEY_param_check_ret = Int('EVP_PKEY_param_check_ret')
+EVP_PKEY_set_utf8_string_param_ret = Int('EVP_PKEY_set_utf8_string_param_ret')
+EVP_PKEY_print_params_ret = Int('EVP_PKEY_print_params_ret')
+EVP_PKEY_set_octet_string_param_ret = Int('EVP_PKEY_set_octet_string_param_ret')
+EVP_PKEY_keygen_init_ret = Int('EVP_PKEY_keygen_init_ret')
+EVP_PKEY_CTX_set_params_ret = Int('EVP_PKEY_CTX_set_params_ret')
+EVP_PKEY_keygen_ret = Int('EVP_PKEY_keygen_ret')
+
+# Boolean results of helper functions
+app_RAND_load_ret = Bool('app_RAND_load_ret')
+opt_check_rest_arg_ret = Bool('opt_check_rest_arg_ret')
+opt_provider_ret = Bool('opt_provider_ret')
+opt_rand_ret = Bool('opt_rand_ret')
+opt_string_asn1_ret = Bool('opt_string_asn1_ret')
+opt_string_point_format_ret = Bool('opt_string_point_format_ret')
+opt_format_out_ret = Bool('opt_format_out_ret')
+opt_format_in_ret = Bool('opt_format_in_ret')
+
+s = Solver()
+
+# Constraint 1: !(check || check_named) || !(pctx == NULL || EVP_PKEY_param_check(pctx) <= 0)
+# Included: relates to `check`, `check_named`, and `pctx` (via pctx_nonnull).
+s.add(Or(Not(Or(check, check_named)),
+         Not(Or(Not(pctx_nonnull), EVP_PKEY_param_check_ret <= 0))))
+
+# Constraint 2: !(check || check_named) || !(check_named && !EVP_PKEY_set_utf8_string_param(...))
+# Included: relates to `check`, `check_named`, and params_key (via params_key_nonnull).
+s.add(Or(Not(Or(check, check_named)),
+         Not(And(check_named, EVP_PKEY_set_utf8_string_param_ret == 0))))
+
+# Constraint 3: !(text && !EVP_PKEY_print_params(out, params_key, 0, NULL))
+# Included: relates to `text`, `out`, and `params_key`.
+s.add(Not(And(text, EVP_PKEY_print_params_ret == 0)))
+
+# Constraint 4: !(list_curves)
+# Included: relates to `list_curves`.
+s.add(Not(list_curves))
+
+# Constraint 5: !(out == NULL)
+# Included: relates to `out`.
+s.add(out_nonnull)
+
+# Constraint 6: !(no_seed && !EVP_PKEY_set_octet_string_param(...))
+# Included: relates to `no_seed` and `params_key`.
+s.add(Not(And(no_seed, EVP_PKEY_set_octet_string_param_ret == 0)))
+
+# Constraint 7: !(!(curve_name != NULL)) || !(asn1_encoding != NULL && !EVP_PKEY_set_utf8_string_param(...))
+# Included: relates to `curve_name` and `asn1_encoding`.
+s.add(Or(Not(curve_name_nonnull),
+         Not(And(asn1_encoding_nonnull, EVP_PKEY_set_utf8_string_param_ret == 0))))
+
+# Constraint 8: !(!(curve_name != NULL)) || !(point_format && !EVP_PKEY_set_utf8_string_param(...))
+# Included: relates to `curve_name` and `point_format`.
+s.add(Or(Not(curve_name_nonnull),
+         Not(And(point_format, EVP_PKEY_set_utf8_string_param_ret == 0))))
+
+# Constraint 9: !(!(curve_name != NULL)) || !(params_key == NULL)
+# Included: relates to `curve_name` and `params_key`.
+s.add(Or(Not(curve_name_nonnull), params_key_nonnull))
+
+# Constraint 10: !(curve_name != NULL) || !(gctx_params == NULL || EVP_PKEY_keygen_init(...) <= 0 || EVP_PKEY_CTX_set_params(...) <= 0 || EVP_PKEY_keygen(...) <= 0)
+# Included: relates to `curve_name` and `gctx_params`.
+s.add(Or(Not(curve_name_nonnull),
+         Not(Or(Not(gctx_params_nonnull),
+                EVP_PKEY_keygen_init_ret <= 0,
+                EVP_PKEY_CTX_set_params_ret <= 0,
+                EVP_PKEY_keygen_ret <= 0))))
+
+# Constraint 11: !(!app_RAND_load())
+# Included: general precondition (no specific variable, but part of the constraint set).
+s.add(app_RAND_load_ret)
+
+# Constraint 12: !(!opt_check_rest_arg(NULL))
+# Included: general precondition.
+s.add(opt_check_rest_arg_ret)
+
+# Constraint 13: !(!opt_provider(o))
+# Included: general precondition.
+s.add(opt_provider_ret)
+
+# Constraint 14: !(!opt_rand(o))
+# Included: general precondition.
+s.add(opt_rand_ret)
+
+# Constraint 15: !(!opt_string(asn1_encoding, asn1_encoding_options))
+# Included: relates to `asn1_encoding`.
+s.add(opt_string_asn1_ret)
+
+# Constraint 16: !(!opt_string(point_format, point_format_options))
+# Included: relates to `point_format`.
+s.add(opt_string_point_format_ret)
+
+# Constraint 17: !(!opt_format(opt_arg(), OPT_FMT_PEMDER, &outformat))
+# Included: general precondition.
+s.add(opt_format_out_ret)
+
+# Constraint 18: !(!opt_format(opt_arg(), OPT_FMT_PEMDER, &informat))
+# Included: general precondition.
+s.add(opt_format_in_ret)
+
+# Check satisfiability and print result
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, Bool, Or, Not, And, sat
+
+    # Base script variables
+    ectx_params = Int('ectx_params')
+
+    # Constraint set 2 variables
+    check = Bool('check')
+    check_named = Bool('check_named')
+    text = Bool('text')
+    list_curves = Bool('list_curves')
+    no_seed = Bool('no_seed')
+    point_format = Bool('point_format')
+
+    pctx_nonnull = Bool('pctx_nonnull')
+    params_key_nonnull = Bool('params_key_nonnull')
+    out_nonnull = Bool('out_nonnull')
+    curve_name_nonnull = Bool('curve_name_nonnull')
+    asn1_encoding_nonnull = Bool('asn1_encoding_nonnull')
+    gctx_params_nonnull = Bool('gctx_params_nonnull')
+
+    EVP_PKEY_param_check_ret = Int('EVP_PKEY_param_check_ret')
+    EVP_PKEY_set_utf8_string_param_ret = Int('EVP_PKEY_set_utf8_string_param_ret')
+    EVP_PKEY_print_params_ret = Int('EVP_PKEY_print_params_ret')
+    EVP_PKEY_set_octet_string_param_ret = Int('EVP_PKEY_set_octet_string_param_ret')
+    EVP_PKEY_keygen_init_ret = Int('EVP_PKEY_keygen_init_ret')
+    EVP_PKEY_CTX_set_params_ret = Int('EVP_PKEY_CTX_set_params_ret')
+    EVP_PKEY_keygen_ret = Int('EVP_PKEY_keygen_ret')
+
+    app_RAND_load_ret = Bool('app_RAND_load_ret')
+    opt_check_rest_arg_ret = Bool('opt_check_rest_arg_ret')
+    opt_provider_ret = Bool('opt_provider_ret')
+    opt_rand_ret = Bool('opt_rand_ret')
+    opt_string_asn1_ret = Bool('opt_string_asn1_ret')
+    opt_string_point_format_ret = Bool('opt_string_point_format_ret')
+    opt_format_out_ret = Bool('opt_format_out_ret')
+    opt_format_in_ret = Bool('opt_format_in_ret')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ectx_params == 0)
+
+    # Constraint 1
+    s.add(Or(Not(Or(check, check_named)),
+             Not(Or(Not(pctx_nonnull), EVP_PKEY_param_check_ret <= 0))))
+
+    # Constraint 2
+    s.add(Or(Not(Or(check, check_named)),
+             Not(And(check_named, EVP_PKEY_set_utf8_string_param_ret == 0))))
+
+    # Constraint 3
+    s.add(Not(And(text, EVP_PKEY_print_params_ret == 0)))
+
+    # Constraint 4
+    s.add(Not(list_curves))
+
+    # Constraint 5
+    s.add(out_nonnull)
+
+    # Constraint 6
+    s.add(Not(And(no_seed, EVP_PKEY_set_octet_string_param_ret == 0)))
+
+    # Constraint 7
+    s.add(Or(Not(curve_name_nonnull),
+             Not(And(asn1_encoding_nonnull, EVP_PKEY_set_utf8_string_param_ret == 0))))
+
+    # Constraint 8
+    s.add(Or(Not(curve_name_nonnull),
+             Not(And(point_format, EVP_PKEY_set_utf8_string_param_ret == 0))))
+
+    # Constraint 9
+    s.add(Or(Not(curve_name_nonnull), params_key_nonnull))
+
+    # Constraint 10
+    s.add(Or(Not(curve_name_nonnull),
+             Not(Or(Not(gctx_params_nonnull),
+                    EVP_PKEY_keygen_init_ret <= 0,
+                    EVP_PKEY_CTX_set_params_ret <= 0,
+                    EVP_PKEY_keygen_ret <= 0))))
+
+    # Constraint 11
+    s.add(app_RAND_load_ret)
+
+    # Constraint 12
+    s.add(opt_check_rest_arg_ret)
+
+    # Constraint 13
+    s.add(opt_provider_ret)
+
+    # Constraint 14
+    s.add(opt_rand_ret)
+
+    # Constraint 15
+    s.add(opt_string_asn1_ret)
+
+    # Constraint 16
+    s.add(opt_string_point_format_ret)
+
+    # Constraint 17
+    s.add(opt_format_out_ret)
+
+    # Constraint 18
+    s.add(opt_format_in_ret)
+
+    return s.check() == sat
+```
+goto result: True

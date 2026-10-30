@@ -1,0 +1,45 @@
+{
+  "call_id": 1086,
+  "sample_id": "NPD/cppcheck/libav:row=9:index=None",
+  "timestamp": "2026-10-26T01:07:07.453600+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int probe_codec(AVFormatContext *s, AVStream *st, const AVPacket *pkt)\n{\n    if (st->codecpar->codec_id == AV_CODEC_ID_PROBE) {\n        AVProbeData *pd = &st->probe_data;\n        av_log(s, AV_LOG_DEBUG, \"probing stream %d\\n\", st->index);\n        --st->probe_packets;\n\n        if (pkt) {\n            int err;\n            if ((err = av_reallocp(&pd->buf, pd->buf_size + pkt->size +\n                                   AVPROBE_PADDING_SIZE)) < 0)\n                return err;\n            memcpy(pd->buf + pd->buf_size, pkt->data, pkt->size);\n            pd->buf_size += pkt->size;\n            memset(pd->buf + pd->buf_size, 0, AVPROBE_PADDING_SIZE);\n        } else {\n            st->probe_packets = 0;\n            if (!pd->buf_size) {\n                av_log(s, AV_LOG_ERROR,\n                       \"nothing to probe for stream %d\\n\", st->index);\n                return 0;\n            }\n        }\n\n        if (!st->probe_packets ||\n            av_log2(pd->buf_size) != av_log2(pd->buf_size - pkt->size)) {\n            set_codec_from_probe_data(s, st, pd, st->probe_packets > 0\n                                                 ? AVPROBE_SCORE_MAX / 4 : 0);\n            if (st->codecpar->codec_id != AV_CODEC_ID_PROBE) {\n                pd->buf_size = 0;\n                av_freep(&pd->buf);\n                av_log(s, AV_LOG_DEBUG, \"probed stream %d\\n\", st->index);\n            }\n        }\n    }\n    return 0;\n}\n        - Target variables: [], pkt\n        - Constraints: ['!(st->codecpar->codec_id == AV_CODEC_ID_PROBE) || !(!(pkt)) || !(!pd->buf_size)', '!(st->codecpar->codec_id == AV_CODEC_ID_PROBE) || !(pkt) || !((err = av_reallocp(&pd->buf, pd->buf_size + pkt->size + AVPROBE_PADDING_SIZE)) < 0)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "4ace39c9-796a-4c11-88bf-537fe5e40c54",
+  "usage": {
+    "prompt_tokens": 589,
+    "completion_tokens": 66,
+    "total_tokens": 655,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 589
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(st->codecpar->codec_id == AV_CODEC_ID_PROBE) || !(pkt) || !((err = av_reallocp(&pd->buf, pd->buf_size + pkt->size + AVPROBE_PADDING_SIZE)) < 0)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.7442323000004762,
+  "cost_upper_bound_cny": 0.001706
+}

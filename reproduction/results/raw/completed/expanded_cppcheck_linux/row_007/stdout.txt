@@ -1,0 +1,36 @@
+```python
+res=Int('res')
+s.add(res == 0)
+```
+```json
+["!(res ==0)"]
+```
+```python
+from z3 import *
+
+# Declare variable `res` as an integer (C-style int)
+res = Int('res')
+
+# Solver instance
+s = Solver()
+
+# Constraint: !(res == 0)
+# In C, `!(res == 0)` is equivalent to `res != 0`.
+# This constraint is included because it directly restricts the value of `res`.
+s.add(res != 0)
+
+# Check satisfiability and print result
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    res = Int('res')
+    s = Solver()
+    s.add(res == 0)
+    s.add(res != 0)
+    return s.check() == sat
+```
+goto result: False

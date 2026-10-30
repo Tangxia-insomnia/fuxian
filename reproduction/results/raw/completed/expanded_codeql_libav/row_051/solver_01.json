@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Or, Not, And, sat\n\n    ast = Int('ast')\n    version = Int('version')\n    avio_rb16_pb = Int('avio_rb16_pb')\n    mv_nb_audio_tracks = Int('mv_nb_audio_tracks')\n    ast_codecpar_channels = Int('ast_codecpar_channels')\n    set_channels_ret = Int('set_channels_ret')\n    avio_rb32_pb = Int('avio_rb32_pb')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(ast == 0)\n\n    # Constraint 1\n    s.add(Or(\n        Not(And(version == 0, avio_rb16_pb == 3)),\n        mv_nb_audio_tracks == 0,\n        Not(ast_codecpar_channels <= 0)\n    ))\n\n    # Constraint 2\n    s.add(Or(\n        Not(And(version == 0, avio_rb16_pb == 3)),\n        mv_nb_audio_tracks == 0,\n        Not(ast == 0)\n    ))\n\n    # Constraint 3\n    s.add(Or(\n        version != 2,\n        Not(set_channels_ret < 0)\n    ))\n\n    # Constraint 4\n    s.add(Or(\n        version != 2,\n        Not(ast == 0)\n    ))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ast () Int)\n(declare-fun ast_codecpar_channels () Int)\n(declare-fun mv_nb_audio_tracks () Int)\n(declare-fun avio_rb16_pb () Int)\n(declare-fun version () Int)\n(declare-fun set_channels_ret () Int)\n(assert\n (= ast 0))\n(assert\n (let (($x36 (= mv_nb_audio_tracks 0)))\n (let (($x35 (not (and (= version 0) (= avio_rb16_pb 3)))))\n (or $x35 $x36 (not (<= ast_codecpar_channels 0))))))\n(assert\n (let (($x13 (= ast 0)))\n (let (($x40 (not $x13)))\n (let (($x36 (= mv_nb_audio_tracks 0)))\n (let (($x35 (not (and (= version 0) (= avio_rb16_pb 3)))))\n (or $x35 $x36 $x40))))))\n(assert\n (let (($x43 (and (distinct version 2) true)))\n (or $x43 (not (< set_channels_ret 0)))))\n(assert\n (let (($x13 (= ast 0)))\n(let (($x40 (not $x13)))\n(let (($x43 (and (distinct version 2) true)))\n(or $x43 $x40)))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,52 @@
+```python
+s=Int('s')
+solver.add(s == 0)
+```
+```json
+["!(!TEST_ptr(ssl) || !TEST_ptr(s = SSL_CONNECTION_FROM_SSL_ONLY(ssl)))"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# ssl: pointer to SSL object (modeled as an integer address; 0 = NULL)
+ssl = Int('ssl')
+# s: pointer to SSL_CONNECTION (modeled as an integer address; 0 = NULL)
+s = Int('s')
+
+# The C constraint is:
+#   !(!TEST_ptr(ssl) || !TEST_ptr(s = SSL_CONNECTION_FROM_SSL_ONLY(ssl)))
+#
+# TEST_ptr(x) is true iff x != NULL, i.e. x != 0.
+# SSL_CONNECTION_FROM_SSL_ONLY(ssl) is a function call whose result is
+# assigned to s. We model it as an uninterpreted function returning an
+# integer address (0 meaning NULL).
+SSL_CONNECTION_FROM_SSL_ONLY = Function('SSL_CONNECTION_FROM_SSL_ONLY', IntSort(), IntSort())
+
+# The constraint asserts the negation of the disjunction, which by
+# De Morgan's law is equivalent to:
+#   TEST_ptr(ssl) && TEST_ptr(s = SSL_CONNECTION_FROM_SSL_ONLY(ssl))
+# i.e. both ssl and the result of the function call must be non-NULL.
+#
+# We include this constraint because it directly constrains the
+# variables ssl and s (via the function result), which are the
+# relevant conditions/variables for this problem.
+
+solver = Solver()
+
+# s is the result of SSL_CONNECTION_FROM_SSL_ONLY(ssl)
+solver.add(s == SSL_CONNECTION_FROM_SSL_ONLY(ssl))
+
+# TEST_ptr(ssl): ssl must be non-NULL
+solver.add(ssl != 0)
+
+# TEST_ptr(s): s must be non-NULL
+solver.add(s != 0)
+
+# Check satisfiability and print result
+if solver.check() == sat:
+    print("sat")
+    print(solver.model())
+else:
+    print("unsat")
+```

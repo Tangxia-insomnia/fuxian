@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Not, sat\n    res = Int('res')\n    s = Solver()\n    s.add(res == 0)\n    s.add(Not(res == 0))\n    return s.check() == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun res () Int)\n(assert\n (= res 0))\n(assert\n (let (($x7 (= res 0)))\n(not $x7)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

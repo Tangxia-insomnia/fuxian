@@ -1,0 +1,68 @@
+{
+  "status": "planned_not_executed",
+  "next_experiment": "E01_predicate_polarity_consistency",
+  "single_primary_issue": "R01",
+  "model_calls_allowed": false,
+  "full_benchmark_allowed": false,
+  "safety_policy_changes_allowed": false,
+  "sample_id_special_cases_allowed": false,
+  "audit_manifest": {
+    "path": "E:\\codexconversation\\课题研究\\reproduction\\audit\\failure_audit_20261029\\audit_samples.json",
+    "sha256": "6980a64dd1d499188ccc83002bfdf3255196f1c17e462eaab44d83db67aa366b",
+    "count": 10
+  },
+  "fixed_regression_holdout": {
+    "path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_v1\\fixed_holdout.json",
+    "sha256": "c4ef793abe5f00437f52c27b6fe545dfa613ed661eb441362e1315f1ed98243d",
+    "count": 20,
+    "status": "existing fixed regression holdout; already executed benchmark, not untouched blind test",
+    "replacement_or_reselection_allowed": false
+  },
+  "baseline_metrics": {
+    "path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\20261029_v1\\offline_regression\\metrics.json",
+    "sha256": "088405f51bcbcacf2523615ec923c13a822e59b57e6bbc0aa4f63af3dbfdce0e"
+  },
+  "synthetic_syntax_scope": [
+    "known pointer/integral scalar x",
+    "!x",
+    "!!x",
+    "x==0",
+    "x!=0",
+    "unambiguous true/false edge for if(x) and if(!x)"
+  ],
+  "unsupported_for_initial_check": [
+    "unknown types",
+    "macro returns without evidence",
+    "mixed-width pointer/integer operations",
+    "unresolved reassignment/aliasing",
+    "non-dominating early exits and complex goto flow"
+  ],
+  "planned_outputs": [
+    "frozen_inputs.json",
+    "changes.patch",
+    "predicate_checks.json",
+    "derived_diagnostics.json",
+    "decisions.json",
+    "metrics.json",
+    "tests.log",
+    "preservation_verification.json"
+  ],
+  "execution_phases": [
+    "freeze isolated candidate sources and existing inputs without changing old baselines",
+    "implement only general predicate polarity consistency helper; no model client or constructor",
+    "run parameterized synthetic and A01/A10 saved-output checks",
+    "run all ten debug cases offline; freeze code before holdout",
+    "evaluate exactly twenty sealed regression cases with same frozen code, no tuning on holdout",
+    "report debug/holdout separately and stop on any real-bug deletion or unsupported FILTER"
+  ],
+  "cache_semantics": "Saved responses can validate their original exact prompt/input only; new extraction or prompt invalidates equivalence. Use explicit deterministic diagnostics or UNKNOWN, never claim offline cached output equals a new LLM experiment.",
+  "gate_expectation": "No new complete semantic approval expected. Zero FILTER may persist; judge polarity detection separately from filtering performance.",
+  "stop_conditions": [
+    "any label-1 FILTER",
+    "UNKNOWN counted as filtering success",
+    "incomplete evidence auto-filtered",
+    "holdout changed or used for case-specific tuning",
+    "network/model call attempted",
+    "multiple principal issues changed together"
+  ]
+}

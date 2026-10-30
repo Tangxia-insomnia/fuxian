@@ -1,0 +1,49 @@
+```python
+monskb=Int('monskb')
+s.add(monskb == 0)
+```
+```json
+["!(last_monitor)"]
+```
+```python
+# Z3 script generated from C constraint: !(last_monitor)
+#
+# Explanation:
+#   The C expression `!(last_monitor)` is a logical negation of the
+#   variable `last_monitor`. In C, a scalar used in a boolean context is
+#   true iff it is non-zero. Therefore `!(last_monitor)` is true iff
+#   `last_monitor == 0`.
+#
+#   The variable `last_monitor` is treated as an integer (C scalar).
+#   The constraint is asserted directly as `last_monitor == 0`.
+#
+#   Note: `monskb` was listed among relevant variables but does not
+#   appear in the given constraint, so no constraint is emitted for it.
+
+from z3 import *
+
+# Declare the C variable `last_monitor` as an integer scalar.
+last_monitor = Int('last_monitor')
+
+# Solver instance
+s = Solver()
+
+# Constraint: !(last_monitor)  <=>  last_monitor == 0
+s.add(last_monitor == 0)
+
+# Check satisfiability and print a model if satisfiable.
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    monskb = Int('monskb')
+    last_monitor = Int('last_monitor')
+    s = Solver()
+    s.add(monskb == 0)
+    s.add(last_monitor == 0)
+    return s.check() == sat
+```
+goto result: True

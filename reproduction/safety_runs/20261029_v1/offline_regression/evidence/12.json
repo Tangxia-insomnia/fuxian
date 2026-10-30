@@ -1,0 +1,330 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/kernel69:row=33:index=53",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "fib6_nh",
+    "function_name": "ip6_route_info_create",
+    "location": {
+      "file_path": "net/ipv6/route.c",
+      "region": {
+        "startLine": 3825,
+        "startColumn": 28,
+        "endColumn": 35
+      },
+      "context": {
+        "startLine": 3823,
+        "endLine": 3827,
+        "snippet": {
+          "text": "\t\tstruct net_device *dev = fib6_nh->fib_nh_dev;"
+        }
+      }
+    },
+    "function_code": "static struct fib6_info *ip6_route_info_create(struct fib6_config *cfg,\n\t\t\t\t\t      gfp_t gfp_flags,\n\t\t\t\t\t      struct netlink_ext_ack *extack)\n{\n\tstruct net *net = cfg->fc_nlinfo.nl_net;\n\tstruct fib6_info *rt = NULL;\n\tstruct nexthop *nh = NULL;\n\tstruct fib6_table *table;\n\tstruct fib6_nh *fib6_nh;\n\tint err = -EINVAL;\n\tint addr_type;\n\n\t/* RTF_PCPU is an internal flag; can not be set by userspace */\n\tif (cfg->fc_flags & RTF_PCPU) {\n\t\tNL_SET_ERR_MSG(extack, \"Userspace can not set RTF_PCPU\");\n\t\tgoto out;\n\t}\n\n\t/* RTF_CACHE is an internal flag; can not be set by userspace */\n\tif (cfg->fc_flags & RTF_CACHE) {\n\t\tNL_SET_ERR_MSG(extack, \"Userspace can not set RTF_CACHE\");\n\t\tgoto out;\n\t}\n\n\tif (cfg->fc_type > RTN_MAX) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid route type\");\n\t\tgoto out;\n\t}\n\n\tif (cfg->fc_dst_len > 128) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid prefix length\");\n\t\tgoto out;\n\t}\n\tif (cfg->fc_src_len > 128) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid source address length\");\n\t\tgoto out;\n\t}\n#ifndef CONFIG_IPV6_SUBTREES\n\tif (cfg->fc_src_len) {\n\t\tNL_SET_ERR_MSG(extack,\n\t\t\t       \"Specifying source address requires IPV6_SUBTREES to be enabled\");\n\t\tgoto out;\n\t}\n#endif\n\tif (cfg->fc_nh_id) {\n\t\tnh = nexthop_find_by_id(net, cfg->fc_nh_id);\n\t\tif (!nh) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop id does not exist\");\n\t\t\tgoto out;\n\t\t}\n\t\terr = fib6_check_nexthop(nh, cfg, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\t}\n\n\terr = -ENOBUFS;\n\tif (cfg->fc_nlinfo.nlh &&\n\t    !(cfg->fc_nlinfo.nlh->nlmsg_flags & NLM_F_CREATE)) {\n\t\ttable = fib6_get_table(net, cfg->fc_table);\n\t\tif (!table) {\n\t\t\tpr_warn(\"NLM_F_CREATE should be specified when creating new route\\n\");\n\t\t\ttable = fib6_new_table(net, cfg->fc_table);\n\t\t}\n\t} else {\n\t\ttable = fib6_new_table(net, cfg->fc_table);\n\t}\n\n\tif (!table)\n\t\tgoto out;\n\n\terr = -ENOMEM;\n\trt = fib6_info_alloc(gfp_flags, !nh);\n\tif (!rt)\n\t\tgoto out;\n\n\trt->fib6_metrics = ip_fib_metrics_init(net, cfg->fc_mx, cfg->fc_mx_len,\n\t\t\t\t\t       extack);\n\tif (IS_ERR(rt->fib6_metrics)) {\n\t\terr = PTR_ERR(rt->fib6_metrics);\n\t\t/* Do not leave garbage there. */\n\t\trt->fib6_metrics = (struct dst_metrics *)&dst_default_metrics;\n\t\tgoto out_free;\n\t}\n\n\tif (cfg->fc_flags & RTF_ADDRCONF)\n\t\trt->dst_nocount = true;\n\n\tif (cfg->fc_flags & RTF_EXPIRES)\n\t\tfib6_set_expires(rt, jiffies +\n\t\t\t\tclock_t_to_jiffies(cfg->fc_expires));\n\n\tif (cfg->fc_protocol == RTPROT_UNSPEC)\n\t\tcfg->fc_protocol = RTPROT_BOOT;\n\trt->fib6_protocol = cfg->fc_protocol;\n\n\trt->fib6_table = table;\n\trt->fib6_metric = cfg->fc_metric;\n\trt->fib6_type = cfg->fc_type ? : RTN_UNICAST;\n\trt->fib6_flags = cfg->fc_flags & ~RTF_GATEWAY;\n\n\tipv6_addr_prefix(&rt->fib6_dst.addr, &cfg->fc_dst, cfg->fc_dst_len);\n\trt->fib6_dst.plen = cfg->fc_dst_len;\n\n#ifdef CONFIG_IPV6_SUBTREES\n\tipv6_addr_prefix(&rt->fib6_src.addr, &cfg->fc_src, cfg->fc_src_len);\n\trt->fib6_src.plen = cfg->fc_src_len;\n#endif\n\tif (nh) {\n\t\tif (rt->fib6_src.plen) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthops can not be used with source routing\");\n\t\t\tgoto out_free;\n\t\t}\n\t\tif (!nexthop_get(nh)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop has been deleted\");\n\t\t\tgoto out_free;\n\t\t}\n\t\trt->nh = nh;\n\t\tfib6_nh = nexthop_fib6_nh(rt->nh);\n\t} else {\n\t\terr = fib6_nh_init(net, rt->fib6_nh, cfg, gfp_flags, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\n\t\tfib6_nh = rt->fib6_nh;\n\n\t\t/* We cannot add true routes via loopback here, they would\n\t\t * result in kernel looping; promote them to reject routes\n\t\t */\n\t\taddr_type = ipv6_addr_type(&cfg->fc_dst);\n\t\tif (fib6_is_reject(cfg->fc_flags, rt->fib6_nh->fib_nh_dev,\n\t\t\t\t   addr_type))\n\t\t\trt->fib6_flags = RTF_REJECT | RTF_NONEXTHOP;\n\t}\n\n\tif (!ipv6_addr_any(&cfg->fc_prefsrc)) {\n\t\tstruct net_device *dev = fib6_nh->fib_nh_dev;\n\n\t\tif (!ipv6_chk_addr(net, &cfg->fc_prefsrc, dev, 0)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Invalid source address\");\n\t\t\terr = -EINVAL;\n\t\t\tgoto out;\n\t\t}\n\t\trt->fib6_prefsrc.addr = cfg->fc_prefsrc;\n\t\trt->fib6_prefsrc.plen = 128;\n\t} else\n\t\trt->fib6_prefsrc.plen = 0;\n\n\treturn rt;\nout:\n\tfib6_info_release(rt);\n\treturn ERR_PTR(err);\nout_free:\n\tip_fib_metrics_put(rt->fib6_metrics);\n\tkfree(rt);\n\treturn ERR_PTR(err);\n}",
+    "function_list": [
+      "nexthop_fib6_nh"
+    ],
+    "bug_line_constraints": [
+      {
+        "text": "\t\tstruct net_device *dev = fib6_nh->fib_nh_dev;",
+        "condition": [
+          "if (!ipv6_addr_any(&cfg->fc_prefsrc))"
+        ]
+      }
+    ],
+    "var_assign_conditions": [],
+    "pointer_null_postconditions": [],
+    "early_jump_constraints": [
+      {
+        "text": "goto out;",
+        "condition": [
+          "if (cfg->fc_flags & RTF_PCPU)"
+        ]
+      },
+      {
+        "text": "goto out;",
+        "condition": [
+          "if (cfg->fc_flags & RTF_CACHE)"
+        ]
+      },
+      {
+        "text": "goto out;",
+        "condition": [
+          "if (cfg->fc_type > RTN_MAX)"
+        ]
+      },
+      {
+        "text": "goto out;",
+        "condition": [
+          "if (cfg->fc_dst_len > 128)"
+        ]
+      },
+      {
+        "text": "goto out;",
+        "condition": [
+          "if (cfg->fc_src_len > 128)"
+        ]
+      },
+      {
+        "text": "goto out;",
+        "condition": [
+          "if (cfg->fc_src_len)"
+        ]
+      },
+      {
+        "text": "goto out;",
+        "condition": [
+          "if (cfg->fc_nh_id)",
+          "if (!nh)"
+        ]
+      },
+      {
+        "text": "goto out;",
+        "condition": [
+          "if (cfg->fc_nh_id)",
+          "if (err)"
+        ]
+      },
+      {
+        "text": "goto out;",
+        "condition": [
+          "if (!table)"
+        ]
+      },
+      {
+        "text": "goto out;",
+        "condition": [
+          "if (!rt)"
+        ]
+      },
+      {
+        "text": "goto out_free;",
+        "condition": [
+          "if (IS_ERR(rt->fib6_metrics))"
+        ]
+      },
+      {
+        "text": "goto out_free;",
+        "condition": [
+          "if (nh)",
+          "if (rt->fib6_src.plen)"
+        ]
+      },
+      {
+        "text": "goto out_free;",
+        "condition": [
+          "if (nh)",
+          "if (!nexthop_get(nh))"
+        ]
+      },
+      {
+        "text": "goto out;",
+        "condition": [
+          "if(!(nh))",
+          "if (err)"
+        ]
+      }
+    ],
+    "index": 53
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "ip6_route_info_create",
+        "var_name": "fib6_nh",
+        "target": "\t\tstruct net_device *dev = fib6_nh->fib_nh_dev;",
+        "code": "static struct fib6_info *ip6_route_info_create(struct fib6_config *cfg,\n\t\t\t\t\t      gfp_t gfp_flags,\n\t\t\t\t\t      struct netlink_ext_ack *extack)\n{\n\tstruct net *net = cfg->fc_nlinfo.nl_net;\n\tstruct fib6_info *rt = NULL;\n\tstruct nexthop *nh = NULL;\n\tstruct fib6_table *table;\n\tstruct fib6_nh *fib6_nh;\n\tint err = -EINVAL;\n\tint addr_type;\n\n\t/* RTF_PCPU is an internal flag; can not be set by userspace */\n\tif (cfg->fc_flags & RTF_PCPU) {\n\t\tNL_SET_ERR_MSG(extack, \"Userspace can not set RTF_PCPU\");\n\t\tgoto out;\n\t}\n\n\t/* RTF_CACHE is an internal flag; can not be set by userspace */\n\tif (cfg->fc_flags & RTF_CACHE) {\n\t\tNL_SET_ERR_MSG(extack, \"Userspace can not set RTF_CACHE\");\n\t\tgoto out;\n\t}\n\n\tif (cfg->fc_type > RTN_MAX) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid route type\");\n\t\tgoto out;\n\t}\n\n\tif (cfg->fc_dst_len > 128) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid prefix length\");\n\t\tgoto out;\n\t}\n\tif (cfg->fc_src_len > 128) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid source address length\");\n\t\tgoto out;\n\t}\n#ifndef CONFIG_IPV6_SUBTREES\n\tif (cfg->fc_src_len) {\n\t\tNL_SET_ERR_MSG(extack,\n\t\t\t       \"Specifying source address requires IPV6_SUBTREES to be enabled\");\n\t\tgoto out;\n\t}\n#endif\n\tif (cfg->fc_nh_id) {\n\t\tnh = nexthop_find_by_id(net, cfg->fc_nh_id);\n\t\tif (!nh) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop id does not exist\");\n\t\t\tgoto out;\n\t\t}\n\t\terr = fib6_check_nexthop(nh, cfg, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\t}\n\n\terr = -ENOBUFS;\n\tif (cfg->fc_nlinfo.nlh &&\n\t    !(cfg->fc_nlinfo.nlh->nlmsg_flags & NLM_F_CREATE)) {\n\t\ttable = fib6_get_table(net, cfg->fc_table);\n\t\tif (!table) {\n\t\t\tpr_warn(\"NLM_F_CREATE should be specified when creating new route\\n\");\n\t\t\ttable = fib6_new_table(net, cfg->fc_table);\n\t\t}\n\t} else {\n\t\ttable = fib6_new_table(net, cfg->fc_table);\n\t}\n\n\tif (!table)\n\t\tgoto out;\n\n\terr = -ENOMEM;\n\trt = fib6_info_alloc(gfp_flags, !nh);\n\tif (!rt)\n\t\tgoto out;\n\n\trt->fib6_metrics = ip_fib_metrics_init(net, cfg->fc_mx, cfg->fc_mx_len,\n\t\t\t\t\t       extack);\n\tif (IS_ERR(rt->fib6_metrics)) {\n\t\terr = PTR_ERR(rt->fib6_metrics);\n\t\t/* Do not leave garbage there. */\n\t\trt->fib6_metrics = (struct dst_metrics *)&dst_default_metrics;\n\t\tgoto out_free;\n\t}\n\n\tif (cfg->fc_flags & RTF_ADDRCONF)\n\t\trt->dst_nocount = true;\n\n\tif (cfg->fc_flags & RTF_EXPIRES)\n\t\tfib6_set_expires(rt, jiffies +\n\t\t\t\tclock_t_to_jiffies(cfg->fc_expires));\n\n\tif (cfg->fc_protocol == RTPROT_UNSPEC)\n\t\tcfg->fc_protocol = RTPROT_BOOT;\n\trt->fib6_protocol = cfg->fc_protocol;\n\n\trt->fib6_table = table;\n\trt->fib6_metric = cfg->fc_metric;\n\trt->fib6_type = cfg->fc_type ? : RTN_UNICAST;\n\trt->fib6_flags = cfg->fc_flags & ~RTF_GATEWAY;\n\n\tipv6_addr_prefix(&rt->fib6_dst.addr, &cfg->fc_dst, cfg->fc_dst_len);\n\trt->fib6_dst.plen = cfg->fc_dst_len;\n\n#ifdef CONFIG_IPV6_SUBTREES\n\tipv6_addr_prefix(&rt->fib6_src.addr, &cfg->fc_src, cfg->fc_src_len);\n\trt->fib6_src.plen = cfg->fc_src_len;\n#endif\n\tif (nh) {\n\t\tif (rt->fib6_src.plen) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthops can not be used with source routing\");\n\t\t\tgoto out_free;\n\t\t}\n\t\tif (!nexthop_get(nh)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop has been deleted\");\n\t\t\tgoto out_free;\n\t\t}\n\t\trt->nh = nh;\n\t\tfib6_nh = nexthop_fib6_nh(rt->nh);\n\t} else {\n\t\terr = fib6_nh_init(net, rt->fib6_nh, cfg, gfp_flags, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\n\t\tfib6_nh = rt->fib6_nh;\n\n\t\t/* We cannot add true routes via loopback here, they would\n\t\t * result in kernel looping; promote them to reject routes\n\t\t */\n\t\taddr_type = ipv6_addr_type(&cfg->fc_dst);\n\t\tif (fib6_is_reject(cfg->fc_flags, rt->fib6_nh->fib_nh_dev,\n\t\t\t\t   addr_type))\n\t\t\trt->fib6_flags = RTF_REJECT | RTF_NONEXTHOP;\n\t}\n\n\tif (!ipv6_addr_any(&cfg->fc_prefsrc)) {\n\t\tstruct net_device *dev = fib6_nh->fib_nh_dev;\n\n\t\tif (!ipv6_chk_addr(net, &cfg->fc_prefsrc, dev, 0)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Invalid source address\");\n\t\t\terr = -EINVAL;\n\t\t\tgoto out;\n\t\t}\n\t\trt->fib6_prefsrc.addr = cfg->fc_prefsrc;\n\t\trt->fib6_prefsrc.plen = 128;\n\t} else\n\t\trt->fib6_prefsrc.plen = 0;\n\n\treturn rt;\nout:\n\tfib6_info_release(rt);\n\treturn ERR_PTR(err);\nout_free:\n\tip_fib_metrics_put(rt->fib6_metrics);\n\tkfree(rt);\n\treturn ERR_PTR(err);\n}",
+        "body_sha256": "c59e0935767987ac1be4757ae88affcee8f1e98b5615e79e52c0fac449291f20",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "\t\tstruct net_device *dev = fib6_nh->fib_nh_dev;",
+              "condition": [
+                {
+                  "condition": "if (!ipv6_addr_any(&cfg->fc_prefsrc))",
+                  "line_number": 134
+                }
+              ]
+            }
+          ],
+          "target_conditions": [
+            {
+              "condition": "if (!ipv6_addr_any(&cfg->fc_prefsrc))",
+              "line_number": 134
+            }
+          ],
+          "variable_assignments": {
+            "text": "static struct fib6_info *ip6_route_info_create(struct fib6_config *cfg,",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "out",
+              "condition": [
+                "!(nh)",
+                "err"
+              ]
+            },
+            {
+              "text": "out_free",
+              "condition": [
+                "nh",
+                "!nexthop_get(nh)"
+              ]
+            },
+            {
+              "text": "out_free",
+              "condition": [
+                "nh",
+                "rt->fib6_src.plen"
+              ]
+            },
+            {
+              "text": "out_free",
+              "condition": [
+                "IS_ERR(rt->fib6_metrics)"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "!rt"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "!table"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "cfg->fc_nh_id",
+                "err"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "cfg->fc_nh_id",
+                "!nh"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "cfg->fc_src_len"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "cfg->fc_src_len > 128"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "cfg->fc_dst_len > 128"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "cfg->fc_type > RTN_MAX"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "cfg->fc_flags & RTF_CACHE"
+              ]
+            },
+            {
+              "text": "out",
+              "condition": [
+                "cfg->fc_flags & RTF_PCPU"
+              ]
+            }
+          ],
+          "filter_function_code": "static struct fib6_info *ip6_route_info_create(struct fib6_config *cfg,\n\t\t\t\t\t      gfp_t gfp_flags,\n\t\t\t\t\t      struct netlink_ext_ack *extack)\n{\n\tstruct net *net = cfg->fc_nlinfo.nl_net;\n\tstruct fib6_info *rt = NULL;\n\tstruct nexthop *nh = NULL;\n\tstruct fib6_table *table;\n\tstruct fib6_nh *fib6_nh;\n\tint err = -EINVAL;\n\tint addr_type;\n\n\t/* RTF_PCPU is an internal flag; can not be set by userspace */\n\tif (cfg->fc_flags & RTF_PCPU) {\n\t\tNL_SET_ERR_MSG(extack, \"Userspace can not set RTF_PCPU\");\n\t\tgoto out;\n\t}\n\n\t/* RTF_CACHE is an internal flag; can not be set by userspace */\n\tif (cfg->fc_flags & RTF_CACHE) {\n\t\tNL_SET_ERR_MSG(extack, \"Userspace can not set RTF_CACHE\");\n\t\tgoto out;\n\t}\n\n\tif (cfg->fc_type > RTN_MAX) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid route type\");\n\t\tgoto out;\n\t}\n\n\tif (cfg->fc_dst_len > 128) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid prefix length\");\n\t\tgoto out;\n\t}\n\tif (cfg->fc_src_len > 128) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid source address length\");\n\t\tgoto out;\n\t}\n#ifndef CONFIG_IPV6_SUBTREES\n\tif (cfg->fc_src_len) {\n\t\tNL_SET_ERR_MSG(extack,\n\t\t\t       \"Specifying source address requires IPV6_SUBTREES to be enabled\");\n\t\tgoto out;\n\t}\n#endif\n\tif (cfg->fc_nh_id) {\n\t\tnh = nexthop_find_by_id(net, cfg->fc_nh_id);\n\t\tif (!nh) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop id does not exist\");\n\t\t\tgoto out;\n\t\t}\n\t\terr = fib6_check_nexthop(nh, cfg, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\t}\n\n\terr = -ENOBUFS;\n\tif (cfg->fc_nlinfo.nlh &&\n\t    !(cfg->fc_nlinfo.nlh->nlmsg_flags & NLM_F_CREATE)) {\n\t\ttable = fib6_get_table(net, cfg->fc_table);\n\t\tif (!table) {\n\t\t\tpr_warn(\"NLM_F_CREATE should be specified when creating new route\\n\");\n\t\t\ttable = fib6_new_table(net, cfg->fc_table);\n\t\t}\n\t} else {\n\t\ttable = fib6_new_table(net, cfg->fc_table);\n\t}\n\n\tif (!table)\n\t\tgoto out;\n\n\terr = -ENOMEM;\n\trt = fib6_info_alloc(gfp_flags, !nh);\n\tif (!rt)\n\t\tgoto out;\n\n\trt->fib6_metrics = ip_fib_metrics_init(net, cfg->fc_mx, cfg->fc_mx_len,\n\t\t\t\t\t       extack);\n\tif (IS_ERR(rt->fib6_metrics)) {\n\t\terr = PTR_ERR(rt->fib6_metrics);\n\t\t/* Do not leave garbage there. */\n\t\trt->fib6_metrics = (struct dst_metrics *)&dst_default_metrics;\n\t\tgoto out_free;\n\t}\n\n\tif (cfg->fc_flags & RTF_ADDRCONF)\n\t\trt->dst_nocount = true;\n\n\tif (cfg->fc_flags & RTF_EXPIRES)\n\t\tfib6_set_expires(rt, jiffies +\n\t\t\t\tclock_t_to_jiffies(cfg->fc_expires));\n\n\tif (cfg->fc_protocol == RTPROT_UNSPEC)\n\t\tcfg->fc_protocol = RTPROT_BOOT;\n\trt->fib6_protocol = cfg->fc_protocol;\n\n\trt->fib6_table = table;\n\trt->fib6_metric = cfg->fc_metric;\n\trt->fib6_type = cfg->fc_type ? : RTN_UNICAST;\n\trt->fib6_flags = cfg->fc_flags & ~RTF_GATEWAY;\n\n\tipv6_addr_prefix(&rt->fib6_dst.addr, &cfg->fc_dst, cfg->fc_dst_len);\n\trt->fib6_dst.plen = cfg->fc_dst_len;\n\n#ifdef CONFIG_IPV6_SUBTREES\n\tipv6_addr_prefix(&rt->fib6_src.addr, &cfg->fc_src, cfg->fc_src_len);\n\trt->fib6_src.plen = cfg->fc_src_len;\n#endif\n\tif (nh) {\n\t\tif (rt->fib6_src.plen) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthops can not be used with source routing\");\n\t\t\tgoto out_free;\n\t\t}\n\t\tif (!nexthop_get(nh)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop has been deleted\");\n\t\t\tgoto out_free;\n\t\t}\n\t\trt->nh = nh;\n\t\tfib6_nh = nexthop_fib6_nh(rt->nh);\n\t} else {\n\t\terr = fib6_nh_init(net, rt->fib6_nh, cfg, gfp_flags, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\n\t\tfib6_nh = rt->fib6_nh;\n\n\t\t/* We cannot add true routes via loopback here, they would\n\t\t * result in kernel looping; promote them to reject routes\n\t\t */\n\t\taddr_type = ipv6_addr_type(&cfg->fc_dst);\n\t\tif (fib6_is_reject(cfg->fc_flags, rt->fib6_nh->fib_nh_dev,\n\t\t\t\t   addr_type))\n\t\t\trt->fib6_flags = RTF_REJECT | RTF_NONEXTHOP;\n\t}\n\n\tif (!ipv6_addr_any(&cfg->fc_prefsrc)) {\n\t\tstruct net_device *dev = fib6_nh->fib_nh_dev;\n\n\t\tif (!ipv6_chk_addr(net, &cfg->fc_prefsrc, dev, 0)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Invalid source address\");\n\t\t\terr = -EINVAL;\n\t\t\tgoto out;\n\t\t}\n\t\trt->fib6_prefsrc.addr = cfg->fc_prefsrc;\n\t\trt->fib6_prefsrc.plen = 128;\n\t} else\n\t\trt->fib6_prefsrc.plen = 0;\n\n\treturn rt;\nout:\n\tfib6_info_release(rt);\n\treturn ERR_PTR(err);\nout_free:\n\tip_fib_metrics_put(rt->fib6_metrics);\n\tkfree(rt);\n\treturn ERR_PTR(err);\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static struct fib6_info *ip6_route_info_create(struct fib6_config *cfg,\n\t\t\t\t\t      gfp_t gfp_flags,\n\t\t\t\t\t      struct netlink_ext_ack *extack)\n{\n\tstruct net *net = cfg->fc_nlinfo.nl_net;\n\tstruct fib6_info *rt = NULL;\n\tstruct nexthop *nh = NULL;\n\tstruct fib6_table *table;\n\tstruct fib6_nh *fib6_nh;\n\tint err = -EINVAL;\n\tint addr_type;\n\n\t/* RTF_PCPU is an internal flag; can not be set by userspace */\n\tif (cfg->fc_flags & RTF_PCPU) {\n\t\tNL_SET_ERR_MSG(extack, \"Userspace can not set RTF_PCPU\");\n\t\tgoto out;\n\t}\n\n\t/* RTF_CACHE is an internal flag; can not be set by userspace */\n\tif (cfg->fc_flags & RTF_CACHE) {\n\t\tNL_SET_ERR_MSG(extack, \"Userspace can not set RTF_CACHE\");\n\t\tgoto out;\n\t}\n\n\tif (cfg->fc_type > RTN_MAX) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid route type\");\n\t\tgoto out;\n\t}\n\n\tif (cfg->fc_dst_len > 128) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid prefix length\");\n\t\tgoto out;\n\t}\n\tif (cfg->fc_src_len > 128) {\n\t\tNL_SET_ERR_MSG(extack, \"Invalid source address length\");\n\t\tgoto out;\n\t}\n#ifndef CONFIG_IPV6_SUBTREES\n\tif (cfg->fc_src_len) {\n\t\tNL_SET_ERR_MSG(extack,\n\t\t\t       \"Specifying source address requires IPV6_SUBTREES to be enabled\");\n\t\tgoto out;\n\t}\n#endif\n\tif (cfg->fc_nh_id) {\n\t\tnh = nexthop_find_by_id(net, cfg->fc_nh_id);\n\t\tif (!nh) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop id does not exist\");\n\t\t\tgoto out;\n\t\t}\n\t\terr = fib6_check_nexthop(nh, cfg, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\t}\n\n\terr = -ENOBUFS;\n\tif (cfg->fc_nlinfo.nlh &&\n\t    !(cfg->fc_nlinfo.nlh->nlmsg_flags & NLM_F_CREATE)) {\n\t\ttable = fib6_get_table(net, cfg->fc_table);\n\t\tif (!table) {\n\t\t\tpr_warn(\"NLM_F_CREATE should be specified when creating new route\\n\");\n\t\t\ttable = fib6_new_table(net, cfg->fc_table);\n\t\t}\n\t} else {\n\t\ttable = fib6_new_table(net, cfg->fc_table);\n\t}\n\n\tif (!table)\n\t\tgoto out;\n\n\terr = -ENOMEM;\n\trt = fib6_info_alloc(gfp_flags, !nh);\n\tif (!rt)\n\t\tgoto out;\n\n\trt->fib6_metrics = ip_fib_metrics_init(net, cfg->fc_mx, cfg->fc_mx_len,\n\t\t\t\t\t       extack);\n\tif (IS_ERR(rt->fib6_metrics)) {\n\t\terr = PTR_ERR(rt->fib6_metrics);\n\t\t/* Do not leave garbage there. */\n\t\trt->fib6_metrics = (struct dst_metrics *)&dst_default_metrics;\n\t\tgoto out_free;\n\t}\n\n\tif (cfg->fc_flags & RTF_ADDRCONF)\n\t\trt->dst_nocount = true;\n\n\tif (cfg->fc_flags & RTF_EXPIRES)\n\t\tfib6_set_expires(rt, jiffies +\n\t\t\t\tclock_t_to_jiffies(cfg->fc_expires));\n\n\tif (cfg->fc_protocol == RTPROT_UNSPEC)\n\t\tcfg->fc_protocol = RTPROT_BOOT;\n\trt->fib6_protocol = cfg->fc_protocol;\n\n\trt->fib6_table = table;\n\trt->fib6_metric = cfg->fc_metric;\n\trt->fib6_type = cfg->fc_type ? : RTN_UNICAST;\n\trt->fib6_flags = cfg->fc_flags & ~RTF_GATEWAY;\n\n\tipv6_addr_prefix(&rt->fib6_dst.addr, &cfg->fc_dst, cfg->fc_dst_len);\n\trt->fib6_dst.plen = cfg->fc_dst_len;\n\n#ifdef CONFIG_IPV6_SUBTREES\n\tipv6_addr_prefix(&rt->fib6_src.addr, &cfg->fc_src, cfg->fc_src_len);\n\trt->fib6_src.plen = cfg->fc_src_len;\n#endif\n\tif (nh) {\n\t\tif (rt->fib6_src.plen) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthops can not be used with source routing\");\n\t\t\tgoto out_free;\n\t\t}\n\t\tif (!nexthop_get(nh)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Nexthop has been deleted\");\n\t\t\tgoto out_free;\n\t\t}\n\t\trt->nh = nh;\n\t\tfib6_nh = nexthop_fib6_nh(rt->nh);\n\t} else {\n\t\terr = fib6_nh_init(net, rt->fib6_nh, cfg, gfp_flags, extack);\n\t\tif (err)\n\t\t\tgoto out;\n\n\t\tfib6_nh = rt->fib6_nh;\n\n\t\t/* We cannot add true routes via loopback here, they would\n\t\t * result in kernel looping; promote them to reject routes\n\t\t */\n\t\taddr_type = ipv6_addr_type(&cfg->fc_dst);\n\t\tif (fib6_is_reject(cfg->fc_flags, rt->fib6_nh->fib_nh_dev,\n\t\t\t\t   addr_type))\n\t\t\trt->fib6_flags = RTF_REJECT | RTF_NONEXTHOP;\n\t}\n\n\tif (!ipv6_addr_any(&cfg->fc_prefsrc)) {\n\t\tstruct net_device *dev = fib6_nh->fib_nh_dev;\n\n\t\tif (!ipv6_chk_addr(net, &cfg->fc_prefsrc, dev, 0)) {\n\t\t\tNL_SET_ERR_MSG(extack, \"Invalid source address\");\n\t\t\terr = -EINVAL;\n\t\t\tgoto out;\n\t\t}\n\t\trt->fib6_prefsrc.addr = cfg->fc_prefsrc;\n\t\trt->fib6_prefsrc.plen = 128;\n\t} else\n\t\trt->fib6_prefsrc.plen = 0;\n\n\treturn rt;\nout:\n\tfib6_info_release(rt);\n\treturn ERR_PTR(err);\nout_free:\n\tip_fib_metrics_put(rt->fib6_metrics);\n\tkfree(rt);\n\treturn ERR_PTR(err);\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nipv6_addr_any=Int('ipv6_addr_any')\ncfg_fc_prefsrc=Int('cfg_fc_prefsrc')\nfib6_nh=Int('fib6_nh')\ns.add(Not(ipv6_addr_any == 0) == 1)\ns.add(fib6_nh == 0)\n```",
+      "step 2 analysis: ```python\ndef check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Declare all variables as Int type\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n    ipv6_addr_any = Int('ipv6_addr_any')\n    \n    # Constraint: cfg->fc_prefsrc is a valid (non-zero) address reference\n    # Since ipv6_addr_any(&cfg->fc_prefsrc) is being called, the pointer must be valid\n    s.add(cfg_fc_prefsrc != 0)\n    \n    # Constraint: fib6_nh is NULL (dereference context)\n    s.add(fib6_nh == 0)\n    \n    # The condition being true (entering the if-branch) requires ipv6_addr_any to return 0\n    # Combined with existing: Not(ipv6_addr_any == 0) == 1 means ipv6_addr_any != 0\n    # So the branch is NOT taken; the else branch executes: rt->fib6_prefsrc.plen = 0\n    s.add(ipv6_addr_any != 0)\n    \n    # Check satisfiability\n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False\n```",
+      "step 2 z3 script: def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Declare all variables as Int type\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n    ipv6_addr_any = Int('ipv6_addr_any')\n    \n    # Constraint: cfg->fc_prefsrc is a valid (non-zero) address reference\n    # Since ipv6_addr_any(&cfg->fc_prefsrc) is being called, the pointer must be valid\n    s.add(cfg_fc_prefsrc != 0)\n    \n    # Constraint: fib6_nh is NULL (dereference context)\n    s.add(fib6_nh == 0)\n    \n    # The condition being true (entering the if-branch) requires ipv6_addr_any to return 0\n    # Combined with existing: Not(ipv6_addr_any == 0) == 1 means ipv6_addr_any != 0\n    # So the branch is NOT taken; the else branch executes: rt->fib6_prefsrc.plen = 0\n    s.add(ipv6_addr_any != 0)\n    \n    # Check satisfiability\n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False",
+      "response_filter_goto: ```json\n[\"!(nh) || !(rt->fib6_src.plen)\", \"!(nh) || !(!nexthop_get(nh))\", \"!(!(nh)) || !(err)\"]\n```",
+      "z3 script: ```python\nfrom z3 import *\n\n# Declarations for the variables appearing in the constraints.\n# - nh: pointer to a nexthop structure (modeled as a Boolean \"is non-null\")\n# - rt->fib6_src.plen: prefix length field (modeled as an integer; 0 means \"unset\")\n# - nexthop_get(nh): returns non-null on success; modeled as a Boolean \"succeeds\"\n# - err: error flag / value (modeled as a Boolean \"is set\")\nnh = Bool('nh')                       # true  => nh != NULL\nplen = Int('rt->fib6_src.plen')       # prefix length of fib6_src\nnexthop_get_nh = Bool('nexthop_get(nh)')  # true => nexthop_get(nh) != NULL\nerr = Bool('err')                     # true  => err is set (non-zero)\n\n# Constraint 1: !(nh) || !(rt->fib6_src.plen)\n# Included because it directly references nh and rt->fib6_src.plen.\n# C semantics: if nh is NULL, or the prefix length is zero, the guard passes.\n# In Z3: (nh == False) OR (plen == 0)\nc1 = Or(Not(nh), plen == 0)\n\n# Constraint 2: !(nh) || !(!nexthop_get(nh))\n# Included because it references nh and the nexthop_get(nh) result.\n# C semantics: if nh is NULL, or nexthop_get(nh) is non-NULL (i.e. !nexthop_get(nh) is false),\n# the guard passes. This encodes the \"successful get\" requirement.\n# In Z3: (nh == False) OR (nexthop_get_nh == True)\nc2 = Or(Not(nh), nexthop_get_nh)\n\n# Constraint 3: !(!(nh)) || !(err)\n# Included because it references nh and err.\n# C semantics: if nh is non-NULL, then err must be false (no error).\n# In Z3: (nh == True) implies (err == False)\nc3 = Or(nh, Not(err))\n\n# The condition \"if (!ipv6_addr_any(&cfg->fc_prefsrc))\" (line 134) does not\n# reference nh, rt->fib6_src.plen, nexthop_get(nh), or err, so it is not\n# converted here per the guideline to only convert constraints affecting\n# the specified conditions/variables.\n\ns = Solver()\ns.add(c1)\ns.add(c2)\ns.add(c3)\n\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```",
+      "final z3 script: def check_constraints():\n    from z3 import Solver, Int, Bool, And, Or, Not, sat, unsat\n\n    # Variables from base script\n    ipv6_addr_any = Int('ipv6_addr_any')\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n\n    # Variables from constraint set 2\n    nh = Bool('nh')\n    plen = Int('rt->fib6_src.plen')\n    nexthop_get_nh = Bool('nexthop_get(nh)')\n    err = Bool('err')\n\n    s = Solver()\n\n    # Base script constraints\n    s.add(Not(ipv6_addr_any == 0) == 1)\n    s.add(fib6_nh == 0)\n\n    # Constraint set 1\n    s.add(cfg_fc_prefsrc != 0)\n    s.add(fib6_nh == 0)\n    s.add(ipv6_addr_any != 0)\n\n    # Constraint set 2\n    s.add(Or(Not(nh), plen == 0))\n    s.add(Or(Not(nh), nexthop_get_nh))\n    s.add(Or(nh, Not(err)))\n\n    result = s.check()\n    return result == sat",
+      "fix final z3 script: def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n\n    # Variables from base script\n    ipv6_addr_any = Int('ipv6_addr_any')\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n\n    # Variables from constraint set 2 (converted to Int per guidelines)\n    nh = Int('nh')\n    plen = Int('rt->fib6_src.plen')\n    nexthop_get_nh = Int('nexthop_get(nh)')\n    err = Int('err')\n\n    s = Solver()\n\n    # Base script constraints\n    s.add(Not(ipv6_addr_any == 0) == 1)\n    s.add(fib6_nh == 0)\n\n    # Constraint set 1\n    s.add(cfg_fc_prefsrc != 0)\n    s.add(fib6_nh == 0)\n    s.add(ipv6_addr_any != 0)\n\n    # Constraint set 2 (converted to Int-based boolean representation)\n    # c1: !(nh) || !(rt->fib6_src.plen)  =>  (nh == 0) OR (plen == 0)\n    s.add(Or(nh == 0, plen == 0))\n    # c2: !(nh) || !(!nexthop_get(nh))  =>  (nh == 0) OR (nexthop_get_nh == 1)\n    s.add(Or(nh == 0, nexthop_get_nh == 1))\n    # c3: !(!(nh)) || !(err)  =>  (nh == 1) OR (err == 0)\n    s.add(Or(nh == 1, err == 0))\n\n    result = s.check()\n    return result == sat",
+      "fix final z3 script: def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n\n    # Variables from base script\n    ipv6_addr_any = Int('ipv6_addr_any')\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n\n    # Variables from constraint set 2 (converted to Int per guidelines)\n    nh = Int('nh')\n    plen = Int('rt->fib6_src.plen')\n    nexthop_get_nh = Int('nexthop_get(nh)')\n    err = Int('err')\n\n    s = Solver()\n\n    # Base script constraints\n    # Not(ipv6_addr_any == 0) == 1  =>  ipv6_addr_any != 0\n    s.add(ipv6_addr_any != 0)\n    s.add(fib6_nh == 0)\n\n    # Constraint set 1\n    s.add(cfg_fc_prefsrc != 0)\n    s.add(fib6_nh == 0)\n    s.add(ipv6_addr_any != 0)\n\n    # Constraint set 2 (converted to Int-based boolean representation)\n    # c1: !(nh) || !(rt->fib6_src.plen)  =>  (nh == 0) OR (plen == 0)\n    s.add(Or(nh == 0, plen == 0))\n    # c2: !(nh) || !(!nexthop_get(nh))  =>  (nh == 0) OR (nexthop_get_nh == 1)\n    s.add(Or(nh == 0, nexthop_get_nh == 1))\n    # c3: !(!(nh)) || !(err)  =>  (nh == 1) OR (err == 0)\n    s.add(Or(nh == 1, err == 0))\n\n    result = s.check()\n    return result == sat"
+    ],
+    "function_name_list": [],
+    "function_body_list": [],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Declare all variables as Int type\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n    ipv6_addr_any = Int('ipv6_addr_any')\n    \n    # Constraint: cfg->fc_prefsrc is a valid (non-zero) address reference\n    # Since ipv6_addr_any(&cfg->fc_prefsrc) is being called, the pointer must be valid\n    s.add(cfg_fc_prefsrc != 0)\n    \n    # Constraint: fib6_nh is NULL (dereference context)\n    s.add(fib6_nh == 0)\n    \n    # The condition being true (entering the if-branch) requires ipv6_addr_any to return 0\n    # Combined with existing: Not(ipv6_addr_any == 0) == 1 means ipv6_addr_any != 0\n    # So the branch is NOT taken; the else branch executes: rt->fib6_prefsrc.plen = 0\n    s.add(ipv6_addr_any != 0)\n    \n    # Check satisfiability\n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun cfg_fc_prefsrc () Int)\n(declare-fun fib6_nh () Int)\n(declare-fun ipv6_addr_any () Int)\n(assert\n (and (distinct cfg_fc_prefsrc 0) true))\n(assert\n (= fib6_nh 0))\n(assert\n (and (distinct ipv6_addr_any 0) true))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    {
+      "event_id": 2,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Solver, Int, Bool, And, Or, Not, sat, unsat\n\n    # Variables from base script\n    ipv6_addr_any = Int('ipv6_addr_any')\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n\n    # Variables from constraint set 2\n    nh = Bool('nh')\n    plen = Int('rt->fib6_src.plen')\n    nexthop_get_nh = Bool('nexthop_get(nh)')\n    err = Bool('err')\n\n    s = Solver()\n\n    # Base script constraints\n    s.add(Not(ipv6_addr_any == 0) == 1)\n    s.add(fib6_nh == 0)\n\n    # Constraint set 1\n    s.add(cfg_fc_prefsrc != 0)\n    s.add(fib6_nh == 0)\n    s.add(ipv6_addr_any != 0)\n\n    # Constraint set 2\n    s.add(Or(Not(nh), plen == 0))\n    s.add(Or(Not(nh), nexthop_get_nh))\n    s.add(Or(nh, Not(err)))\n\n    result = s.check()\n    return result == sat",
+      "ok": false,
+      "error": "ValueError: Z3Exception: True, False or Z3 Boolean expression expected. Received 1 of type <class 'int'>"
+    },
+    {
+      "event_id": 3,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n\n    # Variables from base script\n    ipv6_addr_any = Int('ipv6_addr_any')\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n\n    # Variables from constraint set 2 (converted to Int per guidelines)\n    nh = Int('nh')\n    plen = Int('rt->fib6_src.plen')\n    nexthop_get_nh = Int('nexthop_get(nh)')\n    err = Int('err')\n\n    s = Solver()\n\n    # Base script constraints\n    s.add(Not(ipv6_addr_any == 0) == 1)\n    s.add(fib6_nh == 0)\n\n    # Constraint set 1\n    s.add(cfg_fc_prefsrc != 0)\n    s.add(fib6_nh == 0)\n    s.add(ipv6_addr_any != 0)\n\n    # Constraint set 2 (converted to Int-based boolean representation)\n    # c1: !(nh) || !(rt->fib6_src.plen)  =>  (nh == 0) OR (plen == 0)\n    s.add(Or(nh == 0, plen == 0))\n    # c2: !(nh) || !(!nexthop_get(nh))  =>  (nh == 0) OR (nexthop_get_nh == 1)\n    s.add(Or(nh == 0, nexthop_get_nh == 1))\n    # c3: !(!(nh)) || !(err)  =>  (nh == 1) OR (err == 0)\n    s.add(Or(nh == 1, err == 0))\n\n    result = s.check()\n    return result == sat",
+      "ok": false,
+      "error": "ValueError: Z3Exception: True, False or Z3 Boolean expression expected. Received 1 of type <class 'int'>"
+    },
+    {
+      "event_id": 4,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n\n    # Variables from base script\n    ipv6_addr_any = Int('ipv6_addr_any')\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n\n    # Variables from constraint set 2 (converted to Int per guidelines)\n    nh = Int('nh')\n    plen = Int('rt->fib6_src.plen')\n    nexthop_get_nh = Int('nexthop_get(nh)')\n    err = Int('err')\n\n    s = Solver()\n\n    # Base script constraints\n    # Not(ipv6_addr_any == 0) == 1  =>  ipv6_addr_any != 0\n    s.add(ipv6_addr_any != 0)\n    s.add(fib6_nh == 0)\n\n    # Constraint set 1\n    s.add(cfg_fc_prefsrc != 0)\n    s.add(fib6_nh == 0)\n    s.add(ipv6_addr_any != 0)\n\n    # Constraint set 2 (converted to Int-based boolean representation)\n    # c1: !(nh) || !(rt->fib6_src.plen)  =>  (nh == 0) OR (plen == 0)\n    s.add(Or(nh == 0, plen == 0))\n    # c2: !(nh) || !(!nexthop_get(nh))  =>  (nh == 0) OR (nexthop_get_nh == 1)\n    s.add(Or(nh == 0, nexthop_get_nh == 1))\n    # c3: !(!(nh)) || !(err)  =>  (nh == 1) OR (err == 0)\n    s.add(Or(nh == 1, err == 0))\n\n    result = s.check()\n    return result == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ipv6_addr_any () Int)\n(declare-fun fib6_nh () Int)\n(declare-fun cfg_fc_prefsrc () Int)\n(declare-fun rt->fib6_src.plen () Int)\n(declare-fun nh () Int)\n(declare-fun |nexthop_get(nh)| () Int)\n(declare-fun err () Int)\n(assert\n (and (distinct ipv6_addr_any 0) true))\n(assert\n (= fib6_nh 0))\n(assert\n (and (distinct cfg_fc_prefsrc 0) true))\n(assert\n (= fib6_nh 0))\n(assert\n (and (distinct ipv6_addr_any 0) true))\n(assert\n (let (($x37 (= nh 0)))\n (or $x37 (= rt->fib6_src.plen 0))))\n(assert\n (let (($x37 (= nh 0)))\n (or $x37 (= |nexthop_get(nh)| 1))))\n(assert\n (or (= nh 1) (= err 0)))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

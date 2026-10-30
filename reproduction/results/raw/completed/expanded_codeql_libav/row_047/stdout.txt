@@ -1,0 +1,82 @@
+```python
+stts_entries=Int('stts_entries')
+s.add(stts_entries == 0)
+```
+```json
+["!(!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr)) || !(track->entry) || !(!stts_entries)", "!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr) || !(!stts_entries)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# track->par->codec_type == AVMEDIA_TYPE_AUDIO  -> boolean flag
+codec_type_is_audio = Bool('codec_type_is_audio')
+# !track->audio_vbr  -> boolean flag (audio_vbr is false)
+audio_vbr_is_false = Bool('audio_vbr_is_false')
+# track->entry  -> boolean flag (entry is non-null / truthy)
+track_entry = Bool('track_entry')
+# stts_entries  -> boolean flag (stts_entries is non-null / truthy)
+stts_entries = Bool('stts_entries')
+
+# Constraint 1:
+# !(!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr)) || !(track->entry) || !(!stts_entries)
+# Simplify: (codec_type_is_audio && audio_vbr_is_false) || !track_entry || stts_entries
+# Included because it references stts_entries (and the other relevant conditions).
+constraint1 = Or(
+    And(codec_type_is_audio, audio_vbr_is_false),
+    Not(track_entry),
+    stts_entries
+)
+
+# Constraint 2:
+# !(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr) || !(!stts_entries)
+# Simplify: !(codec_type_is_audio && audio_vbr_is_false) || stts_entries
+# Included because it directly constrains stts_entries.
+constraint2 = Or(
+    Not(And(codec_type_is_audio, audio_vbr_is_false)),
+    stts_entries
+)
+
+# Solve
+s = Solver()
+s.add(constraint1)
+s.add(constraint2)
+
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Or, And, Not, Solver, sat
+
+    # Base script variables and constraints
+    stts_entries_int = Int('stts_entries')
+    s = Solver()
+    s.add(stts_entries_int == 0)
+
+    # Constraint set 2 variables
+    codec_type_is_audio = Bool('codec_type_is_audio')
+    audio_vbr_is_false = Bool('audio_vbr_is_false')
+    track_entry = Bool('track_entry')
+    stts_entries = Bool('stts_entries')
+
+    # Constraint 1
+    constraint1 = Or(
+        And(codec_type_is_audio, audio_vbr_is_false),
+        Not(track_entry),
+        stts_entries
+    )
+
+    # Constraint 2
+    constraint2 = Or(
+        Not(And(codec_type_is_audio, audio_vbr_is_false)),
+        stts_entries
+    )
+
+    s.add(constraint1)
+    s.add(constraint2)
+
+    return s.check() == sat
+```
+goto result: True

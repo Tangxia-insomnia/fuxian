@@ -1,0 +1,45 @@
+{
+  "call_id": 358,
+  "sample_id": "NPD/codeql/kernel69:row=54:index=80",
+  "timestamp": "2026-10-26T00:50:37.694912+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(unlikely(ZERO_OR_NULL_PTR(object)))']\n        Relevant conditions/variables: [{'condition': 'if (unlikely(!folio_test_slab(folio)))', 'line_number': 13}], object\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "eff3a0e2-67df-41aa-a66a-8caa19851f70",
+  "usage": {
+    "prompt_tokens": 143,
+    "completion_tokens": 634,
+    "total_tokens": 777,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 143
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\n# Z3 script generated from C constraints\n#\n# Relevant C condition (line 13):\n#     if (unlikely(!folio_test_slab(folio)))\n#\n# Input constraint:\n#     !(unlikely(ZERO_OR_NULL_PTR(object)))\n#\n# Notes on translation:\n#   - `unlikely(...)` is a compiler hint (__builtin_expect) and has no\n#     semantic effect, so it is dropped.\n#   - `ZERO_OR_NULL_PTR(x)` in the kernel is defined as\n#         unlikely(!(x) || ZERO_OR_NULL_PTR_impl(x))\n#     i.e. it is true when the pointer is NULL (or, in some configs, when\n#     it falls in the low ZERO_SIZE_PTR range).  For the purposes of the\n#     solver we model it as \"object is NULL\", i.e. object == 0.\n#   - `!(ZERO_OR_NULL_PTR(object))` therefore becomes `object != 0`.\n#   - `folio_test_slab(folio)` is an opaque predicate; we model it as an\n#     uninterpreted Boolean function over the folio pointer.\n#   - The constraint `object != 0` is included because the C code asserts\n#     that `object` is a valid (non-NULL) pointer before the branch on\n#     `folio_test_slab(folio)` is evaluated.\n\nfrom z3 import *\n\n# --- Variables -----------------------------------------------------------\n# `object` is a pointer; model it as a 64-bit bitvector.\nobject_ptr = BitVec('object', 64)\n\n# `folio` is a pointer passed to folio_test_slab(); model as 64-bit BV.\nfolio = BitVec('folio', 64)\n\n# Opaque predicate: folio_test_slab(folio) -> Bool\nfolio_test_slab = Function('folio_test_slab', BitVecSort(64), BoolSort())\n\n# --- Solver --------------------------------------------------------------\ns = Solver()\n\n# Constraint from input: !(unlikely(ZERO_OR_NULL_PTR(object)))\n#   ZERO_OR_NULL_PTR(object)  <=>  object == 0\n#   !(object == 0)            <=>  object != 0\n# Included because the C code guarantees `object` is a valid pointer\n# (non-NULL) at the point of the folio_test_slab check.\ns.add(object_ptr != 0)\n\n# Constraint from relevant condition (line 13):\n#   if (unlikely(!folio_test_slab(folio)))\n# The branch is taken when folio_test_slab(folio) is false.\n# We assert the branch-taken path so the solver explores the same\n# execution path as the C code.\ns.add(Not(folio_test_slab(folio)))\n\n# --- Check ---------------------------------------------------------------\nprint(s.check())\nprint(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 3.467699700000594,
+  "cost_upper_bound_cny": 0.005358
+}

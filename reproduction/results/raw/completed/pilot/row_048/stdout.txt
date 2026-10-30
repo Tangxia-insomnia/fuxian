@@ -1,0 +1,107 @@
+```python
+elems=Int('elems')
+s.add(elems == 0)
+```
+```json
+[]
+```
+```python
+folio_test_slab=Int('folio_test_slab')
+object=Int('object')
+s.add(folio_test_slab == 0)
+s.add(object == 0)
+```
+```python
+object=Int('object')
+folio_test_slab=Int('folio_test_slab')
+s.add(object==0)
+s.add(folio_test_slab==0)
+```
+```python
+# object is NULL (ZERO_OR_NULL_PTR(object) is true), so kfree returns early
+# The condition !folio_test_slab(folio) is only reached when object != 0
+# Since object == 0, the branch is not taken; folio_test_slab value is unconstrained
+# No additional constraints can be derived for folio_test_slab from this path
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat, unsat
+    
+    # Declare variables with consistent Int types
+    object_ptr = Int('object_ptr')          # pointer value; 0 means NULL
+    folio_test_slab = Int('folio_test_slab')  # 0 = false, 1 = true (unconstrained on this path)
+    
+    s = Solver()
+    
+    # Path condition: object is NULL (ZERO_OR_NULL_PTR(object) is true)
+    s.add(object_ptr == 0)
+    
+    # folio_test_slab is unconstrained on this path (branch not taken),
+    # so we only constrain it to be a valid boolean-like Int value.
+    s.add(Or(folio_test_slab == 0, folio_test_slab == 1))
+    
+    # Validate satisfiability of the path constraints
+    result = s.check()
+    return result == sat
+```
+dereference constraint: True
+```json
+["!(unlikely(ZERO_OR_NULL_PTR(object)))"]
+```
+```python
+from z3 import *
+
+# Declare the pointer variable `object` as an integer address.
+# In C, `object` is a pointer; we model it as an integer address where 0 means NULL.
+object = Int('object')
+
+# Constraint: !(unlikely(ZERO_OR_NULL_PTR(object)))
+# ZERO_OR_NULL_PTR(x) is true when x is NULL or a small error-pointer value.
+# In the Linux kernel, ZERO_OR_NULL_PTR(x) is defined as:
+#     unlikely(!x || (unsigned long)(x) < PAGE_SIZE)
+# i.e., the pointer is NULL or its address is below PAGE_SIZE (typically 4096).
+# The C code negates this, so the constraint requires that `object` is a valid,
+# non-NULL pointer whose address is at least PAGE_SIZE.
+# This is included because the condition at line 13 dereferences `folio`
+# (derived from `object`), which is only safe when the pointer is valid.
+PAGE_SIZE = 4096
+
+s = Solver()
+# object must be non-NULL and not a small error pointer
+s.add(object != 0)
+s.add(object >= PAGE_SIZE)
+
+# Print the solver state for verification
+print(s)
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat, unsat
+
+    # Variables from base script
+    folio_test_slab = Int('folio_test_slab')
+    object = Int('object')
+
+    # Variables from constraint set 1
+    object_ptr = Int('object_ptr')
+
+    s = Solver()
+
+    # --- Base script constraints ---
+    s.add(folio_test_slab == 0)
+    s.add(object == 0)
+
+    # --- Constraint set 1 constraints ---
+    s.add(object_ptr == 0)
+    s.add(Or(folio_test_slab == 0, folio_test_slab == 1))
+
+    # --- Constraint set 2 constraints ---
+    PAGE_SIZE = 4096
+    s.add(object != 0)
+    s.add(object >= PAGE_SIZE)
+
+    result = s.check()
+    return result == sat
+```
+goto result: False

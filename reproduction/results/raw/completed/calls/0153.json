@@ -1,0 +1,45 @@
+{
+  "call_id": 153,
+  "sample_id": "NPD/codeql/kernel69:row=46:index=72",
+  "timestamp": "2026-10-26T00:31:39.592940+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Convert C code constraints into Z3 solver script.\n        Current constraints: [{'condition': 'if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)', 'line_number': 43}, {'condition': 'if (mgmt->u.action.category == WLAN_CATEGORY_PUBLIC)', 'line_number': 69}, 'elems == 0']\n\n        Guidelines:\n        \nImportant guidelines for generating Z3 scripts:\n1. Variable Type Guidelines:\n   - Prefer Int type over Bool type\n   - Default to Int type for unknown variables\n   - Convert !ptr to ptr==0 for Int variables\n   \n2. Boolean Representation:\n   - Represent False as Int variable == 0\n   - Represent True as Int variable == 1\n   \n3. Critical Rules:\n   - Use And, Or, Not instead of &, |, ! operators\n   - Avoid assigning Int values to Bool variables\n   - Convert !ptr or Not(ptr) to ptr==0 only\n   \n4. Constraint Guidelines:\n   - Prefer using ==1 or ==0 over inequality operators\n   - Skip constraints for uncertain value ranges\n   - Only interpret function returns when names clearly indicate meaning\n\n\n        Format response strictly as:\n        ```python\n        var_name1=Int('var1')\n        var_name2=Bool('var2')\n        s.add(constraint 1)\n        s.add(constraint 2)\n        ...\n        ```\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "4b016cec-20a2-4b24-bb6f-dfa9d4d9ae05",
+  "usage": {
+    "prompt_tokens": 310,
+    "completion_tokens": 137,
+    "total_tokens": 447,
+    "prompt_tokens_details": {
+      "cached_tokens": 128
+    },
+    "prompt_cache_hit_tokens": 128,
+    "prompt_cache_miss_tokens": 182
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfc=Int('fc')\nIEEE80211_FCTL_STYPE=Int('IEEE80211_FCTL_STYPE')\nIEEE80211_STYPE_ACTION=Int('IEEE80211_STYPE_ACTION')\nmgmt_u_action_category=Int('mgmt_u_action_category')\nWLAN_CATEGORY_PUBLIC=Int('WLAN_CATEGORY_PUBLIC')\nelems=Int('elems')\n\ns.add(Not(And(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION, mgmt_u_action_category == WLAN_CATEGORY_PUBLIC, elems == 0)))\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.267483600000105,
+  "cost_upper_bound_cny": 0.001716
+}

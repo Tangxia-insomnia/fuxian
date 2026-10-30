@@ -1,0 +1,45 @@
+{
+  "call_id": 582,
+  "sample_id": "NPD/codeql/libav:row=47:index=78",
+  "timestamp": "2026-10-26T00:55:26.302520+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static int mov_write_stts_tag(AVIOContext *pb, MOVTrack *track)\n{\n    MOVStts *stts_entries = NULL;\n    uint32_t entries = -1;\n    uint32_t atom_size;\n    int i;\n\n    if (track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr) {\n        stts_entries = av_malloc(sizeof(*stts_entries)); /* one entry */\n        if (!stts_entries)\n            return AVERROR(ENOMEM);\n        stts_entries[0].count = track->sample_count;\n        stts_entries[0].duration = 1;\n        entries = 1;\n    } else {\n        if (track->entry) {\n            stts_entries = av_malloc(track->entry * sizeof(*stts_entries)); /* worst case */\n            if (!stts_entries)\n                return AVERROR(ENOMEM);\n        }\n        for (i = 0; i < track->entry; i++) {\n            int duration = get_cluster_duration(track, i);\n            if (i && duration == stts_entries[entries].duration) {\n                stts_entries[entries].count++; /* compress */\n            } else {\n                entries++;\n                stts_entries[entries].duration = duration;\n                stts_entries[entries].count = 1;\n            }\n        }\n        entries++; /* last one */\n    }\n    atom_size = 16 + (entries * 8);\n    avio_wb32(pb, atom_size); /* size */\n    ffio_wfourcc(pb, \"stts\");\n    avio_wb32(pb, 0); /* version & flags */\n    avio_wb32(pb, entries); /* entry count */\n    for (i = 0; i < entries; i++) {\n        avio_wb32(pb, stts_entries[i].count);\n        avio_wb32(pb, stts_entries[i].duration);\n    }\n    av_free(stts_entries);\n    return atom_size;\n}\n        - Target variables: [], stts_entries\n        - Constraints: ['!(!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr)) || !(track->entry) || !(!stts_entries)', '!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr) || !(!stts_entries)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "4096477e-a220-4449-b804-91f9352779e0",
+  "usage": {
+    "prompt_tokens": 616,
+    "completion_tokens": 82,
+    "total_tokens": 698,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 616
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr)) || !(track->entry) || !(!stts_entries)\", \"!(track->par->codec_type == AVMEDIA_TYPE_AUDIO && !track->audio_vbr) || !(!stts_entries)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6335310999993453,
+  "cost_upper_bound_cny": 0.001888
+}

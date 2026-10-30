@@ -1,0 +1,43 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "X509_STORE_CTX_purpose_inherit",
+      "var_name": "ptmp",
+      "target": "if (ptmp->trust == X509_TRUST_DEFAULT) {",
+      "code": "int X509_STORE_CTX_purpose_inherit(X509_STORE_CTX *ctx, int def_purpose,\n                                   int purpose, int trust)\n{\n    int idx;\n\n    /* If purpose not set use default */\n    if (purpose == 0)\n        purpose = def_purpose;\n    /*\n     * If purpose is set but we don't have a default then set the default to\n     * the current purpose\n     */\n    else if (def_purpose == 0)\n        def_purpose = purpose;\n    /* If we have a purpose then check it is valid */\n    if (purpose != 0) {\n        X509_PURPOSE *ptmp;\n\n        idx = X509_PURPOSE_get_by_id(purpose);\n        if (idx == -1) {\n            ERR_raise(ERR_LIB_X509, X509_R_UNKNOWN_PURPOSE_ID);\n            return 0;\n        }\n        ptmp = X509_PURPOSE_get0(idx);\n        if (ptmp->trust == X509_TRUST_DEFAULT) {\n            idx = X509_PURPOSE_get_by_id(def_purpose);\n            if (idx == -1) {\n                ERR_raise(ERR_LIB_X509, X509_R_UNKNOWN_PURPOSE_ID);\n                return 0;\n            }\n            ptmp = X509_PURPOSE_get0(idx);\n        }\n        /* If trust not set then get from purpose default */\n        if (trust == 0)\n            trust = ptmp->trust;\n    }\n    if (trust != 0) {\n        idx = X509_TRUST_get_by_id(trust);\n        if (idx == -1) {\n            ERR_raise(ERR_LIB_X509, X509_R_UNKNOWN_TRUST_ID);\n            return 0;\n        }\n    }\n\n    if (ctx->param->purpose == 0 && purpose != 0)\n        ctx->param->purpose = purpose;\n    if (ctx->param->trust == 0 && trust != 0)\n        ctx->param->trust = trust;\n    return 1;\n}",
+      "body_sha256": "034c3306262b17617783b0944de8a653be1c137ddfcb6e472605921d65f85e4a",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (ptmp->trust == X509_TRUST_DEFAULT) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "int X509_STORE_CTX_purpose_inherit(X509_STORE_CTX *ctx, int def_purpose,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "purpose != 0",
+              "idx == -1"
+            ]
+          }
+        ],
+        "filter_function_code": "int X509_STORE_CTX_purpose_inherit(X509_STORE_CTX *ctx, int def_purpose,\n                                   int purpose, int trust)\n{\n    int idx;\n\n    /* If purpose not set use default */\n    if (purpose == 0)\n        purpose = def_purpose;\n    /*\n     * If purpose is set but we don't have a default then set the default to\n     * the current purpose\n     */\n    else if (def_purpose == 0)\n        def_purpose = purpose;\n    /* If we have a purpose then check it is valid */\n    if (purpose != 0) {\n        X509_PURPOSE *ptmp;\n\n        idx = X509_PURPOSE_get_by_id(purpose);\n        if (idx == -1) {\n            ERR_raise(ERR_LIB_X509, X509_R_UNKNOWN_PURPOSE_ID);\n            return 0;\n        }\n        ptmp = X509_PURPOSE_get0(idx);\n        if (ptmp->trust == X509_TRUST_DEFAULT) {\n            idx = X509_PURPOSE_get_by_id(def_purpose);\n            if (idx == -1) {\n                ERR_raise(ERR_LIB_X509, X509_R_UNKNOWN_PURPOSE_ID);\n                return 0;\n            }\n            ptmp = X509_PURPOSE_get0(idx);\n        }\n        /* If trust not set then get from purpose default */\n        if (trust == 0)\n            trust = ptmp->trust;\n    }\n    if (trust != 0) {\n        idx = X509_TRUST_get_by_id(trust);\n        if (idx == -1) {\n            ERR_raise(ERR_LIB_X509, X509_R_UNKNOWN_TRUST_ID);\n            return 0;\n        }\n    }\n\n    if (ctx->param->purpose == 0 && purpose != 0)\n        ctx->param->purpose = purpose;\n    if (ctx->param->trust == 0 && trust != 0)\n        ctx->param->trust = trust;\n    return 1;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "int X509_STORE_CTX_purpose_inherit(X509_STORE_CTX *ctx, int def_purpose,\n                                   int purpose, int trust)\n{\n    int idx;\n\n    /* If purpose not set use default */\n    if (purpose == 0)\n        purpose = def_purpose;\n    /*\n     * If purpose is set but we don't have a default then set the default to\n     * the current purpose\n     */\n    else if (def_purpose == 0)\n        def_purpose = purpose;\n    /* If we have a purpose then check it is valid */\n    if (purpose != 0) {\n        X509_PURPOSE *ptmp;\n\n        idx = X509_PURPOSE_get_by_id(purpose);\n        if (idx == -1) {\n            ERR_raise(ERR_LIB_X509, X509_R_UNKNOWN_PURPOSE_ID);\n            return 0;\n        }\n        ptmp = X509_PURPOSE_get0(idx);\n        if (ptmp->trust == X509_TRUST_DEFAULT) {\n            idx = X509_PURPOSE_get_by_id(def_purpose);\n            if (idx == -1) {\n                ERR_raise(ERR_LIB_X509, X509_R_UNKNOWN_PURPOSE_ID);\n                return 0;\n            }\n            ptmp = X509_PURPOSE_get0(idx);\n        }\n        /* If trust not set then get from purpose default */\n        if (trust == 0)\n            trust = ptmp->trust;\n    }\n    if (trust != 0) {\n        idx = X509_TRUST_get_by_id(trust);\n        if (idx == -1) {\n            ERR_raise(ERR_LIB_X509, X509_R_UNKNOWN_TRUST_ID);\n            return 0;\n        }\n    }\n\n    if (ctx->param->purpose == 0 && purpose != 0)\n        ctx->param->purpose = purpose;\n    if (ctx->param->trust == 0 && trust != 0)\n        ctx->param->trust = trust;\n    return 1;\n}"
+  ]
+}

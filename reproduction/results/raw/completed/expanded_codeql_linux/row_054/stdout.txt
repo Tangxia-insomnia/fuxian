@@ -1,0 +1,160 @@
+```python
+bss_ies=Int('bss_ies')
+s.add(bss_ies == 0)
+```
+```json
+[]
+```
+```python
+folio_test_slab=Int('folio_test_slab')
+object=Int('object')
+s.add(folio_test_slab == 0)
+s.add(object == 0)
+```
+```python
+object=Int('object')
+folio_test_slab=Int('folio_test_slab')
+s.add(object==0)
+s.add(folio_test_slab==0)
+```
+```python
+# Additional constraints based on line-by-line simulation
+# Line 9: if (unlikely(ZERO_OR_NULL_PTR(object))) return;
+# Since object == 0, ZERO_OR_NULL_PTR is true, so function returns early
+# This means folio_test_slab is never actually evaluated (unreachable)
+# But per the given condition at line 13, we model folio_test_slab == 0 (slab test fails)
+
+# Line 12: folio = virt_to_folio(object) - folio derived from object
+# Line 13: if (unlikely(!folio_test_slab(folio))) - condition is true (folio_test_slab == 0)
+# This means !folio_test_slab(folio) is true, i.e., folio_test_slab(folio) == 0
+
+# Constraint: the negation of folio_test_slab is true (condition taken)
+# Represented as folio_test_slab == 0 (already present, but reaffirm the branch is taken)
+s.add(folio_test_slab == 0)
+
+# Line 14: free_large_kmalloc(folio, (void *)object) is called, then return
+# No further constraints needed since function returns
+
+# Note: object == 0 causes early return at line 9, so line 13 is unreachable in practice.
+# However, per the given constraint specification, we model the branch condition as taken.
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat, unsat
+    
+    # Create solver
+    s = Solver()
+    
+    # Define variables with Int type (per guidelines)
+    object_ptr = Int('object_ptr')          # the 'object' pointer
+    folio_test_slab = Int('folio_test_slab')  # result of folio_test_slab(folio)
+    
+    # Line 9: if (unlikely(ZERO_OR_NULL_PTR(object))) return;
+    # Model: object == 0 triggers early return
+    s.add(object_ptr == 0)
+    
+    # Line 13: if (unlikely(!folio_test_slab(folio))) - branch taken
+    # Represented as folio_test_slab == 0 (condition true, branch taken)
+    s.add(folio_test_slab == 0)
+    
+    # Check satisfiability
+    result = s.check()
+    
+    # Return True if constraints are satisfiable (consistent), False otherwise
+    return result == sat
+```
+dereference constraint: True
+```json
+["!(unlikely(ZERO_OR_NULL_PTR(object)))"]
+```
+```python
+# Z3 script generated from C constraints
+#
+# Relevant C condition (line 13):
+#     if (unlikely(!folio_test_slab(folio)))
+#
+# Input constraint:
+#     !(unlikely(ZERO_OR_NULL_PTR(object)))
+#
+# Notes on translation:
+#   - `unlikely(...)` is a compiler hint (__builtin_expect) and has no
+#     semantic effect, so it is dropped.
+#   - `ZERO_OR_NULL_PTR(x)` in the kernel is defined as
+#         unlikely(!(x) || ZERO_OR_NULL_PTR_impl(x))
+#     i.e. it is true when the pointer is NULL (or, in some configs, when
+#     it falls in the low ZERO_SIZE_PTR range).  For the purposes of the
+#     solver we model it as "object is NULL", i.e. object == 0.
+#   - `!(ZERO_OR_NULL_PTR(object))` therefore becomes `object != 0`.
+#   - `folio_test_slab(folio)` is an opaque predicate; we model it as an
+#     uninterpreted Boolean function over the folio pointer.
+#   - The constraint `object != 0` is included because the C code asserts
+#     that `object` is a valid (non-NULL) pointer before the branch on
+#     `folio_test_slab(folio)` is evaluated.
+
+from z3 import *
+
+# --- Variables -----------------------------------------------------------
+# `object` is a pointer; model it as a 64-bit bitvector.
+object_ptr = BitVec('object', 64)
+
+# `folio` is a pointer passed to folio_test_slab(); model as 64-bit BV.
+folio = BitVec('folio', 64)
+
+# Opaque predicate: folio_test_slab(folio) -> Bool
+folio_test_slab = Function('folio_test_slab', BitVecSort(64), BoolSort())
+
+# --- Solver --------------------------------------------------------------
+s = Solver()
+
+# Constraint from input: !(unlikely(ZERO_OR_NULL_PTR(object)))
+#   ZERO_OR_NULL_PTR(object)  <=>  object == 0
+#   !(object == 0)            <=>  object != 0
+# Included because the C code guarantees `object` is a valid pointer
+# (non-NULL) at the point of the folio_test_slab check.
+s.add(object_ptr != 0)
+
+# Constraint from relevant condition (line 13):
+#   if (unlikely(!folio_test_slab(folio)))
+# The branch is taken when folio_test_slab(folio) is false.
+# We assert the branch-taken path so the solver explores the same
+# execution path as the C code.
+s.add(Not(folio_test_slab(folio)))
+
+# --- Check ---------------------------------------------------------------
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, BitVec, Function, BitVecSort, BoolSort, Not, sat
+
+    # --- Variables from base script ---
+    folio_test_slab = Int('folio_test_slab')
+    object = Int('object')
+
+    # --- Variables from constraint set 1 ---
+    object_ptr = Int('object_ptr')
+
+    # --- Variables from constraint set 2 ---
+    object_bv = BitVec('object_bv', 64)
+    folio = BitVec('folio', 64)
+    folio_test_slab_fn = Function('folio_test_slab_fn', BitVecSort(64), BoolSort())
+
+    s = Solver()
+
+    # --- Base script constraints ---
+    s.add(folio_test_slab == 0)
+    s.add(object == 0)
+
+    # --- Constraint set 1 constraints ---
+    s.add(object_ptr == 0)
+    s.add(folio_test_slab == 0)
+
+    # --- Constraint set 2 constraints ---
+    s.add(object_bv != 0)
+    s.add(Not(folio_test_slab_fn(folio)))
+
+    result = s.check()
+    return result == sat
+```
+goto result: True

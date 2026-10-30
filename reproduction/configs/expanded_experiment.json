@@ -1,0 +1,21 @@
+{
+  "implementation": "author_pipeline_with_documented_completion_v1",
+  "model": "deepseek-flash",
+  "base_url": "https://api.deepseek.com/",
+  "api_key_env": "DEEPSEEK_APIkey",
+  "budget_cny": 10,
+  "input_cny_per_million_upper": 2,
+  "output_cny_per_million_upper": 8,
+  "pricing_source": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
+  "pricing_policy": "Peak cache-miss/input and output CNY rates; conservative upper bound, not account billing",
+  "max_output_tokens": 3072,
+  "max_calls_per_sample": 24,
+  "seed": 20261025,
+  "solver_timeout_ms": 5000,
+  "full_evaluation": true,
+  "full_evaluation_scope": "All existing 0/1-labeled NPD rows in eight files; not all paper defect types",
+  "eligible_records": 278,
+  "sampling": "none; all eligible rows; reuse original 25 final records",
+  "user_authorized_expansion_date": "2026-10-26",
+  "shared_budget_ledger": "results/raw/completed/budget_ledger.json"
+}

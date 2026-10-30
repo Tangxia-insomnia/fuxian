@@ -1,0 +1,26 @@
+{
+  "event_id": 5,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n\n    # Base script variables and constraints\n    folio_test_slab = Int('folio_test_slab')\n    object = Int('object')\n\n    solver = Solver()\n    solver.add(folio_test_slab == 0)\n    solver.add(object == 0)\n\n    # Constraint set 1: object is NULL, folio_test_slab unconstrained\n    # (already covered by base constraints: object == 0)\n    # Validate satisfiability\n    if solver.check() != sat:\n        return False\n\n    # Verify key constraint holds\n    model = solver.model()\n    object_val = model.eval(object, model_completion=True)\n    if object_val.as_long() != 0:\n        return False\n\n    # Verify folio_test_slab is unconstrained (both 0 and 1 satisfiable)\n    solver_0 = Solver()\n    solver_0.add(object == 0)\n    solver_0.add(folio_test_slab == 0)\n    if solver_0.check() != sat:\n        return False\n\n    solver_1 = Solver()\n    solver_1.add(object == 0)\n    solver_1.add(folio_test_slab == 1)\n    if solver_1.check() != sat:\n        return False\n\n    # Constraint set 2: object != 0 AND object >= PAGE_SIZE\n    # This CONFLICTS with base constraint object == 0.\n    # Merging both sets yields an unsatisfiable system.\n    PAGE_SIZE = 4096\n    solver_2 = Solver()\n    solver_2.add(object != 0)\n    solver_2.add(object >= PAGE_SIZE)\n\n    # Combined solver with all constraints from all sets\n    combined = Solver()\n    combined.add(folio_test_slab == 0)   # base\n    combined.add(object == 0)            # base\n    combined.add(object != 0)            # set 2\n    combined.add(object >= PAGE_SIZE)    # set 2\n\n    # The merged constraint system is unsatisfiable due to object == 0 vs object != 0\n    if combined.check() != sat:\n        return False\n\n    return True",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun folio_test_slab () Int)\n(declare-fun object () Int)\n(assert\n (= folio_test_slab 0))\n(assert\n (= object 0))\n(check-sat)\n"
+    },
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun object () Int)\n(declare-fun folio_test_slab () Int)\n(assert\n (= object 0))\n(assert\n (= folio_test_slab 0))\n(check-sat)\n"
+    },
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun object () Int)\n(declare-fun folio_test_slab () Int)\n(assert\n (= object 0))\n(assert\n (= folio_test_slab 1))\n(check-sat)\n"
+    },
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun folio_test_slab () Int)\n(declare-fun object () Int)\n(assert\n (= folio_test_slab 0))\n(assert\n (= object 0))\n(assert\n (and (distinct object 0) true))\n(assert\n (>= object 4096))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

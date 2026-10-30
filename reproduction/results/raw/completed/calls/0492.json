@@ -1,0 +1,45 @@
+{
+  "call_id": 492,
+  "sample_id": "NPD/codeql/libav:row=22:index=29",
+  "timestamp": "2026-10-26T00:53:15.181240+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++) || !(!(i < 0)) || !(i = index; i + 1 < sl->ref_count[list]; i++) || !(sl->ref_list[list][i].parent && ref->long_ref == sl->ref_list[list][i].parent->long_ref && ref->pic_id   == sl->ref_list[list][i].pic_id)', '!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++) || !(i = h->short_ref_count - 1; i >= 0; i--) || !(ref->frame_num == frame_num && (ref->reference & pic_structure))']\n        Relevant conditions/variables: [], ref\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "d0d80f11-2d3b-40c3-9676-54d5cf1bc24a",
+  "usage": {
+    "prompt_tokens": 299,
+    "completion_tokens": 1602,
+    "total_tokens": 1901,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 299
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declarations for the variables appearing in the constraints.\n# We model the C pointers/structs as uninterpreted sorts and the\n# integer fields as Int/Bool where appropriate.\n\n# --- Sorts for structs / pointers ---\nSlType   = DeclareSort('SlType')       # sl (slice header)\nRefType  = DeclareSort('RefType')      # ref (picture reference)\nParentType = DeclareSort('ParentType') # parent picture\n\n# --- sl fields ---\nsl_list_count        = Function('sl_list_count', SlType, Int)\nsl_nb_ref_mods       = Function('sl_nb_ref_modifications', SlType, Int, Int)  # sl->nb_ref_modifications[list]\nsl_ref_count         = Function('sl_ref_count', SlType, Int, Int)             # sl->ref_count[list]\nsl_ref_list_parent   = Function('sl_ref_list_parent', SlType, Int, Int, ParentType)  # sl->ref_list[list][i].parent\nsl_ref_list_pic_id   = Function('sl_ref_list_pic_id', SlType, Int, Int, Int)  # sl->ref_list[list][i].pic_id\n\n# --- ref fields ---\nref_long_ref         = Function('ref_long_ref', RefType, ParentType)  # ref->long_ref\nref_pic_id           = Function('ref_pic_id', RefType, Int)           # ref->pic_id\nref_frame_num        = Function('ref_frame_num', RefType, Int)        # ref->frame_num\nref_reference        = Function('ref_reference', RefType, Int)        # ref->reference\n\n# --- h fields ---\nh_short_ref_count    = Function('h_short_ref_count', SlType, Int)     # h->short_ref_count\n\n# --- free variables ---\nsl    = Const('sl', SlType)\nref   = Const('ref', RefType)\npic_structure = Int('pic_structure')\nframe_num     = Int('frame_num')\n\n# Loop indices (existentially quantified in the C loops)\nlist  = Int('list')\nindex = Int('index')\ni     = Int('i')\n\n# =====================================================================\n# Constraint 1:\n#   !(list = 0; list < sl->list_count; list++)\n#   || !(index = 0; index < sl->nb_ref_modifications[list]; index++)\n#   || !(!(i < 0))\n#   || !(i = index; i + 1 < sl->ref_count[list]; i++)\n#   || !(sl->ref_list[list][i].parent\n#        && ref->long_ref == sl->ref_list[list][i].parent->long_ref\n#        && ref->pic_id   == sl->ref_list[list][i].pic_id)\n#\n# The C code is a disjunction of negations of loop/condition blocks.\n# The whole expression is FALSE only when every block is TRUE, i.e.\n# when there exist list, index, i satisfying all the loop bounds and\n# the final condition.  We therefore encode the *negation* of the\n# whole constraint (the \"bad\" case) as a conjunction of the block\n# conditions, and assert its negation.\n# =====================================================================\n\n# Block 1: list = 0; list < sl->list_count; list++\nblock1 = And(list == 0, list < sl_list_count(sl))\n\n# Block 2: index = 0; index < sl->nb_ref_modifications[list]; index++\nblock2 = And(index == 0, index < sl_nb_ref_mods(sl, list))\n\n# Block 3: !(i < 0)  ->  i >= 0\nblock3 = (i >= 0)\n\n# Block 4: i = index; i + 1 < sl->ref_count[list]; i++\nblock4 = And(i == index, i + 1 < sl_ref_count(sl, list))\n\n# Block 5: sl->ref_list[list][i].parent\n#          && ref->long_ref == sl->ref_list[list][i].parent->long_ref\n#          && ref->pic_id   == sl->ref_list[list][i].pic_id\n# Note: parent is a pointer; \"parent\" truthy means parent != NULL.\n# We model parent as an uninterpreted ParentType and use a distinct\n# null constant to test non-nullness.\nnull_parent = Const('null_parent', ParentType)\nparent_val  = sl_ref_list_parent(sl, list, i)\nblock5 = And(\n    parent_val != null_parent,\n    ref_long_ref(ref) == parent_val,          # ref->long_ref == parent->long_ref\n    ref_pic_id(ref)   == sl_ref_list_pic_id(sl, list, i)\n)\n\n# The \"bad\" case: all blocks simultaneously true.\nbad_case_1 = And(block1, block2, block3, block4, block5)\n\n# The original constraint is the negation of bad_case_1.\nconstraint_1 = Not(bad_case_1)\n\n# =====================================================================\n# Constraint 2:\n#   !(list = 0; list < sl->list_count; list++)\n#   || !(index = 0; index < sl->nb_ref_modifications[list]; index++)\n#   || !(i = h->short_ref_count - 1; i >= 0; i--)\n#   || !(ref->frame_num == frame_num && (ref->reference & pic_structure))\n#\n# Same structure: the constraint is FALSE only when all blocks hold.\n# =====================================================================\n\n# Block 1 (same as above)\nc2_block1 = And(list == 0, list < sl_list_count(sl))\n\n# Block 2 (same as above)\nc2_block2 = And(index == 0, index < sl_nb_ref_mods(sl, list))\n\n# Block 3: i = h->short_ref_count - 1; i >= 0; i--\nc2_block3 = And(i == h_short_ref_count(sl) - 1, i >= 0)\n\n# Block 4: ref->frame_num == frame_num && (ref->reference & pic_structure)\n# In C, \"ref->reference & pic_structure\" is truthy iff the bitwise AND\n# is non-zero.  We model this with a helper: (a & b) != 0.\n# Z3's bit-vector AND is used here; we cast to BitVec for the AND.\nref_reference_bv = Function('ref_reference_bv', RefType, BitVecSort(32))\npic_structure_bv = BitVec('pic_structure_bv', 32)\nc2_block4 = And(\n    ref_frame_num(ref) == frame_num,\n    (ref_reference_bv(ref) & pic_structure_bv) != BitVecVal(0, 32)\n)\n\nbad_case_2 = And(c2_block1, c2_block2, c2_block3, c2_block4)\nconstraint_2 = Not(bad_case_2)\n\n# =====================================================================\n# Solver: assert both constraints and check satisfiability.\n# =====================================================================\ns = Solver()\ns.add(constraint_1)\ns.add(constraint_2)\n\nprint(s.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 6.9788988999998764,
+  "cost_upper_bound_cny": 0.013414
+}

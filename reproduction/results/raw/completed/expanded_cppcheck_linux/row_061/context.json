@@ -1,0 +1,35 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "show_task",
+      "var_name": "tsk",
+      "target": "tsk->pid, rcu_dereference(tsk->parent)->pid,",
+      "code": "static void show_task(struct task_struct *volatile tsk)\n{\n\tunsigned int p_state = READ_ONCE(tsk->__state);\n\tchar state;\n\n\t/*\n\t * Cloned from kdb_task_state_char(), which is not entirely\n\t * appropriate for calling from xmon. This could be moved\n\t * to a common, generic, routine used by both.\n\t */\n\tstate = (p_state == TASK_RUNNING) ? 'R' :\n\t\t(p_state & TASK_UNINTERRUPTIBLE) ? 'D' :\n\t\t(p_state & TASK_STOPPED) ? 'T' :\n\t\t(p_state & TASK_TRACED) ? 'C' :\n\t\t(tsk->exit_state & EXIT_ZOMBIE) ? 'Z' :\n\t\t(tsk->exit_state & EXIT_DEAD) ? 'E' :\n\t\t(p_state & TASK_INTERRUPTIBLE) ? 'S' : '?';\n\n\tprintf(\"%16px %16lx %16px %6d %6d %c %2d %s\\n\", tsk,\n\t\ttsk->thread.ksp, tsk->thread.regs,\n\t\ttsk->pid, rcu_dereference(tsk->parent)->pid,\n\t\tstate, task_cpu(tsk),\n\t\ttsk->comm);\n}",
+      "body_sha256": "aa0c41da486e11f34ce9e7cad0f11e12bac0c07d1debd66e596259c529dc9945",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "tsk->pid, rcu_dereference(tsk->parent)->pid,",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void show_task(struct task_struct *volatile tsk)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static void show_task(struct task_struct *volatile tsk)\n{\n\tunsigned int p_state = READ_ONCE(tsk->__state);\n\tchar state;\n\n\t/*\n\t * Cloned from kdb_task_state_char(), which is not entirely\n\t * appropriate for calling from xmon. This could be moved\n\t * to a common, generic, routine used by both.\n\t */\n\tstate = (p_state == TASK_RUNNING) ? 'R' :\n\t\t(p_state & TASK_UNINTERRUPTIBLE) ? 'D' :\n\t\t(p_state & TASK_STOPPED) ? 'T' :\n\t\t(p_state & TASK_TRACED) ? 'C' :\n\t\t(tsk->exit_state & EXIT_ZOMBIE) ? 'Z' :\n\t\t(tsk->exit_state & EXIT_DEAD) ? 'E' :\n\t\t(p_state & TASK_INTERRUPTIBLE) ? 'S' : '?';\n\n\tprintf(\"%16px %16lx %16px %6d %6d %c %2d %s\\n\", tsk,\n\t\ttsk->thread.ksp, tsk->thread.regs,\n\t\ttsk->pid, rcu_dereference(tsk->parent)->pid,\n\t\tstate, task_cpu(tsk),\n\t\ttsk->comm);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void show_task(struct task_struct *volatile tsk)\n{\n\tunsigned int p_state = READ_ONCE(tsk->__state);\n\tchar state;\n\n\t/*\n\t * Cloned from kdb_task_state_char(), which is not entirely\n\t * appropriate for calling from xmon. This could be moved\n\t * to a common, generic, routine used by both.\n\t */\n\tstate = (p_state == TASK_RUNNING) ? 'R' :\n\t\t(p_state & TASK_UNINTERRUPTIBLE) ? 'D' :\n\t\t(p_state & TASK_STOPPED) ? 'T' :\n\t\t(p_state & TASK_TRACED) ? 'C' :\n\t\t(tsk->exit_state & EXIT_ZOMBIE) ? 'Z' :\n\t\t(tsk->exit_state & EXIT_DEAD) ? 'E' :\n\t\t(p_state & TASK_INTERRUPTIBLE) ? 'S' : '?';\n\n\tprintf(\"%16px %16lx %16px %6d %6d %c %2d %s\\n\", tsk,\n\t\ttsk->thread.ksp, tsk->thread.regs,\n\t\ttsk->pid, rcu_dereference(tsk->parent)->pid,\n\t\tstate, task_cpu(tsk),\n\t\ttsk->comm);\n}"
+  ]
+}

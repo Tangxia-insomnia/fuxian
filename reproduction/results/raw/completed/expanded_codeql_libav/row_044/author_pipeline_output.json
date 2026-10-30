@@ -1,0 +1,11 @@
+{
+  "response": [
+    "step 1 z3 script: ```python\nst=Int('st')\ns.add(st == 0)\n```",
+    "response_filter_goto: ```json\n[\"!(i == s->nb_streams) || !(!st)\", \"!(i = 0; i < s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_DATA)\"]\n```",
+    "z3 script: ```python\nfrom z3 import *\n\n# Declare variables relevant to the constraints.\n# 'i' and 's->nb_streams' appear in the first constraint, so we model them as integers.\ni = Int('i')\nnb_streams = Int('nb_streams')\n\n# 'st' is a pointer-like variable; model it as an uninterpreted sort / integer handle.\n# We use a Bool to represent whether 'st' is non-null (st != 0).\nst_nonnull = Bool('st_nonnull')\n\n# 'codec_type' is a field of st->codecpar; model as an integer.\ncodec_type = Int('codec_type')\nAVMEDIA_TYPE_DATA = 5  # typical enum value placeholder; adjust if needed\n\ns = Solver()\n\n# Constraint 1: !(i == s->nb_streams) || !(!st)\n# In C: if i == nb_streams then st must be non-null (since !(!st) means st != 0).\n# Converted: (i != nb_streams) OR (st != 0)\ns.add(Or(i != nb_streams, st_nonnull))\n\n# Constraint 2: !(i = 0; i < s->nb_streams; i++) || !(st->codecpar->codec_type == AVMEDIA_TYPE_DATA)\n# The first part is a for-loop header, not a boolean expression. Interpreted as the loop\n# condition being false, i.e., NOT (0 <= i < nb_streams). So the constraint becomes:\n#   (i < 0 OR i >= nb_streams) OR (codec_type != AVMEDIA_TYPE_DATA)\ns.add(Or(i < 0, i >= nb_streams, codec_type != AVMEDIA_TYPE_DATA))\n\n# Check satisfiability\nprint(s.check())\nprint(s.model())\n```",
+    "final z3 script: def check_constraints():\n    from z3 import Int, Bool, Solver, Or, sat\n\n    # Base script variables and constraints\n    st = Int('st')\n\n    # Variables from constraint set 2\n    i = Int('i')\n    nb_streams = Int('nb_streams')\n    st_nonnull = Bool('st_nonnull')\n    codec_type = Int('codec_type')\n    AVMEDIA_TYPE_DATA = 5\n\n    s = Solver()\n\n    # Base constraint\n    s.add(st == 0)\n\n    # Constraint set 2 - Constraint 1\n    s.add(Or(i != nb_streams, st_nonnull))\n\n    # Constraint set 2 - Constraint 2\n    s.add(Or(i < 0, i >= nb_streams, codec_type != AVMEDIA_TYPE_DATA))\n\n    return s.check() == sat"
+  ],
+  "function_name_list": [],
+  "function_body_list": [],
+  "result": true
+}

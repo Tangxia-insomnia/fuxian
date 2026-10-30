@@ -1,0 +1,45 @@
+{
+  "call_id": 789,
+  "sample_id": "NPD/codeql/openssl:row=31:index=32",
+  "timestamp": "2026-10-26T01:00:36.093778+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(req != NULL && add_nonce) || !(!OCSP_request_add1_nonce(req, NULL, -1))', '!(req == NULL && (signfile != NULL || reqout != NULL || host != NULL || add_nonce || ridx_filename != NULL))', '!(req == NULL)', '!(req == NULL && reqin != NULL) || !(req == NULL)', '!(req == NULL && reqin != NULL) || !(derbio == NULL)', '!(req == NULL && reqin == NULL && respin == NULL && !(port != NULL && ridx_filename != NULL))']\n        Relevant conditions/variables: [], req\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "017d3321-745c-4cb2-ace5-48950185cfdf",
+  "usage": {
+    "prompt_tokens": 234,
+    "completion_tokens": 712,
+    "total_tokens": 946,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 234
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# req: pointer (modeled as Int; 0 means NULL, non-zero means non-NULL)\nreq = Int('req')\n\n# Other variables referenced in constraints (modeled as booleans for pointer non-NULL checks)\nadd_nonce = Bool('add_nonce')\nsignfile = Bool('signfile')\nreqout = Bool('reqout')\nhost = Bool('host')\nridx_filename = Bool('ridx_filename')\nreqin = Bool('reqin')\nderbio = Bool('derbio')\nrespin = Bool('respin')\nport = Bool('port')\n\n# Helper: OCSP_request_add1_nonce(req, NULL, -1) return value\n# Modeled as an uninterpreted boolean (true = success/non-zero)\nocsp_add1_nonce_ok = Bool('ocsp_add1_nonce_ok')\n\ns = Solver()\n\n# Constraint 1: !(req != NULL && add_nonce) || !(!OCSP_request_add1_nonce(req, NULL, -1))\n# Included because it directly references req and add_nonce.\n# C: !(req != NULL && add_nonce) || OCSP_request_add1_nonce(req, NULL, -1)\ns.add(Or(Not(And(req != 0, add_nonce)), ocsp_add1_nonce_ok))\n\n# Constraint 2: !(req == NULL && (signfile != NULL || reqout != NULL || host != NULL || add_nonce || ridx_filename != NULL))\n# Included because it references req (and add_nonce).\n# C: !(req == NULL && (signfile || reqout || host || add_nonce || ridx_filename))\ns.add(Not(And(req == 0,\n              Or(signfile, reqout, host, add_nonce, ridx_filename))))\n\n# Constraint 3: !(req == NULL)\n# Included because it directly references req.\n# C: req != NULL\ns.add(req != 0)\n\n# Constraint 4: !(req == NULL && reqin != NULL) || !(req == NULL)\n# Included because it references req and reqin.\n# C: !(req == NULL && reqin) || req != NULL\ns.add(Or(Not(And(req == 0, reqin)), req != 0))\n\n# Constraint 5: !(req == NULL && reqin != NULL) || !(derbio == NULL)\n# Included because it references req and reqin.\n# C: !(req == NULL && reqin) || derbio != NULL\ns.add(Or(Not(And(req == 0, reqin)), derbio))\n\n# Constraint 6: !(req == NULL && reqin == NULL && respin == NULL && !(port != NULL && ridx_filename != NULL))\n# Included because it references req (and reqin, respin, port, ridx_filename).\n# C: !(req == NULL && reqin == NULL && respin == NULL && !(port && ridx_filename))\ns.add(Not(And(req == 0, Not(reqin), Not(respin),\n              Not(And(port, ridx_filename)))))\n\n# Check satisfiability\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 3.481880500000443,
+  "cost_upper_bound_cny": 0.006164
+}

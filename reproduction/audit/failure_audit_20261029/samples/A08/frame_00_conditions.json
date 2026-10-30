@@ -1,0 +1,16 @@
+{
+  "bug_line_constraints": [
+    {
+      "text": "radix_sort_pass(tmp, data, size, buckets[0], 0);",
+      "condition": []
+    }
+  ],
+  "target_conditions": [],
+  "variable_assignments": {
+    "text": "static void radix_sort(RCCMPEntry *data, int size)",
+    "condition": []
+  },
+  "variable_non_empty": [],
+  "early_jump_constraints": [],
+  "filter_function_code": "static void radix_sort(RCCMPEntry *data, int size)\n{\n    int buckets[RADIX_PASSES][NBUCKETS];\n    RCCMPEntry *tmp = av_malloc(sizeof(*tmp) * size);\n    radix_count(data, size, buckets);\n    radix_sort_pass(tmp, data, size, buckets[0], 0);\n    radix_sort_pass(data, tmp, size, buckets[1], 1);\n    if (buckets[2][NBUCKETS - 1] || buckets[3][NBUCKETS - 1]) {\n        radix_sort_pass(tmp, data, size, buckets[2], 2);\n        radix_sort_pass(data, tmp, size, buckets[3], 3);\n    }\n    av_free(tmp);\n}"
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, BitVec, Or, sat\n\n    # Base script constraints\n    p7_int = Int('p7_int')\n    s = Solver()\n    s.add(p7_int == 0)\n\n    # Constraint set 2 variables\n    operation = BitVec('operation', 32)\n    p7 = BitVec('p7', 64)\n    SMIME_SIGNERS = BitVec('SMIME_SIGNERS', 32)\n    SMIME_IP = BitVec('SMIME_IP', 32)\n    SMIME_SIGN = BitVec('SMIME_SIGN', 32)\n\n    # Constraint 1 from set 2\n    s.add(Or(\n        (operation & SMIME_SIGNERS) == 0,\n        operation != SMIME_SIGN,\n        p7 != 0\n    ))\n\n    # Constraint 2 from set 2\n    s.add(Or(\n        (operation & SMIME_IP) == 0,\n        p7 != 0\n    ))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun p7_int () Int)\n(declare-fun p7 () (_ BitVec 64))\n(declare-fun SMIME_SIGN () (_ BitVec 32))\n(declare-fun operation () (_ BitVec 32))\n(declare-fun SMIME_SIGNERS () (_ BitVec 32))\n(declare-fun SMIME_IP () (_ BitVec 32))\n(assert\n (= p7_int 0))\n(assert\n (let (($x35 (and (distinct p7 (_ bv0 64)) true)))\n (or (= (bvand operation SMIME_SIGNERS) (_ bv0 32)) (and (distinct operation SMIME_SIGN) true) $x35)))\n(assert\n (let (($x35 (and (distinct p7 (_ bv0 64)) true)))\n(or (= (bvand operation SMIME_IP) (_ bv0 32)) $x35)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

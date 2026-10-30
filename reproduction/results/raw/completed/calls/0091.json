@@ -1,0 +1,45 @@
+{
+  "call_id": 91,
+  "sample_id": "NPD/codeql/kernel69:row=16:index=34",
+  "timestamp": "2026-10-26T00:29:57.312177+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a Z3 constraint solver expert, merge the following constraint sets into a single function.\n\n        Input:\n        1. Base Z3 script: ```python\ntb_IFLA_INET6_ADDR_GEN_MODE=Int('tb_IFLA_INET6_ADDR_GEN_MODE')\ndev=Int('dev')\nidev=Int('idev')\ns.add(tb_IFLA_INET6_ADDR_GEN_MODE == 1)\ns.add(dev == 1)\ns.add(idev == 0)\n```\n        2. Constraint set 1: def check_constraints():\n    from z3 import Int, Solver, And, sat\n    \n    s = Solver()\n    \n    # Variable definitions\n    mode = Int('mode')\n    check_stable_privacy_ret = Int('check_stable_privacy_ret')\n    \n    # Constraint: mode is u8 range and valid (check_addr_gen_mode(mode) >= 0)\n    s.add(mode >= 0)\n    s.add(mode <= 255)\n    \n    # Constraint: check_stable_privacy must not return < 0 to avoid early return\n    s.add(check_stable_privacy_ret >= 0)\n    \n    # Check satisfiability\n    result = s.check()\n    \n    return result == sat\n        3. Constraint set 2: ```python\nfrom z3 import *\n\n# Declarations for the variables involved in the constraints.\n# tb[IFLA_INET6_ADDR_GEN_MODE] is modeled as a boolean flag indicating\n# whether the attribute is present (non-NULL) in the netlink message.\ntb_IFLA_INET6_ADDR_GEN_MODE = Bool('tb_IFLA_INET6_ADDR_GEN_MODE')\n\n# mode is the value extracted from the attribute; modeled as an Int.\nmode = Int('mode')\n\n# check_addr_gen_mode(mode) < 0 is modeled as an uninterpreted predicate\n# since its exact semantics are not provided. We only need to know whether\n# it returns a negative value.\ncheck_addr_gen_mode_neg = Bool('check_addr_gen_mode_neg')\n\n# dev and idev are pointers; modeled as booleans (non-NULL == True).\ndev = Bool('dev')\nidev = Bool('idev')\n\ns = Solver()\n\n# Constraint 1: !(tb[IFLA_INET6_ADDR_GEN_MODE]) || !(check_addr_gen_mode(mode) < 0)\n# Included because it guards the condition `if (tb[IFLA_INET6_ADDR_GEN_MODE])`\n# at line 22: the attribute must be absent OR the mode check must not fail.\ns.add(Or(Not(tb_IFLA_INET6_ADDR_GEN_MODE), Not(check_addr_gen_mode_neg)))\n\n# Constraint 2: !(dev) || !(!idev)\n# Included because it guards the condition `if (dev)` at line 27:\n# if dev is non-NULL, then idev must also be non-NULL (i.e., !idev is false).\ns.add(Or(Not(dev), idev))\n\n# Print the resulting script's constraints for verification.\nprint(s)\n```\n\n        Requirements:\n        1. Merge all constraints into a check_constraints() function\n        2. Retain ALL original constraints from the base script\n        3. Add any missing variable definitions from constraint sets\n        4. Function must return boolean (True if constraints are satisfied)\n        5. Return ONLY the function code without imports\n        6. Ensure code is directly executable\n\n        Function signature:\n        def check_constraints():\n            # Your merged constraints here\n            return result  # boolean\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "97dddc94-4357-4b06-ad6f-2163b0464cbe",
+  "usage": {
+    "prompt_tokens": 799,
+    "completion_tokens": 355,
+    "total_tokens": 1154,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 799
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\ndef check_constraints():\n    from z3 import Int, Bool, Solver, And, Or, Not, sat\n\n    # Variables from base script\n    tb_IFLA_INET6_ADDR_GEN_MODE = Int('tb_IFLA_INET6_ADDR_GEN_MODE')\n    dev = Int('dev')\n    idev = Int('idev')\n\n    # Variables from constraint set 1\n    mode = Int('mode')\n    check_stable_privacy_ret = Int('check_stable_privacy_ret')\n\n    # Variables from constraint set 2\n    tb_IFLA_INET6_ADDR_GEN_MODE_b = Bool('tb_IFLA_INET6_ADDR_GEN_MODE_b')\n    check_addr_gen_mode_neg = Bool('check_addr_gen_mode_neg')\n    dev_b = Bool('dev_b')\n    idev_b = Bool('idev_b')\n\n    s = Solver()\n\n    # Base script constraints\n    s.add(tb_IFLA_INET6_ADDR_GEN_MODE == 1)\n    s.add(dev == 1)\n    s.add(idev == 0)\n\n    # Constraint set 1\n    s.add(mode >= 0)\n    s.add(mode <= 255)\n    s.add(check_stable_privacy_ret >= 0)\n\n    # Constraint set 2\n    s.add(Or(Not(tb_IFLA_INET6_ADDR_GEN_MODE_b), Not(check_addr_gen_mode_neg)))\n    s.add(Or(Not(dev_b), idev_b))\n\n    result = s.check()\n    return result == sat\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.008654399999614,
+  "cost_upper_bound_cny": 0.004438
+}

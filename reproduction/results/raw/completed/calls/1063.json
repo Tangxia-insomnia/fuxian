@@ -1,0 +1,45 @@
+{
+  "call_id": 1063,
+  "sample_id": "NPD/cppcheck/libav:row=0:index=None",
+  "timestamp": "2026-10-26T01:06:47.405031+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static av_always_inline void\ndecode_cabac_residual_internal(const H264Context *h, H264SliceContext *sl,\n                               int16_t *block,\n                               int cat, int n, const uint8_t *scantable,\n                               const uint32_t *qmul, int max_coeff,\n                               int is_dc, int chroma422)\n{\n    static const int significant_coeff_flag_offset[2][14] = {\n      { 105+0, 105+15, 105+29, 105+44, 105+47, 402, 484+0, 484+15, 484+29, 660, 528+0, 528+15, 528+29, 718 },\n      { 277+0, 277+15, 277+29, 277+44, 277+47, 436, 776+0, 776+15, 776+29, 675, 820+0, 820+15, 820+29, 733 }\n    };\n    static const int last_coeff_flag_offset[2][14] = {\n      { 166+0, 166+15, 166+29, 166+44, 166+47, 417, 572+0, 572+15, 572+29, 690, 616+0, 616+15, 616+29, 748 },\n      { 338+0, 338+15, 338+29, 338+44, 338+47, 451, 864+0, 864+15, 864+29, 699, 908+0, 908+15, 908+29, 757 }\n    };\n    static const int coeff_abs_level_m1_offset[14] = {\n        227+0, 227+10, 227+20, 227+30, 227+39, 426, 952+0, 952+10, 952+20, 708, 982+0, 982+10, 982+20, 766\n    };\n    static const uint8_t significant_coeff_flag_offset_8x8[2][63] = {\n      { 0, 1, 2, 3, 4, 5, 5, 4, 4, 3, 3, 4, 4, 4, 5, 5,\n        4, 4, 4, 4, 3, 3, 6, 7, 7, 7, 8, 9,10, 9, 8, 7,\n        7, 6,11,12,13,11, 6, 7, 8, 9,14,10, 9, 8, 6,11,\n       12,13,11, 6, 9,14,10, 9,11,12,13,11,14,10,12 },\n      { 0, 1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 7, 8, 4, 5,\n        6, 9,10,10, 8,11,12,11, 9, 9,10,10, 8,11,12,11,\n        9, 9,10,10, 8,11,12,11, 9, 9,10,10, 8,13,13, 9,\n        9,10,10, 8,13,13, 9, 9,10,10,14,14,14,14,14 }\n    };\n    static const uint8_t sig_coeff_offset_dc[7] = { 0, 0, 1, 1, 2, 2, 2 };\n    /* node ctx: 0..3: abslevel1 (with abslevelgt1 == 0).\n     * 4..7: abslevelgt1 + 3 (and abslevel1 doesn't matter).\n     * map node ctx => cabac ctx for level=1 */\n    static const uint8_t coeff_abs_level1_ctx[8] = { 1, 2, 3, 4, 0, 0, 0, 0 };\n    /* map node ctx => cabac ctx for level>1 */\n    static const uint8_t coeff_abs_levelgt1_ctx[2][8] = {\n        { 5, 5, 5, 5, 6, 7, 8, 9 },\n        { 5, 5, 5, 5, 6, 7, 8, 8 }, // 422/dc case\n    };\n    static const uint8_t coeff_abs_level_transition[2][8] = {\n    /* update node ctx after decoding a level=1 */\n        { 1, 2, 3, 3, 4, 5, 6, 7 },\n    /* update node ctx after decoding a level>1 */\n        { 4, 4, 4, 4, 5, 6, 7, 7 }\n    };\n\n    int index[64];\n\n    int last;\n    int coeff_count = 0;\n    int node_ctx = 0;\n\n    uint8_t *significant_coeff_ctx_base;\n    uint8_t *last_coeff_ctx_base;\n    uint8_t *abs_level_m1_ctx_base;\n\n#if !ARCH_X86\n#define CABAC_ON_STACK\n#endif\n#ifdef CABAC_ON_STACK\n#define CC &cc\n    CABACContext cc;\n    cc.range     = sl->cabac.range;\n    cc.low       = sl->cabac.low;\n    cc.bytestream= sl->cabac.bytestream;\n    cc.bytestream_end = sl->cabac.bytestream_end;\n#else\n#define CC &sl->cabac\n#endif\n\n    significant_coeff_ctx_base = sl->cabac_state\n        + significant_coeff_flag_offset[MB_FIELD(sl)][cat];\n    last_coeff_ctx_base = sl->cabac_state\n        + last_coeff_flag_offset[MB_FIELD(sl)][cat];\n    abs_level_m1_ctx_base = sl->cabac_state\n        + coeff_abs_level_m1_offset[cat];\n\n    if( !is_dc && max_coeff == 64 ) {\n#define DECODE_SIGNIFICANCE( coefs, sig_off, last_off ) \\\n        for(last= 0; last < coefs; last++) { \\\n            uint8_t *sig_ctx = significant_coeff_ctx_base + sig_off; \\\n            if( get_cabac( CC, sig_ctx )) { \\\n                uint8_t *last_ctx = last_coeff_ctx_base + last_off; \\\n                index[coeff_count++] = last; \\\n                if( get_cabac( CC, last_ctx ) ) { \\\n                    last= max_coeff; \\\n                    break; \\\n                } \\\n            } \\\n        }\\\n        if( last == max_coeff -1 ) {\\\n            index[coeff_count++] = last;\\\n        }\n        const uint8_t *sig_off = significant_coeff_flag_offset_8x8[MB_FIELD(sl)];\n#ifdef decode_significance\n        coeff_count = decode_significance_8x8(CC, significant_coeff_ctx_base, index,\n                                                 last_coeff_ctx_base, sig_off);\n    } else {\n        if (is_dc && chroma422) { // dc 422\n            DECODE_SIGNIFICANCE(7, sig_coeff_offset_dc[last], sig_coeff_offset_dc[last]);\n        } else {\n            coeff_count = decode_significance(CC, max_coeff, significant_coeff_ctx_base, index,\n                                                 last_coeff_ctx_base-significant_coeff_ctx_base);\n        }\n#else\n        DECODE_SIGNIFICANCE( 63, sig_off[last], ff_h264_last_coeff_flag_offset_8x8[last] );\n    } else {\n        if (is_dc && chroma422) { // dc 422\n            DECODE_SIGNIFICANCE(7, sig_coeff_offset_dc[last], sig_coeff_offset_dc[last]);\n        } else {\n            DECODE_SIGNIFICANCE(max_coeff - 1, last, last);\n        }\n#endif\n    }\n    assert(coeff_count > 0);\n\n    if( is_dc ) {\n        if( cat == 3 )\n            h->cbp_table[sl->mb_xy] |= 0x40 << (n - CHROMA_DC_BLOCK_INDEX);\n        else\n            h->cbp_table[sl->mb_xy] |= 0x100 << (n - LUMA_DC_BLOCK_INDEX);\n        sl->non_zero_count_cache[scan8[n]] = coeff_count;\n    } else {\n        if( max_coeff == 64 )\n            fill_rectangle(&sl->non_zero_count_cache[scan8[n]], 2, 2, 8, coeff_count, 1);\n        else {\n            assert( cat == 1 || cat ==  2 || cat ==  4 || cat == 7 || cat == 8 || cat == 11 || cat == 12 );\n            sl->non_zero_count_cache[scan8[n]] = coeff_count;\n        }\n    }\n\n#define STORE_BLOCK(type) \\\n    do { \\\n        uint8_t *ctx = coeff_abs_level1_ctx[node_ctx] + abs_level_m1_ctx_base; \\\n \\\n        int j= scantable[index[--coeff_count]]; \\\n \\\n        if( get_cabac( CC, ctx ) == 0 ) { \\\n            node_ctx = coeff_abs_level_transition[0][node_ctx]; \\\n            if( is_dc ) { \\\n                ((type*)block)[j] = get_cabac_bypass_sign( CC, -1); \\\n            }else{ \\\n                ((type*)block)[j] = (get_cabac_bypass_sign( CC, -qmul[j]) + 32) >> 6; \\\n            } \\\n        } else { \\\n            int coeff_abs = 2; \\\n            ctx = coeff_abs_levelgt1_ctx[is_dc && chroma422][node_ctx] + abs_level_m1_ctx_base; \\\n            node_ctx = coeff_abs_level_transition[1][node_ctx]; \\\n\\\n            while( coeff_abs < 15 && get_cabac( CC, ctx ) ) { \\\n                coeff_abs++; \\\n            } \\\n\\\n            if( coeff_abs >= 15 ) { \\\n                int j = 0; \\\n                while (get_cabac_bypass(CC) && j < 30) { \\\n                    j++; \\\n                } \\\n\\\n                coeff_abs=1; \\\n                while( j-- ) { \\\n                    coeff_abs += coeff_abs + get_cabac_bypass( CC ); \\\n                } \\\n                coeff_abs+= 14; \\\n            } \\\n\\\n            if( is_dc ) { \\\n                ((type*)block)[j] = get_cabac_bypass_sign( CC, -coeff_abs ); \\\n            }else{ \\\n                ((type*)block)[j] = ((int)(get_cabac_bypass_sign( CC, -coeff_abs ) * qmul[j] + 32)) >> 6; \\\n            } \\\n        } \\\n    } while ( coeff_count );\n\n    if (h->pixel_shift) {\n        STORE_BLOCK(int32_t)\n    } else {\n        STORE_BLOCK(int16_t)\n    }\n#ifdef CABAC_ON_STACK\n            sl->cabac.range     = cc.range     ;\n            sl->cabac.low       = cc.low       ;\n            sl->cabac.bytestream= cc.bytestream;\n#endif\n\n}\n        - Target variables: [], qmul\n        - Constraints: ['!(last= 0; last < coefs; last++) || !(get_cabac( CC, sig_ctx )) || !(get_cabac( CC, last_ctx ))']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "4abaca31-8c5f-40df-b3a5-5e946e8149be",
+  "usage": {
+    "prompt_tokens": 2784,
+    "completion_tokens": 5,
+    "total_tokens": 2789,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 2784
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.4140322000002925,
+  "cost_upper_bound_cny": 0.005608
+}

@@ -1,0 +1,7 @@
+{
+  "event_id": 3,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, sat\n\n    s = Solver()\n\n    curr_dev = Int('curr_dev')\n    curr_net = Int('curr_net')\n    sublist = Int('sublist')\n    dev = Int('dev')\n    net = Int('net')\n    skb = Int('skb')\n\n    s.add(curr_dev == 0)\n    s.add(curr_net == 0)\n    s.add(sublist == 0)\n    s.add(dev != 0)\n    s.add(net != 0)\n    s.add(skb != 0)\n    s.add(curr_dev != dev)\n    s.add(sublist == 0)\n    s.add(curr_dev == dev)\n    s.add(curr_net == net)\n\n    result = s.check()\n    return result == sat",
+  "ok": false,
+  "error": "ValueError: ImportError: __import__ not found"
+}

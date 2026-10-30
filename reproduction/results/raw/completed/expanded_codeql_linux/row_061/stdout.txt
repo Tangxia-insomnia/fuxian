@@ -1,0 +1,97 @@
+```python
+info_status_data=Int('info_status_data')
+u16_get_bits_result=Int('u16_get_bits_result')
+sdata=Int('sdata')
+
+s.add(info_status_data != 0)
+s.add(u16_get_bits_result == 1)
+s.add(sdata == 0)
+```
+```python
+info_status_data=Int('info_status_data')
+sdata=Int('sdata')
+acked=Int('acked')
+dropped=Int('dropped')
+status_type=Int('status_type')
+
+# Assume sdata is NULL (per task instruction)
+s.add(sdata==0)
+
+# Line 64: if (info->status_data) - entering this branch means status_data != 0
+s.add(info_status_data!=0)
+
+# Line 73: switch (u16_get_bits(info->status_data, IEEE80211_STATUS_TYPE_MASK))
+# case IEEE80211_STATUS_TYPE_SMPS: - status_type extracted from status_data
+s.add(status_type==1)
+
+# sdata == 0 (from the constraint list, sdata is NULL)
+s.add(sdata==0)
+```
+```python
+info_status_data=Int('info_status_data')
+sdata=Int('sdata')
+acked=Int('acked')
+dropped=Int('dropped')
+status_type=Int('status_type')
+
+# Line 64: else if (info->status_data) - entering this branch means status_data != 0
+s.add(info_status_data!=0)
+
+# Line 73: switch (u16_get_bits(info->status_data, IEEE80211_STATUS_TYPE_MASK))
+# case IEEE80211_STATUS_TYPE_SMPS: - status_type extracted from status_data
+# u16_get_bits returns the masked bits; assume SMPS type value is 1
+s.add(status_type==1)
+
+# Assume pointer "sdata" is NULL (per task instruction)
+s.add(sdata==0)
+```
+```python
+# Additional constraints for the switch case at line 73
+# The switch is on u16_get_bits(info->status_data, IEEE80211_STATUS_TYPE_MASK)
+# case IEEE80211_STATUS_TYPE_SMPS: - the masked value equals SMPS type
+# IEEE80211_STATUS_TYPE_SMPS is the case being matched, so the extracted bits equal that type value
+s.add(u16_get_bits_result == 1)
+
+# sdata is NULL (assumed per task), so ieee80211_handle_smps_status is called with NULL sdata
+# This means the SMPS status handler receives a NULL sdata pointer
+s.add(sdata == 0)
+
+# info->status_data is non-zero (already constrained), and its masked bits equal SMPS type
+# This implies status_data has the SMPS type bits set
+s.add(info_status_data != 0)
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, And, Or, Not, sat, unsat
+    
+    s = Solver()
+    
+    # Define all variables as Int type
+    u16_get_bits_result = Int('u16_get_bits_result')
+    sdata = Int('sdata')
+    info_status_data = Int('info_status_data')
+    
+    # Constraint: masked bits equal SMPS type value (1)
+    s.add(u16_get_bits_result == 1)
+    
+    # Constraint: sdata is NULL (represented as 0 for Int)
+    s.add(sdata == 0)
+    
+    # Constraint: info->status_data is non-zero
+    s.add(info_status_data != 0)
+    
+    # Additional consistency: the masked result should be derivable from status_data
+    # Since u16_get_bits extracts bits from status_data, and result is 1,
+    # status_data must have the SMPS type bits set (bit 0 in typical encoding)
+    # We model this as: (info_status_data & mask) == 1, but since we can't
+    # reliably model the mask, we ensure status_data has bit 0 set
+    s.add(info_status_data % 2 == 1)
+    
+    result = s.check()
+    
+    if result == sat:
+        return True
+    else:
+        return False
+```
+dereference constraint: True

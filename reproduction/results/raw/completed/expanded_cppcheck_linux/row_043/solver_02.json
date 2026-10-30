@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    mpic = Int('mpic')\n    s = Solver()\n    s.add(mpic == 0)\n    s.add(mpic != 0)\n    return s.check() == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun mpic () Int)\n(assert\n (= mpic 0))\n(assert\n (and (distinct mpic 0) true))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

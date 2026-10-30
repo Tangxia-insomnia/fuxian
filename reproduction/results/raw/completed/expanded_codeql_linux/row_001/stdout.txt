@@ -1,0 +1,306 @@
+```python
+connected=Int('connected')
+md=Int('md')
+use_cache=Int('use_cache')
+tun_info=Int('tun_info')
+s.add(And(connected == 1, md == 1))
+s.add(use_cache == 1)
+s.add(tun_info == 0)
+```
+Looking at the code snippet and the constraints, I need to analyze the symbolic execution focusing on the condition at line 101: `if (connected && md)`.
+
+Let me trace through the execution:
+
+1. **Line 101**: `if (connected && md)` - This is the condition we need to analyze
+2. **Line 103**: `if (use_cache)` - This is inside the first branch
+3. **Constraint**: `tun_info == 0` - This means tun_info is NULL
+
+From the code analysis:
+- `connected` is a boolean variable that gets set based on tunnel parameters and other conditions
+- `md` is a boolean variable that gets set to true only when `tun_info` is valid and has specific properties
+- Since `tun_info == 0` (NULL), the condition `tun_info && (tun_info->mode & IP_TUNNEL_INFO_TX) && ...` will be false, so `md` will remain `false`
+- Therefore, `connected && md` will be `false` because `md` is `false`
+
+Let me convert this to Z3 constraints:
+
+```python
+connected=Int('connected')
+md=Int('md')
+use_cache=Int('use_cache')
+tun_info=Int('tun_info')
+
+s.add(tun_info == 0)
+s.add(md == 0)  # md remains false because tun_info is NULL
+s.add(Or(connected == 0, md == 0))  # connected && md is false
+s.add(use_cache == 0)  # use_cache is only set in the if branch, which is not taken
+```
+Looking at the code snippet and analyzing the execution path to line 103 (`if (use_cache)`), let me trace through the symbolic execution:
+
+## Line-by-Line Analysis
+
+1. **Variable initialization**: `tun_info = NULL`, `use_cache = false`, `md = false`
+2. **`connected = (tunnel->parms.iph.daddr != 0)`** - depends on tunnel config
+3. **`dst = tnl_params->daddr`** - if `dst == 0`, we enter the NBMA tunnel branch
+4. **`tun_info = skb_tunnel_info(skb)`** - but we're told to assume `tun_info` is NULL
+5. **The condition `if (tun_info && ...)`** - since `tun_info == NULL`, this is **false**, so `md` remains `false`
+6. **`if (!md) connected = false;`** - since `md == false`, `connected` becomes `false`
+7. **TOS handling** - may set `connected = false` again (already false)
+8. **`if (connected && md)`** at line 101 - since `connected == false` and `md == false`, this is **false**
+9. **Else branch**: `rt = connected ? ... : NULL` - since `connected == false`, `rt = NULL`
+10. **Line 103**: `if (use_cache)` - `use_cache` was initialized to `false` and never modified (only set inside the `if (connected && md)` branch which wasn't taken)
+
+## Key Observations
+
+- `use_cache` is initialized to `false` and only assigned inside the `if (connected && md)` block
+- Since `tun_info == NULL` → `md == false` → `connected && md == false` → the block is skipped
+- Therefore `use_cache` remains `false` at line 103
+
+## Z3 Script
+
+```python
+connected=Int('connected')
+md=Int('md')
+use_cache=Int('use_cache')
+tun_info=Int('tun_info')
+
+# tun_info is NULL
+s.add(tun_info == 0)
+# md remains false because tun_info is NULL (the if condition fails)
+s.add(md == 0)
+# connected becomes false because !md is true
+s.add(connected == 0)
+# use_cache initialized to false and never modified (branch not taken)
+s.add(use_cache == 0)
+```
+Looking at the existing constraints and the code context, I need to add constraints that reflect the state at line 103 (`if (use_cache)`).
+
+## Analysis
+
+The existing constraints already establish:
+- `connected == 1` and `md == 1` (both true)
+- `use_cache == 1` (true)
+- `tun_info == 0` (NULL)
+
+However, there's a **logical inconsistency** in the existing constraints: if `tun_info == 0` (NULL), then `md` cannot be `1` (true), because `md` is only set to `true` inside the block `if (tun_info && (tun_info->mode & IP_TUNNEL_INFO_TX) && ...)`. Since `tun_info == 0`, that condition is false, so `md` must remain `false`.
+
+But per the requirements, I must **keep all existing constraints** and only **add new ones**. The new constraints should reflect the actual code semantics at line 103.
+
+## New Constraints to Add
+
+At line 103 (`if (use_cache)`), based on the code path:
+- `use_cache` is only assigned inside `if (connected && md)` via `ip_tunnel_dst_cache_usable(skb, tun_info)`
+- Since `tun_info == 0`, the function `ip_tunnel_dst_cache_usable` would return false (cannot use cache with NULL tun_info)
+- Therefore `use_cache` should be `0` (false) at line 103
+
+```python
+# Additional constraints reflecting code semantics at line 103 (if (use_cache))
+# Since tun_info is NULL, ip_tunnel_dst_cache_usable(skb, tun_info) returns false
+# Therefore use_cache must be 0 (false) at line 103
+s.add(use_cache == 0)
+# md can only be true if tun_info is non-NULL (md is set inside the tun_info check block)
+# Since tun_info == 0, md must be 0
+s.add(md == 0)
+# connected is set to false when !md (line: if (!md) connected = false)
+# Since md == 0, connected must be 0
+s.add(connected == 0)
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat, unsat
+    
+    # Define all variables as Int type
+    use_cache = Int('use_cache')
+    md = Int('md')
+    connected = Int('connected')
+    tun_info = Int('tun_info')
+    
+    s = Solver()
+    
+    # tun_info is NULL (0)
+    s.add(tun_info == 0)
+    
+    # Constraint: use_cache must be 0 (false) at line 103 since tun_info is NULL
+    s.add(use_cache == 0)
+    
+    # Constraint: md can only be true if tun_info is non-NULL
+    # Since tun_info == 0, md must be 0
+    s.add(md == 0)
+    
+    # Constraint: connected is set to false when !md
+    # Since md == 0, connected must be 0
+    s.add(connected == 0)
+    
+    # Validate the constraints are satisfiable
+    result = s.check()
+    return result == sat
+```
+dereference constraint: True
+Looking at the target variables and constraints:
+
+**Target variables:**
+- `if (connected && md)` at line 101
+- `if (use_cache)` at line 103
+- `tun_info`
+
+**Analyzing each constraint for relevance to target variables:**
+
+1. `!(ip_tunnel_encap(skb, &tunnel->encap, &protocol, &fl4) < 0)` — This is a control-flow constraint (must pass to reach line 101). It does not involve `connected`, `md`, `use_cache`, or `tun_info` directly. However, it's a path constraint needed to reach the target. But per the task, we include only constraints involving target variables. This one doesn't involve them → exclude.
+
+2. `!(!(tun_info && (tun_info->mode & IP_TUNNEL_INFO_TX) && ip_tunnel_info_af(tun_info) == AF_INET && tun_info->key.u.ipv4.dst) && !(payload_protocol == htons(ETH_P_IP)) && !(payload_protocol == htons(ETH_P_IPV6)))` — This directly involves `tun_info`. It's the negation of the "else" branch (i.e., we did NOT fall into the else). This is relevant to `tun_info` and to `md`/`connected` (since `md` and `connected` are set in the `tun_info` branch). → **Include**.
+
+3. `!(payload_protocol == htons(ETH_P_IPV6)) || !(do_tx_error_icmp)` — Involves `payload_protocol` and `do_tx_error_icmp`, not target variables. → Exclude.
+
+4. `!(payload_protocol == htons(ETH_P_IPV6)) || !(!neigh)` — Involves `payload_protocol` and `neigh`, not target variables. → Exclude.
+
+5. `!(dst == 0) || !(!skb_dst(skb))` — Involves `dst` and `skb_dst`, not target variables directly. → Exclude.
+
+**Filtered constraints (only those involving target variables):**
+
+Only constraint #2 involves `tun_info` (and indirectly `md`/`connected`).
+
+```json
+["!(!(tun_info && (tun_info->mode & IP_TUNNEL_INFO_TX) && ip_tunnel_info_af(tun_info) == AF_INET && tun_info->key.u.ipv4.dst) && !(payload_protocol == htons(ETH_P_IP)) && !(payload_protocol == htons(ETH_P_IPV6)))"]
+```
+```python
+from z3 import *
+
+# Declare symbolic variables matching the C code identifiers.
+# tun_info is a pointer, so we model it as an integer address (0 == NULL).
+tun_info = BitVec('tun_info', 64)
+
+# tun_info->mode is a bitfield; model as a 32-bit unsigned value.
+tun_info_mode = BitVec('tun_info_mode', 32)
+
+# ip_tunnel_info_af(tun_info) returns the address family (sa_family_t, 16-bit).
+tun_info_af = BitVec('tun_info_af', 16)
+
+# tun_info->key.u.ipv4.dst is a 32-bit IPv4 address.
+tun_info_key_u_ipv4_dst = BitVec('tun_info_key_u_ipv4_dst', 32)
+
+# payload_protocol is a 16-bit network-order protocol field.
+payload_protocol = BitVec('payload_protocol', 16)
+
+# Constants from the C headers.
+IP_TUNNEL_INFO_TX = BitVecVal(0x1, 32)   # bit flag in tun_info->mode
+AF_INET           = BitVecVal(2, 16)     # Linux AF_INET value
+ETH_P_IP          = BitVecVal(0x0800, 16)
+ETH_P_IPV6        = BitVecVal(0x86DD, 16)
+
+# ---------------------------------------------------------------------------
+# Original C constraint (negated twice, so effectively the inner expression):
+#
+#   !(!(tun_info
+#        && (tun_info->mode & IP_TUNNEL_INFO_TX)
+#        && ip_tunnel_info_af(tun_info) == AF_INET
+#        && tun_info->key.u.ipv4.dst)
+#     && !(payload_protocol == htons(ETH_P_IP))
+#     && !(payload_protocol == htons(ETH_P_IPV6)))
+#
+# The outer '!' plus the inner '!' on the first conjunct cancel out, so the
+# constraint reduces to the conjunction of:
+#   (a) tun_info != NULL
+#   (b) (tun_info->mode & IP_TUNNEL_INFO_TX) != 0
+#   (c) ip_tunnel_info_af(tun_info) == AF_INET
+#   (d) tun_info->key.u.ipv4.dst != 0
+#   (e) payload_protocol != htons(ETH_P_IP)
+#   (f) payload_protocol != htons(ETH_P_IPV6)
+#
+# Note: htons() on a little-endian host byte-swaps the constant.  We model
+# the comparison against the byte-swapped constants to preserve semantics.
+# ---------------------------------------------------------------------------
+
+def htons(x):
+    # Byte-swap a 16-bit value (host -> network order on little-endian).
+    return ((x & 0xFF) << 8) | ((x >> 8) & 0xFF)
+
+ETH_P_IP_HTONS   = BitVecVal(htons(0x0800), 16)
+ETH_P_IPV6_HTONS = BitVecVal(htons(0x86DD), 16)
+
+# (a) tun_info is a non-NULL pointer.
+c_tun_info_nonnull = (tun_info != 0)
+
+# (b) The TX bit is set in tun_info->mode.
+c_mode_tx = ((tun_info_mode & IP_TUNNEL_INFO_TX) != 0)
+
+# (c) Address family is AF_INET.
+c_af_inet = (tun_info_af == AF_INET)
+
+# (d) Destination IPv4 address is non-zero.
+c_dst_nonzero = (tun_info_key_u_ipv4_dst != 0)
+
+# (e) payload_protocol is not ETH_P_IP (in network byte order).
+c_not_ip = (payload_protocol != ETH_P_IP_HTONS)
+
+# (f) payload_protocol is not ETH_P_IPV6 (in network byte order).
+c_not_ipv6 = (payload_protocol != ETH_P_IPV6_HTONS)
+
+# The full constraint is the conjunction of all six sub-conditions.
+constraint = And(
+    c_tun_info_nonnull,
+    c_mode_tx,
+    c_af_inet,
+    c_dst_nonzero,
+    c_not_ip,
+    c_not_ipv6,
+)
+
+# Solve and report satisfiability.
+s = Solver()
+s.add(constraint)
+
+print("Constraint:", constraint)
+print("Result:", s.check())
+if s.check() == sat:
+    print("Model:", s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, BitVec, BitVecVal, Solver, And, sat
+
+    # --- Variables from base script ---
+    connected = Int('connected')
+    md = Int('md')
+    use_cache = Int('use_cache')
+    tun_info = Int('tun_info')
+
+    # --- Variables from constraint set 2 ---
+    tun_info_bv = BitVec('tun_info_bv', 64)
+    tun_info_mode = BitVec('tun_info_mode', 32)
+    tun_info_af = BitVec('tun_info_af', 16)
+    tun_info_key_u_ipv4_dst = BitVec('tun_info_key_u_ipv4_dst', 32)
+    payload_protocol = BitVec('payload_protocol', 16)
+
+    IP_TUNNEL_INFO_TX = BitVecVal(0x1, 32)
+    AF_INET = BitVecVal(2, 16)
+
+    def htons(x):
+        return ((x & 0xFF) << 8) | ((x >> 8) & 0xFF)
+
+    ETH_P_IP_HTONS = BitVecVal(htons(0x0800), 16)
+    ETH_P_IPV6_HTONS = BitVecVal(htons(0x86DD), 16)
+
+    s = Solver()
+
+    # --- Base script constraints ---
+    s.add(And(connected == 1, md == 1))
+    s.add(use_cache == 1)
+    s.add(tun_info == 0)
+
+    # --- Constraint set 1 constraints ---
+    s.add(tun_info == 0)
+    s.add(use_cache == 0)
+    s.add(md == 0)
+    s.add(connected == 0)
+
+    # --- Constraint set 2 constraints ---
+    s.add(tun_info_bv != 0)
+    s.add((tun_info_mode & IP_TUNNEL_INFO_TX) != 0)
+    s.add(tun_info_af == AF_INET)
+    s.add(tun_info_key_u_ipv4_dst != 0)
+    s.add(payload_protocol != ETH_P_IP_HTONS)
+    s.add(payload_protocol != ETH_P_IPV6_HTONS)
+
+    result = s.check()
+    return result == sat
+```
+goto result: False

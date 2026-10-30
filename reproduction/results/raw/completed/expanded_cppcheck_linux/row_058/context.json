@@ -1,0 +1,42 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "mpic_get_coreint_irq",
+      "var_name": "mpic",
+      "target": "if (unlikely(src == mpic->spurious_vec)) {",
+      "code": "unsigned int mpic_get_coreint_irq(void)\n{\n#ifdef CONFIG_BOOKE\n\tstruct mpic *mpic = mpic_primary;\n\tu32 src;\n\n\tBUG_ON(mpic == NULL);\n\n\tsrc = mfspr(SPRN_EPR);\n\n\tif (unlikely(src == mpic->spurious_vec)) {\n\t\tif (mpic->flags & MPIC_SPV_EOI)\n\t\t\tmpic_eoi(mpic);\n\t\treturn 0;\n\t}\n\tif (unlikely(mpic->protected && test_bit(src, mpic->protected))) {\n\t\tprintk_ratelimited(KERN_WARNING \"%s: Got protected source %d !\\n\",\n\t\t\t\t   mpic->name, (int)src);\n\t\treturn 0;\n\t}\n\n\treturn irq_linear_revmap(mpic->irqhost, src);\n#else\n\treturn 0;\n#endif\n}",
+      "body_sha256": "fb3ff2255df7a5dd42fb218c4c2219961424368b67b3bba0005da25fe9cac6d2",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (unlikely(src == mpic->spurious_vec)) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "unsigned int mpic_get_coreint_irq(void)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "mpic ==0"
+            ]
+          }
+        ],
+        "filter_function_code": "unsigned int mpic_get_coreint_irq(void)\n{\n#ifdef CONFIG_BOOKE\n\tstruct mpic *mpic = mpic_primary;\n\tu32 src;\n\n\tBUG_ON(mpic == NULL);\n\n\tsrc = mfspr(SPRN_EPR);\n\n\tif (unlikely(src == mpic->spurious_vec)) {\n\t\tif (mpic->flags & MPIC_SPV_EOI)\n\t\t\tmpic_eoi(mpic);\n\t\treturn 0;\n\t}\n\tif (unlikely(mpic->protected && test_bit(src, mpic->protected))) {\n\t\tprintk_ratelimited(KERN_WARNING \"%s: Got protected source %d !\\n\",\n\t\t\t\t   mpic->name, (int)src);\n\t\treturn 0;\n\t}\n\n\treturn irq_linear_revmap(mpic->irqhost, src);\n#else\n\treturn 0;\n#endif\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "unsigned int mpic_get_coreint_irq(void)\n{\n#ifdef CONFIG_BOOKE\n\tstruct mpic *mpic = mpic_primary;\n\tu32 src;\n\n\tBUG_ON(mpic == NULL);\n\n\tsrc = mfspr(SPRN_EPR);\n\n\tif (unlikely(src == mpic->spurious_vec)) {\n\t\tif (mpic->flags & MPIC_SPV_EOI)\n\t\t\tmpic_eoi(mpic);\n\t\treturn 0;\n\t}\n\tif (unlikely(mpic->protected && test_bit(src, mpic->protected))) {\n\t\tprintk_ratelimited(KERN_WARNING \"%s: Got protected source %d !\\n\",\n\t\t\t\t   mpic->name, (int)src);\n\t\treturn 0;\n\t}\n\n\treturn irq_linear_revmap(mpic->irqhost, src);\n#else\n\treturn 0;\n#endif\n}"
+  ]
+}

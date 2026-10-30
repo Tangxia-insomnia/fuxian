@@ -1,0 +1,73 @@
+```python
+ptmp=Int('ptmp')
+s.add(ptmp == 0)
+```
+```json
+["!(idx == -1) || !((ptmp = OPENSSL_malloc(sizeof(*ptmp))) == NULL)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# idx: integer index variable (used in the constraint)
+idx = Int('idx')
+# ptmp: pointer modeled as an integer address (0 = NULL)
+ptmp = Int('ptmp')
+
+# Constraint: !(idx == -1) || !((ptmp = OPENSSL_malloc(sizeof(*ptmp))) == NULL)
+#
+# This is a C short-circuit OR expression. In C, the assignment
+# `ptmp = OPENSSL_malloc(...)` is only evaluated if `idx == -1` is false
+# (i.e., the left operand `!(idx == -1)` is false).
+#
+# Modeling in Z3:
+#   - `!(idx == -1)` becomes `idx != -1`
+#   - `(ptmp = OPENSSL_malloc(...)) == NULL` becomes `ptmp == 0`
+#     (we abstract the malloc result as the value assigned to ptmp;
+#      the assignment itself is a side effect, so we model the
+#      post-assignment value of ptmp being NULL)
+#   - The whole expression is `(idx != -1) || (ptmp == 0)`
+#
+# Note: Because of C short-circuit semantics, when idx != -1 the
+# malloc is NOT called and ptmp is left unchanged. The constraint
+# therefore only requires that either idx != -1, or (if idx == -1)
+# the malloc result is non-NULL. We encode this as the disjunction
+# below, which is the standard sound over-approximation.
+
+s = Solver()
+s.add(Or(idx != -1, ptmp == 0))
+
+# Check satisfiability and print result
+print(s.check())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or
+    ptmp = Int('ptmp')
+    idx = Int('idx')
+    s = Solver()
+    s.add(ptmp == 0)
+    s.add(Or(idx != -1, ptmp == 0))
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+```python
+def check_constraints():
+    from z3 import Int, Solver, Or
+    ptmp = Int('ptmp')
+    idx = Int('idx')
+    s = Solver()
+    s.add(ptmp == 0)
+    s.add(Or(idx != -1, ptmp == 0))
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import Int, Solver, Or, sat
+    ptmp = Int('ptmp')
+    idx = Int('idx')
+    s = Solver()
+    s.add(ptmp == 0)
+    s.add(Or(idx != -1, ptmp == 0))
+    return s.check() == sat
+goto result: True

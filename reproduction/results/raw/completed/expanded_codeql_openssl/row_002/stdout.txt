@@ -1,0 +1,190 @@
+```python
+crlnumber=Int('crlnumber')
+s.add(crlnumber == 0)
+```
+```json
+["!(gencrl) || !(crlnumberfile != NULL) || !((crlnumber = load_serial(crlnumberfile, NULL, 0, NULL)) == NULL)", "!(gencrl) || !(crl_ext != NULL || crlnumberfile != NULL) || !(crl_ext != NULL) || !(!X509V3_EXT_CRL_add_nconf(conf, &crlctx, crl_ext, crl))", "!(gencrl) || !(crl_ext != NULL || crlnumberfile != NULL) || !(crlnumberfile != NULL) || !(!tmpser)", "!(gencrl) || !(crl_ext != NULL || crlnumberfile != NULL) || !(crlnumberfile != NULL) || !(!BN_add_word(crlnumber, 1))", "!(gencrl) || !(crlnumberfile != NULL) || !(!save_serial(crlnumberfile, \"new\", crlnumber, NULL))", "!(gencrl) || !(crlnumberfile != NULL) || !(!rotate_serial(crlnumberfile, \"new\", \"old\"))"]
+```
+```python
+from z3 import *
+
+# Relevant variables:
+#   gencrl        : Bool  (flag controlling CRL generation)
+#   crlnumberfile : pointer -> modeled as Int (0 == NULL)
+#   crlnumber     : pointer -> modeled as Int (0 == NULL)
+#   crl_ext       : pointer -> modeled as Int (0 == NULL)
+#   crl           : pointer -> modeled as Int (0 == NULL)
+#   tmpser        : pointer -> modeled as Int (0 == NULL)
+#   conf          : pointer -> modeled as Int (0 == NULL)
+#   crlctx        : pointer -> modeled as Int (0 == NULL)
+#
+# Function-call results are modeled as Bool "success" flags:
+#   load_serial_ok, X509V3_EXT_CRL_add_nconf_ok, BN_add_word_ok,
+#   save_serial_ok, rotate_serial_ok
+#
+# Only constraints that mention `crlnumber` (directly or via the
+# crlnumberfile path that produces it) are converted below.
+
+gencrl        = Bool('gencrl')
+crlnumberfile = Int('crlnumberfile')   # 0 == NULL
+crlnumber     = Int('crlnumber')       # 0 == NULL
+crl_ext       = Int('crl_ext')         # 0 == NULL
+crl           = Int('crl')             # 0 == NULL
+tmpser        = Int('tmpser')          # 0 == NULL
+conf          = Int('conf')            # 0 == NULL
+crlctx        = Int('crlctx')          # 0 == NULL
+
+load_serial_ok            = Bool('load_serial_ok')
+X509V3_EXT_CRL_add_nconf_ok = Bool('X509V3_EXT_CRL_add_nconf_ok')
+BN_add_word_ok            = Bool('BN_add_word_ok')
+save_serial_ok            = Bool('save_serial_ok')
+rotate_serial_ok          = Bool('rotate_serial_ok')
+
+s = Solver()
+
+# Constraint 1:
+#   !(gencrl) || !(crlnumberfile != NULL) ||
+#   !((crlnumber = load_serial(crlnumberfile, NULL, 0, NULL)) == NULL)
+# Meaning: if gencrl is set and crlnumberfile is non-NULL, then
+# load_serial must succeed (crlnumber != NULL). This directly
+# constrains `crlnumber`.
+s.add(Or(Not(gencrl),
+         crlnumberfile == 0,
+         And(crlnumber != 0, load_serial_ok)))
+
+# Constraint 2:
+#   !(gencrl) || !(crl_ext != NULL || crlnumberfile != NULL) ||
+#   !(crl_ext != NULL) || !(!X509V3_EXT_CRL_add_nconf(...))
+# Meaning: if gencrl and (crl_ext or crlnumberfile) and crl_ext != NULL,
+# then X509V3_EXT_CRL_add_nconf must succeed. Included because it is
+# part of the same gencrl/crlnumberfile guard chain that governs
+# crlnumber usage.
+s.add(Or(Not(gencrl),
+         And(crl_ext == 0, crlnumberfile == 0),
+         crl_ext == 0,
+         X509V3_EXT_CRL_add_nconf_ok))
+
+# Constraint 3:
+#   !(gencrl) || !(crl_ext != NULL || crlnumberfile != NULL) ||
+#   !(crlnumberfile != NULL) || !(!tmpser)
+# Meaning: if gencrl and (crl_ext or crlnumberfile) and crlnumberfile != NULL,
+# then tmpser must be non-NULL. Included because it is part of the
+# crlnumberfile branch that produces/uses crlnumber.
+s.add(Or(Not(gencrl),
+         And(crl_ext == 0, crlnumberfile == 0),
+         crlnumberfile == 0,
+         tmpser != 0))
+
+# Constraint 4:
+#   !(gencrl) || !(crl_ext != NULL || crlnumberfile != NULL) ||
+#   !(crlnumberfile != NULL) || !(!BN_add_word(crlnumber, 1))
+# Meaning: if gencrl and (crl_ext or crlnumberfile) and crlnumberfile != NULL,
+# then BN_add_word(crlnumber, 1) must succeed. Directly constrains
+# `crlnumber`.
+s.add(Or(Not(gencrl),
+         And(crl_ext == 0, crlnumberfile == 0),
+         crlnumberfile == 0,
+         BN_add_word_ok))
+
+# Constraint 5:
+#   !(gencrl) || !(crlnumberfile != NULL) || !(!save_serial(...))
+# Meaning: if gencrl and crlnumberfile != NULL, save_serial must succeed.
+# Included because it is part of the crlnumberfile branch that
+# persists `crlnumber`.
+s.add(Or(Not(gencrl),
+         crlnumberfile == 0,
+         save_serial_ok))
+
+# Constraint 6:
+#   !(gencrl) || !(crlnumberfile != NULL) || !(!rotate_serial(...))
+# Meaning: if gencrl and crlnumberfile != NULL, rotate_serial must succeed.
+# Included because it is part of the crlnumberfile branch that
+# persists `crlnumber`.
+s.add(Or(Not(gencrl),
+         crlnumberfile == 0,
+         rotate_serial_ok))
+
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Solver, Int, Bool, Or, Not, And, sat
+
+    # Base script variables
+    crlnumber = Int('crlnumber')
+
+    # Variables from constraint set 2
+    gencrl        = Bool('gencrl')
+    crlnumberfile = Int('crlnumberfile')   # 0 == NULL
+    crl_ext       = Int('crl_ext')         # 0 == NULL
+    crl           = Int('crl')             # 0 == NULL
+    tmpser        = Int('tmpser')          # 0 == NULL
+    conf          = Int('conf')            # 0 == NULL
+    crlctx        = Int('crlctx')          # 0 == NULL
+
+    load_serial_ok              = Bool('load_serial_ok')
+    X509V3_EXT_CRL_add_nconf_ok = Bool('X509V3_EXT_CRL_add_nconf_ok')
+    BN_add_word_ok              = Bool('BN_add_word_ok')
+    save_serial_ok              = Bool('save_serial_ok')
+    rotate_serial_ok            = Bool('rotate_serial_ok')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(crlnumber == 0)
+
+    # Constraint 1
+    s.add(Or(Not(gencrl),
+             crlnumberfile == 0,
+             And(crlnumber != 0, load_serial_ok)))
+
+    # Constraint 2
+    s.add(Or(Not(gencrl),
+             And(crl_ext == 0, crlnumberfile == 0),
+             crl_ext == 0,
+             X509V3_EXT_CRL_add_nconf_ok))
+
+    # Constraint 3
+    s.add(Or(Not(gencrl),
+             And(crl_ext == 0, crlnumberfile == 0),
+             crlnumberfile == 0,
+             tmpser != 0))
+
+    # Constraint 4
+    s.add(Or(Not(gencrl),
+             And(crl_ext == 0, crlnumberfile == 0),
+             crlnumberfile == 0,
+             BN_add_word_ok))
+
+    # Constraint 5
+    s.add(Or(Not(gencrl),
+             crlnumberfile == 0,
+             save_serial_ok))
+
+    # Constraint 6
+    s.add(Or(Not(gencrl),
+             crlnumberfile == 0,
+             rotate_serial_ok))
+
+    return s.check() == sat
+```
+goto result: True
+```python
+bn=Int('bn')
+s.add(bn == 0)
+```
+```python
+bn=Int('bn')
+s.add(bn == 0)
+```
+```json
+[]
+```
+```python
+a=Int('a')
+s.add(a == 0)
+```
+```python
+a=Int('a')
+s.add(a == 0)
+```

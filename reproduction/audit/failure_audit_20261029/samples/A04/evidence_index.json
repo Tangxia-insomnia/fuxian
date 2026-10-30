@@ -1,0 +1,121 @@
+{
+  "audit_id": "A04",
+  "sample_id": "NPD/codeql/kernel69:row=12:index=24",
+  "selection_reason": "误报保留；跨函数映射与类型/符号合并",
+  "selection": "purposive diagnostic; not random and not representative",
+  "label": 0,
+  "prediction": "keep",
+  "status": "success",
+  "error": null,
+  "source_status": "No explicit source location/complete SARIF codeFlow in published row; raw function_list/assignment hints preserved, not invented",
+  "sink": {
+    "file_path": "net/ipv4/tcp_cong.c",
+    "region": {
+      "startLine": 400,
+      "startColumn": 8,
+      "endColumn": 19
+    },
+    "context": {
+      "startLine": 398,
+      "endLine": 402,
+      "snippet": {
+        "text": "\tkfree(saved_clone);"
+      }
+    }
+  },
+  "saved_context_exists": true,
+  "function_chain": [
+    "tcp_set_allowed_congestion_control",
+    "kfree"
+  ],
+  "final_attempt_call_ids": [
+    228,
+    229,
+    230,
+    231,
+    232,
+    233,
+    234,
+    235,
+    236,
+    237,
+    238
+  ],
+  "earlier_attempt_call_ids_not_reused": [],
+  "solver_evidence": [
+    {
+      "file": "solver_01.json",
+      "level": 0,
+      "ok": true,
+      "error": null,
+      "feasible": true,
+      "query_results": [
+        "sat"
+      ]
+    },
+    {
+      "file": "solver_02.json",
+      "level": 1,
+      "ok": false,
+      "error": "ValueError: ValueError: No actual Solver.check executed",
+      "feasible": null,
+      "query_results": []
+    },
+    {
+      "file": "solver_03.json",
+      "level": 1,
+      "ok": true,
+      "error": null,
+      "feasible": true,
+      "query_results": [
+        "sat"
+      ]
+    },
+    {
+      "file": "solver_04.json",
+      "level": 1,
+      "ok": true,
+      "error": null,
+      "feasible": true,
+      "query_results": [
+        "sat"
+      ]
+    }
+  ],
+  "argument_parameter_mapping": [
+    {
+      "caller": "tcp_set_allowed_congestion_control",
+      "callee": "kfree",
+      "statement": "\tkfree(saved_clone);",
+      "caller_tracked_variable": "saved_clone",
+      "recorded_callee_tracked_variable": "object",
+      "callee_parameters": [
+        "object"
+      ],
+      "call_candidates": [
+        {
+          "name": "kfree",
+          "arguments": [
+            "saved_clone"
+          ],
+          "start": 1,
+          "end": 19,
+          "text": "kfree(saved_clone)"
+        }
+      ],
+      "audit_note": "Lexical positional check; not a new experiment and not proof of alias/value propagation",
+      "recomputed_tracked_parameter": "object",
+      "parameter_name_matches_saved_frame": true,
+      "all_positional_pairs": [
+        {
+          "position_zero_based": 0,
+          "argument": "saved_clone",
+          "parameter": "object"
+        }
+      ]
+    }
+  ],
+  "duration_seconds": 11.912234599999465,
+  "cost_upper_bound_cny": 0.020672000000000024,
+  "missing_steps": []
+}

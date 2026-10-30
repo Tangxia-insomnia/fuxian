@@ -1,0 +1,213 @@
+```python
+ENGINE_get_id_e=Int('ENGINE_get_id_e')
+id=Int('id')
+s.add(ENGINE_get_id_e == id)
+```
+```json
+["!(engines == NULL || pre_cmds == NULL || post_cmds == NULL)", "!(; *argv; argv++) || !(**argv == '-')", "!((o = opt_next()) != OPT_EOF)"]
+```
+```python
+from z3 import *
+
+# Declare symbolic variables used in the constraints.
+# We model pointers as integer addresses (0 == NULL) and strings as Z3 String sort.
+engines   = Int('engines')      # pointer to engines list
+pre_cmds  = Int('pre_cmds')     # pointer to pre_cmds list
+post_cmds = Int('post_cmds')    # pointer to post_cmds list
+
+# argv is a pointer-to-pointer (char **). We model it as an Int address.
+argv      = Int('argv')
+
+# The dereferenced value **argv is a char (first character of the string).
+# Model it as an Int (character code).
+argv_deref_deref = Int('argv_deref_deref')
+
+# opt_next() return value; OPT_EOF is a sentinel constant.
+o        = Int('o')
+OPT_EOF  = IntVal(-1)   # sentinel value representing OPT_EOF
+
+# ENGINE_get_id(e) returns a string; id is the string being compared.
+engine_id = String('engine_id')
+id_str    = String('id_str')
+
+s = Solver()
+
+# ---------------------------------------------------------------------------
+# Constraint 1: !(engines == NULL || pre_cmds == NULL || post_cmds == NULL)
+# This is a guard ensuring all three pointers are non-NULL before use.
+# In C, NULL is 0, so we assert each pointer != 0.
+# ---------------------------------------------------------------------------
+s.add(engines   != 0)
+s.add(pre_cmds  != 0)
+s.add(post_cmds != 0)
+
+# ---------------------------------------------------------------------------
+# Constraint 2: !(; *argv; argv++) || !(**argv == '-')
+# The first part `; *argv; argv++` is a loop condition that is true while
+# argv is non-NULL and *argv is non-NULL (i.e., there are more arguments).
+# The negation `!(...)` means the loop has terminated: either argv == NULL
+# or *argv == NULL. The second disjunct `!(**argv == '-')` means the first
+# character of the current argument is not '-'.
+#
+# We model the loop-termination condition as: argv == 0 OR *argv == 0.
+# Since we don't model *argv as a separate pointer, we approximate the
+# "loop still running" condition with argv != 0 (the pointer is valid).
+# The full constraint becomes:
+#   (argv == 0) OR (argv_deref_deref != '-')
+# ---------------------------------------------------------------------------
+DASH = ord('-')
+s.add(Or(argv == 0, argv_deref_deref != DASH))
+
+# ---------------------------------------------------------------------------
+# Constraint 3: !((o = opt_next()) != OPT_EOF)
+# This asserts that opt_next() returned OPT_EOF (i.e., option parsing is done).
+# The assignment `o = opt_next()` is modeled by using `o` directly.
+# ---------------------------------------------------------------------------
+s.add(o == OPT_EOF)
+
+# ---------------------------------------------------------------------------
+# Relevant condition: strcmp(ENGINE_get_id(e), id)
+# strcmp returns 0 when the strings are equal. We model the comparison
+# result as a boolean: engine_id == id_str means strcmp(...) == 0.
+# This is included because it is listed as a relevant condition.
+# ---------------------------------------------------------------------------
+strcmp_equal = (engine_id == id_str)
+
+# Print the solver state for inspection.
+print("Solver constraints:")
+print(s)
+
+# Check satisfiability.
+result = s.check()
+print("\nResult:", result)
+if result == sat:
+    m = s.model()
+    print("Model:")
+    print("  engines   =", m[engines])
+    print("  pre_cmds  =", m[pre_cmds])
+    print("  post_cmds =", m[post_cmds])
+    print("  argv      =", m[argv])
+    print("  **argv    =", m[argv_deref_deref])
+    print("  o         =", m[o])
+    print("  engine_id =", m[engine_id])
+    print("  id_str    =", m[id_str])
+    print("  strcmp_equal =", m.eval(strcmp_equal))
+```
+```python
+def check_constraints():
+    from z3 import Int, String, Solver, IntVal, Or, sat
+
+    # Base script variables and constraints
+    ENGINE_get_id_e = Int('ENGINE_get_id_e')
+    id = Int('id')
+
+    # Constraint set 2 variables
+    engines   = Int('engines')
+    pre_cmds  = Int('pre_cmds')
+    post_cmds = Int('post_cmds')
+    argv      = Int('argv')
+    argv_deref_deref = Int('argv_deref_deref')
+    o         = Int('o')
+    OPT_EOF   = IntVal(-1)
+    engine_id = String('engine_id')
+    id_str    = String('id_str')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ENGINE_get_id_e == id)
+
+    # Constraint set 2 constraints
+    s.add(engines   != 0)
+    s.add(pre_cmds  != 0)
+    s.add(post_cmds != 0)
+
+    DASH = ord('-')
+    s.add(Or(argv == 0, argv_deref_deref != DASH))
+
+    s.add(o == OPT_EOF)
+
+    strcmp_equal = (engine_id == id_str)
+
+    result = s.check()
+    return result == sat
+```
+NameError: name 'String' is not defined
+```python
+def check_constraints():
+    from z3 import Int, Solver, IntVal, Or, sat
+
+    # Base script variables and constraints
+    ENGINE_get_id_e = Int('ENGINE_get_id_e')
+    id = Int('id')
+
+    # Constraint set 2 variables
+    engines   = Int('engines')
+    pre_cmds  = Int('pre_cmds')
+    post_cmds = Int('post_cmds')
+    argv      = Int('argv')
+    argv_deref_deref = Int('argv_deref_deref')
+    o         = Int('o')
+    OPT_EOF   = IntVal(-1)
+    engine_id = Int('engine_id')
+    id_str    = Int('id_str')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ENGINE_get_id_e == id)
+
+    # Constraint set 2 constraints
+    s.add(engines   != 0)
+    s.add(pre_cmds  != 0)
+    s.add(post_cmds != 0)
+
+    DASH = ord('-')
+    s.add(Or(argv == 0, argv_deref_deref != DASH))
+
+    s.add(o == OPT_EOF)
+
+    strcmp_equal = (engine_id == id_str)
+
+    result = s.check()
+    return result == sat
+```
+NameError: name 'ord' is not defined
+def check_constraints():
+    from z3 import Int, Solver, IntVal, Or, sat
+
+    # Base script variables and constraints
+    ENGINE_get_id_e = Int('ENGINE_get_id_e')
+    id = Int('id')
+
+    # Constraint set 2 variables
+    engines   = Int('engines')
+    pre_cmds  = Int('pre_cmds')
+    post_cmds = Int('post_cmds')
+    argv      = Int('argv')
+    argv_deref_deref = Int('argv_deref_deref')
+    o         = Int('o')
+    OPT_EOF   = IntVal(-1)
+    engine_id = Int('engine_id')
+    id_str    = Int('id_str')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(ENGINE_get_id_e == id)
+
+    # Constraint set 2 constraints
+    s.add(engines   != 0)
+    s.add(pre_cmds  != 0)
+    s.add(post_cmds != 0)
+
+    DASH = 45  # ord('-')
+    s.add(Or(argv == 0, argv_deref_deref != DASH))
+
+    s.add(o == OPT_EOF)
+
+    strcmp_equal = (engine_id == id_str)
+
+    result = s.check()
+    return result == sat
+goto result: True

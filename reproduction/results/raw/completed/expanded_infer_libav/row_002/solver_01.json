@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Implies, sat\n\n    # Base script variables\n    movie_format_ctx = Int('movie_format_ctx')\n\n    # Variables from constraint set 2\n    movie_format_ctx_2 = Int('movie->format_ctx')\n    ret = Int('ret')\n    movie_seek_point = Int('movie->seek_point')\n    timestamp = Int('timestamp')\n    movie_stream_index = Int('movie->stream_index')\n    iformat = Int('iformat')\n    movie_file_name = Int('movie->file_name')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(movie_format_ctx == 0)\n\n    # Constraint set 2 constraints\n    s.add(ret >= 0)\n    s.add(movie_format_ctx_2 != 0)\n    s.add(Implies(movie_seek_point > 0, ret >= 0))\n    s.add(ret >= 0)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun movie_format_ctx () Int)\n(declare-fun ret () Int)\n(declare-fun movie->format_ctx () Int)\n(declare-fun movie->seek_point () Int)\n(assert\n (= movie_format_ctx 0))\n(assert\n (>= ret 0))\n(assert\n (and (distinct movie->format_ctx 0) true))\n(assert\n (let (($x32 (>= ret 0)))\n (=> (> movie->seek_point 0) $x32)))\n(assert\n (>= ret 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

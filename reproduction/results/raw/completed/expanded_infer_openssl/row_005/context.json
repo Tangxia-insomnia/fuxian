@@ -1,0 +1,65 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "test_rsa_simple",
+      "var_name": "key",
+      "target": "num = RSA_public_encrypt(plen, ptext_ex, ctext, key, en_pad_type);",
+      "code": "static int test_rsa_simple(int idx, int en_pad_type, int de_pad_type,\n                           int success, unsigned char *ctext_ex, int *clen,\n                           RSA **retkey)\n{\n    int ret = 0;\n    RSA *key;\n    unsigned char ptext[256];\n    unsigned char ctext[256];\n    static unsigned char ptext_ex[] = \"\\x54\\x85\\x9b\\x34\\x2c\\x49\\xea\\x2a\";\n    int plen;\n    int clentmp = 0;\n    int num;\n\n    plen = sizeof(ptext_ex) - 1;\n    clentmp = rsa_setkey(&key, ctext_ex, idx);\n    if (clen != NULL)\n        *clen = clentmp;\n\n    num = RSA_public_encrypt(plen, ptext_ex, ctext, key, en_pad_type);\n    if (!TEST_int_eq(num, clentmp))\n        goto err;\n\n    num = RSA_private_decrypt(num, ctext, ptext, key, de_pad_type);\n    if (success) {\n        if (!TEST_int_gt(num, 0) || !TEST_mem_eq(ptext, num, ptext_ex, plen))\n            goto err;\n    } else {\n        if (!TEST_int_lt(num, 0))\n            goto err;\n    }\n\n    ret = 1;\n    if (retkey != NULL) {\n        *retkey = key;\n        key = NULL;\n    }\nerr:\n    RSA_free(key);\n    return ret;\n}",
+      "body_sha256": "e6bcb3d6436e9e9e1713606a5cf8a112b105ad1fc7515d85ae8b7cfc129193e9",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "num = RSA_public_encrypt(plen, ptext_ex, ctext, key, en_pad_type);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static int test_rsa_simple(int idx, int en_pad_type, int de_pad_type,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static int test_rsa_simple(int idx, int en_pad_type, int de_pad_type,\n                           int success, unsigned char *ctext_ex, int *clen,\n                           RSA **retkey)\n{\n    int ret = 0;\n    RSA *key;\n    unsigned char ptext[256];\n    unsigned char ctext[256];\n    static unsigned char ptext_ex[] = \"\\x54\\x85\\x9b\\x34\\x2c\\x49\\xea\\x2a\";\n    int plen;\n    int clentmp = 0;\n    int num;\n\n    plen = sizeof(ptext_ex) - 1;\n    clentmp = rsa_setkey(&key, ctext_ex, idx);\n    if (clen != NULL)\n        *clen = clentmp;\n\n    num = RSA_public_encrypt(plen, ptext_ex, ctext, key, en_pad_type);\n    if (!TEST_int_eq(num, clentmp))\n        goto err;\n\n    num = RSA_private_decrypt(num, ctext, ptext, key, de_pad_type);\n    if (success) {\n        if (!TEST_int_gt(num, 0) || !TEST_mem_eq(ptext, num, ptext_ex, plen))\n            goto err;\n    } else {\n        if (!TEST_int_lt(num, 0))\n            goto err;\n    }\n\n    ret = 1;\n    if (retkey != NULL) {\n        *retkey = key;\n        key = NULL;\n    }\nerr:\n    RSA_free(key);\n    return ret;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "RSA_public_encrypt",
+      "var_name": "rsa",
+      "target": "    return rsa->meth->rsa_pub_enc(flen, from, to, rsa, padding);",
+      "code": "int RSA_public_encrypt(int flen, const unsigned char *from, unsigned char *to,\n                       RSA *rsa, int padding)\n{\n    return rsa->meth->rsa_pub_enc(flen, from, to, rsa, padding);\n}",
+      "body_sha256": "63f07caabe45f7c4a5827ae692e769d923fe96945222be17068274258f3a392a",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "    return rsa->meth->rsa_pub_enc(flen, from, to, rsa, padding);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "int RSA_public_encrypt(int flen, const unsigned char *from, unsigned char *to,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": []
+          }
+        ],
+        "filter_function_code": "int RSA_public_encrypt(int flen, const unsigned char *from, unsigned char *to,\n                       RSA *rsa, int padding)\n{\n    return rsa->meth->rsa_pub_enc(flen, from, to, rsa, padding);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static int test_rsa_simple(int idx, int en_pad_type, int de_pad_type,\n                           int success, unsigned char *ctext_ex, int *clen,\n                           RSA **retkey)\n{\n    int ret = 0;\n    RSA *key;\n    unsigned char ptext[256];\n    unsigned char ctext[256];\n    static unsigned char ptext_ex[] = \"\\x54\\x85\\x9b\\x34\\x2c\\x49\\xea\\x2a\";\n    int plen;\n    int clentmp = 0;\n    int num;\n\n    plen = sizeof(ptext_ex) - 1;\n    clentmp = rsa_setkey(&key, ctext_ex, idx);\n    if (clen != NULL)\n        *clen = clentmp;\n\n    num = RSA_public_encrypt(plen, ptext_ex, ctext, key, en_pad_type);\n    if (!TEST_int_eq(num, clentmp))\n        goto err;\n\n    num = RSA_private_decrypt(num, ctext, ptext, key, de_pad_type);\n    if (success) {\n        if (!TEST_int_gt(num, 0) || !TEST_mem_eq(ptext, num, ptext_ex, plen))\n            goto err;\n    } else {\n        if (!TEST_int_lt(num, 0))\n            goto err;\n    }\n\n    ret = 1;\n    if (retkey != NULL) {\n        *retkey = key;\n        key = NULL;\n    }\nerr:\n    RSA_free(key);\n    return ret;\n}",
+    "int RSA_public_encrypt(int flen, const unsigned char *from, unsigned char *to,\n                       RSA *rsa, int padding)\n{\n    return rsa->meth->rsa_pub_enc(flen, from, to, rsa, padding);\n}"
+  ]
+}

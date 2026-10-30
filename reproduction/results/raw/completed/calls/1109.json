@@ -1,0 +1,45 @@
+{
+  "call_id": 1109,
+  "sample_id": "NPD/infer/libav:row=1:index=None",
+  "timestamp": "2026-10-26T01:07:33.243730+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, NULL)) < 0)']\n        Relevant conditions/variables: [], movie->format_ctx\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "6798fd64-59a8-4d88-991a-2fc1a2a89929",
+  "usage": {
+    "prompt_tokens": 138,
+    "completion_tokens": 331,
+    "total_tokens": 469,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 138
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables relevant to the constraint.\n# movie->format_ctx is a pointer (address) passed by reference to avformat_open_input.\n# We model it as an integer address (0 == NULL).\nmovie_format_ctx = BitVec('movie_format_ctx', 64)\n\n# The C expression is:\n#   !((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, NULL)) < 0)\n#\n# Semantics:\n#   - avformat_open_input returns an int `ret`.\n#   - The constraint asserts that the negation of (ret < 0) holds,\n#     i.e. ret >= 0 (success or non-negative return).\n#   - The assignment to `ret` is a side effect; the constraint only\n#     concerns the truth value of (ret < 0).\n#\n# Since `ret` is a fresh local produced by the call, we model it as an\n# uninterpreted integer representing the return value of the call.\nret = Int('ret')\n\n# The constraint: NOT (ret < 0)  <=>  ret >= 0\n# This is the only condition affecting the specified variable\n# (movie->format_ctx is only used as an argument address; its value is\n# not constrained by this expression itself).\nconstraint = (ret >= 0)\n\n# Solve / check satisfiability of the constraint.\ns = Solver()\ns.add(constraint)\n\n# Print result (executable Z3 script behavior).\nprint(s.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.389350100000229,
+  "cost_upper_bound_cny": 0.002924
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 4,
+  "level": 1,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Or, And, sat\n    \n    s = Solver()\n    \n    # Line 3: struct sock *sk = skb->sk;\n    sk = Int('sk')\n    \n    # Line 5: if (sk && READ_ONCE(sk->sk_dst_pending_confirm))\n    # sk must be non-null for inner branch to execute\n    s.add(sk != 0)\n    \n    # sk_dst_pending_confirm is a boolean-like field (0 or 1)\n    sk_dst_pending_confirm = Int('sk_dst_pending_confirm')\n    s.add(Or(sk_dst_pending_confirm == 0, sk_dst_pending_confirm == 1))\n    \n    # Condition of inner if: sk_dst_pending_confirm is truthy (non-zero)\n    s.add(sk_dst_pending_confirm == 1)\n    \n    # Line 6: WRITE_ONCE(sk->sk_dst_pending_confirm, 0)\n    # After the write, the field becomes 0\n    sk_dst_pending_confirm_after = Int('sk_dst_pending_confirm_after')\n    s.add(sk_dst_pending_confirm_after == 0)\n    \n    # Line 7: neigh_confirm(n) called with n == 0 (NULL)\n    # Track that the call occurred (void return, so just a marker)\n    neigh_confirm_called = Int('neigh_confirm_called')\n    s.add(neigh_confirm_called == 1)\n    \n    # Validate the constraint set is satisfiable\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sk () Int)\n(declare-fun sk_dst_pending_confirm () Int)\n(declare-fun sk_dst_pending_confirm_after () Int)\n(declare-fun neigh_confirm_called () Int)\n(assert\n (and (distinct sk 0) true))\n(assert\n (let (($x30 (= sk_dst_pending_confirm 1)))\n (or (= sk_dst_pending_confirm 0) $x30)))\n(assert\n (= sk_dst_pending_confirm 1))\n(assert\n (= sk_dst_pending_confirm_after 0))\n(assert\n (= neigh_confirm_called 1))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

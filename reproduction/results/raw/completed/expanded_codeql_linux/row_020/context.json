@@ -1,0 +1,190 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "icmpv6_ndo_send",
+      "var_name": "cloned_skb",
+      "target": "\tconsume_skb(cloned_skb);",
+      "code": "void icmpv6_ndo_send(struct sk_buff *skb_in, u8 type, u8 code, __u32 info)\n{\n\tstruct inet6_skb_parm parm = { 0 };\n\tstruct sk_buff *cloned_skb = NULL;\n\tenum ip_conntrack_info ctinfo;\n\tstruct in6_addr orig_ip;\n\tstruct nf_conn *ct;\n\n\tct = nf_ct_get(skb_in, &ctinfo);\n\tif (!ct || !(ct->status & IPS_SRC_NAT)) {\n\t\t__icmpv6_send(skb_in, type, code, info, &parm);\n\t\treturn;\n\t}\n\n\tif (skb_shared(skb_in))\n\t\tskb_in = cloned_skb = skb_clone(skb_in, GFP_ATOMIC);\n\n\tif (unlikely(!skb_in || skb_network_header(skb_in) < skb_in->head ||\n\t    (skb_network_header(skb_in) + sizeof(struct ipv6hdr)) >\n\t    skb_tail_pointer(skb_in) || skb_ensure_writable(skb_in,\n\t    skb_network_offset(skb_in) + sizeof(struct ipv6hdr))))\n\t\tgoto out;\n\n\torig_ip = ipv6_hdr(skb_in)->saddr;\n\tipv6_hdr(skb_in)->saddr = ct->tuplehash[0].tuple.src.u3.in6;\n\t__icmpv6_send(skb_in, type, code, info, &parm);\n\tipv6_hdr(skb_in)->saddr = orig_ip;\nout:\n\tconsume_skb(cloned_skb);\n}",
+      "body_sha256": "a468fc1fecac05a9ee96986899e9670f17b0b2c33fb271ccb16b91a027c80dc0",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tconsume_skb(cloned_skb);",
+            "condition": [
+              {
+                "condition": "goto out",
+                "line_number": 27
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "goto out",
+            "line_number": 27
+          }
+        ],
+        "variable_assignments": {
+          "text": "void icmpv6_ndo_send(struct sk_buff *skb_in, u8 type, u8 code, __u32 info)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "out",
+            "condition": [
+              "unlikely(!skb_in || skb_network_header(skb_in) < skb_in->head || (skb_network_header(skb_in) + sizeof(struct ipv6hdr)) > skb_tail_pointer(skb_in) || skb_ensure_writable(skb_in, skb_network_offset(skb_in) + sizeof(struct ipv6hdr)))"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!ct || !(ct->status & IPS_SRC_NAT)"
+            ]
+          }
+        ],
+        "filter_function_code": "void icmpv6_ndo_send(struct sk_buff *skb_in, u8 type, u8 code, __u32 info)\n{\n\tstruct inet6_skb_parm parm = { 0 };\n\tstruct sk_buff *cloned_skb = NULL;\n\tenum ip_conntrack_info ctinfo;\n\tstruct in6_addr orig_ip;\n\tstruct nf_conn *ct;\n\n\tct = nf_ct_get(skb_in, &ctinfo);\n\tif (!ct || !(ct->status & IPS_SRC_NAT)) {\n\t\t__icmpv6_send(skb_in, type, code, info, &parm);\n\t\treturn;\n\t}\n\n\tif (skb_shared(skb_in))\n\t\tskb_in = cloned_skb = skb_clone(skb_in, GFP_ATOMIC);\n\n\tif (unlikely(!skb_in || skb_network_header(skb_in) < skb_in->head ||\n\t    (skb_network_header(skb_in) + sizeof(struct ipv6hdr)) >\n\t    skb_tail_pointer(skb_in) || skb_ensure_writable(skb_in,\n\t    skb_network_offset(skb_in) + sizeof(struct ipv6hdr))))\n\t\tgoto out;\n\n\torig_ip = ipv6_hdr(skb_in)->saddr;\n\tipv6_hdr(skb_in)->saddr = ct->tuplehash[0].tuple.src.u3.in6;\n\t__icmpv6_send(skb_in, type, code, info, &parm);\n\tipv6_hdr(skb_in)->saddr = orig_ip;\nout:\n\tconsume_skb(cloned_skb);\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "consume_skb",
+      "var_name": "skb",
+      "target": "\t__kfree_skb(skb);",
+      "code": "void consume_skb(struct sk_buff *skb)\n{\n\tif (!skb_unref(skb))\n\t\treturn;\n\n\ttrace_consume_skb(skb, __builtin_return_address(0));\n\t__kfree_skb(skb);\n}",
+      "body_sha256": "ce94c233de202cdd5b1929aa2f27dc99b9964cb73e2c06c16e1a345f2b87c67c",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t__kfree_skb(skb);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "void consume_skb(struct sk_buff *skb)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "!skb_unref(skb)"
+            ]
+          }
+        ],
+        "filter_function_code": "void consume_skb(struct sk_buff *skb)\n{\n\tif (!skb_unref(skb))\n\t\treturn;\n\n\ttrace_consume_skb(skb, __builtin_return_address(0));\n\t__kfree_skb(skb);\n}"
+      }
+    },
+    {
+      "level": 2,
+      "function": "__kfree_skb",
+      "var_name": "skb",
+      "target": "\tskb_release_all(skb, SKB_DROP_REASON_NOT_SPECIFIED, false);",
+      "code": "void __kfree_skb(struct sk_buff *skb)\n{\n\tskb_release_all(skb, SKB_DROP_REASON_NOT_SPECIFIED, false);\n\tkfree_skbmem(skb);\n}",
+      "body_sha256": "3072a775687d3ad5d68b257cbbb6fed691a901feff8d77f69ae84bc3037372e5",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tskb_release_all(skb, SKB_DROP_REASON_NOT_SPECIFIED, false);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "void __kfree_skb(struct sk_buff *skb)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "void __kfree_skb(struct sk_buff *skb)\n{\n\tskb_release_all(skb, SKB_DROP_REASON_NOT_SPECIFIED, false);\n\tkfree_skbmem(skb);\n}"
+      }
+    },
+    {
+      "level": 3,
+      "function": "skb_release_all",
+      "var_name": "skb",
+      "target": "\tskb_release_head_state(skb);",
+      "code": "static void skb_release_all(struct sk_buff *skb, enum skb_drop_reason reason,\n\t\t\t    bool napi_safe)\n{\n\tskb_release_head_state(skb);\n\tif (likely(skb->head))\n\t\tskb_release_data(skb, reason, napi_safe);\n}",
+      "body_sha256": "985bd947c9e55200ac030b40cb346e20608bf694fd1cd33efc414aad3472ebd7",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tskb_release_head_state(skb);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void skb_release_all(struct sk_buff *skb, enum skb_drop_reason reason,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static void skb_release_all(struct sk_buff *skb, enum skb_drop_reason reason,\n\t\t\t    bool napi_safe)\n{\n\tskb_release_head_state(skb);\n\tif (likely(skb->head))\n\t\tskb_release_data(skb, reason, napi_safe);\n}"
+      }
+    },
+    {
+      "level": 4,
+      "function": "skb_release_head_state",
+      "var_name": "skb",
+      "target": "\tskb_dst_drop(skb);",
+      "code": "void skb_release_head_state(struct sk_buff *skb)\n{\n\tskb_dst_drop(skb);\n\tif (skb->destructor) {\n\t\tDEBUG_NET_WARN_ON_ONCE(in_hardirq());\n\t\tskb->destructor(skb);\n\t}\n#if IS_ENABLED(CONFIG_NF_CONNTRACK)\n\tnf_conntrack_put(skb_nfct(skb));\n#endif\n\tskb_ext_put(skb);\n}",
+      "body_sha256": "8ebfbd7ec1210c47436c06d2451e812f748646b60fa65a608925ac347f6735fc",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tskb_dst_drop(skb);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "void skb_release_head_state(struct sk_buff *skb)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "void skb_release_head_state(struct sk_buff *skb)\n{\n\tskb_dst_drop(skb);\n\tif (skb->destructor) {\n\t\tDEBUG_NET_WARN_ON_ONCE(in_hardirq());\n\t\tskb->destructor(skb);\n\t}\n#if IS_ENABLED(CONFIG_NF_CONNTRACK)\n\tnf_conntrack_put(skb_nfct(skb));\n#endif\n\tskb_ext_put(skb);\n}"
+      }
+    },
+    {
+      "level": 5,
+      "function": "skb_dst_drop",
+      "var_name": "skb",
+      "target": "\tif (skb->_skb_refdst) {",
+      "code": "static inline void skb_dst_drop(struct sk_buff *skb)\n{\n\tif (skb->_skb_refdst) {\n\t\trefdst_drop(skb->_skb_refdst);\n\t\tskb->_skb_refdst = 0UL;\n\t}\n}",
+      "body_sha256": "9490e85c23193a0250a6de6fce4d6009136eb422a7ab09ddd7345937723d2c6c",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tif (skb->_skb_refdst) {",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static inline void skb_dst_drop(struct sk_buff *skb)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [],
+        "filter_function_code": "static inline void skb_dst_drop(struct sk_buff *skb)\n{\n\tif (skb->_skb_refdst) {\n\t\trefdst_drop(skb->_skb_refdst);\n\t\tskb->_skb_refdst = 0UL;\n\t}\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "void icmpv6_ndo_send(struct sk_buff *skb_in, u8 type, u8 code, __u32 info)\n{\n\tstruct inet6_skb_parm parm = { 0 };\n\tstruct sk_buff *cloned_skb = NULL;\n\tenum ip_conntrack_info ctinfo;\n\tstruct in6_addr orig_ip;\n\tstruct nf_conn *ct;\n\n\tct = nf_ct_get(skb_in, &ctinfo);\n\tif (!ct || !(ct->status & IPS_SRC_NAT)) {\n\t\t__icmpv6_send(skb_in, type, code, info, &parm);\n\t\treturn;\n\t}\n\n\tif (skb_shared(skb_in))\n\t\tskb_in = cloned_skb = skb_clone(skb_in, GFP_ATOMIC);\n\n\tif (unlikely(!skb_in || skb_network_header(skb_in) < skb_in->head ||\n\t    (skb_network_header(skb_in) + sizeof(struct ipv6hdr)) >\n\t    skb_tail_pointer(skb_in) || skb_ensure_writable(skb_in,\n\t    skb_network_offset(skb_in) + sizeof(struct ipv6hdr))))\n\t\tgoto out;\n\n\torig_ip = ipv6_hdr(skb_in)->saddr;\n\tipv6_hdr(skb_in)->saddr = ct->tuplehash[0].tuple.src.u3.in6;\n\t__icmpv6_send(skb_in, type, code, info, &parm);\n\tipv6_hdr(skb_in)->saddr = orig_ip;\nout:\n\tconsume_skb(cloned_skb);\n}",
+    "void consume_skb(struct sk_buff *skb)\n{\n\tif (!skb_unref(skb))\n\t\treturn;\n\n\ttrace_consume_skb(skb, __builtin_return_address(0));\n\t__kfree_skb(skb);\n}",
+    "void __kfree_skb(struct sk_buff *skb)\n{\n\tskb_release_all(skb, SKB_DROP_REASON_NOT_SPECIFIED, false);\n\tkfree_skbmem(skb);\n}",
+    "static void skb_release_all(struct sk_buff *skb, enum skb_drop_reason reason,\n\t\t\t    bool napi_safe)\n{\n\tskb_release_head_state(skb);\n\tif (likely(skb->head))\n\t\tskb_release_data(skb, reason, napi_safe);\n}",
+    "void skb_release_head_state(struct sk_buff *skb)\n{\n\tskb_dst_drop(skb);\n\tif (skb->destructor) {\n\t\tDEBUG_NET_WARN_ON_ONCE(in_hardirq());\n\t\tskb->destructor(skb);\n\t}\n#if IS_ENABLED(CONFIG_NF_CONNTRACK)\n\tnf_conntrack_put(skb_nfct(skb));\n#endif\n\tskb_ext_put(skb);\n}",
+    "static inline void skb_dst_drop(struct sk_buff *skb)\n{\n\tif (skb->_skb_refdst) {\n\t\trefdst_drop(skb->_skb_refdst);\n\t\tskb->_skb_refdst = 0UL;\n\t}\n}"
+  ]
+}

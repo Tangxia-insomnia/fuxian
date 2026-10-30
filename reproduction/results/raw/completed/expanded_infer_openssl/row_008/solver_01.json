@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, sat\n\n    # --- Declarations ---\n    rh_item = Int('rh_item')\n    item = Int('item')\n    next_by_srt_blinded_nonnull = Bool('next_by_srt_blinded_nonnull')\n    srtm_check_lh_result = Bool('srtm_check_lh_result')\n\n    # --- Solver ---\n    s = Solver()\n\n    # Base constraint\n    s.add(rh_item == 0)\n\n    # Constraint set 2\n    s.add(Or(\n        rh_item != item,\n        Not(next_by_srt_blinded_nonnull),\n        srtm_check_lh_result\n    ))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun rh_item () Int)\n(declare-fun srtm_check_lh_result () Bool)\n(declare-fun next_by_srt_blinded_nonnull () Bool)\n(declare-fun item () Int)\n(assert\n (= rh_item 0))\n(assert\n (let (($x29 (not next_by_srt_blinded_nonnull)))\n(or (and (distinct rh_item item) true) $x29 srtm_check_lh_result)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

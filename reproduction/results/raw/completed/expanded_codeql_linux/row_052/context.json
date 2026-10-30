@@ -1,0 +1,147 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ieee80211_rx_mgmt_assoc_resp",
+      "var_name": "elems",
+      "target": "\tkfree(elems);",
+      "code": "static void ieee80211_rx_mgmt_assoc_resp(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t\t struct ieee80211_mgmt *mgmt,\n\t\t\t\t\t size_t len)\n{\n\tstruct ieee80211_if_managed *ifmgd = &sdata->u.mgd;\n\tstruct ieee80211_mgd_assoc_data *assoc_data = ifmgd->assoc_data;\n\tu16 capab_info, status_code, aid;\n\tstruct ieee80211_elems_parse_params parse_params = {\n\t\t.bss = NULL,\n\t\t.link_id = -1,\n\t\t.from_ap = true,\n\t};\n\tstruct ieee802_11_elems *elems;\n\tint ac;\n\tconst u8 *elem_start;\n\tunsigned int elem_len;\n\tbool reassoc;\n\tstruct ieee80211_event event = {\n\t\t.type = MLME_EVENT,\n\t\t.u.mlme.data = ASSOC_EVENT,\n\t};\n\tstruct ieee80211_prep_tx_info info = {};\n\tstruct cfg80211_rx_assoc_resp_data resp = {\n\t\t.uapsd_queues = -1,\n\t};\n\tu8 ap_mld_addr[ETH_ALEN] __aligned(2);\n\tunsigned int link_id;\n\n\tlockdep_assert_wiphy(sdata->local->hw.wiphy);\n\n\tif (!assoc_data)\n\t\treturn;\n\n\tparse_params.mode =\n\t\tassoc_data->link[assoc_data->assoc_link_id].conn.mode;\n\n\tif (!ether_addr_equal(assoc_data->ap_addr, mgmt->bssid) ||\n\t    !ether_addr_equal(assoc_data->ap_addr, mgmt->sa))\n\t\treturn;\n\n\t/*\n\t * AssocResp and ReassocResp have identical structure, so process both\n\t * of them in this function.\n\t */\n\n\tif (len < 24 + 6)\n\t\treturn;\n\n\treassoc = ieee80211_is_reassoc_resp(mgmt->frame_control);\n\tcapab_info = le16_to_cpu(mgmt->u.assoc_resp.capab_info);\n\tstatus_code = le16_to_cpu(mgmt->u.assoc_resp.status_code);\n\tif (assoc_data->s1g)\n\t\telem_start = mgmt->u.s1g_assoc_resp.variable;\n\telse\n\t\telem_start = mgmt->u.assoc_resp.variable;\n\n\t/*\n\t * Note: this may not be perfect, AP might misbehave - if\n\t * anyone needs to rely on perfect complete notification\n\t * with the exact right subtype, then we need to track what\n\t * we actually transmitted.\n\t */\n\tinfo.subtype = reassoc ? IEEE80211_STYPE_REASSOC_REQ :\n\t\t\t\t IEEE80211_STYPE_ASSOC_REQ;\n\n\tif (assoc_data->fils_kek_len &&\n\t    fils_decrypt_assoc_resp(sdata, (u8 *)mgmt, &len, assoc_data) < 0)\n\t\treturn;\n\n\telem_len = len - (elem_start - (u8 *)mgmt);\n\tparse_params.start = elem_start;\n\tparse_params.len = elem_len;\n\telems = ieee802_11_parse_elems_full(&parse_params);\n\tif (!elems)\n\t\tgoto notify_driver;\n\n\tif (elems->aid_resp)\n\t\taid = le16_to_cpu(elems->aid_resp->aid);\n\telse if (assoc_data->s1g)\n\t\taid = 0; /* TODO */\n\telse\n\t\taid = le16_to_cpu(mgmt->u.assoc_resp.aid);\n\n\t/*\n\t * The 5 MSB of the AID field are reserved\n\t * (802.11-2016 9.4.1.8 AID field)\n\t */\n\taid &= 0x7ff;\n\n\tsdata_info(sdata,\n\t\t   \"RX %sssocResp from %pM (capab=0x%x status=%d aid=%d)\\n\",\n\t\t   reassoc ? \"Rea\" : \"A\", assoc_data->ap_addr,\n\t\t   capab_info, status_code, (u16)(aid & ~(BIT(15) | BIT(14))));\n\n\tifmgd->broken_ap = false;\n\n\tif (status_code == WLAN_STATUS_ASSOC_REJECTED_TEMPORARILY &&\n\t    elems->timeout_int &&\n\t    elems->timeout_int->type == WLAN_TIMEOUT_ASSOC_COMEBACK) {\n\t\tu32 tu, ms;\n\n\t\tcfg80211_assoc_comeback(sdata->dev, assoc_data->ap_addr,\n\t\t\t\t\tle32_to_cpu(elems->timeout_int->value));\n\n\t\ttu = le32_to_cpu(elems->timeout_int->value);\n\t\tms = tu * 1024 / 1000;\n\t\tsdata_info(sdata,\n\t\t\t   \"%pM rejected association temporarily; comeback duration %u TU (%u ms)\\n\",\n\t\t\t   assoc_data->ap_addr, tu, ms);\n\t\tassoc_data->timeout = jiffies + msecs_to_jiffies(ms);\n\t\tassoc_data->timeout_started = true;\n\t\tassoc_data->comeback = true;\n\t\tif (ms > IEEE80211_ASSOC_TIMEOUT)\n\t\t\trun_again(sdata, assoc_data->timeout);\n\t\tgoto notify_driver;\n\t}\n\n\tif (status_code != WLAN_STATUS_SUCCESS) {\n\t\tsdata_info(sdata, \"%pM denied association (code=%d)\\n\",\n\t\t\t   assoc_data->ap_addr, status_code);\n\t\tevent.u.mlme.status = MLME_DENIED;\n\t\tevent.u.mlme.reason = status_code;\n\t\tdrv_event_callback(sdata->local, sdata, &event);\n\t} else {\n\t\tif (aid == 0 || aid > IEEE80211_MAX_AID) {\n\t\t\tsdata_info(sdata,\n\t\t\t\t   \"invalid AID value %d (out of range), turn off PS\\n\",\n\t\t\t\t   aid);\n\t\t\taid = 0;\n\t\t\tifmgd->broken_ap = true;\n\t\t}\n\n\t\tif (ieee80211_vif_is_mld(&sdata->vif)) {\n\t\t\tstruct ieee80211_mle_basic_common_info *common;\n\n\t\t\tif (!elems->ml_basic) {\n\t\t\t\tsdata_info(sdata,\n\t\t\t\t\t   \"MLO association with %pM but no (basic) multi-link element in response!\\n\",\n\t\t\t\t\t   assoc_data->ap_addr);\n\t\t\t\tgoto abandon_assoc;\n\t\t\t}\n\n\t\t\tcommon = (void *)elems->ml_basic->variable;\n\n\t\t\tif (memcmp(assoc_data->ap_addr,\n\t\t\t\t   common->mld_mac_addr, ETH_ALEN)) {\n\t\t\t\tsdata_info(sdata,\n\t\t\t\t\t   \"AP MLD MAC address mismatch: got %pM expected %pM\\n\",\n\t\t\t\t\t   common->mld_mac_addr,\n\t\t\t\t\t   assoc_data->ap_addr);\n\t\t\t\tgoto abandon_assoc;\n\t\t\t}\n\n\t\t\tsdata->vif.cfg.eml_cap =\n\t\t\t\tieee80211_mle_get_eml_cap((const void *)elems->ml_basic);\n\t\t\tsdata->vif.cfg.eml_med_sync_delay =\n\t\t\t\tieee80211_mle_get_eml_med_sync_delay((const void *)elems->ml_basic);\n\t\t\tsdata->vif.cfg.mld_capa_op =\n\t\t\t\tieee80211_mle_get_mld_capa_op((const void *)elems->ml_basic);\n\t\t}\n\n\t\tsdata->vif.cfg.aid = aid;\n\n\t\tif (!ieee80211_assoc_success(sdata, mgmt, elems,\n\t\t\t\t\t     elem_start, elem_len)) {\n\t\t\t/* oops -- internal error -- send timeout for now */\n\t\t\tieee80211_destroy_assoc_data(sdata, ASSOC_TIMEOUT);\n\t\t\tgoto notify_driver;\n\t\t}\n\t\tevent.u.mlme.status = MLME_SUCCESS;\n\t\tdrv_event_callback(sdata->local, sdata, &event);\n\t\tsdata_info(sdata, \"associated\\n\");\n\n\t\tinfo.success = 1;\n\t}\n\n\tfor (link_id = 0; link_id < IEEE80211_MLD_MAX_NUM_LINKS; link_id++) {\n\t\tstruct ieee80211_link_data *link;\n\n\t\tif (!assoc_data->link[link_id].bss)\n\t\t\tcontinue;\n\n\t\tresp.links[link_id].bss = assoc_data->link[link_id].bss;\n\t\tether_addr_copy(resp.links[link_id].addr,\n\t\t\t\tassoc_data->link[link_id].addr);\n\t\tresp.links[link_id].status = assoc_data->link[link_id].status;\n\n\t\tlink = sdata_dereference(sdata->link[link_id], sdata);\n\t\tif (!link)\n\t\t\tcontinue;\n\n\t\t/* get uapsd queues configuration - same for all links */\n\t\tresp.uapsd_queues = 0;\n\t\tfor (ac = 0; ac < IEEE80211_NUM_ACS; ac++)\n\t\t\tif (link->tx_conf[ac].uapsd)\n\t\t\t\tresp.uapsd_queues |= ieee80211_ac_to_qos_mask[ac];\n\t}\n\n\tif (ieee80211_vif_is_mld(&sdata->vif)) {\n\t\tether_addr_copy(ap_mld_addr, sdata->vif.cfg.ap_addr);\n\t\tresp.ap_mld_addr = ap_mld_addr;\n\t}\n\n\tieee80211_destroy_assoc_data(sdata,\n\t\t\t\t     status_code == WLAN_STATUS_SUCCESS ?\n\t\t\t\t\tASSOC_SUCCESS :\n\t\t\t\t\tASSOC_REJECTED);\n\n\tresp.buf = (u8 *)mgmt;\n\tresp.len = len;\n\tresp.req_ies = ifmgd->assoc_req_ies;\n\tresp.req_ies_len = ifmgd->assoc_req_ies_len;\n\tcfg80211_rx_assoc_resp(sdata->dev, &resp);\nnotify_driver:\n\tdrv_mgd_complete_tx(sdata->local, sdata, &info);\n\tkfree(elems);\n\treturn;\nabandon_assoc:\n\tieee80211_destroy_assoc_data(sdata, ASSOC_ABANDON);\n\tgoto notify_driver;\n}",
+      "body_sha256": "a634de14c25954a80d28ee6f7129935fffcc412ef53a37f1a809da268a3c2f29",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tkfree(elems);",
+            "condition": [
+              {
+                "condition": "goto notify_driver",
+                "line_number": 213
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "goto notify_driver",
+            "line_number": 213
+          }
+        ],
+        "variable_assignments": {
+          "text": "static void ieee80211_rx_mgmt_assoc_resp(struct ieee80211_sub_if_data *sdata,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "notify_driver",
+            "condition": [
+              "!(status_code != WLAN_STATUS_SUCCESS)",
+              "!ieee80211_assoc_success(sdata, mgmt, elems, elem_start, elem_len)"
+            ]
+          },
+          {
+            "text": "abandon_assoc",
+            "condition": [
+              "!(status_code != WLAN_STATUS_SUCCESS)",
+              "ieee80211_vif_is_mld(&sdata->vif)",
+              "memcmp(assoc_data->ap_addr, common->mld_mac_addr, ETH_ALEN)"
+            ]
+          },
+          {
+            "text": "abandon_assoc",
+            "condition": [
+              "!(status_code != WLAN_STATUS_SUCCESS)",
+              "ieee80211_vif_is_mld(&sdata->vif)",
+              "!elems->ml_basic"
+            ]
+          },
+          {
+            "text": "notify_driver",
+            "condition": [
+              "status_code == WLAN_STATUS_ASSOC_REJECTED_TEMPORARILY && elems->timeout_int && elems->timeout_int->type == WLAN_TIMEOUT_ASSOC_COMEBACK"
+            ]
+          },
+          {
+            "text": "notify_driver",
+            "condition": [
+              "!elems"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "assoc_data->fils_kek_len && fils_decrypt_assoc_resp(sdata, (u8 *)mgmt, &len, assoc_data) < 0"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "len < 24 + 6"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!ether_addr_equal(assoc_data->ap_addr, mgmt->bssid) || !ether_addr_equal(assoc_data->ap_addr, mgmt->sa)"
+            ]
+          },
+          {
+            "text": "return",
+            "condition": [
+              "!assoc_data"
+            ]
+          }
+        ],
+        "filter_function_code": "static void ieee80211_rx_mgmt_assoc_resp(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t\t struct ieee80211_mgmt *mgmt,\n\t\t\t\t\t size_t len)\n{\n\tstruct ieee80211_if_managed *ifmgd = &sdata->u.mgd;\n\tstruct ieee80211_mgd_assoc_data *assoc_data = ifmgd->assoc_data;\n\tu16 capab_info, status_code, aid;\n\tstruct ieee80211_elems_parse_params parse_params = {\n\t\t.bss = NULL,\n\t\t.link_id = -1,\n\t\t.from_ap = true,\n\t};\n\tstruct ieee802_11_elems *elems;\n\tint ac;\n\tconst u8 *elem_start;\n\tunsigned int elem_len;\n\tbool reassoc;\n\tstruct ieee80211_event event = {\n\t\t.type = MLME_EVENT,\n\t\t.u.mlme.data = ASSOC_EVENT,\n\t};\n\tstruct ieee80211_prep_tx_info info = {};\n\tstruct cfg80211_rx_assoc_resp_data resp = {\n\t\t.uapsd_queues = -1,\n\t};\n\tu8 ap_mld_addr[ETH_ALEN] __aligned(2);\n\tunsigned int link_id;\n\n\tlockdep_assert_wiphy(sdata->local->hw.wiphy);\n\n\tif (!assoc_data)\n\t\treturn;\n\n\tparse_params.mode =\n\t\tassoc_data->link[assoc_data->assoc_link_id].conn.mode;\n\n\tif (!ether_addr_equal(assoc_data->ap_addr, mgmt->bssid) ||\n\t    !ether_addr_equal(assoc_data->ap_addr, mgmt->sa))\n\t\treturn;\n\n\t/*\n\t * AssocResp and ReassocResp have identical structure, so process both\n\t * of them in this function.\n\t */\n\n\tif (len < 24 + 6)\n\t\treturn;\n\n\treassoc = ieee80211_is_reassoc_resp(mgmt->frame_control);\n\tcapab_info = le16_to_cpu(mgmt->u.assoc_resp.capab_info);\n\tstatus_code = le16_to_cpu(mgmt->u.assoc_resp.status_code);\n\tif (assoc_data->s1g)\n\t\telem_start = mgmt->u.s1g_assoc_resp.variable;\n\telse\n\t\telem_start = mgmt->u.assoc_resp.variable;\n\n\t/*\n\t * Note: this may not be perfect, AP might misbehave - if\n\t * anyone needs to rely on perfect complete notification\n\t * with the exact right subtype, then we need to track what\n\t * we actually transmitted.\n\t */\n\tinfo.subtype = reassoc ? IEEE80211_STYPE_REASSOC_REQ :\n\t\t\t\t IEEE80211_STYPE_ASSOC_REQ;\n\n\tif (assoc_data->fils_kek_len &&\n\t    fils_decrypt_assoc_resp(sdata, (u8 *)mgmt, &len, assoc_data) < 0)\n\t\treturn;\n\n\telem_len = len - (elem_start - (u8 *)mgmt);\n\tparse_params.start = elem_start;\n\tparse_params.len = elem_len;\n\telems = ieee802_11_parse_elems_full(&parse_params);\n\tif (!elems)\n\t\tgoto notify_driver;\n\n\tif (elems->aid_resp)\n\t\taid = le16_to_cpu(elems->aid_resp->aid);\n\telse if (assoc_data->s1g)\n\t\taid = 0; /* TODO */\n\telse\n\t\taid = le16_to_cpu(mgmt->u.assoc_resp.aid);\n\n\t/*\n\t * The 5 MSB of the AID field are reserved\n\t * (802.11-2016 9.4.1.8 AID field)\n\t */\n\taid &= 0x7ff;\n\n\tsdata_info(sdata,\n\t\t   \"RX %sssocResp from %pM (capab=0x%x status=%d aid=%d)\\n\",\n\t\t   reassoc ? \"Rea\" : \"A\", assoc_data->ap_addr,\n\t\t   capab_info, status_code, (u16)(aid & ~(BIT(15) | BIT(14))));\n\n\tifmgd->broken_ap = false;\n\n\tif (status_code == WLAN_STATUS_ASSOC_REJECTED_TEMPORARILY &&\n\t    elems->timeout_int &&\n\t    elems->timeout_int->type == WLAN_TIMEOUT_ASSOC_COMEBACK) {\n\t\tu32 tu, ms;\n\n\t\tcfg80211_assoc_comeback(sdata->dev, assoc_data->ap_addr,\n\t\t\t\t\tle32_to_cpu(elems->timeout_int->value));\n\n\t\ttu = le32_to_cpu(elems->timeout_int->value);\n\t\tms = tu * 1024 / 1000;\n\t\tsdata_info(sdata,\n\t\t\t   \"%pM rejected association temporarily; comeback duration %u TU (%u ms)\\n\",\n\t\t\t   assoc_data->ap_addr, tu, ms);\n\t\tassoc_data->timeout = jiffies + msecs_to_jiffies(ms);\n\t\tassoc_data->timeout_started = true;\n\t\tassoc_data->comeback = true;\n\t\tif (ms > IEEE80211_ASSOC_TIMEOUT)\n\t\t\trun_again(sdata, assoc_data->timeout);\n\t\tgoto notify_driver;\n\t}\n\n\tif (status_code != WLAN_STATUS_SUCCESS) {\n\t\tsdata_info(sdata, \"%pM denied association (code=%d)\\n\",\n\t\t\t   assoc_data->ap_addr, status_code);\n\t\tevent.u.mlme.status = MLME_DENIED;\n\t\tevent.u.mlme.reason = status_code;\n\t\tdrv_event_callback(sdata->local, sdata, &event);\n\t} else {\n\t\tif (aid == 0 || aid > IEEE80211_MAX_AID) {\n\t\t\tsdata_info(sdata,\n\t\t\t\t   \"invalid AID value %d (out of range), turn off PS\\n\",\n\t\t\t\t   aid);\n\t\t\taid = 0;\n\t\t\tifmgd->broken_ap = true;\n\t\t}\n\n\t\tif (ieee80211_vif_is_mld(&sdata->vif)) {\n\t\t\tstruct ieee80211_mle_basic_common_info *common;\n\n\t\t\tif (!elems->ml_basic) {\n\t\t\t\tsdata_info(sdata,\n\t\t\t\t\t   \"MLO association with %pM but no (basic) multi-link element in response!\\n\",\n\t\t\t\t\t   assoc_data->ap_addr);\n\t\t\t\tgoto abandon_assoc;\n\t\t\t}\n\n\t\t\tcommon = (void *)elems->ml_basic->variable;\n\n\t\t\tif (memcmp(assoc_data->ap_addr,\n\t\t\t\t   common->mld_mac_addr, ETH_ALEN)) {\n\t\t\t\tsdata_info(sdata,\n\t\t\t\t\t   \"AP MLD MAC address mismatch: got %pM expected %pM\\n\",\n\t\t\t\t\t   common->mld_mac_addr,\n\t\t\t\t\t   assoc_data->ap_addr);\n\t\t\t\tgoto abandon_assoc;\n\t\t\t}\n\n\t\t\tsdata->vif.cfg.eml_cap =\n\t\t\t\tieee80211_mle_get_eml_cap((const void *)elems->ml_basic);\n\t\t\tsdata->vif.cfg.eml_med_sync_delay =\n\t\t\t\tieee80211_mle_get_eml_med_sync_delay((const void *)elems->ml_basic);\n\t\t\tsdata->vif.cfg.mld_capa_op =\n\t\t\t\tieee80211_mle_get_mld_capa_op((const void *)elems->ml_basic);\n\t\t}\n\n\t\tsdata->vif.cfg.aid = aid;\n\n\t\tif (!ieee80211_assoc_success(sdata, mgmt, elems,\n\t\t\t\t\t     elem_start, elem_len)) {\n\t\t\t/* oops -- internal error -- send timeout for now */\n\t\t\tieee80211_destroy_assoc_data(sdata, ASSOC_TIMEOUT);\n\t\t\tgoto notify_driver;\n\t\t}\n\t\tevent.u.mlme.status = MLME_SUCCESS;\n\t\tdrv_event_callback(sdata->local, sdata, &event);\n\t\tsdata_info(sdata, \"associated\\n\");\n\n\t\tinfo.success = 1;\n\t}\n\n\tfor (link_id = 0; link_id < IEEE80211_MLD_MAX_NUM_LINKS; link_id++) {\n\t\tstruct ieee80211_link_data *link;\n\n\t\tif (!assoc_data->link[link_id].bss)\n\t\t\tcontinue;\n\n\t\tresp.links[link_id].bss = assoc_data->link[link_id].bss;\n\t\tether_addr_copy(resp.links[link_id].addr,\n\t\t\t\tassoc_data->link[link_id].addr);\n\t\tresp.links[link_id].status = assoc_data->link[link_id].status;\n\n\t\tlink = sdata_dereference(sdata->link[link_id], sdata);\n\t\tif (!link)\n\t\t\tcontinue;\n\n\t\t/* get uapsd queues configuration - same for all links */\n\t\tresp.uapsd_queues = 0;\n\t\tfor (ac = 0; ac < IEEE80211_NUM_ACS; ac++)\n\t\t\tif (link->tx_conf[ac].uapsd)\n\t\t\t\tresp.uapsd_queues |= ieee80211_ac_to_qos_mask[ac];\n\t}\n\n\tif (ieee80211_vif_is_mld(&sdata->vif)) {\n\t\tether_addr_copy(ap_mld_addr, sdata->vif.cfg.ap_addr);\n\t\tresp.ap_mld_addr = ap_mld_addr;\n\t}\n\n\tieee80211_destroy_assoc_data(sdata,\n\t\t\t\t     status_code == WLAN_STATUS_SUCCESS ?\n\t\t\t\t\tASSOC_SUCCESS :\n\t\t\t\t\tASSOC_REJECTED);\n\n\tresp.buf = (u8 *)mgmt;\n\tresp.len = len;\n\tresp.req_ies = ifmgd->assoc_req_ies;\n\tresp.req_ies_len = ifmgd->assoc_req_ies_len;\n\tcfg80211_rx_assoc_resp(sdata->dev, &resp);\nnotify_driver:\n\tdrv_mgd_complete_tx(sdata->local, sdata, &info);\n\tkfree(elems);\n\treturn;\nabandon_assoc:\n\tieee80211_destroy_assoc_data(sdata, ASSOC_ABANDON);\n\tgoto notify_driver;\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "kfree",
+      "var_name": "object",
+      "target": "\t\tfree_large_kmalloc(folio, (void *)object);",
+      "code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}",
+      "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\tfree_large_kmalloc(folio, (void *)object);",
+            "condition": [
+              {
+                "condition": "if (unlikely(!folio_test_slab(folio)))",
+                "line_number": 13
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (unlikely(!folio_test_slab(folio)))",
+            "line_number": 13
+          }
+        ],
+        "variable_assignments": {
+          "text": "void kfree(const void *object)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "unlikely(ZERO_OR_NULL_PTR(object))"
+            ]
+          }
+        ],
+        "filter_function_code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void ieee80211_rx_mgmt_assoc_resp(struct ieee80211_sub_if_data *sdata,\n\t\t\t\t\t struct ieee80211_mgmt *mgmt,\n\t\t\t\t\t size_t len)\n{\n\tstruct ieee80211_if_managed *ifmgd = &sdata->u.mgd;\n\tstruct ieee80211_mgd_assoc_data *assoc_data = ifmgd->assoc_data;\n\tu16 capab_info, status_code, aid;\n\tstruct ieee80211_elems_parse_params parse_params = {\n\t\t.bss = NULL,\n\t\t.link_id = -1,\n\t\t.from_ap = true,\n\t};\n\tstruct ieee802_11_elems *elems;\n\tint ac;\n\tconst u8 *elem_start;\n\tunsigned int elem_len;\n\tbool reassoc;\n\tstruct ieee80211_event event = {\n\t\t.type = MLME_EVENT,\n\t\t.u.mlme.data = ASSOC_EVENT,\n\t};\n\tstruct ieee80211_prep_tx_info info = {};\n\tstruct cfg80211_rx_assoc_resp_data resp = {\n\t\t.uapsd_queues = -1,\n\t};\n\tu8 ap_mld_addr[ETH_ALEN] __aligned(2);\n\tunsigned int link_id;\n\n\tlockdep_assert_wiphy(sdata->local->hw.wiphy);\n\n\tif (!assoc_data)\n\t\treturn;\n\n\tparse_params.mode =\n\t\tassoc_data->link[assoc_data->assoc_link_id].conn.mode;\n\n\tif (!ether_addr_equal(assoc_data->ap_addr, mgmt->bssid) ||\n\t    !ether_addr_equal(assoc_data->ap_addr, mgmt->sa))\n\t\treturn;\n\n\t/*\n\t * AssocResp and ReassocResp have identical structure, so process both\n\t * of them in this function.\n\t */\n\n\tif (len < 24 + 6)\n\t\treturn;\n\n\treassoc = ieee80211_is_reassoc_resp(mgmt->frame_control);\n\tcapab_info = le16_to_cpu(mgmt->u.assoc_resp.capab_info);\n\tstatus_code = le16_to_cpu(mgmt->u.assoc_resp.status_code);\n\tif (assoc_data->s1g)\n\t\telem_start = mgmt->u.s1g_assoc_resp.variable;\n\telse\n\t\telem_start = mgmt->u.assoc_resp.variable;\n\n\t/*\n\t * Note: this may not be perfect, AP might misbehave - if\n\t * anyone needs to rely on perfect complete notification\n\t * with the exact right subtype, then we need to track what\n\t * we actually transmitted.\n\t */\n\tinfo.subtype = reassoc ? IEEE80211_STYPE_REASSOC_REQ :\n\t\t\t\t IEEE80211_STYPE_ASSOC_REQ;\n\n\tif (assoc_data->fils_kek_len &&\n\t    fils_decrypt_assoc_resp(sdata, (u8 *)mgmt, &len, assoc_data) < 0)\n\t\treturn;\n\n\telem_len = len - (elem_start - (u8 *)mgmt);\n\tparse_params.start = elem_start;\n\tparse_params.len = elem_len;\n\telems = ieee802_11_parse_elems_full(&parse_params);\n\tif (!elems)\n\t\tgoto notify_driver;\n\n\tif (elems->aid_resp)\n\t\taid = le16_to_cpu(elems->aid_resp->aid);\n\telse if (assoc_data->s1g)\n\t\taid = 0; /* TODO */\n\telse\n\t\taid = le16_to_cpu(mgmt->u.assoc_resp.aid);\n\n\t/*\n\t * The 5 MSB of the AID field are reserved\n\t * (802.11-2016 9.4.1.8 AID field)\n\t */\n\taid &= 0x7ff;\n\n\tsdata_info(sdata,\n\t\t   \"RX %sssocResp from %pM (capab=0x%x status=%d aid=%d)\\n\",\n\t\t   reassoc ? \"Rea\" : \"A\", assoc_data->ap_addr,\n\t\t   capab_info, status_code, (u16)(aid & ~(BIT(15) | BIT(14))));\n\n\tifmgd->broken_ap = false;\n\n\tif (status_code == WLAN_STATUS_ASSOC_REJECTED_TEMPORARILY &&\n\t    elems->timeout_int &&\n\t    elems->timeout_int->type == WLAN_TIMEOUT_ASSOC_COMEBACK) {\n\t\tu32 tu, ms;\n\n\t\tcfg80211_assoc_comeback(sdata->dev, assoc_data->ap_addr,\n\t\t\t\t\tle32_to_cpu(elems->timeout_int->value));\n\n\t\ttu = le32_to_cpu(elems->timeout_int->value);\n\t\tms = tu * 1024 / 1000;\n\t\tsdata_info(sdata,\n\t\t\t   \"%pM rejected association temporarily; comeback duration %u TU (%u ms)\\n\",\n\t\t\t   assoc_data->ap_addr, tu, ms);\n\t\tassoc_data->timeout = jiffies + msecs_to_jiffies(ms);\n\t\tassoc_data->timeout_started = true;\n\t\tassoc_data->comeback = true;\n\t\tif (ms > IEEE80211_ASSOC_TIMEOUT)\n\t\t\trun_again(sdata, assoc_data->timeout);\n\t\tgoto notify_driver;\n\t}\n\n\tif (status_code != WLAN_STATUS_SUCCESS) {\n\t\tsdata_info(sdata, \"%pM denied association (code=%d)\\n\",\n\t\t\t   assoc_data->ap_addr, status_code);\n\t\tevent.u.mlme.status = MLME_DENIED;\n\t\tevent.u.mlme.reason = status_code;\n\t\tdrv_event_callback(sdata->local, sdata, &event);\n\t} else {\n\t\tif (aid == 0 || aid > IEEE80211_MAX_AID) {\n\t\t\tsdata_info(sdata,\n\t\t\t\t   \"invalid AID value %d (out of range), turn off PS\\n\",\n\t\t\t\t   aid);\n\t\t\taid = 0;\n\t\t\tifmgd->broken_ap = true;\n\t\t}\n\n\t\tif (ieee80211_vif_is_mld(&sdata->vif)) {\n\t\t\tstruct ieee80211_mle_basic_common_info *common;\n\n\t\t\tif (!elems->ml_basic) {\n\t\t\t\tsdata_info(sdata,\n\t\t\t\t\t   \"MLO association with %pM but no (basic) multi-link element in response!\\n\",\n\t\t\t\t\t   assoc_data->ap_addr);\n\t\t\t\tgoto abandon_assoc;\n\t\t\t}\n\n\t\t\tcommon = (void *)elems->ml_basic->variable;\n\n\t\t\tif (memcmp(assoc_data->ap_addr,\n\t\t\t\t   common->mld_mac_addr, ETH_ALEN)) {\n\t\t\t\tsdata_info(sdata,\n\t\t\t\t\t   \"AP MLD MAC address mismatch: got %pM expected %pM\\n\",\n\t\t\t\t\t   common->mld_mac_addr,\n\t\t\t\t\t   assoc_data->ap_addr);\n\t\t\t\tgoto abandon_assoc;\n\t\t\t}\n\n\t\t\tsdata->vif.cfg.eml_cap =\n\t\t\t\tieee80211_mle_get_eml_cap((const void *)elems->ml_basic);\n\t\t\tsdata->vif.cfg.eml_med_sync_delay =\n\t\t\t\tieee80211_mle_get_eml_med_sync_delay((const void *)elems->ml_basic);\n\t\t\tsdata->vif.cfg.mld_capa_op =\n\t\t\t\tieee80211_mle_get_mld_capa_op((const void *)elems->ml_basic);\n\t\t}\n\n\t\tsdata->vif.cfg.aid = aid;\n\n\t\tif (!ieee80211_assoc_success(sdata, mgmt, elems,\n\t\t\t\t\t     elem_start, elem_len)) {\n\t\t\t/* oops -- internal error -- send timeout for now */\n\t\t\tieee80211_destroy_assoc_data(sdata, ASSOC_TIMEOUT);\n\t\t\tgoto notify_driver;\n\t\t}\n\t\tevent.u.mlme.status = MLME_SUCCESS;\n\t\tdrv_event_callback(sdata->local, sdata, &event);\n\t\tsdata_info(sdata, \"associated\\n\");\n\n\t\tinfo.success = 1;\n\t}\n\n\tfor (link_id = 0; link_id < IEEE80211_MLD_MAX_NUM_LINKS; link_id++) {\n\t\tstruct ieee80211_link_data *link;\n\n\t\tif (!assoc_data->link[link_id].bss)\n\t\t\tcontinue;\n\n\t\tresp.links[link_id].bss = assoc_data->link[link_id].bss;\n\t\tether_addr_copy(resp.links[link_id].addr,\n\t\t\t\tassoc_data->link[link_id].addr);\n\t\tresp.links[link_id].status = assoc_data->link[link_id].status;\n\n\t\tlink = sdata_dereference(sdata->link[link_id], sdata);\n\t\tif (!link)\n\t\t\tcontinue;\n\n\t\t/* get uapsd queues configuration - same for all links */\n\t\tresp.uapsd_queues = 0;\n\t\tfor (ac = 0; ac < IEEE80211_NUM_ACS; ac++)\n\t\t\tif (link->tx_conf[ac].uapsd)\n\t\t\t\tresp.uapsd_queues |= ieee80211_ac_to_qos_mask[ac];\n\t}\n\n\tif (ieee80211_vif_is_mld(&sdata->vif)) {\n\t\tether_addr_copy(ap_mld_addr, sdata->vif.cfg.ap_addr);\n\t\tresp.ap_mld_addr = ap_mld_addr;\n\t}\n\n\tieee80211_destroy_assoc_data(sdata,\n\t\t\t\t     status_code == WLAN_STATUS_SUCCESS ?\n\t\t\t\t\tASSOC_SUCCESS :\n\t\t\t\t\tASSOC_REJECTED);\n\n\tresp.buf = (u8 *)mgmt;\n\tresp.len = len;\n\tresp.req_ies = ifmgd->assoc_req_ies;\n\tresp.req_ies_len = ifmgd->assoc_req_ies_len;\n\tcfg80211_rx_assoc_resp(sdata->dev, &resp);\nnotify_driver:\n\tdrv_mgd_complete_tx(sdata->local, sdata, &info);\n\tkfree(elems);\n\treturn;\nabandon_assoc:\n\tieee80211_destroy_assoc_data(sdata, ASSOC_ABANDON);\n\tgoto notify_driver;\n}",
+    "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+  ]
+}

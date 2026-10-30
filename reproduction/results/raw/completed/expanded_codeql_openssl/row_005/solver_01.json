@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Implies, And, Not, sat\n\n    # Base script variables and constraints\n    key_param = Int('key_param')\n\n    # Constraint set 2 variables\n    keyidx = Int('keyidx')\n    nparam_param = Int('nparam_param')\n    key_param_idx = Int('key_param_idx')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(key_param == 0)\n\n    # Constraint set 2 constraints\n    constraint1 = Implies(\n        And(key_param != 0, key_param_idx == keyidx),\n        nparam_param != 0\n    )\n    constraint2 = Not(keyidx < 0)\n\n    s.add(constraint1)\n    s.add(constraint2)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun key_param () Int)\n(declare-fun nparam_param () Int)\n(declare-fun keyidx () Int)\n(declare-fun key_param_idx () Int)\n(assert\n (= key_param 0))\n(assert\n (=> (and (and (distinct key_param 0) true) (= key_param_idx keyidx)) (and (distinct nparam_param 0) true)))\n(assert\n (not (< keyidx 0)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

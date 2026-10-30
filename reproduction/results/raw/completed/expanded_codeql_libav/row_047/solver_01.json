@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Or, And, Not, Solver, sat\n\n    # Base script variables and constraints\n    stts_entries_int = Int('stts_entries')\n    s = Solver()\n    s.add(stts_entries_int == 0)\n\n    # Constraint set 2 variables\n    codec_type_is_audio = Bool('codec_type_is_audio')\n    audio_vbr_is_false = Bool('audio_vbr_is_false')\n    track_entry = Bool('track_entry')\n    stts_entries = Bool('stts_entries')\n\n    # Constraint 1\n    constraint1 = Or(\n        And(codec_type_is_audio, audio_vbr_is_false),\n        Not(track_entry),\n        stts_entries\n    )\n\n    # Constraint 2\n    constraint2 = Or(\n        Not(And(codec_type_is_audio, audio_vbr_is_false)),\n        stts_entries\n    )\n\n    s.add(constraint1)\n    s.add(constraint2)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun stts_entries () Int)\n(declare-fun stts_entries () Bool)\n(declare-fun track_entry () Bool)\n(declare-fun audio_vbr_is_false () Bool)\n(declare-fun codec_type_is_audio () Bool)\n(assert\n (= stts_entries 0))\n(assert\n (let (($x30 (not track_entry)))\n (let (($x29 (and codec_type_is_audio audio_vbr_is_false)))\n (or $x29 $x30 stts_entries))))\n(assert\n (let (($x29 (and codec_type_is_audio audio_vbr_is_false)))\n(let (($x32 (not $x29)))\n(or $x32 stts_entries))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

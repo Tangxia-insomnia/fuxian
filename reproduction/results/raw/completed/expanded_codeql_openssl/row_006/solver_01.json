@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Or, Not, Solver, unsat\n\n    # Base script constraints\n    pctx = Int('pctx')\n\n    # Constraint set 2 variables\n    operation_is_smime_encrypt = Bool('operation_is_smime_encrypt')\n    loop_condition = Bool('loop_condition')\n    kparam_not_null = Bool('kparam_not_null')\n    cms_set_pkey_param_ok = Bool('cms_set_pkey_param_ok')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(pctx == 0)\n\n    # Constraint set 2 constraint\n    constraint = Or(\n        Not(operation_is_smime_encrypt),\n        Not(loop_condition),\n        Not(kparam_not_null),\n        cms_set_pkey_param_ok\n    )\n    s.add(constraint)\n\n    result = s.check()\n    return result != unsat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun pctx () Int)\n(declare-fun cms_set_pkey_param_ok () Bool)\n(declare-fun kparam_not_null () Bool)\n(declare-fun loop_condition () Bool)\n(declare-fun operation_is_smime_encrypt () Bool)\n(assert\n (= pctx 0))\n(assert\n (let (($x31 (not kparam_not_null)))\n(let (($x30 (not loop_condition)))\n(let (($x29 (not operation_is_smime_encrypt)))\n(or $x29 $x30 $x31 cms_set_pkey_param_ok)))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

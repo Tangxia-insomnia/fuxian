@@ -1,0 +1,14 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n\n    comment = Int('comment')\n    header_size = Int('header_size')\n    comment_size = Int('comment_size')\n    SOX_FIXED_HDR = Int('SOX_FIXED_HDR')\n    channels = Int('channels')\n\n    s = Solver()\n\n    s.add(comment == 0)\n\n    # (header_size + 4) & 7 == 0  ->  (header_size + 4) % 8 == 0\n    s.add((header_size + 4) % 8 == 0)\n    s.add(header_size >= SOX_FIXED_HDR + comment_size)\n    s.add(channels <= 65535)\n    s.add(comment_size <= 0xFFFFFFFF - SOX_FIXED_HDR - 4)\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun comment () Int)\n(declare-fun header_size () Int)\n(declare-fun comment_size () Int)\n(declare-fun SOX_FIXED_HDR () Int)\n(declare-fun channels () Int)\n(assert\n (= comment 0))\n(assert\n (= (mod (+ header_size 4) 8) 0))\n(assert\n (>= header_size (+ SOX_FIXED_HDR comment_size)))\n(assert\n (<= channels 65535))\n(assert\n (<= comment_size (- (- 4294967295 SOX_FIXED_HDR) 4)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

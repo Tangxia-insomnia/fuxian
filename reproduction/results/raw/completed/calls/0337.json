@@ -1,0 +1,45 @@
+{
+  "call_id": 337,
+  "sample_id": "NPD/codeql/kernel69:row=52:index=78",
+  "timestamp": "2026-10-26T00:50:08.865631+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(assoc_data->fils_kek_len && fils_decrypt_assoc_resp(sdata, (u8 *)mgmt, &len, assoc_data) < 0)', '!(len < 24 + 6)', '!(!ether_addr_equal(assoc_data->ap_addr, mgmt->bssid) || !ether_addr_equal(assoc_data->ap_addr, mgmt->sa))', '!(!assoc_data)']\n        Relevant conditions/variables: [], elems\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "91b0d688-ad5b-49b8-aa54-d1a524b9cd87",
+  "usage": {
+    "prompt_tokens": 201,
+    "completion_tokens": 700,
+    "total_tokens": 901,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 201
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare symbolic variables representing the C expressions/pointers.\n# We model pointers as integer addresses (0 == NULL) and lengths as Ints.\nassoc_data = Int('assoc_data')          # pointer to assoc_data struct\nfils_kek_len = Int('fils_kek_len')      # length value (treated as boolean-ish: nonzero == true)\nlen_ = Int('len')                       # 'len' variable (renamed to avoid shadowing builtin)\nmgmt = Int('mgmt')                      # pointer to mgmt struct\nsdata = Int('sdata')                    # pointer to sdata\n\n# Uninterpreted functions for the C helper calls.\n# We model them as returning Int (negative == failure, >=0 == success).\nfils_decrypt_assoc_resp = Function('fils_decrypt_assoc_resp', IntSort(), IntSort(), IntSort(), IntSort(), IntSort())\nether_addr_equal = Function('ether_addr_equal', IntSort(), IntSort(), BoolSort())\n\n# Fields accessed via pointers are modeled as uninterpreted functions.\nap_addr = Function('ap_addr', IntSort(), IntSort())   # assoc_data->ap_addr\nbssid   = Function('bssid',   IntSort(), IntSort())   # mgmt->bssid\nsa      = Function('sa',      IntSort(), IntSort())   # mgmt->sa\n\ns = Solver()\n\n# Constraint 1: !(assoc_data->fils_kek_len && fils_decrypt_assoc_resp(sdata, (u8 *)mgmt, &len, assoc_data) < 0)\n# Included because it references assoc_data, fils_kek_len, sdata, mgmt, and len.\n# C semantics: the whole expression must be false, i.e. NOT (fils_kek_len != 0 AND decrypt < 0).\ns.add(Not(And(fils_kek_len != 0,\n              fils_decrypt_assoc_resp(sdata, mgmt, len_, assoc_data) < 0)))\n\n# Constraint 2: !(len < 24 + 6)\n# Included because it constrains 'len'.\n# C semantics: len >= 30.\ns.add(Not(len_ < 24 + 6))\n\n# Constraint 3: !(!ether_addr_equal(assoc_data->ap_addr, mgmt->bssid) || !ether_addr_equal(assoc_data->ap_addr, mgmt->sa))\n# Included because it references assoc_data and mgmt (via ap_addr, bssid, sa).\n# C semantics: both ether_addr_equal calls must be true.\ns.add(Not(Or(Not(ether_addr_equal(ap_addr(assoc_data), bssid(mgmt))),\n             Not(ether_addr_equal(ap_addr(assoc_data), sa(mgmt))))))\n\n# Constraint 4: !(!assoc_data)\n# Included because it constrains assoc_data (must be non-NULL).\n# C semantics: assoc_data != NULL.\ns.add(Not(assoc_data == 0))\n\n# Check satisfiability and print the model.\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 3.7365074999997887,
+  "cost_upper_bound_cny": 0.006002
+}

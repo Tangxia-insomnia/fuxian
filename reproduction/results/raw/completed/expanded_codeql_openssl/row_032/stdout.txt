@@ -1,0 +1,245 @@
+```python
+req=Int('req')
+s.add(req == 0)
+```
+```json
+[
+  "!(req == NULL && (signfile != NULL || reqout != NULL || host != NULL || add_nonce || ridx_filename != NULL))",
+  "!(req == NULL)",
+  "!(req != NULL && add_nonce) || !(!OCSP_request_add1_nonce(req, NULL, -1))",
+  "!(signfile != NULL) || !(!OCSP_request_sign(req, signer, key, NULL, sign_other, sign_flags))",
+  "!(req == NULL && reqin != NULL) || !(req == NULL)",
+  "!(req == NULL && reqin != NULL) || !(derbio == NULL)",
+  "!(req == NULL && reqin == NULL && respin == NULL && !(port != NULL && ridx_filename != NULL))",
+  "!(!add_ocsp_serial(&req, opt_arg(), cert_id_md, issuer, ids))",
+  "!(!add_ocsp_cert(&req, cert, cert_id_md, issuer, ids))"
+]
+```
+```python
+from z3 import *
+
+# Declare variables relevant to the constraints
+# req is a pointer-like variable (modeled as Int; 0 means NULL)
+req = Int('req')
+
+# Other variables appearing in constraints (modeled as Int for pointer/NULL semantics)
+signfile = Int('signfile')
+reqout = Int('reqout')
+host = Int('host')
+add_nonce = Bool('add_nonce')
+ridx_filename = Int('ridx_filename')
+reqin = Int('reqin')
+derbio = Int('derbio')
+respin = Int('respin')
+port = Int('port')
+
+# Helper: OCSP_request_add1_nonce returns int; model as uninterpreted Bool for success
+# We model "!OCSP_request_add1_nonce(...)" as a Bool predicate
+ocsp_add1_nonce_ok = Bool('ocsp_add1_nonce_ok')
+ocsp_request_sign_ok = Bool('ocsp_request_sign_ok')
+add_ocsp_serial_ok = Bool('add_ocsp_serial_ok')
+add_ocsp_cert_ok = Bool('add_ocsp_cert_ok')
+
+s = Solver()
+
+# Constraint 1: !(req == NULL && (signfile != NULL || reqout != NULL || host != NULL || add_nonce || ridx_filename != NULL))
+# Included because it directly references req (and related pointer/NULL checks).
+s.add(Not(And(req == 0,
+              Or(signfile != 0, reqout != 0, host != 0, add_nonce, ridx_filename != 0))))
+
+# Constraint 2: !(req == NULL)
+# Directly constrains req: req must be non-NULL.
+s.add(Not(req == 0))
+
+# Constraint 3: !(req != NULL && add_nonce) || !(!OCSP_request_add1_nonce(req, NULL, -1))
+# References req and add_nonce; models the nonce-add failure path.
+s.add(Or(Not(And(req != 0, add_nonce)), Not(Not(ocsp_add1_nonce_ok))))
+
+# Constraint 4: !(signfile != NULL) || !(!OCSP_request_sign(...))
+# Does not reference req directly; excluded per guideline (only constraints affecting req).
+# (Kept out intentionally.)
+
+# Constraint 5: !(req == NULL && reqin != NULL) || !(req == NULL)
+# References req and reqin.
+s.add(Or(Not(And(req == 0, reqin != 0)), Not(req == 0)))
+
+# Constraint 6: !(req == NULL && reqin != NULL) || !(derbio == NULL)
+# References req, reqin, derbio.
+s.add(Or(Not(And(req == 0, reqin != 0)), Not(derbio == 0)))
+
+# Constraint 7: !(req == NULL && reqin == NULL && respin == NULL && !(port != NULL && ridx_filename != NULL))
+# References req (and related pointers).
+s.add(Not(And(req == 0, reqin == 0, respin == 0,
+              Not(And(port != 0, ridx_filename != 0)))))
+
+# Constraint 8: !(!add_ocsp_serial(&req, opt_arg(), cert_id_md, issuer, ids))
+# References req (passed by address); models serial-add success requirement.
+s.add(Not(Not(add_ocsp_serial_ok)))
+
+# Constraint 9: !(!add_ocsp_cert(&req, cert, cert_id_md, issuer, ids))
+# References req (passed by address); models cert-add success requirement.
+s.add(Not(Not(add_ocsp_cert_ok)))
+
+print(s.check())
+print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, And, Or, Not
+
+    # Base script variables
+    req = Int('req')
+
+    # Variables from constraint set 2
+    signfile = Int('signfile')
+    reqout = Int('reqout')
+    host = Int('host')
+    add_nonce = Bool('add_nonce')
+    ridx_filename = Int('ridx_filename')
+    reqin = Int('reqin')
+    derbio = Int('derbio')
+    respin = Int('respin')
+    port = Int('port')
+
+    ocsp_add1_nonce_ok = Bool('ocsp_add1_nonce_ok')
+    ocsp_request_sign_ok = Bool('ocsp_request_sign_ok')
+    add_ocsp_serial_ok = Bool('add_ocsp_serial_ok')
+    add_ocsp_cert_ok = Bool('add_ocsp_cert_ok')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(req == 0)
+
+    # Constraint 1
+    s.add(Not(And(req == 0,
+                  Or(signfile != 0, reqout != 0, host != 0, add_nonce, ridx_filename != 0))))
+
+    # Constraint 2
+    s.add(Not(req == 0))
+
+    # Constraint 3
+    s.add(Or(Not(And(req != 0, add_nonce)), Not(Not(ocsp_add1_nonce_ok))))
+
+    # Constraint 5
+    s.add(Or(Not(And(req == 0, reqin != 0)), Not(req == 0)))
+
+    # Constraint 6
+    s.add(Or(Not(And(req == 0, reqin != 0)), Not(derbio == 0)))
+
+    # Constraint 7
+    s.add(Not(And(req == 0, reqin == 0, respin == 0,
+                  Not(And(port != 0, ridx_filename != 0)))))
+
+    # Constraint 8
+    s.add(Not(Not(add_ocsp_serial_ok)))
+
+    # Constraint 9
+    s.add(Not(Not(add_ocsp_cert_ok)))
+
+    return s.check() == __import__('z3').sat
+```
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import Int, Solver, And, Or, Not
+
+    req = Int('req')
+    signfile = Int('signfile')
+    reqout = Int('reqout')
+    host = Int('host')
+    add_nonce = Int('add_nonce')
+    ridx_filename = Int('ridx_filename')
+    reqin = Int('reqin')
+    derbio = Int('derbio')
+    respin = Int('respin')
+    port = Int('port')
+
+    ocsp_add1_nonce_ok = Int('ocsp_add1_nonce_ok')
+    ocsp_request_sign_ok = Int('ocsp_request_sign_ok')
+    add_ocsp_serial_ok = Int('add_ocsp_serial_ok')
+    add_ocsp_cert_ok = Int('add_ocsp_cert_ok')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(req == 0)
+
+    # Constraint 1
+    s.add(Not(And(req == 0,
+                  Or(signfile != 0, reqout != 0, host != 0, add_nonce == 1, ridx_filename != 0))))
+
+    # Constraint 2
+    s.add(Not(req == 0))
+
+    # Constraint 3
+    s.add(Or(Not(And(req != 0, add_nonce == 1)), Not(Not(ocsp_add1_nonce_ok == 1))))
+
+    # Constraint 5
+    s.add(Or(Not(And(req == 0, reqin != 0)), Not(req == 0)))
+
+    # Constraint 6
+    s.add(Or(Not(And(req == 0, reqin != 0)), Not(derbio == 0)))
+
+    # Constraint 7
+    s.add(Not(And(req == 0, reqin == 0, respin == 0,
+                  Not(And(port != 0, ridx_filename != 0)))))
+
+    # Constraint 8
+    s.add(Not(Not(add_ocsp_serial_ok == 1)))
+
+    # Constraint 9
+    s.add(Not(Not(add_ocsp_cert_ok == 1)))
+
+    return s.check() == __import__('z3').sat
+ValueError: Unsupported generated-code operation
+def check_constraints():
+    from z3 import Int, Solver, And, Or, Not, sat
+
+    req = Int('req')
+    signfile = Int('signfile')
+    reqout = Int('reqout')
+    host = Int('host')
+    add_nonce = Int('add_nonce')
+    ridx_filename = Int('ridx_filename')
+    reqin = Int('reqin')
+    derbio = Int('derbio')
+    respin = Int('respin')
+    port = Int('port')
+
+    ocsp_add1_nonce_ok = Int('ocsp_add1_nonce_ok')
+    add_ocsp_serial_ok = Int('add_ocsp_serial_ok')
+    add_ocsp_cert_ok = Int('add_ocsp_cert_ok')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(req == 0)
+
+    # Constraint 1
+    s.add(Not(And(req == 0,
+                  Or(signfile != 0, reqout != 0, host != 0, add_nonce == 1, ridx_filename != 0))))
+
+    # Constraint 2
+    s.add(Not(req == 0))
+
+    # Constraint 3
+    s.add(Or(Not(And(req != 0, add_nonce == 1)), ocsp_add1_nonce_ok == 1))
+
+    # Constraint 5
+    s.add(Or(Not(And(req == 0, reqin != 0)), Not(req == 0)))
+
+    # Constraint 6
+    s.add(Or(Not(And(req == 0, reqin != 0)), Not(derbio == 0)))
+
+    # Constraint 7
+    s.add(Not(And(req == 0, reqin == 0, respin == 0,
+                  Not(And(port != 0, ridx_filename != 0)))))
+
+    # Constraint 8
+    s.add(add_ocsp_serial_ok == 1)
+
+    # Constraint 9
+    s.add(add_ocsp_cert_ok == 1)
+
+    return s.check() == sat
+goto result: False

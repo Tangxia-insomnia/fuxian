@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, sat, And, Or, Not\n    \n    s = Solver()\n    \n    # f6i->nh is 0 (else branch taken)\n    f6i_nh = Int('f6i_nh')\n    s.add(f6i_nh == 0)\n    \n    # nh = f6i->fib6_nh; since f6i_nh == 0, nh == 0 (NULL)\n    nh = Int('nh')\n    s.add(nh == f6i_nh)\n    s.add(nh == 0)\n    \n    # fib_nh_flags and RTNH_F_DEAD as Int variables\n    fib_nh_flags = Int('fib_nh_flags')\n    RTNH_F_DEAD = Int('RTNH_F_DEAD')\n    \n    # Model the bitwise AND result as a separate Int variable\n    nh_flags_and_dead = Int('nh_flags_and_dead')\n    \n    # The check !(nh->fib_nh_flags & RTNH_F_DEAD) passes (goto out)\n    # meaning (fib_nh_flags & RTNH_F_DEAD) == 0\n    s.add(nh_flags_and_dead == 0)\n    \n    # Null dereference condition: nh == 0 while dereferencing nh->fib_nh_flags\n    # This is the bug being modeled - nh is NULL but we access its field\n    s.add(nh == 0)\n    \n    # Check satisfiability - the null dereference scenario is reachable\n    result = s.check()\n    \n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun f6i_nh () Int)\n(declare-fun nh () Int)\n(declare-fun nh_flags_and_dead () Int)\n(assert\n (= f6i_nh 0))\n(assert\n (= nh f6i_nh))\n(assert\n (= nh 0))\n(assert\n (= nh_flags_and_dead 0))\n(assert\n (= nh 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

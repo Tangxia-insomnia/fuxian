@@ -1,0 +1,60 @@
+```python
+sband=Int('sband')
+s.add(sband == 0)
+```
+```json
+["!(WARN_ON_ONCE(!sband))"]
+```
+```python
+# Z3 script generated from C constraint: !(WARN_ON_ONCE(!sband))
+#
+# Analysis:
+#   - WARN_ON_ONCE(cond) is a kernel macro that evaluates `cond` and, if true,
+#     emits a one-time warning. It returns the value of `cond` (0 or 1).
+#   - The outer `!` negates that return value.
+#   - For the constraint to hold (i.e., the expression to be true), we need
+#     WARN_ON_ONCE(!sband) == 0, which means `!sband` must be false,
+#     i.e., sband must be non-NULL.
+#   - In Z3 we model `sband` as a pointer (BitVec) and encode the NULL check.
+#   - The WARN_ON_ONCE side effect (printing a warning) is not modeled; only
+#     its logical return value matters for the constraint.
+
+from z3 import *
+
+# sband is a pointer; model as a 64-bit bitvector (typical kernel pointer width)
+sband = BitVec('sband', 64)
+
+solver = Solver()
+
+# Constraint: !(WARN_ON_ONCE(!sband))
+#   WARN_ON_ONCE(!sband) returns (!sband) as 0/1.
+#   Negating it yields true iff !sband is false, i.e., sband != NULL.
+#   Encoded as: sband != 0
+solver.add(sband != 0)
+
+# Check satisfiability and print a model
+if solver.check() == sat:
+    print("SAT")
+    print(solver.model())
+else:
+    print("UNSAT")
+```
+```python
+def check_constraints():
+    from z3 import Int, BitVec, Solver, sat
+    
+    # Base script constraints
+    sband_int = Int('sband_int')
+    sband = BitVec('sband', 64)
+    
+    solver = Solver()
+    
+    # Base constraint: sband == 0 (from base script, using Int)
+    solver.add(sband_int == 0)
+    
+    # Constraint set 2: !(WARN_ON_ONCE(!sband)) => sband != 0
+    solver.add(sband != 0)
+    
+    return solver.check() == sat
+```
+goto result: True

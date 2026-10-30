@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Define variables as Int type\n    copied = Int('copied')\n    skb = Int('skb')\n    \n    # Existing constraint: Not(copied == 0) - branch not taken means copied != 0\n    s.add(Not(copied == 0))\n    \n    # Existing constraint: skb == 0 is already asserted\n    s.add(skb == 0)\n    \n    # Additional constraint based on line 233: if (!copied) branch taken when copied == 0\n    # This creates a contradiction with Not(copied == 0)\n    s.add(copied == 0)\n    \n    # Check satisfiability\n    result = s.check()\n    \n    # Return True if constraints are satisfiable, False otherwise\n    return result == sat",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun copied () Int)\n(declare-fun skb () Int)\n(assert\n (let (($x8 (= copied 0)))\n (not $x8)))\n(assert\n (= skb 0))\n(assert\n (= copied 0))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

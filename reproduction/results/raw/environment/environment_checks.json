@@ -1,0 +1,104 @@
+{
+  "timestamp": "2026-10-25T23:58:02.570295+08:00",
+  "os": "Windows-10-10.0.26200-SP0",
+  "python": "3.11.5 | packaged by Anaconda, Inc. | (main, Sep 11 2023, 13:26:23) [MSC v.1916 64 bit (AMD64)]",
+  "executable": "E:\\codexconversation\\课题研究\\reproduction\\.venv\\Scripts\\python.exe",
+  "packages": {
+    "z3-solver": "4.13.4.0",
+    "libclang": "18.1.1",
+    "lizard": "1.17.31",
+    "openai": "1.68.2",
+    "anthropic": "0.49.0",
+    "requests": "2.32.3",
+    "tqdm": "4.66.5",
+    "python-dotenv": "1.2.2"
+  },
+  "tools": {
+    "git": "C:\\Program Files\\Git\\cmd\\git.EXE",
+    "clang": null,
+    "codeql": null,
+    "cppcheck": null,
+    "infer": null,
+    "wsl": "C:\\Windows\\system32\\wsl.EXE",
+    "docker": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.EXE"
+  },
+  "checks": {
+    "z3_sat_unsat": {
+      "status": "passed",
+      "output": {
+        "version": "4.13.4",
+        "satisfiable_case": "sat",
+        "model": "[environment_test_x = 1]",
+        "contradictory_case": "unsat",
+        "not_a_benchmark_prediction": true
+      },
+      "duration_seconds": 0.14086760000009235
+    },
+    "libclang_parse": {
+      "status": "passed",
+      "output": {
+        "parsed": true,
+        "library_path": "E:\\codexconversation\\课题研究\\reproduction\\.venv\\Lib\\site-packages\\clang\\native",
+        "diagnostics": []
+      },
+      "duration_seconds": 0.2875294999998914
+    },
+    "lizard_parse": {
+      "status": "passed",
+      "output": {
+        "functions": [
+          "f"
+        ],
+        "not_a_project_scan": true
+      },
+      "duration_seconds": 0.0493831000001137
+    },
+    "official_data_read": {
+      "status": "passed",
+      "output": {
+        "readable_files": 14,
+        "records_including_duplicate_files_and_unlabeled": 1017
+      },
+      "duration_seconds": 0.026161000000001877
+    }
+  },
+  "upstream_import_checks": [
+    {
+      "file": "feasibility_analysis_pipeline.py",
+      "exit_code": 1,
+      "duration_seconds": 0.10307499999998981,
+      "last_error_line": "ModuleNotFoundError: No module named 'util'"
+    },
+    {
+      "file": "extract_util_plus.py",
+      "exit_code": 1,
+      "duration_seconds": 0.0782990999998674,
+      "last_error_line": "ModuleNotFoundError: No module named 'LLM4Detection'"
+    },
+    {
+      "file": "prompt_templates.py",
+      "exit_code": 0,
+      "duration_seconds": 0.0763385999998718,
+      "last_error_line": null
+    },
+    {
+      "file": "model.py",
+      "exit_code": 1,
+      "duration_seconds": 1.890651700000035,
+      "last_error_line": "ModuleNotFoundError: No module named 'LLM4Detection'"
+    }
+  ],
+  "llm": {
+    "provider": "deepseek",
+    "requested_model": "deepseek-flash",
+    "base_url": "https://api.deepseek.com/",
+    "api_key_env_name": "DEEPSEEK_APIkey",
+    "credential_present": false,
+    "model_service_test": "not_run",
+    "reason": "Original pipeline prerequisites missing; no paid call authorized to bypass the pipeline. Credential absent if credential_present=false.",
+    "api_calls": 0,
+    "cost_cny": 0,
+    "budget_cny": 10
+  },
+  "upstream_git_status": ""
+}

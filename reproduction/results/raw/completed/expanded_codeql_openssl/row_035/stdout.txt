@@ -1,0 +1,73 @@
+```python
+passwds=Int('passwds')
+s.add(passwds == 0)
+```
+```json
+["!(in == NULL) || !(!do_passwd(passed_salt, &salt, &salt_malloc, passwd, bio_out, quiet, table, reverse, pw_maxlen, mode))", "!(in == NULL) || !(EVP_read_pw_string (passwd_malloc, passwd_malloc_size, \"Password: \", !(passed_salt || in_noverify)) != 0)"]
+```
+```python
+from z3 import *
+
+# Declare variables referenced in the constraints.
+# `in` is a pointer; model it as an integer address (0 == NULL).
+in_ptr = Int('in')
+# `passed_salt` is a pointer; model as integer address (0 == NULL).
+passed_salt = Int('passed_salt')
+# `in_noverify` is a boolean flag.
+in_noverify = Bool('in_noverify')
+
+# `do_passwd(...)` is an opaque C function returning a boolean-ish int.
+# Model its return value as an uninterpreted boolean.
+do_passwd_ret = Bool('do_passwd_ret')
+
+# `EVP_read_pw_string(...)` returns an int; the constraint checks `!= 0`.
+# Model its return value as an uninterpreted integer.
+evp_read_pw_string_ret = Int('evp_read_pw_string_ret')
+
+s = Solver()
+
+# Constraint 1:
+#   !(in == NULL) || !(!do_passwd(...))
+# In C: if `in` is non-NULL, then `do_passwd(...)` must be truthy.
+# Rewritten: (in != 0) => do_passwd_ret
+# (double negation of do_passwd collapses to do_passwd_ret)
+s.add(Implies(in_ptr != 0, do_passwd_ret))
+
+# Constraint 2:
+#   !(in == NULL) || !(EVP_read_pw_string(...) != 0)
+# In C: if `in` is non-NULL, then EVP_read_pw_string(...) must return 0.
+# Rewritten: (in != 0) => (evp_read_pw_string_ret == 0)
+s.add(Implies(in_ptr != 0, evp_read_pw_string_ret == 0))
+
+# Note: `passed_salt` and `in_noverify` appear only inside the opaque
+# EVP_read_pw_string call, so they do not constrain the solver directly.
+# They are declared above for completeness / future refinement.
+
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Implies, sat
+
+    # Base script variables and constraints
+    passwds = Int('passwds')
+
+    # Constraint set 2 variables
+    in_ptr = Int('in')
+    passed_salt = Int('passed_salt')
+    in_noverify = Bool('in_noverify')
+    do_passwd_ret = Bool('do_passwd_ret')
+    evp_read_pw_string_ret = Int('evp_read_pw_string_ret')
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(passwds == 0)
+
+    # Constraint set 2 constraints
+    s.add(Implies(in_ptr != 0, do_passwd_ret))
+    s.add(Implies(in_ptr != 0, evp_read_pw_string_ret == 0))
+
+    return s.check() == sat
+```
+goto result: True

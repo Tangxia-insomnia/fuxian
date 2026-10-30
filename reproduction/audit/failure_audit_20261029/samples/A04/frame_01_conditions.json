@@ -1,0 +1,33 @@
+{
+  "bug_line_constraints": [
+    {
+      "text": "\t\tfree_large_kmalloc(folio, (void *)object);",
+      "condition": [
+        {
+          "condition": "if (unlikely(!folio_test_slab(folio)))",
+          "line_number": 13
+        }
+      ]
+    }
+  ],
+  "target_conditions": [
+    {
+      "condition": "if (unlikely(!folio_test_slab(folio)))",
+      "line_number": 13
+    }
+  ],
+  "variable_assignments": {
+    "text": "void kfree(const void *object)",
+    "condition": []
+  },
+  "variable_non_empty": [],
+  "early_jump_constraints": [
+    {
+      "text": "return",
+      "condition": [
+        "unlikely(ZERO_OR_NULL_PTR(object))"
+      ]
+    }
+  ],
+  "filter_function_code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+}

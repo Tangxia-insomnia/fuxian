@@ -1,0 +1,36 @@
+```python
+dev=Int('dev')
+s.add(dev == 0)
+```
+```json
+["!(dev ==0)"]
+```
+```python
+from z3 import *
+
+# Declare variable `dev` as an integer (C-style scalar).
+# In C, `dev` is used in a boolean context, so we model it as an Int
+# and interpret "non-zero" as the truthy condition.
+dev = Int('dev')
+
+# Constraint: !(dev == 0)
+# In C, `!(dev == 0)` is equivalent to `dev != 0`.
+# This constraint is included because it directly restricts the value of `dev`.
+s = Solver()
+s.add(dev != 0)
+
+# Check satisfiability and print a model (if any).
+print(s.check())
+if s.check() == sat:
+    print(s.model())
+```
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    dev = Int('dev')
+    s = Solver()
+    s.add(dev == 0)
+    s.add(dev != 0)
+    return s.check() == sat
+```
+goto result: False

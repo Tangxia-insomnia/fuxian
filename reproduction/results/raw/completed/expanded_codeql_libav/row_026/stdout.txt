@@ -1,0 +1,53 @@
+```python
+progressive_buf=Int('progressive_buf')
+s.add(progressive_buf == 0)
+```
+```json
+["!(is_progressive) || !(!progressive_buf)"]
+```
+```python
+from z3 import *
+
+# Declare variables
+# progressive_buf: pointer-like variable (modeled as an integer address; 0 means NULL)
+progressive_buf = Int('progressive_buf')
+
+# is_progressive: boolean flag (not in relevant conditions list, but appears in constraint)
+is_progressive = Bool('is_progressive')
+
+s = Solver()
+
+# Constraint: !(is_progressive) || !(!progressive_buf)
+# Explanation:
+#   - In C, `!progressive_buf` is true when the pointer is NULL (progressive_buf == 0).
+#   - `!(!progressive_buf)` therefore means progressive_buf != 0 (non-NULL).
+#   - The original expression is: (NOT is_progressive) OR (progressive_buf != 0)
+#   - This is included because it is the only constraint and it references progressive_buf.
+s.add(Or(Not(is_progressive), progressive_buf != 0))
+
+# Check satisfiability and print result
+if s.check() == sat:
+    print("sat")
+    print(s.model())
+else:
+    print("unsat")
+```
+```python
+def check_constraints():
+    from z3 import Int, Bool, Solver, Or, Not, sat
+
+    # Variable declarations (merged from base script and constraint set 2)
+    progressive_buf = Int('progressive_buf')
+    is_progressive = Bool('is_progressive')
+
+    s = Solver()
+
+    # Constraint from base script
+    s.add(progressive_buf == 0)
+
+    # Constraint from constraint set 2
+    s.add(Or(Not(is_progressive), progressive_buf != 0))
+
+    return s.check() == sat
+```
+goto result: True

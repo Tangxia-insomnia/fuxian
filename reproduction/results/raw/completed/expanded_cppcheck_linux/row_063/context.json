@@ -1,0 +1,58 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "dwarf_lookup_cie",
+      "var_name": "cie_tmp",
+      "target": "if (cie_ptr == cie_tmp->cie_pointer) {",
+      "code": "static struct dwarf_cie *dwarf_lookup_cie(unsigned long cie_ptr)\n{\n\tstruct rb_node **rb_node = &cie_root.rb_node;\n\tstruct dwarf_cie *cie = NULL;\n\tunsigned long flags;\n\n\tspin_lock_irqsave(&dwarf_cie_lock, flags);\n\n\t/*\n\t * We've cached the last CIE we looked up because chances are\n\t * that the FDE wants this CIE.\n\t */\n\tif (cached_cie && cached_cie->cie_pointer == cie_ptr) {\n\t\tcie = cached_cie;\n\t\tgoto out;\n\t}\n\n\twhile (*rb_node) {\n\t\tstruct dwarf_cie *cie_tmp;\n\n\t\tcie_tmp = rb_entry(*rb_node, struct dwarf_cie, node);\n\t\tBUG_ON(!cie_tmp);\n\n\t\tif (cie_ptr == cie_tmp->cie_pointer) {\n\t\t\tcie = cie_tmp;\n\t\t\tcached_cie = cie_tmp;\n\t\t\tgoto out;\n\t\t} else {\n\t\t\tif (cie_ptr < cie_tmp->cie_pointer)\n\t\t\t\trb_node = &(*rb_node)->rb_left;\n\t\t\telse\n\t\t\t\trb_node = &(*rb_node)->rb_right;\n\t\t}\n\t}\n\nout:\n\tspin_unlock_irqrestore(&dwarf_cie_lock, flags);\n\treturn cie;\n}",
+      "body_sha256": "05ec37a3e03aa0c41998ccd3a4ccf6fa7be20d3a2cc59551bda5d02001c2f840",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "if (cie_ptr == cie_tmp->cie_pointer) {",
+            "condition": [
+              {
+                "condition": "while (*rb_node)",
+                "line_number": 17
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "while (*rb_node)",
+            "line_number": 17
+          }
+        ],
+        "variable_assignments": {
+          "text": "static struct dwarf_cie *dwarf_lookup_cie(unsigned long cie_ptr)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "cie_tmp ==0"
+            ]
+          },
+          {
+            "text": "out",
+            "condition": [
+              "cached_cie && cached_cie->cie_pointer == cie_ptr"
+            ]
+          }
+        ],
+        "filter_function_code": "static struct dwarf_cie *dwarf_lookup_cie(unsigned long cie_ptr)\n{\n\tstruct rb_node **rb_node = &cie_root.rb_node;\n\tstruct dwarf_cie *cie = NULL;\n\tunsigned long flags;\n\n\tspin_lock_irqsave(&dwarf_cie_lock, flags);\n\n\t/*\n\t * We've cached the last CIE we looked up because chances are\n\t * that the FDE wants this CIE.\n\t */\n\tif (cached_cie && cached_cie->cie_pointer == cie_ptr) {\n\t\tcie = cached_cie;\n\t\tgoto out;\n\t}\n\n\twhile (*rb_node) {\n\t\tstruct dwarf_cie *cie_tmp;\n\n\t\tcie_tmp = rb_entry(*rb_node, struct dwarf_cie, node);\n\t\tBUG_ON(!cie_tmp);\n\n\t\tif (cie_ptr == cie_tmp->cie_pointer) {\n\t\t\tcie = cie_tmp;\n\t\t\tcached_cie = cie_tmp;\n\t\t\tgoto out;\n\t\t} else {\n\t\t\tif (cie_ptr < cie_tmp->cie_pointer)\n\t\t\t\trb_node = &(*rb_node)->rb_left;\n\t\t\telse\n\t\t\t\trb_node = &(*rb_node)->rb_right;\n\t\t}\n\t}\n\nout:\n\tspin_unlock_irqrestore(&dwarf_cie_lock, flags);\n\treturn cie;\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static struct dwarf_cie *dwarf_lookup_cie(unsigned long cie_ptr)\n{\n\tstruct rb_node **rb_node = &cie_root.rb_node;\n\tstruct dwarf_cie *cie = NULL;\n\tunsigned long flags;\n\n\tspin_lock_irqsave(&dwarf_cie_lock, flags);\n\n\t/*\n\t * We've cached the last CIE we looked up because chances are\n\t * that the FDE wants this CIE.\n\t */\n\tif (cached_cie && cached_cie->cie_pointer == cie_ptr) {\n\t\tcie = cached_cie;\n\t\tgoto out;\n\t}\n\n\twhile (*rb_node) {\n\t\tstruct dwarf_cie *cie_tmp;\n\n\t\tcie_tmp = rb_entry(*rb_node, struct dwarf_cie, node);\n\t\tBUG_ON(!cie_tmp);\n\n\t\tif (cie_ptr == cie_tmp->cie_pointer) {\n\t\t\tcie = cie_tmp;\n\t\t\tcached_cie = cie_tmp;\n\t\t\tgoto out;\n\t\t} else {\n\t\t\tif (cie_ptr < cie_tmp->cie_pointer)\n\t\t\t\trb_node = &(*rb_node)->rb_left;\n\t\t\telse\n\t\t\t\trb_node = &(*rb_node)->rb_right;\n\t\t}\n\t}\n\nout:\n\tspin_unlock_irqrestore(&dwarf_cie_lock, flags);\n\treturn cie;\n}"
+  ]
+}

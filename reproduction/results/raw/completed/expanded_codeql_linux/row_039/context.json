@@ -1,0 +1,95 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "ieee80211_process_addba_request",
+      "var_name": "elems",
+      "target": "\tkfree(elems);",
+      "code": "void ieee80211_process_addba_request(struct ieee80211_local *local,\n\t\t\t\t     struct sta_info *sta,\n\t\t\t\t     struct ieee80211_mgmt *mgmt,\n\t\t\t\t     size_t len)\n{\n\tu16 capab, tid, timeout, ba_policy, buf_size, start_seq_num;\n\tstruct ieee802_11_elems *elems = NULL;\n\tu8 dialog_token;\n\tint ies_len;\n\n\t/* extract session parameters from addba request frame */\n\tdialog_token = mgmt->u.action.u.addba_req.dialog_token;\n\ttimeout = le16_to_cpu(mgmt->u.action.u.addba_req.timeout);\n\tstart_seq_num =\n\t\tle16_to_cpu(mgmt->u.action.u.addba_req.start_seq_num) >> 4;\n\n\tcapab = le16_to_cpu(mgmt->u.action.u.addba_req.capab);\n\tba_policy = (capab & IEEE80211_ADDBA_PARAM_POLICY_MASK) >> 1;\n\ttid = (capab & IEEE80211_ADDBA_PARAM_TID_MASK) >> 2;\n\tbuf_size = (capab & IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK) >> 6;\n\n\ties_len = len - offsetof(struct ieee80211_mgmt,\n\t\t\t\t u.action.u.addba_req.variable);\n\tif (ies_len) {\n\t\telems = ieee802_11_parse_elems(mgmt->u.action.u.addba_req.variable,\n\t\t\t\t\t       ies_len, true, NULL);\n\t\tif (!elems || elems->parse_error)\n\t\t\tgoto free;\n\t}\n\n\tif (sta->sta.deflink.eht_cap.has_eht && elems && elems->addba_ext_ie) {\n\t\tu8 buf_size_1k = u8_get_bits(elems->addba_ext_ie->data,\n\t\t\t\t\t     IEEE80211_ADDBA_EXT_BUF_SIZE_MASK);\n\n\t\tbuf_size |= buf_size_1k << IEEE80211_ADDBA_EXT_BUF_SIZE_SHIFT;\n\t}\n\n\t__ieee80211_start_rx_ba_session(sta, dialog_token, timeout,\n\t\t\t\t\tstart_seq_num, ba_policy, tid,\n\t\t\t\t\tbuf_size, true, false,\n\t\t\t\t\telems ? elems->addba_ext_ie : NULL);\nfree:\n\tkfree(elems);\n}",
+      "body_sha256": "f318548f1e81b07f8dc3c49ddb1b4538403d02733f3ddad2b7b93bfb030a29ea",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\tkfree(elems);",
+            "condition": [
+              {
+                "condition": "goto free",
+                "line_number": 41
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "goto free",
+            "line_number": 41
+          }
+        ],
+        "variable_assignments": {
+          "text": "void ieee80211_process_addba_request(struct ieee80211_local *local,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "free",
+            "condition": [
+              "ies_len",
+              "!elems || elems->parse_error"
+            ]
+          }
+        ],
+        "filter_function_code": "void ieee80211_process_addba_request(struct ieee80211_local *local,\n\t\t\t\t     struct sta_info *sta,\n\t\t\t\t     struct ieee80211_mgmt *mgmt,\n\t\t\t\t     size_t len)\n{\n\tu16 capab, tid, timeout, ba_policy, buf_size, start_seq_num;\n\tstruct ieee802_11_elems *elems = NULL;\n\tu8 dialog_token;\n\tint ies_len;\n\n\t/* extract session parameters from addba request frame */\n\tdialog_token = mgmt->u.action.u.addba_req.dialog_token;\n\ttimeout = le16_to_cpu(mgmt->u.action.u.addba_req.timeout);\n\tstart_seq_num =\n\t\tle16_to_cpu(mgmt->u.action.u.addba_req.start_seq_num) >> 4;\n\n\tcapab = le16_to_cpu(mgmt->u.action.u.addba_req.capab);\n\tba_policy = (capab & IEEE80211_ADDBA_PARAM_POLICY_MASK) >> 1;\n\ttid = (capab & IEEE80211_ADDBA_PARAM_TID_MASK) >> 2;\n\tbuf_size = (capab & IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK) >> 6;\n\n\ties_len = len - offsetof(struct ieee80211_mgmt,\n\t\t\t\t u.action.u.addba_req.variable);\n\tif (ies_len) {\n\t\telems = ieee802_11_parse_elems(mgmt->u.action.u.addba_req.variable,\n\t\t\t\t\t       ies_len, true, NULL);\n\t\tif (!elems || elems->parse_error)\n\t\t\tgoto free;\n\t}\n\n\tif (sta->sta.deflink.eht_cap.has_eht && elems && elems->addba_ext_ie) {\n\t\tu8 buf_size_1k = u8_get_bits(elems->addba_ext_ie->data,\n\t\t\t\t\t     IEEE80211_ADDBA_EXT_BUF_SIZE_MASK);\n\n\t\tbuf_size |= buf_size_1k << IEEE80211_ADDBA_EXT_BUF_SIZE_SHIFT;\n\t}\n\n\t__ieee80211_start_rx_ba_session(sta, dialog_token, timeout,\n\t\t\t\t\tstart_seq_num, ba_policy, tid,\n\t\t\t\t\tbuf_size, true, false,\n\t\t\t\t\telems ? elems->addba_ext_ie : NULL);\nfree:\n\tkfree(elems);\n}"
+      }
+    },
+    {
+      "level": 1,
+      "function": "kfree",
+      "var_name": "object",
+      "target": "\t\tfree_large_kmalloc(folio, (void *)object);",
+      "code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}",
+      "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "sink_kind": "author_historical_macro_or_call_sink",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "\t\tfree_large_kmalloc(folio, (void *)object);",
+            "condition": [
+              {
+                "condition": "if (unlikely(!folio_test_slab(folio)))",
+                "line_number": 13
+              }
+            ]
+          }
+        ],
+        "target_conditions": [
+          {
+            "condition": "if (unlikely(!folio_test_slab(folio)))",
+            "line_number": 13
+          }
+        ],
+        "variable_assignments": {
+          "text": "void kfree(const void *object)",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "unlikely(ZERO_OR_NULL_PTR(object))"
+            ]
+          }
+        ],
+        "filter_function_code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "void ieee80211_process_addba_request(struct ieee80211_local *local,\n\t\t\t\t     struct sta_info *sta,\n\t\t\t\t     struct ieee80211_mgmt *mgmt,\n\t\t\t\t     size_t len)\n{\n\tu16 capab, tid, timeout, ba_policy, buf_size, start_seq_num;\n\tstruct ieee802_11_elems *elems = NULL;\n\tu8 dialog_token;\n\tint ies_len;\n\n\t/* extract session parameters from addba request frame */\n\tdialog_token = mgmt->u.action.u.addba_req.dialog_token;\n\ttimeout = le16_to_cpu(mgmt->u.action.u.addba_req.timeout);\n\tstart_seq_num =\n\t\tle16_to_cpu(mgmt->u.action.u.addba_req.start_seq_num) >> 4;\n\n\tcapab = le16_to_cpu(mgmt->u.action.u.addba_req.capab);\n\tba_policy = (capab & IEEE80211_ADDBA_PARAM_POLICY_MASK) >> 1;\n\ttid = (capab & IEEE80211_ADDBA_PARAM_TID_MASK) >> 2;\n\tbuf_size = (capab & IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK) >> 6;\n\n\ties_len = len - offsetof(struct ieee80211_mgmt,\n\t\t\t\t u.action.u.addba_req.variable);\n\tif (ies_len) {\n\t\telems = ieee802_11_parse_elems(mgmt->u.action.u.addba_req.variable,\n\t\t\t\t\t       ies_len, true, NULL);\n\t\tif (!elems || elems->parse_error)\n\t\t\tgoto free;\n\t}\n\n\tif (sta->sta.deflink.eht_cap.has_eht && elems && elems->addba_ext_ie) {\n\t\tu8 buf_size_1k = u8_get_bits(elems->addba_ext_ie->data,\n\t\t\t\t\t     IEEE80211_ADDBA_EXT_BUF_SIZE_MASK);\n\n\t\tbuf_size |= buf_size_1k << IEEE80211_ADDBA_EXT_BUF_SIZE_SHIFT;\n\t}\n\n\t__ieee80211_start_rx_ba_session(sta, dialog_token, timeout,\n\t\t\t\t\tstart_seq_num, ba_policy, tid,\n\t\t\t\t\tbuf_size, true, false,\n\t\t\t\t\telems ? elems->addba_ext_ie : NULL);\nfree:\n\tkfree(elems);\n}",
+    "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+  ]
+}

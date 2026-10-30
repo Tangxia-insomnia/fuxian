@@ -1,0 +1,7 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Or, sat\n\n    # Base script variables and constraints\n    cms = Int('cms')\n\n    # Variables from constraint set 2\n    operation = Int('operation')\n\n    # Constants for SMIME operations (bitmask values)\n    SMIME_ENCRYPT = 1\n    SMIME_IP = 2\n\n    s = Solver()\n\n    # Base constraint\n    s.add(cms == 0)\n\n    # Constraint set 2 constraints\n    s.add(Or(operation != SMIME_ENCRYPT, cms != 0))\n    s.add(Or((operation & SMIME_IP) == 0, cms != 0))\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: TypeError: unsupported operand type(s) for &: 'ArithRef' and 'int'"
+}

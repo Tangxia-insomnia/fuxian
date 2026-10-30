@@ -1,0 +1,45 @@
+{
+  "call_id": 321,
+  "sample_id": "NPD/codeql/kernel69:row=44:index=69",
+  "timestamp": "2026-10-26T00:49:45.034849+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(ies_len < 0)']\n        Relevant conditions/variables: [{'condition': 'if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)', 'line_number': 31}, {'condition': 'if(mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT)', 'line_number': 33}], elems\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "5aa96cf0-1ac9-43ee-83e1-d51c8417e0f3",
+  "usage": {
+    "prompt_tokens": 177,
+    "completion_tokens": 564,
+    "total_tokens": 741,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 177
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables relevant to the constraints.\n# ies_len is used in the constraint `!(ies_len < 0)`.\nies_len = Int('ies_len')\n\n# Declare variables referenced by the relevant conditions.\n# fc is used in: if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)\nfc = BitVec('fc', 32)\n# mgmt->u.action.category is used in:\n#   if(mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT)\n# Modeled as an integer field.\naction_category = Int('action_category')\n\n# Constants from the C code (IEEE 802.11 definitions).\nIEEE80211_FCTL_STYPE = BitVecVal(0x00f0, 32)      # frame control subtype mask\nIEEE80211_STYPE_ACTION = BitVecVal(0x00d0, 32)    # action subtype value\nWLAN_CATEGORY_SPECTRUM_MGMT = 0                   # spectrum management category\n\ns = Solver()\n\n# Constraint from input: !(ies_len < 0)\n# Included because it directly constrains ies_len, which is a relevant variable.\n# In C, `!(ies_len < 0)` is equivalent to `ies_len >= 0`.\ns.add(Not(ies_len < 0))\n\n# Constraint encoding the first relevant condition:\n#   if(fc & IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)\n# Included because it gates the code path that uses the relevant variables.\n# Note: In C, `&` has lower precedence than `==`, so this parses as\n#   fc & (IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION)\n# which is `fc & 0` (since the comparison is false) => always 0.\n# We model the C semantics faithfully here.\ns.add((fc & If(IEEE80211_FCTL_STYPE == IEEE80211_STYPE_ACTION,\n               BitVecVal(1, 32), BitVecVal(0, 32))) != 0)\n\n# Constraint encoding the second relevant condition:\n#   if(mgmt->u.action.category == WLAN_CATEGORY_SPECTRUM_MGMT)\n# Included because it gates the code path that uses the relevant variables.\ns.add(action_category == WLAN_CATEGORY_SPECTRUM_MGMT)\n\n# Check satisfiability and print the model.\nif s.check() == sat:\n    print(\"sat\")\n    print(s.model())\nelse:\n    print(\"unsat\")\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 3.3283220000002984,
+  "cost_upper_bound_cny": 0.004866
+}

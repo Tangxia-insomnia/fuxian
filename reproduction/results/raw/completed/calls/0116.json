@@ -1,0 +1,45 @@
+{
+  "call_id": 116,
+  "sample_id": "NPD/codeql/kernel69:row=27:index=46",
+  "timestamp": "2026-10-26T00:30:30.137845+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(len >= MLD_V2_QUERY_LEN_MIN) || !(mlh2->mld2q_nsrcs != 0) || !(!pskb_may_pull(skb, srcs_offset + ntohs(mlh2->mld2q_nsrcs) * sizeof(struct in6_addr)))', '!(len >= MLD_V2_QUERY_LEN_MIN) || !(group_type == IPV6_ADDR_ANY)', '!(len >= MLD_V2_QUERY_LEN_MIN) || !(group_type == IPV6_ADDR_ANY) || !(mlh2->mld2q_nsrcs)', '!(len >= MLD_V2_QUERY_LEN_MIN) || !(!pskb_may_pull(skb, srcs_offset))']\n        Relevant conditions/variables: [{'condition': 'if(!(group_type == IPV6_ADDR_ANY))', 'line_number': 86}, {'condition': 'for_each_mc_mclock(idev, ma)', 'line_number': 87}], mlh2\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "58b0adc1-4d59-41e2-af26-157b10e975ce",
+  "usage": {
+    "prompt_tokens": 333,
+    "completion_tokens": 876,
+    "total_tokens": 1209,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 333
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare symbolic variables used in the constraints\n# len: length of the packet (integer)\nlen_ = Int('len')\n# MLD_V2_QUERY_LEN_MIN: minimum length constant for MLDv2 query\nMLD_V2_QUERY_LEN_MIN = Int('MLD_V2_QUERY_LEN_MIN')\n# group_type: type of the multicast group address\ngroup_type = Int('group_type')\n# IPV6_ADDR_ANY: constant representing the \"any\" IPv6 address\nIPV6_ADDR_ANY = Int('IPV6_ADDR_ANY')\n# mlh2->mld2q_nsrcs: number of source addresses in the MLDv2 query\nmld2q_nsrcs = Int('mld2q_nsrcs')\n# pskb_may_pull: boolean predicate indicating whether the skb has enough data\npskb_may_pull_srcs_offset = Bool('pskb_may_pull_srcs_offset')\npskb_may_pull_srcs_offset_nsrcs = Bool('pskb_may_pull_srcs_offset_nsrcs')\n\ns = Solver()\n\n# Constraint 1:\n# !(len >= MLD_V2_QUERY_LEN_MIN) || !(mlh2->mld2q_nsrcs != 0) ||\n# !(!pskb_may_pull(skb, srcs_offset + ntohs(mlh2->mld2q_nsrcs) * sizeof(struct in6_addr)))\n# This constraint is included because it guards the branch that reads the source\n# address list from the MLDv2 query. It ensures that if the packet is long enough\n# and there are sources, the skb must have enough data to cover the source list.\ns.add(Or(\n    Not(len_ >= MLD_V2_QUERY_LEN_MIN),\n    Not(mld2q_nsrcs != 0),\n    Not(Not(pskb_may_pull_srcs_offset_nsrcs))\n))\n\n# Constraint 2:\n# !(len >= MLD_V2_QUERY_LEN_MIN) || !(group_type == IPV6_ADDR_ANY)\n# This constraint is included because it relates to the branch at line 86\n# (if(!(group_type == IPV6_ADDR_ANY))). It ensures that when the packet is long\n# enough, the group_type must not be IPV6_ADDR_ANY for the guarded code to run.\ns.add(Or(\n    Not(len_ >= MLD_V2_QUERY_LEN_MIN),\n    Not(group_type == IPV6_ADDR_ANY)\n))\n\n# Constraint 3:\n# !(len >= MLD_V2_QUERY_LEN_MIN) || !(group_type == IPV6_ADDR_ANY) || !(mlh2->mld2q_nsrcs)\n# This constraint is included because it further refines the branch at line 86:\n# when the packet is long enough and group_type is not IPV6_ADDR_ANY, the number\n# of sources must be zero for the guarded path to be taken.\ns.add(Or(\n    Not(len_ >= MLD_V2_QUERY_LEN_MIN),\n    Not(group_type == IPV6_ADDR_ANY),\n    Not(mld2q_nsrcs != 0)\n))\n\n# Constraint 4:\n# !(len >= MLD_V2_QUERY_LEN_MIN) || !(!pskb_may_pull(skb, srcs_offset))\n# This constraint is included because it guards the initial pskb_may_pull check\n# on srcs_offset. It ensures that if the packet is long enough, the skb must\n# have enough data to cover the source offset.\ns.add(Or(\n    Not(len_ >= MLD_V2_QUERY_LEN_MIN),\n    Not(Not(pskb_may_pull_srcs_offset))\n))\n\n# Check satisfiability of the constraints\nprint(s.check())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 4.037794500000018,
+  "cost_upper_bound_cny": 0.007674
+}

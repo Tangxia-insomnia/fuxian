@@ -1,0 +1,181 @@
+{
+  "A01": {
+    "title": "条件极性翻转导致伪造矛盾，真实缺陷标签样本被过滤",
+    "source": "公开行没有精确 Source。代码候选为 tcp_write_queue_tail(sk)（函数内第 21/100 行）和 tcp_stream_alloc_skb（117 行）；不能将其中任意一处冒充已恢复的原始 Source。",
+    "chain": "仅 tcp_sendmsg_locked；Sink 为 TCP_SKB_CB(skb)->tcp_flags &= ~TCPHDR_PSH。宏体未展开，边界来自作者历史数据。",
+    "mapping": "无跨函数实参→形参转换；tracked=skb。宏 TCP_SKB_CB 的内部参数语义未验证。",
+    "conditions": "保存条件为 goto new_segment 和 if (!copied)，前者被原有适配逻辑移除。实际要求执行该分支时 copied==0。",
+    "llm": "调用 224 却生成 Not(copied==0)，调用 225 正确生成 copied==0；调用 226/227 按“保留全部已有约束”把两者并存。不是 Z3 自己制造矛盾。",
+    "smt": "最终断言 copied!=0 ∧ skb==0 ∧ copied==0，Z3 UNSAT，result=False→filter。离线仅纠正极性后公式 SAT；这只证明原 UNSAT 不能作为过滤证据，不能证明完整 C 路径可行。",
+    "finding": "确认 SMT 条件翻译和合并错误；相对原标签为误删。该标签与 A02 同函数的局部非空检查仍有审查空间，未在本次改标。",
+    "confirmed": [
+      "LLM变量状态推理错误",
+      "SMT约束生成或求解错误"
+    ],
+    "suspected": [
+      "数据或标签错误"
+    ],
+    "minimal_fix": "统一条件极性与符号表；已有约束和新增约束冲突时追溯代码来源，不能把生成器自相矛盾直接作为不可达证据。先修此样本级错误，不改真实标签。",
+    "sample_id": "NPD/codeql/kernel69:row=10:index=22",
+    "missing_exact_source": true
+  },
+  "A02": {
+    "title": "真实缺陷标签与局部保护条件冲突，尚不能判定标签还是路径建模有误",
+    "source": "与 A01 同函数且 skb 有多次赋值。没有原始 Source/完整 CodeQL codeFlow，无法知道标注指的是哪一版 skb。",
+    "chain": "仅 tcp_sendmsg_locked；Sink 为 TCP_SKB_CB(skb)->end_seq += copy。宏体未恢复。",
+    "mapping": "无跨函数转换，tracked=skb。原告警 function_list=[tcp_write_queue_tail] 是函数提示，并非完整路径。",
+    "conditions": "目标条件只有 goto new_segment，移除后为空；提前退出条件 !skb 被选中，源码确实存在 if (!skb) goto wait_for_space。",
+    "llm": "调用 73–76 依次给出 skb==0、[\"!(!skb)\"]、skb!=0 及合并函数；双重否定翻译本身正确。",
+    "smt": "skb==0 ∧ skb!=0，Z3 UNSAT，filter。该保护只在特定分配分支内；当前实现未给不同赋值建立 SSA/路径版本，因此不能凭该式证明所有到达路径均不可能。",
+    "finding": "相对标签属于第二条误删，但没有足够证据宣称模型推理错误或标签错误。局部代码看起来有非空保护；需要原始 Source、所有进入路径和宏定义才能裁决。保留原标签和预测。",
+    "confirmed": [],
+    "suspected": [
+      "数据或标签错误",
+      "关键条件提取错误"
+    ],
+    "minimal_fix": "先人工核验 Source、变量重赋值与局部保护的支配关系，保留独立 adjudication；未核实前不为追求指标添加或删除约束。",
+    "sample_id": "NPD/codeql/kernel69:row=11:index=23",
+    "missing_exact_source": true
+  },
+  "A03": {
+    "title": "空格缩进丢失 switch/while 条件，枚举关系未编码",
+    "source": "候选为 ChannelElement *che=NULL 和 che=get_che(...)；精确告警 Source 未发布。",
+    "chain": "仅 aac_decode_frame_int；Sink 为 decode_ics(ac, &che->ch[0], gb, 0, 0)。相同目标文本在第 55、69 行出现两次；提取器按文本循环选最后一次，没有使用告警源行号消歧。",
+    "mapping": "在传参前已求值 &che->ch[0]，故终止于本函数的直接成员访问；未进入 decode_ics，无形参映射。",
+    "conditions": "实际保存 target_conditions=[]；空格缩进仅在内存转为 Tab 后，同一原提取器返回 while(...!=TYPE_END) 和 if(elem_type==TYPE_LFE)。这同时暴露它选中了最后一个同文 Sink。",
+    "llm": "调用 419–422 仅保留 che==0 和退出条件的否定；将 TYPE_END、TYPE_DSE 建成无约束 Int，未补回 case 条件。",
+    "smt": "che==0 ∧ (elem_type==TYPE_END ∨ elem_type>=TYPE_DSE ∨ che!=0)，SAT，keep。诊断性补入“仍在循环且该 case 小于 TYPE_DSE”后 UNSAT；后一关系须从真实枚举定义核实，本次没有把假设写入原实验。",
+    "finding": "确认空格缩进处理错误、目标文本歧义和 SMT 缺少路径/常量关系；这条误报保留有直接可定位的证据。",
+    "confirmed": [
+      "函数代码或调用链恢复错误",
+      "关键条件提取错误",
+      "SMT约束生成或求解错误"
+    ],
+    "suspected": [],
+    "minimal_fix": "先使条件提取不依赖 Tab，并使用行位置定位同文 Sink；枚举值必须来自固定版本定义，缺失则记录未知，不猜值。",
+    "sample_id": "NPD/codeql/libav:row=3:index=8",
+    "missing_exact_source": true
+  },
+  "A04": {
+    "title": "正确恢复 kfree 调用，但同一指针被拆成三个独立变量",
+    "source": "源码第 7 行 saved_clone=clone=kstrdup(val,GFP_USER)，第 8–9 行 !clone 返回；这是真实可见候选，不等于已恢复精确扫描 Source。",
+    "chain": "tcp_set_allowed_congestion_control → kfree；最终历史边界为 free_large_kmalloc(folio,(void*)object)，未继续进入其实现。实际代码中 kfree 对 ZERO_OR_NULL_PTR(object) 先返回。",
+    "mapping": "kfree(saved_clone) 的第 0 个实参→形参 object；保存 frame 与离线词法映射一致。位置映射没有错；saved_clone=clone 的值关系没有被约束化。",
+    "conditions": "caller 的 goto out 被移除，模型过滤提前退出约束得到 []；callee 提取 if(unlikely(!folio_test_slab(folio)))，另有 ZERO_OR_NULL_PTR 提前返回。",
+    "llm": "调用 234 甚至生成未实际求解的布尔程序，被 worker 拒绝；235 修到可执行。238 最终把 object:Int、object_ptr:Int、object_bv:BitVec64 作为独立符号。",
+    "smt": "最终 object==0、object_ptr==0、object_bv!=0 可同时成立，所以 SAT→keep。离线只连接同一指针的三个表示就得到 UNSAT。Z3 原结果正确，编码身份关系错误。",
+    "finding": "确认变量身份/类型合并错误；模型文字已说空指针会提前返回，后续脚本却没有表达“到达 Sink”的要求。caller 的别名非空关系也是缺失项。",
+    "confirmed": [
+      "LLM变量状态推理错误",
+      "SMT约束生成或求解错误"
+    ],
+    "suspected": [],
+    "minimal_fix": "为每个 C 实体固定一个符号与类型；禁止修复/合并时自由改名为独立变量；检查原约束与变量身份是否保持。",
+    "sample_id": "NPD/codeql/kernel69:row=12:index=24",
+    "missing_exact_source": true
+  },
+  "A05": {
+    "title": "并非形参位置映射错，而是 !sta 条件被复合实参规则阻塞",
+    "source": "候选 sta=sta_info_get(sdata,dst)，调用前有 if(!WARN_ON(!sta))；无精确扫描 Source。",
+    "chain": "历史候选为 ieee80211_mgd_probe_ap_send → ieee80211_check_fast_rx。原运行在预检查阶段阻塞，没有持久化实际 context，也没有模型调用；审计候选文件明确命名 NOT_EXECUTED。",
+    "mapping": "sta→sta 的离线位置映射成功。repo.prepare 可恢复该转换；engine.prepare 随后对 if(!WARN_ON(!sta)) 调 called_function，因 WARN_ON 参数为 !sta 而非 sta，抛出 unsupported compound argument。",
+    "conditions": "离线复查得到 if(dst) 与 if(!WARN_ON(!sta))。这是原提取器结果的审计重放，未冒充原运行已保存的条件。",
+    "llm": "未执行；调用数 0。",
+    "smt": "未生成 SMT，也未执行 Z3；prediction=null，blocked_context。",
+    "finding": "确认上下文支持边界与条件中的函数识别规则造成阻塞；没有发现这条样本实参与形参位置映射错误。",
+    "confirmed": [
+      "函数代码或调用链恢复错误"
+    ],
+    "suspected": [],
+    "minimal_fix": "先区分“布尔条件包装中的变量”与“跨函数实际传递的指针”；针对已知宏做有证据的语义处理，不能简单将 !sta 当成 sta，也不放开所有复合表达式。",
+    "sample_id": "NPD/codeql/kernel69:row=55:index=81",
+    "missing_exact_source": true
+  },
+  "A06": {
+    "title": "合法 JSON 已返回，但解析器取了前面的 C 代码块",
+    "source": "sc=NULL；在 BIO_CTRL_RESET 分支内由 SSL_CONNECTION_FROM_SSL_ONLY(ssl) 赋值并检查。没有显式 Source 定位。",
+    "chain": "仅 ssl_ctrl；Sink 为 if(sc->handshake_func==ssl->method->ssl_connect)，已有完整函数保存。",
+    "mapping": "本样本无跨函数形参转换；tracked=sc。",
+    "conditions": "实际 target_conditions=[]，遗漏 cmd==BIO_CTRL_RESET；仅改变内存代码的空格缩进后，原提取器能返回该 case 条件。",
+    "llm": "1145 生成 sc==0；1146 输出解释、一个 ```c 块，最后有合法 ```json 数组。适配器正则的 json 标记可省略，误把第一个 C 代码块作为 JSON 解析。",
+    "smt": "仅有初始 Z3 片段，尚未形成可执行最终求解脚本；solver_attempts=0，JSONDecodeError，prediction=null。",
+    "finding": "确认输出解析缺陷；无需换模型即可定位。全量另外 4 个 JSONDecodeError 也都存在后置合法 JSON 数组，但解析成功不代表内容正确或最终可判定。",
+    "confirmed": [
+      "关键条件提取错误",
+      "模型替换或输出格式不兼容"
+    ],
+    "suspected": [],
+    "minimal_fix": "明确只解析 json 标记的代码块并校验 schema；禁止把 C/Python 块当 JSON。先离线回放 5 条响应，不调用模型。",
+    "sample_id": "NPD/infer/openssl:row=4:index=None",
+    "missing_exact_source": true
+  },
+  "A07": {
+    "title": "长条件列表的 SMT 输出在 3072 token 上限处截断",
+    "source": "req_main 中 req 初始化及 load_csr/构造等赋值候选均见原函数；没有原始扫描 Source 与完整 codeFlow。",
+    "chain": "预恢复 req_main → X509_REQ_print_ex → X509_REQ_get_X509_PUBKEY，最终 Sink return req->req_info.pubkey；实际模型调用只到 frame 0，后两帧没有实际分析。",
+    "mapping": "预检查 req→x（位置 1），x→req（位置 0），词法检查均与保存 frame 一致；不能把“准备成功”写成“跨三层实际执行成功”。",
+    "conditions": "frame 0 的目标条件为空；提前退出列表很长，838 保留大量与 req 关系不明确的条件，带来后续长解释。未对其正确性做完整人工证明。",
+    "llm": "837 初始 req==0；838 输出 JSON 列表；839 逐项解释/生成 SMT，finish_reason=length，completion_tokens 达 3072，文本在注释中间截断。",
+    "smt": "只有不完整生成文本，无最终 solver 文件、无 Z3 查询、无最终判定；保留 failed/null，未用截断内容继续求解。",
+    "finding": "确认输出预算/格式不兼容；空格缩进遗漏分支是另一个已知上游问题，但不能据此断言修缩进必然解决截断。",
+    "confirmed": [
+      "关键条件提取错误",
+      "模型替换或输出格式不兼容"
+    ],
+    "suspected": [],
+    "minimal_fix": "先修条件提取与筛选，再让转换步骤只返回所需脚本；单独比较输出上限/格式，不在原基线覆盖重试，也不默认增大所有请求。",
+    "sample_id": "NPD/codeql/openssl:row=41:index=43",
+    "missing_exact_source": true
+  },
+  "A08": {
+    "title": "两层参数名映射正确，但模型只看到了两个空指针假设",
+    "source": "radix_sort 第 4 行 tmp=av_malloc(sizeof(*tmp)*size)；未发布精确 Source 或分配失败标注约定。",
+    "chain": "radix_sort → radix_sort_pass，最终 Sink dst[pos]=data[i]；原始函数完整保存。",
+    "mapping": "radix_sort_pass(tmp,data,size,buckets[0],0) 的位置 0→dst，其他位置 data→data、size→size、buckets[0]→buckets、0→pass，检查正确。这不能证明跨过程值约束已经传播。",
+    "conditions": "callee 实际 target_conditions=[]，漏 for(i=0;i<size;i++)；仅改变内存缩进后原提取器返回该循环。",
+    "llm": "457–460 四个请求只做 tmp==0、dst==0 及包装函数，没有把完整源码发给模型。磁盘上存在 context.json 不等于模型看到了代码。",
+    "smt": "第一层 tmp==0 SAT，第二层 dst==0 SAT，最后 keep。缺少 size>0 与分配返回值的语义，无法证明真实运行中的缺陷成立。",
+    "finding": "确认遗漏循环条件和“无代码语义”的空约束路径。源码对分配失败未显式检查，而标签为误报；是否排除 OOM、size 是否可能为 0，需要原数据标注依据，不能武断改标。",
+    "confirmed": [
+      "关键条件提取错误"
+    ],
+    "suspected": [
+      "数据或标签错误"
+    ],
+    "minimal_fix": "先恢复循环条件与输入/分配语义边界；未知保留未知。不要仅为了匹配标签添加 tmp!=0，或把 av_malloc 一概当永不失败。",
+    "sample_id": "NPD/codeql/libav:row=13:index=20",
+    "missing_exact_source": true
+  },
+  "A09": {
+    "title": "真实缺陷保留对照：求解与最终映射一致，但仍是近似可行",
+    "source": "idev 初始 NULL，后有 in6_dev_get 和 ip6_validate_gw 等更新；没有精确 Source 定位，函数代码可见。",
+    "chain": "仅 fib6_nh_init；Sink if(idev->cnf.disable_ipv6)。",
+    "mapping": "无跨函数调用链转换。条件中的函数以未解释函数/整数近似，不等于实际分析过其函数体。",
+    "conditions": "目标外层条件为空；提取多个 goto out 等约束，过滤后保留两条含 idev 的复合条件。",
+    "llm": "最终尝试调用 49–54；两次生成的 __import__ 被受限 worker 拒绝，最后使用标准 Int/Or 约束。早期失败尝试的调用 20–26 单独列出，未混入最终证据。",
+    "smt": "idev==0 加两个析取约束可满足，最终 SAT→keep，与原 label=1 一致。该结果只验证近似模型可行，不证明完整源码语义。",
+    "finding": "未发现最终保留/过滤映射错误；这是成功对照。修复重试曾改变未解释函数的建模方式，说明“能执行”检查未保证语义保持，列作风险。",
+    "confirmed": [],
+    "suspected": [
+      "SMT约束生成或求解错误"
+    ],
+    "minimal_fix": "把该样本纳入回归集，修类型与符号身份时核对约束是否保持；不要把所有 SAT 宣称为真实缺陷证明。",
+    "sample_id": "NPD/codeql/kernel69:row=34:index=55",
+    "missing_exact_source": true
+  },
+  "A10": {
+    "title": "误报正确过滤对照：提前返回和空指针假设构成矛盾",
+    "source": "sta=sta_info_get(sdata,peer)，精确扫描 Source 仍缺；有明确可见保护。",
+    "chain": "仅 ieee80211_tdls_add_setup_cfm_ies；Sink sta->tdls_chandef=link->conf->chanreq.oper。",
+    "mapping": "无跨函数转换，tracked=sta。",
+    "conditions": "目标条件为空；提前退出含 WARN_ON_ONCE(!sta || !ap_sta)，源码保护位于 Sink 之前。",
+    "llm": "最终调用 59–62，得到 [\"!(WARN_ON_ONCE(!sta || !ap_sta))\"]，按宏返回条件值语义转为 Not(Or(sta==0,ap_sta==0))。先前失败尝试调用 34–40 单独留档。",
+    "smt": "sta==0 ∧ Not(sta==0 ∨ ap_sta==0)，UNSAT→filter，与 label=0 一致；此局部保护与该成员访问相对应。",
+    "finding": "正确过滤对照，未发现最终逻辑/指标问题。宏定义未从整工程展开，因此仍应在报告中保留语义假设。",
+    "confirmed": [],
+    "suspected": [],
+    "minimal_fix": "保留为最小回归样本，后续修复不能破坏这条已经正确的判定。",
+    "sample_id": "NPD/codeql/kernel69:row=65:index=95",
+    "missing_exact_source": true
+  }
+}

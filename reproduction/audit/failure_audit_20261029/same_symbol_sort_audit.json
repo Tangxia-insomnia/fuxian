@@ -1,0 +1,163 @@
+[
+  {
+    "sample_id": "NPD/codeql/kernel69:row=35:index=56",
+    "file": "results/raw/completed/smoke/row_035/solver_01.json",
+    "same_name_different_sorts": {
+      "dev": [
+        "Bool",
+        "Int"
+      ]
+    },
+    "offline_original_worker_replay": {
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun dev () Int)\n(declare-fun dev () Bool)\n(declare-fun cfg_fc_ifindex () Bool)\n(declare-fun cfg_fc_flags_RTNH_F_ONLINK () Bool)\n(declare-fun idev () Bool)\n(declare-fun dev_eq_net_loopback_dev () Bool)\n(declare-fun fib6_is_reject () Bool)\n(declare-fun err () Bool)\n(declare-fun cfg_fc_flags_RTF_GATEWAY () Bool)\n(declare-fun dev_flags_IFF_UP () Bool)\n(declare-fun idev_cnf_disable_ipv6 () Bool)\n(declare-fun cfg_fc_ignore_dev_down () Bool)\n(declare-fun fib6_nh_rt6i_pcpu () Bool)\n(assert\n (= dev 0))\n(assert\n (let (($x38 (not cfg_fc_ifindex)))\n (or $x38 dev)))\n(assert\n (let (($x41 (not cfg_fc_flags_RTNH_F_ONLINK)))\n (or $x41 dev)))\n(assert\n (let (($x44 (not fib6_is_reject)))\n (or $x44 (not (= dev_eq_net_loopback_dev false)) idev)))\n(assert\n dev)\n(assert\n (let (($x50 (not err)))\n (or (not cfg_fc_flags_RTF_GATEWAY) $x50)))\n(assert\n (let (($x41 (not cfg_fc_flags_RTNH_F_ONLINK)))\n (or $x41 dev_flags_IFF_UP)))\n(assert\n (not idev_cnf_disable_ipv6))\n(assert\n (not (and (not dev_flags_IFF_UP) (not cfg_fc_ignore_dev_down))))\n(assert\n fib6_nh_rt6i_pcpu)\n(assert\n (not err))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    "matches_recorded_feasible": true,
+    "interpretation": "Replay confirms execution, not semantic correctness. Same C entity split into sorts is a candidate/confirmed encoding defect depending on source identity."
+  },
+  {
+    "sample_id": "NPD/codeql/kernel69:row=51:index=77",
+    "file": "results/raw/completed/expanded_codeql_linux/row_051/solver_01.json",
+    "same_name_different_sorts": {
+      "sta": [
+        "Bool",
+        "Int"
+      ]
+    },
+    "offline_original_worker_replay": {
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sta () Int)\n(declare-fun sta () Bool)\n(assert\n (= sta 0))\n(assert\n (not (not sta)))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    "matches_recorded_feasible": true,
+    "interpretation": "Replay confirms execution, not semantic correctness. Same C entity split into sorts is a candidate/confirmed encoding defect depending on source identity."
+  },
+  {
+    "sample_id": "NPD/codeql/kernel69:row=69:index=99",
+    "file": "results/raw/completed/expanded_codeql_linux/row_069/solver_01.json",
+    "same_name_different_sorts": {
+      "sband": [
+        "(_ BitVec 64)",
+        "Int"
+      ]
+    },
+    "offline_original_worker_replay": {
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sband () Int)\n(declare-fun sband () (_ BitVec 64))\n(assert\n (= sband 0))\n(assert\n (and (distinct sband (_ bv0 64)) true))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    "matches_recorded_feasible": true,
+    "interpretation": "Replay confirms execution, not semantic correctness. Same C entity split into sorts is a candidate/confirmed encoding defect depending on source identity."
+  },
+  {
+    "sample_id": "NPD/codeql/libav:row=47:index=78",
+    "file": "results/raw/completed/expanded_codeql_libav/row_047/solver_01.json",
+    "same_name_different_sorts": {
+      "stts_entries": [
+        "Bool",
+        "Int"
+      ]
+    },
+    "offline_original_worker_replay": {
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun stts_entries () Int)\n(declare-fun stts_entries () Bool)\n(declare-fun track_entry () Bool)\n(declare-fun audio_vbr_is_false () Bool)\n(declare-fun codec_type_is_audio () Bool)\n(assert\n (= stts_entries 0))\n(assert\n (let (($x30 (not track_entry)))\n (let (($x29 (and codec_type_is_audio audio_vbr_is_false)))\n (or $x29 $x30 stts_entries))))\n(assert\n (let (($x29 (and codec_type_is_audio audio_vbr_is_false)))\n(let (($x32 (not $x29)))\n(or $x32 stts_entries))))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    "matches_recorded_feasible": true,
+    "interpretation": "Replay confirms execution, not semantic correctness. Same C entity split into sorts is a candidate/confirmed encoding defect depending on source identity."
+  },
+  {
+    "sample_id": "NPD/codeql/libav:row=52:index=85",
+    "file": "results/raw/completed/expanded_codeql_libav/row_052/solver_01.json",
+    "same_name_different_sorts": {
+      "vst": [
+        "Bool",
+        "Int"
+      ]
+    },
+    "offline_original_worker_replay": {
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun vst () Int)\n(declare-fun vst () Bool)\n(declare-fun nb_video_tracks () Int)\n(declare-fun avio_rb16_pb () Int)\n(declare-fun version () Int)\n(assert\n (= vst 0))\n(assert\n (let (($x34 (= nb_video_tracks 0)))\n (let (($x33 (not (and (= version 0) (= avio_rb16_pb 3)))))\n (or $x33 $x34 vst))))\n(assert\n (let (($x33 (not (and (= version 0) (= avio_rb16_pb 3)))))\n (or $x33 (<= nb_video_tracks 1))))\n(assert\n (or (and (distinct version 2) true) vst))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    "matches_recorded_feasible": true,
+    "interpretation": "Replay confirms execution, not semantic correctness. Same C entity split into sorts is a candidate/confirmed encoding defect depending on source identity."
+  },
+  {
+    "sample_id": "NPD/codeql/openssl:row=9:index=10",
+    "file": "results/raw/completed/expanded_codeql_openssl/row_009/solver_01.json",
+    "same_name_different_sorts": {
+      "cms": [
+        "(_ BitVec 64)",
+        "Int"
+      ]
+    },
+    "offline_original_worker_replay": {
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun cms () Int)\n(declare-fun cms () (_ BitVec 64))\n(declare-fun operation () (_ BitVec 32))\n(declare-fun srcms () (_ BitVec 64))\n(assert\n (= cms 0))\n(assert\n (let (($x38 (and (distinct cms (_ bv0 64)) true)))\n (or (= (bvand operation (_ bv1 32)) (_ bv0 32)) (and (distinct (_ bv2 32) operation) true) $x38)))\n(assert\n (let (($x38 (and (distinct cms (_ bv0 64)) true)))\n (or (and (distinct (_ bv4 32) operation) true) $x38)))\n(assert\n (let (($x38 (and (distinct cms (_ bv0 64)) true)))\n (or (= (bvand operation (_ bv8 32)) (_ bv0 32)) $x38)))\n(assert\n (or (and (distinct (_ bv16 32) operation) true) (and (distinct srcms (_ bv0 64)) true)))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    "matches_recorded_feasible": true,
+    "interpretation": "Replay confirms execution, not semantic correctness. Same C entity split into sorts is a candidate/confirmed encoding defect depending on source identity."
+  },
+  {
+    "sample_id": "NPD/cppcheck/openssl:row=2:index=None",
+    "file": "results/raw/completed/expanded_cppcheck_openssl/row_002/solver_01.json",
+    "same_name_different_sorts": {
+      "p": [
+        "(_ BitVec 64)",
+        "Int"
+      ]
+    },
+    "offline_original_worker_replay": {
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun p () Int)\n(declare-fun p () (_ BitVec 64))\n(assert\n (= p 0))\n(assert\n (and (distinct p (_ bv0 64)) true))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    },
+    "matches_recorded_feasible": true,
+    "interpretation": "Replay confirms execution, not semantic correctness. Same C entity split into sorts is a candidate/confirmed encoding defect depending on source identity."
+  }
+]

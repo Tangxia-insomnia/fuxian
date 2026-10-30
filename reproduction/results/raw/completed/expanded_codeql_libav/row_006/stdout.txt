@@ -1,0 +1,84 @@
+```python
+che=Int('che')
+s.add(che == 0)
+```
+```json
+["!((elem_type = get_bits(gb, 3)) != TYPE_END) || !(elem_type < TYPE_DSE) || !(!(che=get_che(ac, elem_type, elem_id)))"]
+```
+```python
+from z3 import *
+
+# Declarations for the variables appearing in the constraint.
+# elem_type: result of get_bits(gb, 3) -> an integer (bitvector-like, modeled as Int)
+# TYPE_END, TYPE_DSE: integer constants from the C enum
+# che: result of get_che(...) -> modeled as an integer (0 means NULL/false)
+# ac, elem_id: opaque inputs to get_che, modeled as uninterpreted Ints
+
+elem_type = Int('elem_type')
+TYPE_END  = Int('TYPE_END')
+TYPE_DSE  = Int('TYPE_DSE')
+che       = Int('che')
+ac        = Int('ac')
+elem_id   = Int('elem_id')
+
+# The original C constraint:
+#   !((elem_type = get_bits(gb, 3)) != TYPE_END)
+#   || !(elem_type < TYPE_DSE)
+#   || !(!(che = get_che(ac, elem_type, elem_id)))
+#
+# Simplify the C expression:
+#   !(X != TYPE_END)  ==  (X == TYPE_END)
+#   !(elem_type < TYPE_DSE) == (elem_type >= TYPE_DSE)
+#   !(!(che = get_che(...))) == (che = get_che(...))
+#
+# So the constraint becomes:
+#   (elem_type == TYPE_END) || (elem_type >= TYPE_DSE) || (che == get_che(ac, elem_type, elem_id))
+#
+# We model get_bits(gb, 3) as the symbolic value elem_type (its result),
+# and get_che(ac, elem_type, elem_id) as an uninterpreted function.
+
+get_che = Function('get_che', IntSort(), IntSort(), IntSort(), IntSort())
+
+# Constraint: the disjunction above must hold.
+# Included because it is the only constraint in the input and it directly
+# involves the variable `che` (and elem_type).
+s = Solver()
+s.add(Or(
+    elem_type == TYPE_END,
+    elem_type >= TYPE_DSE,
+    che == get_che(ac, elem_type, elem_id)
+))
+
+print(s)
+```
+```python
+def check_constraints():
+    from z3 import Int, IntSort, Function, Solver, Or, sat
+
+    # Base script variables and constraints
+    che = Int('che')
+
+    # Constraint set 2 variables
+    elem_type = Int('elem_type')
+    TYPE_END  = Int('TYPE_END')
+    TYPE_DSE  = Int('TYPE_DSE')
+    ac        = Int('ac')
+    elem_id   = Int('elem_id')
+
+    get_che = Function('get_che', IntSort(), IntSort(), IntSort(), IntSort())
+
+    s = Solver()
+
+    # Base script constraint
+    s.add(che == 0)
+
+    # Constraint set 2 constraint
+    s.add(Or(
+        elem_type == TYPE_END,
+        elem_type >= TYPE_DSE,
+        che == get_che(ac, elem_type, elem_id)
+    ))
+
+    return s.check() == sat
+```
+goto result: True

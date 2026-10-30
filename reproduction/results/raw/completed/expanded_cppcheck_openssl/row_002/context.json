@@ -1,0 +1,42 @@
+{
+  "origin": "official_historical_baseline",
+  "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+  "duplicate_equivalent_matches": 1,
+  "frames": [
+    {
+      "level": 0,
+      "function": "list_insert_sorted",
+      "var_name": "p",
+      "target": "for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);",
+      "code": "static void list_insert_sorted(QUIC_CFQ_ITEM_LIST *l, QUIC_CFQ_ITEM_EX *n,\n                               int (*cmp)(const QUIC_CFQ_ITEM_EX *a,\n                                          const QUIC_CFQ_ITEM_EX *b))\n{\n    QUIC_CFQ_ITEM_EX *p = l->head, *pprev = NULL;\n\n    if (p == NULL) {\n        l->head = l->tail = n;\n        n->prev = n->next = NULL;\n        return;\n    }\n\n    for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);\n\n    if (p == NULL)\n        list_insert_tail(l, n);\n    else if (pprev == NULL)\n        list_insert_head(l, n);\n    else\n        list_insert_after(l, pprev, n);\n}",
+      "body_sha256": "ab5c588dd223e8d495f5be6cc7b13541276eaef002b91d5e3b34a358c3d377b2",
+      "sink_kind": "direct_dereference",
+      "extracted": {
+        "bug_line_constraints": [
+          {
+            "text": "for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);",
+            "condition": []
+          }
+        ],
+        "target_conditions": [],
+        "variable_assignments": {
+          "text": "static void list_insert_sorted(QUIC_CFQ_ITEM_LIST *l, QUIC_CFQ_ITEM_EX *n,",
+          "condition": []
+        },
+        "variable_non_empty": [],
+        "early_jump_constraints": [
+          {
+            "text": "return",
+            "condition": [
+              "p == NULL"
+            ]
+          }
+        ],
+        "filter_function_code": "static void list_insert_sorted(QUIC_CFQ_ITEM_LIST *l, QUIC_CFQ_ITEM_EX *n,\n                               int (*cmp)(const QUIC_CFQ_ITEM_EX *a,\n                                          const QUIC_CFQ_ITEM_EX *b))\n{\n    QUIC_CFQ_ITEM_EX *p = l->head, *pprev = NULL;\n\n    if (p == NULL) {\n        l->head = l->tail = n;\n        n->prev = n->next = NULL;\n        return;\n    }\n\n    for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);\n\n    if (p == NULL)\n        list_insert_tail(l, n);\n    else if (pprev == NULL)\n        list_insert_head(l, n);\n    else\n        list_insert_after(l, pprev, n);\n}"
+      }
+    }
+  ],
+  "function_call": [
+    "static void list_insert_sorted(QUIC_CFQ_ITEM_LIST *l, QUIC_CFQ_ITEM_EX *n,\n                               int (*cmp)(const QUIC_CFQ_ITEM_EX *a,\n                                          const QUIC_CFQ_ITEM_EX *b))\n{\n    QUIC_CFQ_ITEM_EX *p = l->head, *pprev = NULL;\n\n    if (p == NULL) {\n        l->head = l->tail = n;\n        n->prev = n->next = NULL;\n        return;\n    }\n\n    for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);\n\n    if (p == NULL)\n        list_insert_tail(l, n);\n    else if (pprev == NULL)\n        list_insert_head(l, n);\n    else\n        list_insert_after(l, pprev, n);\n}"
+  ]
+}

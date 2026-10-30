@@ -1,0 +1,22 @@
+{
+  "event_id": 4,
+  "level": 1,
+  "source": "def check_constraints():\n    # Based on the analysis: object is NULL (ZERO_OR_NULL_PTR(object) is true),\n    # so kfree returns early. The condition !folio_test_slab(folio) is only\n    # reached when object != 0. Since object == 0, the branch is not taken,\n    # and folio_test_slab value is unconstrained.\n    #\n    # Therefore, no additional constraints can be derived for folio_test_slab\n    # from this path. The only constraint is that object == 0.\n    #\n    # We model this with Int variables:\n    #   object == 0  (NULL pointer)\n    #   folio_test_slab is unconstrained (can be 0 or 1)\n    #\n    # The validation checks that the constraint set is satisfiable and that\n    # the expected constraint (object == 0) holds.\n\n    from z3 import Int, Solver, sat, unsat\n\n    # Define variables as Int type\n    object_ptr = Int('object_ptr')\n    folio_test_slab = Int('folio_test_slab')\n\n    solver = Solver()\n\n    # Constraint: object is NULL (ZERO_OR_NULL_PTR(object) is true)\n    solver.add(object_ptr == 0)\n\n    # folio_test_slab is unconstrained (no constraint added)\n\n    # Validate satisfiability\n    result = solver.check()\n    if result != sat:\n        return False\n\n    # Verify the key constraint holds in the model\n    model = solver.model()\n    object_val = model.eval(object_ptr, model_completion=True)\n    if object_val.as_long() != 0:\n        return False\n\n    # Verify that folio_test_slab is indeed unconstrained:\n    # both values 0 and 1 should be satisfiable\n    solver_0 = Solver()\n    solver_0.add(object_ptr == 0)\n    solver_0.add(folio_test_slab == 0)\n    if solver_0.check() != sat:\n        return False\n\n    solver_1 = Solver()\n    solver_1.add(object_ptr == 0)\n    solver_1.add(folio_test_slab == 1)\n    if solver_1.check() != sat:\n        return False\n\n    return True",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun object_ptr () Int)\n(assert\n (= object_ptr 0))\n(check-sat)\n"
+    },
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun object_ptr () Int)\n(declare-fun folio_test_slab () Int)\n(assert\n (= object_ptr 0))\n(assert\n (= folio_test_slab 0))\n(check-sat)\n"
+    },
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun object_ptr () Int)\n(declare-fun folio_test_slab () Int)\n(assert\n (= object_ptr 0))\n(assert\n (= folio_test_slab 1))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

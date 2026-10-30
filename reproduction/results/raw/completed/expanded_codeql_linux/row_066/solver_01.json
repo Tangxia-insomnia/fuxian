@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, And, sat\n\n    # Variables from base script and constraint set 2\n    ap_sta = Int('ap_sta')\n    sta = Int('sta')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(ap_sta == 0)\n\n    # Constraint set 2: !(WARN_ON_ONCE(!sta || !ap_sta)) => sta != 0 && ap_sta != 0\n    s.add(And(sta != 0, ap_sta != 0))\n\n    result = (s.check() == sat)\n    return result",
+  "ok": true,
+  "feasible": false,
+  "queries": [
+    {
+      "result": "unsat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun ap_sta () Int)\n(declare-fun sta () Int)\n(assert\n (= ap_sta 0))\n(assert\n (and (and (distinct sta 0) true) (and (distinct ap_sta 0) true)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, And, sat\n    \n    s = Solver()\n    \n    # Define all variables as Int type\n    reg = Int('reg')\n    prev = Int('prev')\n    frame_flags = Int('frame_flags')\n    DWARF_FRAME_CFA_REG_OFFSET = Int('DWARF_FRAME_CFA_REG_OFFSET')\n    \n    # Additional constraint: reg is NULL (pointer == 0) at the point of the if(prev) check\n    s.add(reg == 0)\n    \n    # Additional constraint: prev is non-NULL (entering the if(prev) branch)\n    s.add(prev != 0)\n    \n    # Additional constraint: frame->flags equals DWARF_FRAME_CFA_REG_OFFSET (switch case taken)\n    s.add(frame_flags == DWARF_FRAME_CFA_REG_OFFSET)\n    \n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun reg () Int)\n(declare-fun prev () Int)\n(declare-fun DWARF_FRAME_CFA_REG_OFFSET () Int)\n(declare-fun frame_flags () Int)\n(assert\n (= reg 0))\n(assert\n (and (distinct prev 0) true))\n(assert\n (= frame_flags DWARF_FRAME_CFA_REG_OFFSET))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

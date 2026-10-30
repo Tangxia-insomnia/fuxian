@@ -1,0 +1,45 @@
+{
+  "call_id": 855,
+  "sample_id": "NPD/codeql/openssl:row=45:index=47",
+  "timestamp": "2026-10-26T01:03:09.741854+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(host == NULL)', '!(BIO_parse_hostserv(opt_arg(), &host, &port, BIO_PARSE_PRIO_SERV) < 1)']\n        Relevant conditions/variables: [], host\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "50747013-8e92-4618-8330-efd81a6b3789",
+  "usage": {
+    "prompt_tokens": 140,
+    "completion_tokens": 255,
+    "total_tokens": 395,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 140
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables\n# 'host' is a pointer in C; model it as an integer address (0 == NULL)\nhost = Int('host')\n\n# Constraint 1: !(host == NULL)\n# In C, this asserts that the pointer 'host' is not NULL.\n# Modeled as host != 0.\nconstraint_1 = (host != 0)\n\n# Constraint 2: !(BIO_parse_hostserv(...) < 1)\n# BIO_parse_hostserv returns an int; the C code requires the return value >= 1.\n# Since the function call is opaque to Z3, we model its return value as an\n# uninterpreted integer 'BIO_parse_hostserv_ret' and assert it is >= 1.\nBIO_parse_hostserv_ret = Int('BIO_parse_hostserv_ret')\nconstraint_2 = (BIO_parse_hostserv_ret >= 1)\n\n# Solver setup\ns = Solver()\ns.add(constraint_1)\ns.add(constraint_2)\n\n# Check satisfiability\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.8797904000002745,
+  "cost_upper_bound_cny": 0.00232
+}

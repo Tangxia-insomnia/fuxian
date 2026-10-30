@@ -1,0 +1,45 @@
+{
+  "call_id": 776,
+  "sample_id": "NPD/codeql/openssl:row=29:index=30",
+  "timestamp": "2026-10-26T01:00:21.117304+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static void make_ocsp_response(BIO *err, OCSP_RESPONSE **resp, OCSP_REQUEST *req,\n                              CA_DB *db, STACK_OF(X509) *ca, X509 *rcert,\n                              EVP_PKEY *rkey, const EVP_MD *rmd,\n                              STACK_OF(OPENSSL_STRING) *sigopts,\n                              STACK_OF(X509) *rother, unsigned long flags,\n                              int nmin, int ndays, int badsig,\n                              const EVP_MD *resp_md)\n{\n    ASN1_TIME *thisupd = NULL, *nextupd = NULL;\n    OCSP_CERTID *cid;\n    OCSP_BASICRESP *bs = NULL;\n    int i, id_count;\n    EVP_MD_CTX *mctx = NULL;\n    EVP_PKEY_CTX *pkctx = NULL;\n\n    id_count = OCSP_request_onereq_count(req);\n\n    if (id_count <= 0) {\n        *resp =\n            OCSP_response_create(OCSP_RESPONSE_STATUS_MALFORMEDREQUEST, NULL);\n        goto end;\n    }\n\n    bs = OCSP_BASICRESP_new();\n    thisupd = X509_gmtime_adj(NULL, 0);\n    if (ndays != -1)\n        nextupd = X509_time_adj_ex(NULL, ndays, nmin * 60, NULL);\n\n    /* Examine each certificate id in the request */\n    for (i = 0; i < id_count; i++) {\n        OCSP_ONEREQ *one;\n        ASN1_INTEGER *serial;\n        char **inf;\n        int jj;\n        int found = 0;\n        ASN1_OBJECT *cert_id_md_oid;\n        const EVP_MD *cert_id_md;\n        OCSP_CERTID *cid_resp_md = NULL;\n\n        one = OCSP_request_onereq_get0(req, i);\n        cid = OCSP_onereq_get0_id(one);\n\n        OCSP_id_get0_info(NULL, &cert_id_md_oid, NULL, NULL, cid);\n\n        cert_id_md = EVP_get_digestbyobj(cert_id_md_oid);\n        if (cert_id_md == NULL) {\n            *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                         NULL);\n            goto end;\n        }\n        for (jj = 0; jj < sk_X509_num(ca) && !found; jj++) {\n            X509 *ca_cert = sk_X509_value(ca, jj);\n            OCSP_CERTID *ca_id = OCSP_cert_to_id(cert_id_md, NULL, ca_cert);\n\n            if (OCSP_id_issuer_cmp(ca_id, cid) == 0) {\n                found = 1;\n                if (resp_md != NULL)\n                    cid_resp_md = OCSP_cert_to_id(resp_md, NULL, ca_cert);\n            }\n            OCSP_CERTID_free(ca_id);\n        }\n        OCSP_id_get0_info(NULL, NULL, NULL, &serial, cid);\n        inf = lookup_serial(db, serial);\n\n        /* at this point, we can have cid be an alias of cid_resp_md */\n        cid = (cid_resp_md != NULL) ? cid_resp_md : cid;\n\n        if (!found) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_UNKNOWN,\n                                   0, NULL, thisupd, nextupd);\n            continue;\n        }\n        if (inf == NULL) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_UNKNOWN,\n                                   0, NULL, thisupd, nextupd);\n        } else if (inf[DB_type][0] == DB_TYPE_VAL) {\n            OCSP_basic_add1_status(bs, cid,\n                                   V_OCSP_CERTSTATUS_GOOD,\n                                   0, NULL, thisupd, nextupd);\n        } else if (inf[DB_type][0] == DB_TYPE_REV) {\n            ASN1_OBJECT *inst = NULL;\n            ASN1_TIME *revtm = NULL;\n            ASN1_GENERALIZEDTIME *invtm = NULL;\n            OCSP_SINGLERESP *single;\n            int reason = -1;\n\n            unpack_revinfo(&revtm, &reason, &inst, &invtm, inf[DB_rev_date]);\n            single = OCSP_basic_add1_status(bs, cid,\n                                            V_OCSP_CERTSTATUS_REVOKED,\n                                            reason, revtm, thisupd, nextupd);\n            if (single == NULL) {\n                *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                             NULL);\n                goto end;\n            }\n            if (invtm != NULL)\n                OCSP_SINGLERESP_add1_ext_i2d(single, NID_invalidity_date,\n                                             invtm, 0, 0);\n            else if (inst != NULL)\n                OCSP_SINGLERESP_add1_ext_i2d(single,\n                                             NID_hold_instruction_code, inst,\n                                             0, 0);\n            ASN1_OBJECT_free(inst);\n            ASN1_TIME_free(revtm);\n            ASN1_GENERALIZEDTIME_free(invtm);\n        }\n        OCSP_CERTID_free(cid_resp_md);\n    }\n\n    OCSP_copy_nonce(bs, req);\n\n    mctx = EVP_MD_CTX_new();\n    if (mctx == NULL || !EVP_DigestSignInit(mctx, &pkctx, rmd, NULL, rkey)) {\n        *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR, NULL);\n        goto end;\n    }\n    for (i = 0; i < sk_OPENSSL_STRING_num(sigopts); i++) {\n        char *sigopt = sk_OPENSSL_STRING_value(sigopts, i);\n\n        if (pkey_ctrl_string(pkctx, sigopt) <= 0) {\n            BIO_printf(err, \"parameter error \\\"%s\\\"\\n\", sigopt);\n            ERR_print_errors(bio_err);\n            *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR,\n                                         NULL);\n            goto end;\n        }\n    }\n    if (!OCSP_basic_sign_ctx(bs, rcert, mctx, rother, flags)) {\n        *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_INTERNALERROR, bs);\n        goto end;\n    }\n\n    if (badsig) {\n        const ASN1_OCTET_STRING *sig = OCSP_resp_get0_signature(bs);\n        corrupt_signature(sig);\n    }\n\n    *resp = OCSP_response_create(OCSP_RESPONSE_STATUS_SUCCESSFUL, bs);\n\n end:\n    EVP_MD_CTX_free(mctx);\n    ASN1_TIME_free(thisupd);\n    ASN1_TIME_free(nextupd);\n    OCSP_BASICRESP_free(bs);\n}\n        - Target variables: [], bs\n        - Constraints: ['!(i = 0; i < id_count; i++) || !(cert_id_md == NULL)', '!(id_count <= 0)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "30e5d064-34e4-41ce-9ec1-d88fea456cfd",
+  "usage": {
+    "prompt_tokens": 1711,
+    "completion_tokens": 5,
+    "total_tokens": 1716,
+    "prompt_tokens_details": {
+      "cached_tokens": 1536
+    },
+    "prompt_cache_hit_tokens": 1536,
+    "prompt_cache_miss_tokens": 175
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.7191000000002532,
+  "cost_upper_bound_cny": 0.003462
+}

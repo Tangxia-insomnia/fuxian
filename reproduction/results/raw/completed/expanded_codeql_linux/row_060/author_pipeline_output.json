@@ -1,0 +1,12 @@
+{
+  "response": [
+    "step 1 z3 script: ```python\nskb=Int('skb')\ns.add(skb == 0)\n```",
+    "response_filter_goto: ```json\n[\"!(WARN_ON_ONCE(skb_headroom(skb) < rtap_len))\"]\n```",
+    "z3 script: ```python\nfrom z3 import *\n\n# The C constraint is:\n#   !(WARN_ON_ONCE(skb_headroom(skb) < rtap_len))\n#\n# WARN_ON_ONCE(cond) evaluates to cond (it returns the condition value and\n# emits a warning the first time it is true). The outer '!' negates it, so\n# the constraint effectively asserts that the inner condition is FALSE:\n#\n#   skb_headroom(skb) < rtap_len   must be false\n#   i.e.  skb_headroom(skb) >= rtap_len\n#\n# We model skb_headroom(skb) as an uninterpreted integer function of skb,\n# and rtap_len as an integer variable (its value is not otherwise constrained\n# in the given input, so it is left free).\n\nskb = Int('skb')                 # opaque handle to the skb structure\nrtap_len = Int('rtap_len')       # length of radiotap header (unconstrained here)\nskb_headroom = Function('skb_headroom', IntSort(), IntSort())\n\ns = Solver()\n\n# Constraint: !(skb_headroom(skb) < rtap_len)\n#   => skb_headroom(skb) >= rtap_len\ns.add(skb_headroom(skb) >= rtap_len)\n\nprint(s.check())\nprint(s.model())\n```",
+    "final z3 script: def check_constraints():\n    from z3 import Int, IntSort, Function, Solver\n    \n    skb = Int('skb')\n    rtap_len = Int('rtap_len')\n    skb_headroom = Function('skb_headroom', IntSort(), IntSort())\n    \n    s = Solver()\n    \n    # Base script constraint\n    s.add(skb == 0)\n    \n    # Constraint set 2: !(skb_headroom(skb) < rtap_len) => skb_headroom(skb) >= rtap_len\n    s.add(skb_headroom(skb) >= rtap_len)\n    \n    return s.check() == __import__('z3').sat",
+    "fix final z3 script: def check_constraints():\n    from z3 import Int, IntSort, Function, Solver, sat\n    \n    skb = Int('skb')\n    rtap_len = Int('rtap_len')\n    skb_headroom = Function('skb_headroom', IntSort(), IntSort())\n    \n    s = Solver()\n    \n    # Base script constraint\n    s.add(skb == 0)\n    \n    # Constraint set 2: !(skb_headroom(skb) < rtap_len) => skb_headroom(skb) >= rtap_len\n    s.add(skb_headroom(skb) >= rtap_len)\n    \n    return s.check() == sat"
+  ],
+  "function_name_list": [],
+  "function_body_list": [],
+  "result": true
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, BoolVal, Not, Or, sat\n\n    # --- Base script variables and constraints ---\n    id = Int('id')\n\n    # --- Constraint set 2 variables ---\n    argv = Int('argv')\n    argv_deref = Int('argv_deref')\n    argv_deref_deref = Int('argv_deref_deref')\n    DASH = 45\n\n    s = Solver()\n\n    # Base constraint\n    s.add(id == 0)\n\n    # Constraint set 2: LHS || RHS\n    lhs = BoolVal(True)\n    rhs = Not(argv_deref_deref == DASH)\n    s.add(Or(lhs, rhs))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun id () Int)\n(declare-fun argv_deref_deref () Int)\n(assert\n (= id 0))\n(assert\n (let (($x30 (not (= argv_deref_deref 45))))\n(or true $x30)))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

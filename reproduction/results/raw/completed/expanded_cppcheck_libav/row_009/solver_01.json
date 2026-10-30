@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, sat\n\n    # Variables from base script\n    pkt = Int('pkt')\n\n    # Variables from constraint set 2\n    codec_id_is_probe = Bool('codec_id_is_probe')\n    err = Int('err')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(pkt == 0)\n\n    # Constraint set 2 constraint\n    s.add(Or(\n        Not(codec_id_is_probe),\n        pkt == 0,\n        err >= 0\n    ))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun pkt () Int)\n(declare-fun err () Int)\n(declare-fun codec_id_is_probe () Bool)\n(assert\n (= pkt 0))\n(assert\n (let (($x9 (= pkt 0)))\n(or (not codec_id_is_probe) $x9 (>= err 0))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

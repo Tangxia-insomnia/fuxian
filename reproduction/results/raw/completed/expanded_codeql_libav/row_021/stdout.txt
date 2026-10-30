@@ -1,0 +1,88 @@
+```python
+ref=Int('ref')
+s.add(ref == 0)
+```
+```json
+["!(list = 0; list < sl->list_count; list++) || !(index = 0; index < sl->nb_ref_modifications[list]; index++) || !(i = h->short_ref_count - 1; i >= 0; i--) || !(ref->frame_num == frame_num && (ref->reference & pic_structure))"]
+```
+```python
+from z3 import *
+
+# Declare variables referenced in the constraint
+# ref is a pointer to a struct; we model the fields accessed in the constraint
+ref_frame_num = Int('ref_frame_num')          # ref->frame_num
+ref_reference = BitVec('ref_reference', 32)   # ref->reference (bitmask)
+frame_num = Int('frame_num')                  # frame_num (parameter)
+pic_structure = BitVec('pic_structure', 32)   # pic_structure (bitmask)
+
+# The C constraint is a disjunction of negations of loop conditions:
+#   !(list = 0; list < sl->list_count; list++)
+#   || !(index = 0; index < sl->nb_ref_modifications[list]; index++)
+#   || !(i = h->short_ref_count - 1; i >= 0; i--)
+#   || !(ref->frame_num == frame_num && (ref->reference & pic_structure))
+#
+# In C, a for-loop condition "for(init; cond; incr)" is true iff cond holds
+# at some iteration. The negation "!(for ...)" means the loop body never
+# executes, i.e., the loop condition is false on the first check.
+#
+# The only disjunct that touches the specified variable `ref` is the last one:
+#   !(ref->frame_num == frame_num && (ref->reference & pic_structure))
+#
+# Per the guidelines, we only convert constraints affecting `ref`.
+# The other disjuncts involve sl, h, list, index, i — not `ref` — so they
+# are omitted. However, since the overall expression is a disjunction, the
+# constraint on `ref` is only *required* to hold when the other disjuncts
+# are false. To faithfully encode the constraint's effect on `ref`, we
+# assert that the ref-related disjunct must be satisfiable, i.e., the
+# negation of the ref condition is allowed (the solver may choose it).
+
+# The ref-related sub-expression:
+#   !(ref->frame_num == frame_num && (ref->reference & pic_structure))
+# In Z3, this is:
+ref_cond = Not(And(ref_frame_num == frame_num,
+                   (ref_reference & pic_structure) != 0))
+
+# Since the full constraint is a disjunction and the other disjuncts are
+# unconstrained here, the constraint on `ref` alone is trivially satisfiable
+# (the solver can pick the ref disjunct). We therefore assert the ref
+# disjunct as the constraint of interest, matching the C semantics that
+# this branch of the || must be evaluable.
+s = Solver()
+s.add(ref_cond)
+
+# Check satisfiability and print a model demonstrating the constraint
+print(s.check())
+if s.check() == sat:
+    m = s.model()
+    print("ref_frame_num =", m[ref_frame_num])
+    print("ref_reference =", m[ref_reference])
+    print("frame_num     =", m[frame_num])
+    print("pic_structure =", m[pic_structure])
+```
+```python
+def check_constraints():
+    from z3 import Int, BitVec, Solver, Not, And, sat
+
+    # Base script variables and constraints
+    ref = Int('ref')
+
+    # Variables from constraint set 2
+    ref_frame_num = Int('ref_frame_num')
+    ref_reference = BitVec('ref_reference', 32)
+    frame_num = Int('frame_num')
+    pic_structure = BitVec('pic_structure', 32)
+
+    s = Solver()
+
+    # Base constraint
+    s.add(ref == 0)
+
+    # Constraint set 2: ref-related disjunct
+    ref_cond = Not(And(ref_frame_num == frame_num,
+                       (ref_reference & pic_structure) != 0))
+    s.add(ref_cond)
+
+    result = s.check() == sat
+    return result
+```
+goto result: True
