@@ -1,0 +1,1019 @@
+--- /dev/null
++++ b/safety_runs/E01_predicate_polarity_consistency/offline_adapter.py
+@@ -0,0 +1,223 @@
++"""Inspect frozen source/response syntax only; no extractor or engine imports.
++
++This does not repair locations, derive dominance, introduce aliases, propagate
++states or infer macros. Unverified whole-program context remains unsupported.
++"""
++import ast
++from collections import Counter
++import re
++
++from predicate_check import (Unsupported, check_condition, normalize_c,
++                             normalize_generated, symbol_identity, text_sha)
++
++
++def explicit_declaration(code, name):
++    """Read evidence for one builtin scalar or struct-pointer declaration only."""
++    declarations = []
++    type_pattern = r'((?:(?:unsigned|signed)\s+)?(?:char|short(?:\s+int)?|int|long(?:\s+long)?(?:\s+int)?)|struct\s+[A-Za-z_]\w*)'
++    for i, line in enumerate(code.splitlines(), 1):
++        match = re.fullmatch(r'\s*' + type_pattern + r'\s+([^;]+);\s*', line)
++        if not match:
++            continue
++        for declarator in match[2].split(','):
++            item = re.fullmatch(r'\s*(\*+)?\s*' + re.escape(name) + r'\s*(?:=\s*.+)?', declarator)
++            if item:
++                pointer = bool(item[1])
++                if match[1].startswith('struct ') and not pointer:
++                    continue
++                declarations.append({'name': name, 'declaration_line': i,
++                    'type_spelling': match[1] + (' ' + item[1] if pointer else ''),
++                    'type_kind': 'pointer' if pointer else 'integer',
++                    'type_evidence': 'explicit_declaration',
++                    'identity': symbol_identity(text_sha(code), i, name)})
++    return declarations[0] if len(declarations) == 1 else None
++
++
++def condition_records(bundle):
++    records = []
++    for frame_index, frame in enumerate((bundle.get('context') or {}).get('frames', [])):
++        code = frame['code']
++        saved = frame.get('extracted') or {}
++        entries = [(x.get('condition', ''), True, x.get('line_number'), 'saved_target_condition')
++                   for x in saved.get('target_conditions', []) if isinstance(x, dict)]
++        for exit_item in saved.get('early_jump_constraints', []):
++            entries.extend((s, False, None, 'saved_early_exit_condition')
++                           for s in exit_item.get('condition', []))
++        for index, (raw, branch, zero_line, kind) in enumerate(entries):
++            match = re.fullmatch(r'\s*if\s*\((.*)\)\s*', raw)
++            expression = match[1] if match else raw
++            line = zero_line + 1 if type(zero_line) is int else None
++            # Bind only an exact unique recorded guard spelling, not a new sink locator.
++            if line is None:
++                expected = re.sub(r'\s+', '', 'if(' + expression + ')')
++                hits = [i for i, s in enumerate(code.splitlines(), 1)
++                        if re.sub(r'\s+', '', s.rstrip().removesuffix('{')) == expected]
++                line = hits[0] if len(hits) == 1 else None
++            name = None
++            try:
++                name = normalize_c(expression, branch)['variable']
++            except Unsupported:
++                pass
++            symbol = explicit_declaration(code, name) if name else None
++            records.append({'condition_id': f'frame/{frame_index}/condition/{index}',
++                'frame_index': frame_index, 'expression': expression, 'branch': branch,
++                'kind': kind,
++                'branch_basis': kind + '; local recorded edge only, not a new CFG proof',
++                'original_saved_condition': raw, 'symbol': symbol,
++                'source': {'path': (bundle.get('alert', {}).get('location', {}).get('file_path')
++                                    if frame_index == 0 else None),
++                           'path_basis': 'saved alert path; callee absolute path not established',
++                           'frame': frame_index, 'function': frame['function'],
++                           'line': line, 'line_numbering': '1-based in saved function, not absolute file',
++                           'absolute_file_line': None, 'code': code, 'code_sha256': text_sha(code)},
++                'context_unsupported': ['whole_program_state_and_control_not_verified_in_e01'] +
++                    (['early_exit_dominance_not_verified'] if not branch else [])})
++    return records
++
++
++def saved_scripts(bundle):
++    scripts = []
++    frame = -1
++    for index, response in enumerate((bundle.get('recorded_answer') or {}).get('response', [])):
++        if not isinstance(response, str):
++            continue
++        if response.startswith('step 1 z3 script:'):
++            frame += 1
++        if '```json' in response:
++            continue
++        blocks = re.findall(r'```python\s*\n(.*?)```', response, re.S)
++        source = blocks[0] if len(blocks) == 1 else response.partition(':')[2].strip()
++        if not source:
++            continue
++        scripts.append({'source': source, 'frame_index': max(frame, 0),
++                        'origin': {'kind': 'saved_model_response', 'response_index': index,
++                                   'response_sha256': text_sha(response),
++                                   'script_sha256': text_sha(source)}})
++    for event in bundle.get('solver_events', []):
++        if event.get('source'):
++            scripts.append({'source': event['source'], 'frame_index': event.get('level', 0),
++                'origin': {'kind': 'saved_solver_generated_script', 'event_id': event.get('event_id'),
++                           'script_sha256': text_sha(event['source'])}})
++    # Identical snapshots are indexed, not executed again; no assertions are rewritten.
++    unique = {}
++    for item in scripts:
++        key = item['frame_index'], text_sha(item['source'])
++        if key in unique:
++            unique[key]['also_saved_at'].append(item['origin'])
++        else:
++            item['also_saved_at'] = []
++            unique[key] = item
++    return list(unique.values())
++
++
++def generated_atoms(script):
++    try:
++        tree = ast.parse(script['source'])
++    except SyntaxError:
++        return [], ['saved_response_not_python_syntax']
++    if any(isinstance(n, (ast.If, ast.For, ast.While, ast.Try, ast.With, ast.Lambda,
++                          ast.AsyncFunctionDef)) for n in ast.walk(tree)):
++        return [], ['generated_control_flow_not_statically_supported']
++    bindings = {}
++    ambiguous = set()
++    assignment_counts = Counter()
++    for node in ast.walk(tree):
++        if isinstance(node, ast.arg):
++            ambiguous.add(node.arg)
++        if isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
++            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
++            for target in targets:
++                for child in ast.walk(target):
++                    if isinstance(child, ast.Name):
++                        assignment_counts[child.id] += 1
++        if (isinstance(node, ast.Assign) and len(node.targets) == 1 and
++                isinstance(node.targets[0], ast.Name) and isinstance(node.value, ast.Call) and
++                isinstance(node.value.func, ast.Name) and node.value.func.id in ('Int', 'Bool', 'BitVec') and
++                node.value.args and isinstance(node.value.args[0], ast.Constant) and
++                isinstance(node.value.args[0].value, str)):
++            name = node.targets[0].id
++            value = node.value.args[0].value, node.value.func.id
++            if name in bindings and bindings[name] != value:
++                ambiguous.add(name)
++            bindings[name] = value
++    atoms, reasons = [], []
++
++    def collect(node, line):
++        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and
++                node.func.id == 'And' and not node.keywords):
++            for arg in node.args:
++                collect(arg, line)
++            return
++        expression = ast.unparse(node)
++        item = {'expression': expression, 'origin': {**script['origin'], 'generated_line': line},
++                'frame_index': script['frame_index'], 'sort': None, 'variable': None}
++        try:
++            normalized = normalize_generated(expression)
++            name = normalized['variable']
++            if (name in ambiguous or name not in bindings or bindings[name][0] != name or
++                    assignment_counts[name] != 1):
++                raise Unsupported('generated_symbol_name_or_sort_identity_unbound')
++            item.update(variable=name, sort=bindings[name][1], normalized=normalized['normalized'])
++        except Unsupported as exc:
++            item['unsupported_reason'] = str(exc)
++        atoms.append(item)
++
++    for node in ast.walk(tree):
++        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'add':
++            for arg in node.args:
++                collect(arg, node.lineno)
++    if not atoms:
++        reasons.append('no_statically_readable_add_assertions')
++    return atoms, reasons
++
++
++def inspect_bundle(bundle):
++    records = condition_records(bundle)
++    atoms, script_reasons = [], []
++    scripts = saved_scripts(bundle)
++    for script in scripts:
++        values, reasons = generated_atoms(script)
++        atoms.extend(values)
++        script_reasons.extend(reasons)
++    keys = Counter((r['frame_index'], (r.get('symbol') or {}).get('name')) for r in records if r.get('symbol'))
++    checks = []
++    for record in records:
++        symbol = record.get('symbol')
++        bound = []
++        # An early-exit candidate cannot be attributed from a name alone: it may
++        # instead be the null bug hypothesis. Do not invent assertion provenance.
++        attributable = (record['kind'] == 'saved_target_condition' and symbol and
++                        symbol['name'] != (bundle.get('context') or {}).get('frames', [])[record['frame_index']].get('var_name') and
++                        keys[record['frame_index'], symbol['name']] == 1)
++        if attributable:
++            for atom in atoms:
++                if atom['frame_index'] == record['frame_index'] and atom['variable'] == symbol['name']:
++                    bound.append({**atom, 'source_condition_id': record['condition_id'],
++                                  'symbol_identity': symbol['identity']})
++        check = check_condition(record, bound)
++        check['branch_basis'] = record['branch_basis']
++        check['binding_basis'] = ('unique recorded target predicate and matching generated declaration; '
++                                 'diagnostic association only, not independent assertion provenance'
++                                 if attributable else 'assertion role/provenance not established')
++        if not attributable:
++            check['reasons'].append('assertion_role_or_provenance_unbound')
++        checks.append(check)
++    conflicts = [c['condition_id'] for c in checks if c['local_status'] == 'mismatch']
++    local_checked = sum(c['local_status'] in ('consistent', 'mismatch') for c in checks)
++    unsupported = Counter(reason for c in checks for reason in c['reasons'])
++    unsupported.update(script_reasons)
++    if not records:
++        unsupported['no_recorded_predicate_in_supported_evidence'] += 1
++    if not scripts:
++        unsupported['no_saved_model_script'] += 1
++    # No new context or independent semantic approval is manufactured by this adapter.
++    return {'status': 'rejected' if conflicts else 'unsupported', 'checks': checks,
++            'source_condition_count': len(records), 'locally_checked_condition_count': local_checked,
++            'conflicting_condition_count': len(conflicts), 'conflicting_conditions': conflicts,
++            'conflicting_atom_occurrences': sum(a['status'] == 'mismatch' for c in checks for a in c['atom_checks']),
++            'whole_sample_supported': False,
++            'whole_sample_unsupported_reason': 'C state, control and full merge provenance not established; R02/R03 untouched',
++            'saved_script_count': len(scripts), 'saved_generated_atom_count': len(atoms),
++            'unsupported_reasons': dict(unsupported), 'atoms_removed': 0,
++            'original_scripts_sha256': [text_sha(s['source']) for s in scripts],
++            'cache_scope': 'original saved response consistency only, not a new end-to-end experiment'}
+--- /dev/null
++++ b/safety_runs/E01_predicate_polarity_consistency/offline_guard.py
+@@ -0,0 +1,49 @@
++"""Fail closed on network, model imports, subprocesses or writes outside E01.
++
++Python audit hooks are a runtime tripwire, not an OS sandbox or a C proof.
++The experiment never executes saved model-generated Python.
++"""
++import os
++from pathlib import Path
++import sys
++
++VIOLATIONS = []
++
++
++def install(directory):
++    allowed = Path(directory).resolve()
++    blocked_imports = {'completion', 'openai', 'requests', 'httpx', 'aiohttp', 'litellm'}
++
++    def deny(event, reason):
++        VIOLATIONS.append({'event': event, 'reason': reason})
++        raise RuntimeError('E01_OFFLINE_GUARD:' + reason)
++
++    def permitted_write(value):
++        if isinstance(value, int) or value is None:
++            return
++        path = Path(os.fsdecode(value)).resolve()
++        if path != allowed and allowed not in path.parents:
++            deny('filesystem_mutation', 'write_outside_experiment_directory')
++
++    def hook(event, args):
++        if event.startswith('socket.') or event in ('http.client.connect', 'urllib.Request'):
++            deny(event, 'network_forbidden')
++        if event.startswith('subprocess.') or event in ('os.system', 'os.spawn', 'os.exec'):
++            deny(event, 'subprocess_forbidden')
++        if event == 'import' and args[0].split('.')[0] in blocked_imports:
++            deny(event, 'model_or_online_client_import_forbidden')
++        if event == 'open':
++            path, mode, flags = args
++            if not isinstance(path, int) and Path(os.fsdecode(path)).name == '.env':
++                deny(event, 'credential_file_read_forbidden')
++            if (isinstance(mode, str) and any(c in mode for c in 'wax+')) or (
++                    isinstance(flags, int) and flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC | os.O_APPEND)):
++                permitted_write(path)
++        if event in ('os.remove', 'os.rmdir', 'os.mkdir', 'os.chmod', 'os.utime'):
++            permitted_write(args[0])
++        if event in ('os.rename', 'os.link', 'os.symlink'):
++            permitted_write(args[0])
++            permitted_write(args[1])
++
++    sys.addaudithook(hook)
++    return VIOLATIONS
+--- /dev/null
++++ b/safety_runs/E01_predicate_polarity_consistency/predicate_check.py
+@@ -0,0 +1,216 @@
++"""R01 only: check a bound scalar predicate against saved generated atoms.
++
++No C flow/alias analysis, LLM calls, script execution, assertion deletion or FILTER.
++Bindings are evidence inputs, not newly inferred program-state proofs.
++"""
++import ast
++import hashlib
++import re
++
++VERSION = 'e01-predicate-polarity-v1'
++
++
++class Unsupported(ValueError):
++    pass
++
++
++def text_sha(text):
++    return hashlib.sha256(text.encode('utf-8')).hexdigest()
++
++
++class ScalarParser:
++    """C truth-value subset: identifier, !, parentheses, ==0 and !=0."""
++    def __init__(self, expression):
++        if not isinstance(expression, str) or len(expression) > 512:
++            raise Unsupported('invalid_or_oversized_expression')
++        self.tokens = re.findall(r'!=|==|!|\(|\)|0|[A-Za-z_]\w*', expression)
++        if ''.join(self.tokens) != re.sub(r'\s+', '', expression) or len(self.tokens) > 80:
++            raise Unsupported('outside_scalar_syntax')
++        self.i = 0
++
++    def accept(self, token):
++        if self.i < len(self.tokens) and self.tokens[self.i] == token:
++            self.i += 1
++            return True
++        return False
++
++    def primary(self):
++        if self.accept('('):
++            value = self.equality()
++            if not self.accept(')'):
++                raise Unsupported('unbalanced_parentheses')
++            return value
++        if self.i == len(self.tokens):
++            raise Unsupported('missing_operand')
++        value = self.tokens[self.i]
++        self.i += 1
++        if value == '0':
++            return None, None
++        if not re.fullmatch(r'[A-Za-z_]\w*', value):
++            raise Unsupported('outside_scalar_syntax')
++        return value, False  # expression true iff this variable is nonzero
++
++    def unary(self):
++        if self.accept('!'):
++            name, zero = self.unary()
++            if name is None:
++                raise Unsupported('constant_only_predicate')
++            return name, not zero
++        return self.primary()
++
++    def equality(self):
++        name, zero = self.unary()
++        if self.i < len(self.tokens) and self.tokens[self.i] in ('==', '!='):
++            operator = self.tokens[self.i]
++            self.i += 1
++            rhs_name, rhs_zero = self.unary()
++            if name is None or rhs_name is not None or rhs_zero is not None:
++                raise Unsupported('only_scalar_comparison_to_zero_supported')
++            zero = not zero if operator == '==' else zero
++        return name, zero
++
++    def parse(self):
++        name, zero = self.equality()
++        if self.i != len(self.tokens) or name is None:
++            raise Unsupported('outside_scalar_syntax')
++        return name, zero
++
++
++def normalize_c(expression, branch):
++    if type(branch) is not bool:
++        raise Unsupported('unconfirmed_branch_direction')
++    name, zero = ScalarParser(expression).parse()
++    zero = zero if branch else not zero
++    return {'variable': name, 'zero': zero,
++            'normalized': name + (' == 0' if zero else ' != 0')}
++
++
++def normalize_generated(expression):
++    """Inspect syntax, never eval/exec model-generated Python."""
++    if not isinstance(expression, str) or len(expression) > 1024:
++        raise Unsupported('invalid_generated_atom')
++    try:
++        node = ast.parse(expression, mode='eval').body
++    except (SyntaxError, ValueError):
++        raise Unsupported('unparseable_generated_atom')
++
++    def parse(n):
++        if (isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and
++                n.func.id == 'Not' and len(n.args) == 1 and not n.keywords):
++            name, zero = parse(n.args[0])
++            return name, not zero
++        if (isinstance(n, ast.Compare) and len(n.ops) == 1 and
++                isinstance(n.left, ast.Name) and len(n.comparators) == 1 and
++                isinstance(n.comparators[0], ast.Constant) and
++                type(n.comparators[0].value) is int and n.comparators[0].value == 0 and
++                isinstance(n.ops[0], (ast.Eq, ast.NotEq))):
++            return n.left.id, isinstance(n.ops[0], ast.Eq)
++        raise Unsupported('generated_atom_outside_subset')
++
++    name, zero = parse(node)
++    return {'variable': name, 'zero': zero,
++            'normalized': name + (' == 0' if zero else ' != 0')}
++
++
++def symbol_identity(code_sha, declaration_line, name):
++    return f'{code_sha}:declaration:{declaration_line}:{name}'
++
++
++def check_condition(record, generated_atoms):
++    """A local contradiction can be diagnosed without approving its path context."""
++    result = {'condition_id': record.get('condition_id'), 'original_expression': record.get('expression'),
++              'branch_direction': record.get('branch'), 'symbol': record.get('symbol'),
++              'source': {k: v for k, v in (record.get('source') or {}).items() if k != 'code'},
++              'status': 'unsupported', 'local_status': 'unsupported',
++              'normalized_condition': None, 'reasons': [], 'atom_checks': [],
++              'context_unsupported': list(record.get('context_unsupported', [])),
++              'candidate_accepted': False, 'verdict_on_rejection': 'UNKNOWN', 'action': 'KEEP'}
++    try:
++        normalized = normalize_c(record.get('expression'), record.get('branch'))
++        result['normalized_condition'] = normalized['normalized']
++        symbol, source = record['symbol'], record['source']
++        if not isinstance(symbol, dict):
++            raise Unsupported('unknown_type_or_unbound_declaration')
++        code = source['code']
++        digest = text_sha(code)
++        line, declaration = source['line'], symbol['declaration_line']
++        if source.get('code_sha256') != digest:
++            raise Unsupported('source_hash_mismatch')
++        if (type(line) is not int or type(declaration) is not int or
++                not 1 <= declaration <= line <= len(code.splitlines())):
++            raise Unsupported('source_or_declaration_location_invalid')
++        if symbol.get('name') != normalized['variable']:
++            raise Unsupported('source_variable_identity_mismatch')
++        if symbol.get('identity') != symbol_identity(digest, declaration, symbol['name']):
++            raise Unsupported('source_symbol_identity_unbound')
++        if (symbol.get('type_kind') not in ('integer', 'pointer') or
++                not symbol.get('type_spelling') or symbol.get('type_evidence') != 'explicit_declaration'):
++            raise Unsupported('unknown_type')
++        builtin = r'(?:(?:unsigned|signed)\s+)?(?:char|short(?:\s+int)?|int|long(?:\s+long)?(?:\s+int)?)'
++        spelling_type = symbol['type_spelling'].strip()
++        if symbol['type_kind'] == 'integer':
++            known = re.fullmatch(builtin, spelling_type)
++        else:
++            known = re.fullmatch(r'(?:' + builtin + r'|struct\s+[A-Za-z_]\w*)\s*\*+', spelling_type)
++        if not known:
++            raise Unsupported('unknown_type')
++        declaration_text = code.splitlines()[declaration - 1].strip()
++        spelling = symbol['type_spelling'].rstrip('* ').strip()
++        if (not declaration_text.startswith(spelling + ' ') or
++                not re.search(r'\b' + re.escape(symbol['name']) + r'\b', declaration_text)):
++            raise Unsupported('declaration_evidence_mismatch')
++        guard = re.fullmatch(r'\s*if\s*\((.*)\)\s*\{?\s*', code.splitlines()[line - 1])
++        if not guard or normalize_c(guard[1], record['branch']) != normalized:
++            raise Unsupported('predicate_source_location_mismatch')
++        if not generated_atoms:
++            raise Unsupported('no_bound_generated_atom')
++        for atom in generated_atoms:
++            item = {'expression': atom.get('expression'), 'origin': atom.get('origin'),
++                    'status': 'unsupported', 'normalized': None}
++            try:
++                if (atom.get('source_condition_id') != record['condition_id'] or
++                        atom.get('symbol_identity') != symbol['identity']):
++                    raise Unsupported('generated_source_or_scope_identity_unbound')
++                if atom.get('sort') != 'Int':
++                    raise Unsupported('generated_sort_outside_known_scalar_abstraction')
++                actual = normalize_generated(atom.get('expression'))
++                if actual['variable'] != symbol['name']:
++                    raise Unsupported('generated_variable_identity_mismatch')
++                item.update(status='consistent' if actual['zero'] == normalized['zero'] else 'mismatch',
++                            normalized=actual['normalized'])
++            except Unsupported as exc:
++                item['reason'] = str(exc)
++            result['atom_checks'].append(item)
++        states = [x['status'] for x in result['atom_checks']]
++        if 'mismatch' in states:
++            result.update(status='rejected', local_status='mismatch')
++            result['reasons'].append('polarity_conflict_with_source_branch')
++        elif 'unsupported' in states:
++            result['reasons'].append('generated_atoms_not_completely_bound')
++        else:
++            result['local_status'] = 'consistent'
++            if result['context_unsupported']:
++                result['reasons'].append('program_context_outside_e01')
++            else:
++                result.update(status='consistent', candidate_accepted=True)
++    except (Unsupported, KeyError, TypeError) as exc:
++        result['reasons'].append(str(exc))
++    return result
++
++
++def check_merge(records, atoms):
++    """Check all provenance-bound atoms; report repeats without dropping any."""
++    ids = [r.get('condition_id') for r in records]
++    if len(set(ids)) != len(ids):
++        return {'status': 'unsupported', 'reason': 'ambiguous_source_condition_ids',
++                'conditions': [], 'input_atom_count': len(atoms), 'atoms_removed': 0}
++    checks = [check_condition(r, [a for a in atoms if a.get('source_condition_id') == r['condition_id']])
++              for r in records]
++    orphan = [a for a in atoms if a.get('source_condition_id') not in ids]
++    status = ('rejected' if any(c['status'] == 'rejected' for c in checks) else
++              'consistent' if checks and all(c['status'] == 'consistent' for c in checks) and not orphan
++              else 'unsupported')
++    duplicate = len(atoms) - len({(a.get('source_condition_id'), a.get('expression')) for a in atoms})
++    return {'status': status, 'conditions': checks, 'input_atom_count': len(atoms),
++            'unbound_atom_count': len(orphan), 'repeated_atom_count': duplicate,
++            'atoms_removed': 0, 'meaning': 'provenance/polarity consistency only; no FILTER authority'}
+--- /dev/null
++++ b/safety_runs/E01_predicate_polarity_consistency/report_e01.py
+@@ -0,0 +1,87 @@
++"""Generate the E01 report from actual saved results; no inference or API."""
++
++
++def report(state, audit, holdout, metrics, tests):
++    both = metrics['combined']['e01']
++    before = metrics['combined']['frozen_safety_v1']
++    lines = [
++        '# E01_predicate_polarity_consistency 实验报告', '',
++        '## 结论与验收', '',
++        '本轮完成 R01 的窄范围离线一致性检查。合成测试与审计检查通过，候选冻结后仅运行固定20条回归集一次；未进入 R02/R03。',
++        '验收结论：通过本轮限定范围的离线安全/诊断验收；不代表原论文完整复现成功、端到端修复完成或误报过滤率提高。',
++        'A01 的 `if (!copied)` 记录真分支与保存响应中的 `Not(copied == 0)` 冲突被检出；拒绝候选并保留告警。未删除任何矛盾断言。',
++        'A10 的宏和复合条件不在支持范围内，没有被误判为局部极性错误，最终仍为 UNKNOWN。A02/A04 的控制范围、变量身份问题仍未解决，保持 UNKNOWN。', '',
++        '## 固定基线与输入', '',
++        f'- 官方上游 commit：`{state["upstream_commit"]["stdout"]}`，原工作区干净。',
++        f'- 已上传快照 commit：`{state["published_snapshot_commit"]["stdout"]}`；本地 reproduction 目录自身不是 Git 仓库。',
++        '- 原始上游、补全实现、安全 v1、历史结果全部保留；保护文件 SHA-256 在 baseline_state.json，共 '
++        f'{len(state["protected_sha256"])} 个文件。',
++        '- 调试集：原 audit_samples.json 10条，有目的诊断抽样，标签1共3条、标签0共7条。',
++        '- 固定回归集：原 fixed_holdout.json 20条，8条标签1、12条标签0；原种子与样本顺序完全不变。它是已执行基准中的固定回归集，不是未接触的盲测集。',
++        '- 数据范围为现有 NPD 复现缓存；发布标签1表示真实缺陷、0表示误报，标签未逐条独立核实。原数据内容与标签未更改。',
++    ]
++    for path, digest in state['fixed_input_sha256'].items():
++        lines.append(f'- `{path}`：`{digest}`。')
++    lines += ['', '## 实现与证据边界', '',
++              '只新增 E01 目录中的一致性核对层、离线适配、测试和报告工具。原提示词、条件提取、赋值提取、completion/engine.py 和 safety/policy.py 均未修改。实现位置与审查见 source_review.md，实际新增代码见 patch.diff。',
++              '支持 x、!x、!!x、x==0、x!=0、括号及重复否定，且须有明确分支、显式已知标量类型、来源哈希和符号身份。对生成约束仅做 AST 读取，不执行模型生成的 Python。',
++              '检查结果保留原表达式、方向、变量/声明身份、类型、规范条件、保存函数相对行号及代码哈希。源码绝对版本未证实处明确留空，不伪造定位。',
++              '对提前退出约束，不根据同名变量把缺陷假设误作可达性条件。对重赋值、别名、复杂控制流、宏、跨函数状态和未绑定的来源，只输出 unsupported/UNKNOWN。所有基准样本均缺完整程序状态/控制与断言来源证据，因此整样本支持率为0。',
++              '局部极性一致只提供诊断，不授予任何六条件认证或人工复核。原安全 v1 被原样调用，新增层仅可拒绝/降级；UNKNOWN 的操作始终是 KEEP。', '',
++              '## 已完成测试', '',
++              f'- 参数化合成检查：{tests["pass_count"]}/{tests["test_count"]}通过，失败{tests["fail_count"]}项，耗时{tests["seconds"]:.6f}秒。包括正确/反向分支、重复否定、同名作用域、未知类型、宏、方向不明、来源篡改、错误sort、重复合并和真实矛盾不删断言。',
++              f'- 原审计样本：10/10处理完成，验收断言{sum(c["passed"] for c in audit["acceptance_checks"])}/{len(audit["acceptance_checks"])}通过，离线阶段耗时{audit["offline_seconds"]:.6f}秒。',
++              f'- 冻结后固定回归：20/20处理完成，未更换样本或按结果调整代码，离线阶段耗时{holdout["offline_seconds"]:.6f}秒。',
++              '- 保存的 SMT2 由未修改的安全 v1 重新求解。重放只验证保存公式的可解性，不证明 C 路径语义。没有新的端到端模型实验。',
++              '- 开发预检查发现的“缺陷假设/提前退出错误归因”在冻结前已收紧为不适用；未作为正式极性错误计数。正式未通过检查见 test_results.json 的 fail_count（若为0即无失败）；不适用样本仍被保留。', '',
++              '## 指标对比', '',
++              'FILTER/KEEP/UNKNOWN 均为判定数量；操作保留率=(KEEP+UNKNOWN的标签1数)/全部标签1数，误删率=FILTER的标签1数/全部标签1数，误报过滤率=FILTER的标签0数/全部标签0数。UNKNOWN不计为过滤成功。', '',
++              '| 数据集 | 版本 | FILTER | KEEP | UNKNOWN | 标签1操作保留 | 标签1明确KEEP | 标签1误删 | 误报过滤 | UNKNOWN比例 |',
++              '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|']
++    for cohort in ('audit', 'holdout', 'combined'):
++        for key, title in (('frozen_safety_v1', '安全v1'), ('e01', 'E01')):
++            m = metrics[cohort][key]; v = m['verdict_counts']
++            lines.append(f'| {cohort} | {title} | {v["FILTER"]} | {v["KEEP"]} | {v["UNKNOWN"]} | '
++                         f'{m["operational_real_bug_retention_rate"]:.2%} | {m["explicit_keep_real_bug_count"]}/{m["real_bug_count"]} | '
++                         f'{m["real_bug_deletion_rate"]:.2%} | {m["false_positive_filter_rate"]:.2%} | {m["unknown_rate"]:.2%} |')
++    lines += ['', '明确 KEEP 减少是严格不适用规则将未验证上下文降为 UNKNOWN 的结果，操作保留并未下降，也不能据此宣称推理质量提高。100%操作保留依赖于本轮全部保留的保守策略，不是检测完备性证据。', '',
++              '| 数据集 | 保存条件条目（含重复） | 局部可核对条目 | 子集覆盖率 | 冲突条目 | 冲突样本 | 整样本支持 |',
++              '|---|---:|---:|---:|---:|---:|---:|']
++    for cohort in ('audit', 'holdout', 'combined'):
++        m = metrics[cohort]['e01']; cov = m['local_support_subset_coverage']
++        lines.append(f'| {cohort} | {m["recorded_condition_count"]} | {m["locally_checked_condition_count"]} | '
++                     f'{cov:.2%} | {m["polarity_conflict_condition_count"]} | {m["polarity_conflict_sample_count"]} | {m["whole_sample_supported_count"]}/{m["sample_count"]} |')
++    lines += ['', '冲突条目按来源condition_id计数；同一错误在多个保存快照中的出现次数另存 polarity_conflict_atom_occurrences，不能当成多个独立错误。局部支持率分母是保存条件条目，含重复提前退出条件；整样本支持率另算。',
++              '混淆矩阵行顺序为[发布误报,发布真实缺陷]，列为[FILTER,KEEP,UNKNOWN]：',
++              '```json', str(both['confusion_matrix']['values']), '```',
++              '误报过滤为正类。无FILTER时Precision、F1为null（未定义），Recall为0，不能把null当作满分。', '',
++              '## 10条逐样本结论', '',
++              '| 审计ID | 发布标签 | 原预测 | 安全v1 | E01 | 局部冲突条目 | 局部可核对/记录条目 | 结果解释 |',
++              '|---|---:|---|---|---|---:|---:|---|']
++    for row in audit['rows']:
++        c = row['r01']
++        why = '局部极性冲突，拒绝候选' if c['conflicting_condition_count'] else '不适用/证据不完整，保留'
++        lines.append(f'| {row["audit_id"]} | {row["dataset_label"]} | {row["original_prediction"]} | '
++                     f'{row["baseline_v1_verdict"]} | {row["verdict"]} | {c["conflicting_condition_count"]} | '
++                     f'{c["locally_checked_condition_count"]}/{c["source_condition_count"]} | {why} |')
++    lines += ['', '详细表达式、分支、代码哈希、类型、符号身份、候选原子、原响应/脚本哈希与原SMT结果见 audit_results.json、holdout_results.json；原始响应和完整源码继续保留在 input_evidence_path，不重复改写。', '',
++              '## 拒绝与不适用原因', '']
++    for reason, count in sorted(both['rejected_or_unsupported_reasons'].items(), key=lambda x: (-x[1], x[0])):
++        lines.append(f'- `{reason}`：{count}（条件/脚本层统计，同一样本可多项）。')
++    lines += ['', '另有整样本共同缺口：C状态、控制范围、完整合并来源和独立语义复核均未新建证明；不适用原因不是新的模型执行错误。', '',
++              '## 资源、完整性与未完成部分', '',
++              f'- 本轮模型调用0次，新增API费用0元。历史账本仍为{state["model_calls_before"]}次、估算累计上界{state["cost_upper_cny_before"]:.6f}元；不是本轮费用。',
++              f'- 合计样本处理CPU/墙钟计时累计{both["offline_processing_seconds"]:.6f}秒，其中R01检查{both["r01_seconds"]:.6f}秒；阶段耗时还含保护哈希复核。',
++              '- 网络/凭据/子进程防护无违规；原3413个保护文件、固定输入和安全策略哈希均未变；冻结代码在20条前后均校验通过。详细见 preservation_check.json、candidate_freeze.json、hashes.json。',
++              '- 未改原提示词；未修复R02目标定位/控制范围、R03赋值提取、变量版本/跨函数传播或宏建模；未调用模型、未全量重跑、未补签人工复核。',
++              '- 下一步如获授权，应另立R02或其他单问题实验；保持同一回归集和六条件门槛。本轮到此停止。', '',
++              '## 重现命令', '',
++              '在reproduction目录用现有.venv运行。各阶段使用独占创建输出，原目录已有结果时会拒绝覆盖；复验应复制候选到新实验目录并保留原冻结输入。',
++              '```powershell',
++              '.\\.venv\\Scripts\\python.exe -B safety_runs/E01_predicate_polarity_consistency/run_e01.py synthetic',
++              '.\\.venv\\Scripts\\python.exe -B safety_runs/E01_predicate_polarity_consistency/run_e01.py audit',
++              '.\\.venv\\Scripts\\python.exe -B safety_runs/E01_predicate_polarity_consistency/run_e01.py freeze',
++              '.\\.venv\\Scripts\\python.exe -B safety_runs/E01_predicate_polarity_consistency/run_e01.py holdout',
++              '.\\.venv\\Scripts\\python.exe -B safety_runs/E01_predicate_polarity_consistency/run_e01.py finalize',
++              '```', '']
++    return '\n'.join(lines)
+--- /dev/null
++++ b/safety_runs/E01_predicate_polarity_consistency/run_e01.py
+@@ -0,0 +1,281 @@
++"""Offline E01 phases. Run synthetic/audit, freeze, then fixed regression once."""
++import argparse
++from collections import Counter
++from datetime import datetime, timezone
++import difflib
++import hashlib
++import json
++from pathlib import Path
++import sys
++import time
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[1]
++sys.dont_write_bytecode = True
++sys.path.insert(0, str(ROOT))
++from offline_guard import install
++VIOLATIONS = install(HERE)
++from predicate_check import VERSION
++from offline_adapter import inspect_bundle
++from safety.policy import decide
++from safety.metrics import evaluate
++
++AUDIT = 'audit/failure_audit_20261029/audit_samples.json'
++HOLDOUT = 'safety_runs/20261029_v1/fixed_holdout.json'
++EVIDENCE = ROOT / 'safety_runs/20261029_v1/offline_regression/evidence'
++DECISIONS = ROOT / 'safety_runs/20261029_v1/offline_regression/decisions.json'
++
++
++def now():
++    return datetime.now(timezone.utc).astimezone().isoformat()
++
++
++def sha(path):
++    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
++
++
++def read(path):
++    return json.loads(Path(path).read_text(encoding='utf-8-sig'))
++
++
++def write(name, value):
++    with (HERE / name).open('x', encoding='utf-8', newline='\n') as stream:
++        stream.write(json.dumps(value, ensure_ascii=False, indent=2) + '\n' if not isinstance(value, str) else value)
++
++
++def log(text):
++    with (HERE / 'execution_log.md').open('a', encoding='utf-8') as stream:
++        stream.write('\n' + now() + '：' + text + '\n')
++
++
++def verify_protected():
++    baseline = read(HERE / 'baseline_state.json')
++    changes = []
++    for rel, expected in baseline['protected_sha256'].items():
++        path = ROOT / rel
++        if not path.is_file() or sha(path) != expected:
++            changes.append(rel)
++    if changes:
++        raise RuntimeError('STOP: protected_files_changed:' + repr(changes))
++    for rel, expected in baseline['fixed_input_sha256'].items():
++        if sha(ROOT / rel) != expected:
++            raise RuntimeError('STOP: fixed_manifest_changed:' + rel)
++    if VIOLATIONS:
++        raise RuntimeError('STOP: offline_guard_violation')
++    return {'checked_at': now(), 'protected_file_count': len(baseline['protected_sha256']),
++            'changed_files': changes, 'fixed_inputs_match': True,
++            'guard_violations': list(VIOLATIONS), 'new_model_calls': 0, 'new_api_cost_cny': 0}
++
++
++def overlay(gate, check):
++    """R01 can only reject/degrade. It can never promote a verdict to FILTER."""
++    row = dict(gate)
++    if check['status'] != 'consistent' or not check['whole_sample_supported']:
++        row.update(verdict='UNKNOWN', action='KEEP', filter_evidence_complete=False)
++        row['reason_codes'] = sorted(set(row['reason_codes'] + ['e01_' + check['status']]))
++    if row['verdict'] == 'FILTER' and not gate['filter_evidence_complete']:
++        raise RuntimeError('STOP: incomplete_evidence_filter')
++    row['e01_version'] = VERSION
++    return row
++
++
++def run_cohort(cohort):
++    verify_protected()
++    if cohort == 'holdout':
++        verify_freeze()
++    manifest = read(ROOT / (AUDIT if cohort == 'audit' else HOLDOUT))
++    samples = manifest if cohort == 'audit' else manifest['samples']
++    assert len(samples) == (10 if cohort == 'audit' else 20)
++    baseline = read(DECISIONS)
++    offset = 0 if cohort == 'audit' else 10
++    rows = []
++    started = time.perf_counter()
++    for n, item in enumerate(samples, offset + 1):
++        path = EVIDENCE / f'{n:02}.json'
++        bundle = read(path)
++        old = baseline[n - 1]
++        if item['sample_id'] != old['sample_id'] or old['sample_id'] != bundle['candidate']['sample_id']:
++            raise RuntimeError('STOP: fixed_sample_order_or_identity_mismatch')
++        label = item['label'] if cohort == 'audit' else item['dataset_label']
++        if old['dataset_label'] != label:
++            raise RuntimeError('STOP: fixed_label_mismatch')
++        sample_start = time.perf_counter()
++        gate = decide(bundle)  # original real-bugs-first-v1, no fabricated review
++        if gate['verdict'] != old['verdict']:
++            raise RuntimeError('STOP: frozen_v1_replay_verdict_changed')
++        check_start = time.perf_counter()
++        check = inspect_bundle(bundle)  # no labels/IDs used to select algorithm behavior
++        check_seconds = time.perf_counter() - check_start
++        decision = overlay(gate, check)
++        decision.update({k: old[k] for k in ('cohort', 'audit_id', 'dataset_label', 'label_confidence',
++                        'original_prediction', 'original_status', 'original_duration_seconds',
++                        'original_api_calls', 'original_cost_upper_cny') if k in old})
++        decision.update(baseline_v1_verdict=old['verdict'], baseline_v1_action=old['action'],
++                        unchanged_v1_gate=gate, r01=check, r01_seconds=check_seconds,
++                        offline_total_seconds=time.perf_counter() - sample_start,
++                        input_evidence_path=str(path.relative_to(ROOT)), input_evidence_sha256=sha(path))
++        rows.append(decision)
++        if decision['verdict'] == 'FILTER' and (label == 1 or not decision['filter_evidence_complete']):
++            write(cohort + '_stopped_results.json', rows)
++            raise RuntimeError('STOP: real_bug_or_incomplete_evidence_filtered')
++    checks = []
++    if cohort == 'audit':
++        by_id = {r['audit_id']: r for r in rows}
++        copied = [c for c in by_id['A01']['r01']['checks'] if c['original_expression'] == '!copied']
++        checks = [
++            {'test': 'A01_saved_wrong_polarity_detected', 'passed': any(c['local_status'] == 'mismatch' for c in copied)},
++            {'test': 'A10_macro_not_falsely_flagged', 'passed': by_id['A10']['r01']['conflicting_condition_count'] == 0},
++            {'test': 'A10_stays_UNKNOWN', 'passed': by_id['A10']['verdict'] == 'UNKNOWN'},
++            {'test': 'A02_real_bug_not_filtered', 'passed': by_id['A02']['verdict'] != 'FILTER'},
++            {'test': 'A04_identity_not_bypassed', 'passed': by_id['A04']['verdict'] == 'UNKNOWN'},
++        ]
++    preservation = verify_protected()
++    if cohort == 'holdout':
++        verify_freeze()
++    output = {'cohort': cohort, 'completed_at': now(), 'sample_count': len(rows), 'rows': rows,
++              'acceptance_checks': checks, 'passed': all(c['passed'] for c in checks),
++              'offline_seconds': time.perf_counter() - started, 'preservation': preservation,
++              'network_guard_violations': list(VIOLATIONS), 'new_model_calls': 0, 'new_api_cost_cny': 0,
++              'experiment_kind': 'cached-response offline diagnostic + saved SMT replay, not new E2E inference'}
++    write(cohort + '_results.json', output)
++    log(f'{cohort} 完成：{len(rows)} 条；判定 {dict(Counter(r["verdict"] for r in rows))}；'
++        f'局部冲突样本 {sum(r["r01"]["conflicting_condition_count"] > 0 for r in rows)}；'
++        f'验收检查 {checks}；API 0。')
++    if not output['passed']:
++        raise RuntimeError('STOP: audit_expectation_failed')
++    return {'sample_count': len(rows), 'verdicts': dict(Counter(r['verdict'] for r in rows))}
++
++
++def synthetic():
++    verify_protected()
++    from test_synthetic import run_tests
++    result = run_tests()
++    # Ensure a locally passing predicate cannot bypass the unchanged six gates.
++    code = 'int x;\nif (x) {\n sink();\n}\n'
++    code_sha = hashlib.sha256(code.encode()).hexdigest()
++    bundle = {'scope': 'synthetic_fixture', 'candidate': {'sample_id': 'synthetic/no_review',
++              'status': 'success', 'prediction': 'filter', 'error': None},
++              'alert': {'var_name': 'x', 'function_code': code,
++                        'location': {'context': {'snippet': {'text': 'sink();'}}}},
++              'context': {'frames': [{'code': code, 'target': 'sink();', 'var_name': 'x',
++                                     'body_sha256': code_sha, 'extracted': {}}]},
++              'recorded_answer': {'result': False}, 'issues': [],
++              'solver_events': [{'ok': True, 'feasible': False, 'queries': [
++                  {'smt2': '(declare-const x Int) (assert (= x 0)) (assert (not (= x 0)))', 'result': 'unsat'}]}]}
++    gate = decide(bundle)
++    no_bypass = overlay(gate, {'status': 'consistent', 'whole_sample_supported': True})
++    result['tests'].append({'test': 'local_pass_cannot_authorize_filter_without_semantic_review',
++                            'expected': 'UNKNOWN', 'actual': no_bypass['verdict'],
++                            'passed': no_bypass['verdict'] == 'UNKNOWN'})
++    result['test_count'] = len(result['tests'])
++    result['pass_count'] = sum(t['passed'] for t in result['tests'])
++    result['fail_count'] = result['test_count'] - result['pass_count']
++    result['passed'] = result['fail_count'] == 0
++    result['preservation'] = verify_protected()
++    # Preserve a failed development attempt without replacing any historical file.
++    name = 'test_results.json' if result['passed'] else f'test_failure_{time.time_ns()}.json'
++    write(name, result)
++    log(f'合成测试：{result["pass_count"]}/{result["test_count"]}；文件 {name}；API 0。')
++    if not result['passed']:
++        raise RuntimeError('STOP before holdout: synthetic_test_failure')
++    return {k: result[k] for k in ('test_count', 'pass_count', 'fail_count', 'seconds')}
++
++
++def freeze():
++    verify_protected()
++    assert read(HERE / 'test_results.json')['passed']
++    assert read(HERE / 'audit_results.json')['passed']
++    code_files = sorted(HERE.glob('*.py'))
++    patch = ''.join(''.join(difflib.unified_diff([], p.read_text('utf-8').splitlines(True),
++                        fromfile='/dev/null', tofile='b/' + str(p.relative_to(ROOT)).replace('\\', '/')))
++                    for p in code_files)
++    write('patch.diff', patch)
++    files = code_files + [HERE / x for x in ('baseline_state.json', 'test_results.json', 'audit_results.json',
++                                            'source_review.md', 'patch.diff')]
++    frozen = {'frozen_at': now(), 'candidate_version': VERSION, 'files_sha256':
++              {p.name: sha(p) for p in files}, 'must_not_tune_after_holdout': True,
++              'fixed_manifest_sha256': read(HERE / 'baseline_state.json')['fixed_input_sha256'],
++              'regression_scope': 'fixed 20, previously executed benchmark, not a blind test',
++              'preservation': verify_protected()}
++    write('candidate_freeze.json', frozen)
++    log('候选代码、合成测试及审计结果已冻结；随后才运行固定20条回归集，不根据回归结果调参。')
++    return {'frozen_at': frozen['frozen_at'], 'file_count': len(files)}
++
++
++def verify_freeze():
++    frozen = read(HERE / 'candidate_freeze.json')
++    changes = [name for name, digest in frozen['files_sha256'].items() if sha(HERE / name) != digest]
++    if changes:
++        raise RuntimeError('STOP: frozen_candidate_changed:' + repr(changes))
++    if sorted(p.name for p in HERE.glob('*.py')) != sorted(n for n in frozen['files_sha256'] if n.endswith('.py')):
++        raise RuntimeError('STOP: candidate_code_added_after_freeze')
++    return True
++
++
++def cohort_metrics(rows):
++    current = evaluate(rows)
++    baseline = evaluate([dict(r, verdict=r['baseline_v1_verdict'], action=r['baseline_v1_action'],
++                             filter_evidence_complete=False) for r in rows])
++    conditions = sum(r['r01']['source_condition_count'] for r in rows)
++    checked = sum(r['r01']['locally_checked_condition_count'] for r in rows)
++    current.update(verdict_counts={v: sum(r['verdict'] == v for r in rows) for v in ('FILTER', 'KEEP', 'UNKNOWN')},
++                   explicit_keep_real_bug_count=sum(r['dataset_label'] == 1 and r['verdict'] == 'KEEP' for r in rows),
++                   polarity_conflict_sample_count=sum(r['r01']['conflicting_condition_count'] > 0 for r in rows),
++                   polarity_conflict_condition_count=sum(r['r01']['conflicting_condition_count'] for r in rows),
++                   polarity_conflict_atom_occurrences=sum(r['r01']['conflicting_atom_occurrences'] for r in rows),
++                   recorded_condition_count=conditions, locally_checked_condition_count=checked,
++                   local_support_subset_coverage=checked / conditions if conditions else None,
++                   whole_sample_supported_count=sum(r['r01']['whole_sample_supported'] for r in rows),
++                   whole_sample_supported_rate=sum(r['r01']['whole_sample_supported'] for r in rows) / len(rows),
++                   r01_seconds=sum(r['r01_seconds'] for r in rows),
++                   offline_processing_seconds=sum(r['offline_total_seconds'] for r in rows),
++                   atoms_removed=sum(r['r01']['atoms_removed'] for r in rows),
++                   rejected_or_unsupported_reasons=dict(sum((Counter(r['r01']['unsupported_reasons']) for r in rows), Counter())))
++    baseline.update(verdict_counts={v: sum(r['baseline_v1_verdict'] == v for r in rows) for v in ('FILTER', 'KEEP', 'UNKNOWN')},
++                    explicit_keep_real_bug_count=sum(r['dataset_label'] == 1 and r['baseline_v1_verdict'] == 'KEEP' for r in rows))
++    return {'frozen_safety_v1': baseline, 'e01': current}
++
++
++def finalize():
++    verify_freeze()
++    preservation = verify_protected()
++    audit, holdout = read(HERE / 'audit_results.json'), read(HERE / 'holdout_results.json')
++    metrics = {name: cohort_metrics(rows) for name, rows in
++               [('audit', audit['rows']), ('holdout', holdout['rows']), ('combined', audit['rows'] + holdout['rows'])]}
++    metrics['new_model_calls'] = 0
++    metrics['new_api_cost_cny'] = 0
++    metrics['scope'] = 'published label 1=real bug, 0=false alarm; labels not independently established truth'
++    write('metrics.json', metrics)
++    write('preservation_check.json', preservation)
++    from report_e01 import report
++    write('e01_report.md', report(read(HERE / 'baseline_state.json'), audit, holdout, metrics, read(HERE / 'test_results.json')))
++    log('E01 完成并停止：所有保护文件逐字节哈希未变；固定清单未变；候选冻结校验通过；API 0；未进入R02/R03。')
++    files = [p for p in HERE.rglob('*') if p.is_file() and p.name != 'hashes.json']
++    write('hashes.json', {'created_at': now(), 'algorithm': 'SHA-256',
++                         'self_excluded': 'hashes.json cannot contain its own digest',
++                         'fixed_inputs': read(HERE / 'baseline_state.json')['fixed_input_sha256'],
++                         'protected_inputs_and_original_code': 'baseline_state.json:protected_sha256',
++                         'experiment_files': {str(p.relative_to(HERE)).replace('\\', '/'): sha(p) for p in sorted(files)}})
++    return {'acceptance': 'bounded E01 offline safety/diagnostic pass; no evidence of filtering improvement',
++            'combined_verdicts': metrics['combined']['e01']['verdict_counts'], 'preservation': preservation}
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument('phase', choices=['synthetic', 'audit', 'freeze', 'holdout', 'finalize'])
++    phase = parser.parse_args().phase
++    try:
++        if phase in ('audit', 'holdout'):
++            result = run_cohort(phase)
++        else:
++            result = {'synthetic': synthetic, 'freeze': freeze, 'finalize': finalize}[phase]()
++        print(json.dumps(result, ensure_ascii=False))
++    except Exception as exc:
++        log('阶段失败/停止：' + phase + '；' + type(exc).__name__ + '；' + str(exc))
++        write(f'stop_{phase}_{time.time_ns()}.json', {'phase': phase, 'error_type': type(exc).__name__,
++              'error': str(exc), 'at': now(), 'guard_violations': list(VIOLATIONS)})
++        raise
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/safety_runs/E01_predicate_polarity_consistency/test_synthetic.py
+@@ -0,0 +1,145 @@
++"""Parameterized semantic tests for R01; no benchmark IDs or model calls."""
++import copy
++import time
++
++from predicate_check import (check_condition, check_merge, normalize_c,
++                             symbol_identity, text_sha)
++from offline_adapter import explicit_declaration, generated_atoms, inspect_bundle
++
++
++def fixture(expression='x', branch=True, declaration='int x;', scope='fixture'):
++    code = declaration + '\nif (' + expression + ') {\n    sink();\n}\n'
++    sha = text_sha(code)
++    record = {'condition_id': scope + '/guard', 'expression': expression, 'branch': branch,
++              'symbol': {'name': 'x', 'declaration_line': 1, 'type_spelling': 'int',
++                         'type_kind': 'integer', 'type_evidence': 'explicit_declaration',
++                         'identity': symbol_identity(sha, 1, 'x')},
++              'source': {'code': code, 'code_sha256': sha, 'line': 2, 'path': scope + '.c'},
++              'context_unsupported': []}
++    return record
++
++
++def atom(record, expression):
++    return {'expression': expression, 'source_condition_id': record['condition_id'],
++            'symbol_identity': record['symbol']['identity'], 'sort': 'Int',
++            'origin': {'kind': 'synthetic_fixture'}}
++
++
++def run_tests():
++    tests = []
++
++    def add(name, expected, actual):
++        tests.append({'test': name, 'expected': expected, 'actual': actual,
++                      'passed': expected == actual})
++
++    started = time.perf_counter()
++    # Truth values independently enumerated: value -1/0/2, then C !, ==0 or !=0.
++    cases = [('x', False), ('!x', True), ('!!x', False),
++             ('x == 0', True), ('x != 0', False), ('(((x)))', False),
++             ('!(!(!(!x)))', False), ('!((x == 0))', False),
++             ('((!!x) == 0)', True), ('(!x) != 0', True)]
++    for expression, truth_is_zero in cases:
++        for branch in (True, False):
++            zero = truth_is_zero if branch else not truth_is_zero
++            r = fixture(expression, branch)
++            expected = 'x == 0' if zero else 'x != 0'
++            wrong = 'x != 0' if zero else 'x == 0'
++            add(f'normalize/{expression}/{branch}', expected, normalize_c(expression, branch)['normalized'])
++            good = check_condition(r, [atom(r, expected)])
++            add(f'matching/{expression}/{branch}', ('consistent', True), (good['status'], good['candidate_accepted']))
++            bad = check_condition(r, [atom(r, wrong)])
++            add(f'opposite/{expression}/{branch}', ('rejected', 'UNKNOWN', 'KEEP'),
++                (bad['status'], bad['verdict_on_rejection'], bad['action']))
++            negated = 'Not(x != 0)' if zero else 'Not(x == 0)'
++            add(f'generated_Not/{expression}/{branch}', 'consistent', check_condition(r, [atom(r, negated)])['status'])
++
++    def unsupported(name, record, atoms=None, reason=None):
++        out = check_condition(record, atoms if atoms is not None else [atom(record, 'x != 0')])
++        add(name, 'unsupported', out['status'])
++        add(name + '/cannot_accept', False, out['candidate_accepted'])
++        if reason:
++            add(name + '/reason', True, reason in out['reasons'] or
++                any(a.get('reason') == reason for a in out['atom_checks']))
++
++    r = fixture()
++    other = fixture(declaration='int x; /* different enclosing scope */', scope='other')
++    cross = atom(r, 'x != 0'); cross['symbol_identity'] = other['symbol']['identity']
++    unsupported('same_name_different_scope', r, [cross], 'generated_source_or_scope_identity_unbound')
++    code = 'int x;\nif (x) {\nint x;\nif (x) {\nsink();\n}\n}\n'
++    outer, inner = fixture(), fixture(scope='inner_scope')
++    for rec, declaration_line, condition_line in ((outer, 1, 2), (inner, 3, 4)):
++        rec['source'].update(code=code, code_sha256=text_sha(code), line=condition_line)
++        rec['symbol'].update(declaration_line=declaration_line,
++                             identity=symbol_identity(text_sha(code), declaration_line, 'x'))
++    unsupported('same_file_shadowed_variable', inner, [dict(atom(inner, 'x != 0'),
++                symbol_identity=outer['symbol']['identity'])], 'generated_source_or_scope_identity_unbound')
++    add('ambiguous_declaration_not_recovered', None, explicit_declaration(code, 'x'))
++    r = fixture(); r['symbol']['type_kind'] = 'unknown'
++    unsupported('unknown_type', r, reason='unknown_type')
++    r = fixture(); r['symbol']['type_spelling'] = 'custom_typedef'
++    unsupported('unverified_typedef', r, reason='unknown_type')
++    unsupported('macro', fixture('WARN_ON_ONCE(x)'))
++    unsupported('compound', fixture('x || y'))
++    unsupported('member_alias', fixture('obj->x'))
++    unsupported('branch_unknown', fixture(branch=None), reason='unconfirmed_branch_direction')
++    unsupported('branch_string_not_boolean', fixture(branch='true'), reason='unconfirmed_branch_direction')
++    r = fixture(); r['source']['code_sha256'] = '0' * 64
++    unsupported('source_tamper', r, reason='source_hash_mismatch')
++    r = fixture(); r['source']['line'] = 3
++    unsupported('wrong_guard_location', r, reason='predicate_source_location_mismatch')
++    r = fixture(); r['symbol']['identity'] += ':other'
++    unsupported('source_scope_identity_unbound', r, reason='source_symbol_identity_unbound')
++    for problem in ('alias_not_verified', 'reassignment_not_verified', 'complex_control_flow', 'missing_context'):
++        r = fixture(); r['context_unsupported'] = [problem]
++        unsupported(problem, r, reason='program_context_outside_e01')
++    r = fixture()
++    unsupported('no_candidate', r, [], 'no_bound_generated_atom')
++    bad = atom(r, 'x != 0'); bad['sort'] = 'Bool'
++    unsupported('wrong_z3_sort', r, [bad], 'generated_sort_outside_known_scalar_abstraction')
++    bad = atom(r, 'y != 0')
++    unsupported('generated_different_variable', r, [bad], 'generated_variable_identity_mismatch')
++    for text in ('x > 0', 'x == 1', 'Or(x == 0, y == 0)', '__import__("os").system("invalid")'):
++        unsupported('unsupported_generated/' + text, r, [atom(r, text)])
++
++    pointer = fixture('!x', declaration='struct node *x;')
++    pointer['symbol'].update(type_kind='pointer', type_spelling='struct node *')
++    add('known_pointer_zero_test', 'consistent', check_condition(pointer, [atom(pointer, 'x == 0')])['status'])
++    r = fixture(); a = atom(r, 'x != 0')
++    merged = check_merge([r], [a, copy.deepcopy(a)])
++    add('duplicate_assertions_kept', (2, 1, 0),
++        (merged['input_atom_count'], merged['repeated_atom_count'], merged['atoms_removed']))
++    add('duplicate_source_id_ambiguous', 'unsupported', check_merge([r, r], [a])['status'])
++    unbound = dict(a, source_condition_id='unbound')
++    add('orphan_atom_blocks_merge', 'unsupported', check_merge([r], [a, unbound])['status'])
++    # Contradictory but correctly translated source guards: never delete either.
++    code = 'int x;\nif (x) {\nif (!x) {\n sink();\n}\n}\n'
++    r1, r2 = fixture(), fixture('!x', scope='inner')
++    for rec, line in ((r1, 2), (r2, 3)):
++        rec['source'].update(code=code, code_sha256=text_sha(code), line=line)
++        rec['symbol']['identity'] = symbol_identity(text_sha(code), 1, 'x')
++    merged = check_merge([r1, r2], [atom(r1, 'x != 0'), atom(r2, 'x == 0')])
++    add('genuine_source_contradiction_not_rewritten', ('consistent', 2, 0),
++        (merged['status'], merged['input_atom_count'], merged['atoms_removed']))
++    merged = check_merge([r1], [atom(r1, 'x != 0'), atom(r1, 'x == 0')])
++    add('bad_merge_rejected_without_deletion', ('rejected', 2, 0),
++        (merged['status'], merged['input_atom_count'], merged['atoms_removed']))
++    for script, reason in [
++        ("x=Int('other'); s.add(x != 0)", 'generated_symbol_name_or_sort_identity_unbound'),
++        ("x=Int('x'); x=1; s.add(x != 0)", 'generated_symbol_name_or_sort_identity_unbound'),
++        ("x=Int('x')\ndef f(x):\n s.add(x != 0)", 'generated_symbol_name_or_sort_identity_unbound'),
++        ("def f():\n x=Int('x')\n s.add(x != 0)\ndef g():\n x=Int('x')\n s.add(x == 0)", 'generated_symbol_name_or_sort_identity_unbound')]:
++        values, _ = generated_atoms({'source': script, 'origin': {}, 'frame_index': 0})
++        add('generated_binding/' + script, True, all(a.get('unsupported_reason') == reason for a in values) and bool(values))
++    # A null bug hypothesis must never be attributed to an early-exit predicate.
++    b = {'context': {'frames': [{'function': 'f', 'code': 'int x;\nif (!x)\n return;\nsink(x);',
++          'var_name': 'x', 'extracted': {'target_conditions': [], 'early_jump_constraints': [{'condition': ['if (!x)']}]}}]},
++         'recorded_answer': {'response': ["step 1 z3 script: x=Int('x'); s.add(x == 0)"]}}
++    result = inspect_bundle(b)
++    add('bug_hypothesis_not_early_exit_translation', 0, result['conflicting_condition_count'])
++    add('unbound_early_exit_unknown', 'unsupported', result['status'])
++    elapsed = time.perf_counter() - started
++    return {'suite': 'R01 parameterized synthetic semantics', 'passed': all(t['passed'] for t in tests),
++            'test_count': len(tests), 'pass_count': sum(t['passed'] for t in tests),
++            'fail_count': sum(not t['passed'] for t in tests), 'seconds': elapsed, 'tests': tests,
++            'new_model_calls': 0, 'new_api_cost_cny': 0,
++            'limits': 'Fixtures have explicit local bindings. Passing does not prove arbitrary C paths.'}
