@@ -1,0 +1,100 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/cppcheck/openssl:row=2:index=None",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "p",
+    "function_name": "list_insert_sorted",
+    "location": {
+      "file_path": "ssl/quic/quic_cfq.c",
+      "region": {
+        "startLine": 159,
+        "startColumn": 55,
+        "endColumn": 60
+      },
+      "context": {
+        "startLine": 157,
+        "endLine": 161,
+        "snippet": {
+          "text": "for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);"
+        }
+      }
+    },
+    "function_code": "static void list_insert_sorted(QUIC_CFQ_ITEM_LIST *l, QUIC_CFQ_ITEM_EX *n,\n                               int (*cmp)(const QUIC_CFQ_ITEM_EX *a,\n                                          const QUIC_CFQ_ITEM_EX *b))\n{\n    QUIC_CFQ_ITEM_EX *p = l->head, *pprev = NULL;\n\n    if (p == NULL) {\n        l->head = l->tail = n;\n        n->prev = n->next = NULL;\n        return;\n    }\n\n    for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);\n\n    if (p == NULL)\n        list_insert_tail(l, n);\n    else if (pprev == NULL)\n        list_insert_head(l, n);\n    else\n        list_insert_after(l, pprev, n);\n}"
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "list_insert_sorted",
+        "var_name": "p",
+        "target": "for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);",
+        "code": "static void list_insert_sorted(QUIC_CFQ_ITEM_LIST *l, QUIC_CFQ_ITEM_EX *n,\n                               int (*cmp)(const QUIC_CFQ_ITEM_EX *a,\n                                          const QUIC_CFQ_ITEM_EX *b))\n{\n    QUIC_CFQ_ITEM_EX *p = l->head, *pprev = NULL;\n\n    if (p == NULL) {\n        l->head = l->tail = n;\n        n->prev = n->next = NULL;\n        return;\n    }\n\n    for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);\n\n    if (p == NULL)\n        list_insert_tail(l, n);\n    else if (pprev == NULL)\n        list_insert_head(l, n);\n    else\n        list_insert_after(l, pprev, n);\n}",
+        "body_sha256": "ab5c588dd223e8d495f5be6cc7b13541276eaef002b91d5e3b34a358c3d377b2",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static void list_insert_sorted(QUIC_CFQ_ITEM_LIST *l, QUIC_CFQ_ITEM_EX *n,",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": [
+                "p == NULL"
+              ]
+            }
+          ],
+          "filter_function_code": "static void list_insert_sorted(QUIC_CFQ_ITEM_LIST *l, QUIC_CFQ_ITEM_EX *n,\n                               int (*cmp)(const QUIC_CFQ_ITEM_EX *a,\n                                          const QUIC_CFQ_ITEM_EX *b))\n{\n    QUIC_CFQ_ITEM_EX *p = l->head, *pprev = NULL;\n\n    if (p == NULL) {\n        l->head = l->tail = n;\n        n->prev = n->next = NULL;\n        return;\n    }\n\n    for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);\n\n    if (p == NULL)\n        list_insert_tail(l, n);\n    else if (pprev == NULL)\n        list_insert_head(l, n);\n    else\n        list_insert_after(l, pprev, n);\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static void list_insert_sorted(QUIC_CFQ_ITEM_LIST *l, QUIC_CFQ_ITEM_EX *n,\n                               int (*cmp)(const QUIC_CFQ_ITEM_EX *a,\n                                          const QUIC_CFQ_ITEM_EX *b))\n{\n    QUIC_CFQ_ITEM_EX *p = l->head, *pprev = NULL;\n\n    if (p == NULL) {\n        l->head = l->tail = n;\n        n->prev = n->next = NULL;\n        return;\n    }\n\n    for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);\n\n    if (p == NULL)\n        list_insert_tail(l, n);\n    else if (pprev == NULL)\n        list_insert_head(l, n);\n    else\n        list_insert_after(l, pprev, n);\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\np=Int('p')\ns.add(p == 0)\n```",
+      "response_filter_goto: ```json\n[\"!(p == NULL)\"]\n```",
+      "z3 script: ```python\nfrom z3 import *\n\n# Declare pointer variable p as a bit-vector (64-bit address)\np = BitVec('p', 64)\n\n# Constraint: !(p == NULL)\n# In C, NULL is typically 0. The expression !(p == NULL) means p is not NULL,\n# i.e., p != 0. This is included because it directly constrains variable p.\ns = Solver()\ns.add(p != 0)\n\n# Check satisfiability and print result\nprint(s.check())\n```",
+      "final z3 script: def check_constraints():\n    from z3 import Solver, Int, BitVec, sat\n    \n    s = Solver()\n    \n    # Base script constraints\n    p_int = Int('p')\n    s.add(p_int == 0)\n    \n    # Constraint set 2 constraints\n    p_bv = BitVec('p', 64)\n    s.add(p_bv != 0)\n    \n    return s.check() == sat"
+    ],
+    "function_name_list": [],
+    "function_body_list": [],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Solver, Int, BitVec, sat\n    \n    s = Solver()\n    \n    # Base script constraints\n    p_int = Int('p')\n    s.add(p_int == 0)\n    \n    # Constraint set 2 constraints\n    p_bv = BitVec('p', 64)\n    s.add(p_bv != 0)\n    \n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun p () Int)\n(declare-fun p () (_ BitVec 64))\n(assert\n (= p 0))\n(assert\n (and (distinct p (_ bv0 64)) true))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

@@ -1,0 +1,95 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/infer/openssl:row=1:index=None",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "path",
+    "function_name": "opt_provider_path",
+    "location": {
+      "file_path": "apps/lib/app_provider.c",
+      "region": {
+        "startLine": 65,
+        "startColumn": 12,
+        "endColumn": 16
+      },
+      "context": {
+        "startLine": 63,
+        "endLine": 67,
+        "snippet": {
+          "text": "return OSSL_PROVIDER_set_default_search_path(app_get0_libctx(), path);"
+        }
+      }
+    },
+    "function_code": "static int opt_provider_path(const char *path)\n{\n    if (path != NULL && *path == '\\0')\n        path = NULL;\n    return OSSL_PROVIDER_set_default_search_path(app_get0_libctx(), path);\n}"
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "opt_provider_path",
+        "var_name": "path",
+        "target": "return OSSL_PROVIDER_set_default_search_path(app_get0_libctx(), path);",
+        "code": "static int opt_provider_path(const char *path)\n{\n    if (path != NULL && *path == '\\0')\n        path = NULL;\n    return OSSL_PROVIDER_set_default_search_path(app_get0_libctx(), path);\n}",
+        "body_sha256": "bd37d701ce79113cc689d82b0ba6d20d5014a611e6ec85687171ddf8be2c80f1",
+        "sink_kind": "author_historical_macro_or_call_sink",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "return OSSL_PROVIDER_set_default_search_path(app_get0_libctx(), path);",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static int opt_provider_path(const char *path)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": []
+            }
+          ],
+          "filter_function_code": "static int opt_provider_path(const char *path)\n{\n    if (path != NULL && *path == '\\0')\n        path = NULL;\n    return OSSL_PROVIDER_set_default_search_path(app_get0_libctx(), path);\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static int opt_provider_path(const char *path)\n{\n    if (path != NULL && *path == '\\0')\n        path = NULL;\n    return OSSL_PROVIDER_set_default_search_path(app_get0_libctx(), path);\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\npath=Int('path')\ns.add(path == 0)\n```"
+    ],
+    "function_name_list": [],
+    "function_body_list": [],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    path = Int('path')\n    s = Solver()\n    s.add(path == 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun path () Int)\n(assert\n (= path 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

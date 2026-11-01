@@ -1,0 +1,16 @@
+{
+  "B": "```python\nlink=Int('link')\ns.add(link == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, Not, And, Or, sat\n\n    # Base script variables and constraints\n    link = Int('link')\n\n    # Constraint set 2 variables\n    i = Int('i')\n    nb_inputs = Int('nb_inputs')\n    link_type = Int('link_type')\n    nb_formats = Int('nb_formats')\n\n    AVMEDIA_TYPE_AUDIO = 1\n\n    s = Solver()\n\n    # Base constraint\n    s.add(link == 0)\n\n    # Constraint set 2 constraints\n    c1 = Not(i == nb_inputs)\n    loop_cond = i < nb_inputs\n    link_cond = And(link_type == AVMEDIA_TYPE_AUDIO, nb_formats == 1)\n    c2 = Or(Not(loop_cond), Not(link_cond))\n\n    s.add(c1)\n    s.add(c2)\n\n    return s.check() == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0544.json#/choices/0/message/content"
+  ]
+}

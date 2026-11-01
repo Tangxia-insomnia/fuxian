@@ -1,0 +1,16 @@
+{
+  "B": "```python\ndst=Int('dst')\ns.add(dst == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, sat\n    dst = Int('dst')\n    s = Solver()\n    s.add(dst == 0)\n    return s.check() == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/1/U02",
+    "frame/1/increment",
+    "results/raw/completed/calls/0460.json#/choices/0/message/content"
+  ]
+}

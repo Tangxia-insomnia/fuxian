@@ -1,0 +1,16 @@
+{
+  "B": "```python\nast=Int('ast')\ns.add(ast == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, Or, Not, And, sat\n\n    ast = Int('ast')\n    version = Int('version')\n    avio_rb16_pb = Int('avio_rb16_pb')\n    mv_nb_audio_tracks = Int('mv_nb_audio_tracks')\n    ast_codecpar_channels = Int('ast_codecpar_channels')\n    set_channels_ret = Int('set_channels_ret')\n    avio_rb32_pb = Int('avio_rb32_pb')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(ast == 0)\n\n    # Constraint 1\n    s.add(Or(\n        Not(And(version == 0, avio_rb16_pb == 3)),\n        mv_nb_audio_tracks == 0,\n        Not(ast_codecpar_channels <= 0)\n    ))\n\n    # Constraint 2\n    s.add(Or(\n        Not(And(version == 0, avio_rb16_pb == 3)),\n        mv_nb_audio_tracks == 0,\n        Not(ast == 0)\n    ))\n\n    # Constraint 3\n    s.add(Or(\n        version != 2,\n        Not(set_channels_ret < 0)\n    ))\n\n    # Constraint 4\n    s.add(Or(\n        version != 2,\n        Not(ast == 0)\n    ))\n\n    return s.check() == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0597.json#/choices/0/message/content"
+  ]
+}

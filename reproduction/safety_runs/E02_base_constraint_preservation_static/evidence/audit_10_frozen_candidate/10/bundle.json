@@ -1,0 +1,134 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/kernel69:row=65:index=95",
+    "status": "success",
+    "prediction": "filter",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "sta",
+    "function_name": "ieee80211_tdls_add_setup_cfm_ies",
+    "location": {
+      "file_path": "net/mac80211/tdls.c",
+      "region": {
+        "startLine": 614,
+        "startColumn": 2,
+        "endColumn": 5
+      },
+      "context": {
+        "startLine": 612,
+        "endLine": 616,
+        "snippet": {
+          "text": "\tsta->tdls_chandef = link->conf->chanreq.oper;"
+        }
+      }
+    },
+    "function_code": "static void\nieee80211_tdls_add_setup_cfm_ies(struct ieee80211_link_data *link,\n\t\t\t\t struct sk_buff *skb, const u8 *peer,\n\t\t\t\t bool initiator, const u8 *extra_ies,\n\t\t\t\t size_t extra_ies_len)\n{\n\tstruct ieee80211_sub_if_data *sdata = link->sdata;\n\tstruct ieee80211_local *local = sdata->local;\n\tsize_t offset = 0, noffset;\n\tstruct sta_info *sta, *ap_sta;\n\tstruct ieee80211_supported_band *sband;\n\tu8 *pos;\n\n\tsband = ieee80211_get_link_sband(link);\n\tif (WARN_ON_ONCE(!sband))\n\t\treturn;\n\n\tsta = sta_info_get(sdata, peer);\n\tap_sta = sta_info_get(sdata, sdata->vif.cfg.ap_addr);\n\n\tif (WARN_ON_ONCE(!sta || !ap_sta))\n\t\treturn;\n\n\tsta->tdls_chandef = link->conf->chanreq.oper;\n\n\t/* add any custom IEs that go before the QoS IE */\n\tif (extra_ies_len) {\n\t\tstatic const u8 before_qos[] = {\n\t\t\tWLAN_EID_RSN,\n\t\t};\n\t\tnoffset = ieee80211_ie_split(extra_ies, extra_ies_len,\n\t\t\t\t\t     before_qos,\n\t\t\t\t\t     ARRAY_SIZE(before_qos),\n\t\t\t\t\t     offset);\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t\toffset = noffset;\n\t}\n\n\t/* add the QoS param IE if both the peer and we support it */\n\tif (local->hw.queues >= IEEE80211_NUM_ACS && sta->sta.wme)\n\t\tieee80211_tdls_add_wmm_param_ie(sdata, skb);\n\n\t/* add any custom IEs that go before HT operation */\n\tif (extra_ies_len) {\n\t\tstatic const u8 before_ht_op[] = {\n\t\t\tWLAN_EID_RSN,\n\t\t\tWLAN_EID_QOS_CAPA,\n\t\t\tWLAN_EID_FAST_BSS_TRANSITION,\n\t\t\tWLAN_EID_TIMEOUT_INTERVAL,\n\t\t};\n\t\tnoffset = ieee80211_ie_split(extra_ies, extra_ies_len,\n\t\t\t\t\t     before_ht_op,\n\t\t\t\t\t     ARRAY_SIZE(before_ht_op),\n\t\t\t\t\t     offset);\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t\toffset = noffset;\n\t}\n\n\t/*\n\t * if HT support is only added in TDLS, we need an HT-operation IE.\n\t * add the IE as required by IEEE802.11-2012 9.23.3.2.\n\t */\n\tif (!ap_sta->sta.deflink.ht_cap.ht_supported && sta->sta.deflink.ht_cap.ht_supported) {\n\t\tu16 prot = IEEE80211_HT_OP_MODE_PROTECTION_NONHT_MIXED |\n\t\t\t   IEEE80211_HT_OP_MODE_NON_GF_STA_PRSNT |\n\t\t\t   IEEE80211_HT_OP_MODE_NON_HT_STA_PRSNT;\n\n\t\tpos = skb_put(skb, 2 + sizeof(struct ieee80211_ht_operation));\n\t\tieee80211_ie_build_ht_oper(pos, &sta->sta.deflink.ht_cap,\n\t\t\t\t\t   &link->conf->chanreq.oper, prot,\n\t\t\t\t\t   true);\n\t}\n\n\tieee80211_tdls_add_link_ie(link, skb, peer, initiator);\n\n\t/* only include VHT-operation if not on the 2.4GHz band */\n\tif (sband->band != NL80211_BAND_2GHZ &&\n\t    sta->sta.deflink.vht_cap.vht_supported) {\n\t\t/*\n\t\t * if both peers support WIDER_BW, we can expand the chandef to\n\t\t * a wider compatible one, up to 80MHz\n\t\t */\n\t\tif (test_sta_flag(sta, WLAN_STA_TDLS_WIDER_BW))\n\t\t\tieee80211_tdls_chandef_vht_upgrade(sdata, sta);\n\n\t\tpos = skb_put(skb, 2 + sizeof(struct ieee80211_vht_operation));\n\t\tieee80211_ie_build_vht_oper(pos, &sta->sta.deflink.vht_cap,\n\t\t\t\t\t    &sta->tdls_chandef);\n\t}\n\n\t/* add any remaining IEs */\n\tif (extra_ies_len) {\n\t\tnoffset = extra_ies_len;\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t}\n}",
+    "function_list": [
+      "WARN_ON_ONCE",
+      "WARN_ON"
+    ],
+    "bug_line_constraints": [
+      {
+        "text": "\tsta->tdls_chandef = link->conf->chanreq.oper;",
+        "condition": []
+      }
+    ],
+    "var_assign_conditions": [],
+    "pointer_null_postconditions": [],
+    "early_jump_constraints": [
+      {
+        "text": "return;",
+        "condition": [
+          "if (WARN_ON_ONCE(!sband))"
+        ]
+      },
+      {
+        "text": "return;",
+        "condition": [
+          "if (WARN_ON_ONCE(!sta || !ap_sta))"
+        ]
+      }
+    ],
+    "index": 95
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "ieee80211_tdls_add_setup_cfm_ies",
+        "var_name": "sta",
+        "target": "\tsta->tdls_chandef = link->conf->chanreq.oper;",
+        "code": "static void\nieee80211_tdls_add_setup_cfm_ies(struct ieee80211_link_data *link,\n\t\t\t\t struct sk_buff *skb, const u8 *peer,\n\t\t\t\t bool initiator, const u8 *extra_ies,\n\t\t\t\t size_t extra_ies_len)\n{\n\tstruct ieee80211_sub_if_data *sdata = link->sdata;\n\tstruct ieee80211_local *local = sdata->local;\n\tsize_t offset = 0, noffset;\n\tstruct sta_info *sta, *ap_sta;\n\tstruct ieee80211_supported_band *sband;\n\tu8 *pos;\n\n\tsband = ieee80211_get_link_sband(link);\n\tif (WARN_ON_ONCE(!sband))\n\t\treturn;\n\n\tsta = sta_info_get(sdata, peer);\n\tap_sta = sta_info_get(sdata, sdata->vif.cfg.ap_addr);\n\n\tif (WARN_ON_ONCE(!sta || !ap_sta))\n\t\treturn;\n\n\tsta->tdls_chandef = link->conf->chanreq.oper;\n\n\t/* add any custom IEs that go before the QoS IE */\n\tif (extra_ies_len) {\n\t\tstatic const u8 before_qos[] = {\n\t\t\tWLAN_EID_RSN,\n\t\t};\n\t\tnoffset = ieee80211_ie_split(extra_ies, extra_ies_len,\n\t\t\t\t\t     before_qos,\n\t\t\t\t\t     ARRAY_SIZE(before_qos),\n\t\t\t\t\t     offset);\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t\toffset = noffset;\n\t}\n\n\t/* add the QoS param IE if both the peer and we support it */\n\tif (local->hw.queues >= IEEE80211_NUM_ACS && sta->sta.wme)\n\t\tieee80211_tdls_add_wmm_param_ie(sdata, skb);\n\n\t/* add any custom IEs that go before HT operation */\n\tif (extra_ies_len) {\n\t\tstatic const u8 before_ht_op[] = {\n\t\t\tWLAN_EID_RSN,\n\t\t\tWLAN_EID_QOS_CAPA,\n\t\t\tWLAN_EID_FAST_BSS_TRANSITION,\n\t\t\tWLAN_EID_TIMEOUT_INTERVAL,\n\t\t};\n\t\tnoffset = ieee80211_ie_split(extra_ies, extra_ies_len,\n\t\t\t\t\t     before_ht_op,\n\t\t\t\t\t     ARRAY_SIZE(before_ht_op),\n\t\t\t\t\t     offset);\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t\toffset = noffset;\n\t}\n\n\t/*\n\t * if HT support is only added in TDLS, we need an HT-operation IE.\n\t * add the IE as required by IEEE802.11-2012 9.23.3.2.\n\t */\n\tif (!ap_sta->sta.deflink.ht_cap.ht_supported && sta->sta.deflink.ht_cap.ht_supported) {\n\t\tu16 prot = IEEE80211_HT_OP_MODE_PROTECTION_NONHT_MIXED |\n\t\t\t   IEEE80211_HT_OP_MODE_NON_GF_STA_PRSNT |\n\t\t\t   IEEE80211_HT_OP_MODE_NON_HT_STA_PRSNT;\n\n\t\tpos = skb_put(skb, 2 + sizeof(struct ieee80211_ht_operation));\n\t\tieee80211_ie_build_ht_oper(pos, &sta->sta.deflink.ht_cap,\n\t\t\t\t\t   &link->conf->chanreq.oper, prot,\n\t\t\t\t\t   true);\n\t}\n\n\tieee80211_tdls_add_link_ie(link, skb, peer, initiator);\n\n\t/* only include VHT-operation if not on the 2.4GHz band */\n\tif (sband->band != NL80211_BAND_2GHZ &&\n\t    sta->sta.deflink.vht_cap.vht_supported) {\n\t\t/*\n\t\t * if both peers support WIDER_BW, we can expand the chandef to\n\t\t * a wider compatible one, up to 80MHz\n\t\t */\n\t\tif (test_sta_flag(sta, WLAN_STA_TDLS_WIDER_BW))\n\t\t\tieee80211_tdls_chandef_vht_upgrade(sdata, sta);\n\n\t\tpos = skb_put(skb, 2 + sizeof(struct ieee80211_vht_operation));\n\t\tieee80211_ie_build_vht_oper(pos, &sta->sta.deflink.vht_cap,\n\t\t\t\t\t    &sta->tdls_chandef);\n\t}\n\n\t/* add any remaining IEs */\n\tif (extra_ies_len) {\n\t\tnoffset = extra_ies_len;\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t}\n}",
+        "body_sha256": "47da4013b0082df311c00f35a7eccb53f7fad939e0aa123b54cd0ce9e4bebdb6",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "\tsta->tdls_chandef = link->conf->chanreq.oper;",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static void",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": [
+                "WARN_ON_ONCE(!sta || !ap_sta)"
+              ]
+            },
+            {
+              "text": "return",
+              "condition": [
+                "WARN_ON_ONCE(!sband)"
+              ]
+            }
+          ],
+          "filter_function_code": "static void\nieee80211_tdls_add_setup_cfm_ies(struct ieee80211_link_data *link,\n\t\t\t\t struct sk_buff *skb, const u8 *peer,\n\t\t\t\t bool initiator, const u8 *extra_ies,\n\t\t\t\t size_t extra_ies_len)\n{\n\tstruct ieee80211_sub_if_data *sdata = link->sdata;\n\tstruct ieee80211_local *local = sdata->local;\n\tsize_t offset = 0, noffset;\n\tstruct sta_info *sta, *ap_sta;\n\tstruct ieee80211_supported_band *sband;\n\tu8 *pos;\n\n\tsband = ieee80211_get_link_sband(link);\n\tif (WARN_ON_ONCE(!sband))\n\t\treturn;\n\n\tsta = sta_info_get(sdata, peer);\n\tap_sta = sta_info_get(sdata, sdata->vif.cfg.ap_addr);\n\n\tif (WARN_ON_ONCE(!sta || !ap_sta))\n\t\treturn;\n\n\tsta->tdls_chandef = link->conf->chanreq.oper;\n\n\t/* add any custom IEs that go before the QoS IE */\n\tif (extra_ies_len) {\n\t\tstatic const u8 before_qos[] = {\n\t\t\tWLAN_EID_RSN,\n\t\t};\n\t\tnoffset = ieee80211_ie_split(extra_ies, extra_ies_len,\n\t\t\t\t\t     before_qos,\n\t\t\t\t\t     ARRAY_SIZE(before_qos),\n\t\t\t\t\t     offset);\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t\toffset = noffset;\n\t}\n\n\t/* add the QoS param IE if both the peer and we support it */\n\tif (local->hw.queues >= IEEE80211_NUM_ACS && sta->sta.wme)\n\t\tieee80211_tdls_add_wmm_param_ie(sdata, skb);\n\n\t/* add any custom IEs that go before HT operation */\n\tif (extra_ies_len) {\n\t\tstatic const u8 before_ht_op[] = {\n\t\t\tWLAN_EID_RSN,\n\t\t\tWLAN_EID_QOS_CAPA,\n\t\t\tWLAN_EID_FAST_BSS_TRANSITION,\n\t\t\tWLAN_EID_TIMEOUT_INTERVAL,\n\t\t};\n\t\tnoffset = ieee80211_ie_split(extra_ies, extra_ies_len,\n\t\t\t\t\t     before_ht_op,\n\t\t\t\t\t     ARRAY_SIZE(before_ht_op),\n\t\t\t\t\t     offset);\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t\toffset = noffset;\n\t}\n\n\t/*\n\t * if HT support is only added in TDLS, we need an HT-operation IE.\n\t * add the IE as required by IEEE802.11-2012 9.23.3.2.\n\t */\n\tif (!ap_sta->sta.deflink.ht_cap.ht_supported && sta->sta.deflink.ht_cap.ht_supported) {\n\t\tu16 prot = IEEE80211_HT_OP_MODE_PROTECTION_NONHT_MIXED |\n\t\t\t   IEEE80211_HT_OP_MODE_NON_GF_STA_PRSNT |\n\t\t\t   IEEE80211_HT_OP_MODE_NON_HT_STA_PRSNT;\n\n\t\tpos = skb_put(skb, 2 + sizeof(struct ieee80211_ht_operation));\n\t\tieee80211_ie_build_ht_oper(pos, &sta->sta.deflink.ht_cap,\n\t\t\t\t\t   &link->conf->chanreq.oper, prot,\n\t\t\t\t\t   true);\n\t}\n\n\tieee80211_tdls_add_link_ie(link, skb, peer, initiator);\n\n\t/* only include VHT-operation if not on the 2.4GHz band */\n\tif (sband->band != NL80211_BAND_2GHZ &&\n\t    sta->sta.deflink.vht_cap.vht_supported) {\n\t\t/*\n\t\t * if both peers support WIDER_BW, we can expand the chandef to\n\t\t * a wider compatible one, up to 80MHz\n\t\t */\n\t\tif (test_sta_flag(sta, WLAN_STA_TDLS_WIDER_BW))\n\t\t\tieee80211_tdls_chandef_vht_upgrade(sdata, sta);\n\n\t\tpos = skb_put(skb, 2 + sizeof(struct ieee80211_vht_operation));\n\t\tieee80211_ie_build_vht_oper(pos, &sta->sta.deflink.vht_cap,\n\t\t\t\t\t    &sta->tdls_chandef);\n\t}\n\n\t/* add any remaining IEs */\n\tif (extra_ies_len) {\n\t\tnoffset = extra_ies_len;\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t}\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static void\nieee80211_tdls_add_setup_cfm_ies(struct ieee80211_link_data *link,\n\t\t\t\t struct sk_buff *skb, const u8 *peer,\n\t\t\t\t bool initiator, const u8 *extra_ies,\n\t\t\t\t size_t extra_ies_len)\n{\n\tstruct ieee80211_sub_if_data *sdata = link->sdata;\n\tstruct ieee80211_local *local = sdata->local;\n\tsize_t offset = 0, noffset;\n\tstruct sta_info *sta, *ap_sta;\n\tstruct ieee80211_supported_band *sband;\n\tu8 *pos;\n\n\tsband = ieee80211_get_link_sband(link);\n\tif (WARN_ON_ONCE(!sband))\n\t\treturn;\n\n\tsta = sta_info_get(sdata, peer);\n\tap_sta = sta_info_get(sdata, sdata->vif.cfg.ap_addr);\n\n\tif (WARN_ON_ONCE(!sta || !ap_sta))\n\t\treturn;\n\n\tsta->tdls_chandef = link->conf->chanreq.oper;\n\n\t/* add any custom IEs that go before the QoS IE */\n\tif (extra_ies_len) {\n\t\tstatic const u8 before_qos[] = {\n\t\t\tWLAN_EID_RSN,\n\t\t};\n\t\tnoffset = ieee80211_ie_split(extra_ies, extra_ies_len,\n\t\t\t\t\t     before_qos,\n\t\t\t\t\t     ARRAY_SIZE(before_qos),\n\t\t\t\t\t     offset);\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t\toffset = noffset;\n\t}\n\n\t/* add the QoS param IE if both the peer and we support it */\n\tif (local->hw.queues >= IEEE80211_NUM_ACS && sta->sta.wme)\n\t\tieee80211_tdls_add_wmm_param_ie(sdata, skb);\n\n\t/* add any custom IEs that go before HT operation */\n\tif (extra_ies_len) {\n\t\tstatic const u8 before_ht_op[] = {\n\t\t\tWLAN_EID_RSN,\n\t\t\tWLAN_EID_QOS_CAPA,\n\t\t\tWLAN_EID_FAST_BSS_TRANSITION,\n\t\t\tWLAN_EID_TIMEOUT_INTERVAL,\n\t\t};\n\t\tnoffset = ieee80211_ie_split(extra_ies, extra_ies_len,\n\t\t\t\t\t     before_ht_op,\n\t\t\t\t\t     ARRAY_SIZE(before_ht_op),\n\t\t\t\t\t     offset);\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t\toffset = noffset;\n\t}\n\n\t/*\n\t * if HT support is only added in TDLS, we need an HT-operation IE.\n\t * add the IE as required by IEEE802.11-2012 9.23.3.2.\n\t */\n\tif (!ap_sta->sta.deflink.ht_cap.ht_supported && sta->sta.deflink.ht_cap.ht_supported) {\n\t\tu16 prot = IEEE80211_HT_OP_MODE_PROTECTION_NONHT_MIXED |\n\t\t\t   IEEE80211_HT_OP_MODE_NON_GF_STA_PRSNT |\n\t\t\t   IEEE80211_HT_OP_MODE_NON_HT_STA_PRSNT;\n\n\t\tpos = skb_put(skb, 2 + sizeof(struct ieee80211_ht_operation));\n\t\tieee80211_ie_build_ht_oper(pos, &sta->sta.deflink.ht_cap,\n\t\t\t\t\t   &link->conf->chanreq.oper, prot,\n\t\t\t\t\t   true);\n\t}\n\n\tieee80211_tdls_add_link_ie(link, skb, peer, initiator);\n\n\t/* only include VHT-operation if not on the 2.4GHz band */\n\tif (sband->band != NL80211_BAND_2GHZ &&\n\t    sta->sta.deflink.vht_cap.vht_supported) {\n\t\t/*\n\t\t * if both peers support WIDER_BW, we can expand the chandef to\n\t\t * a wider compatible one, up to 80MHz\n\t\t */\n\t\tif (test_sta_flag(sta, WLAN_STA_TDLS_WIDER_BW))\n\t\t\tieee80211_tdls_chandef_vht_upgrade(sdata, sta);\n\n\t\tpos = skb_put(skb, 2 + sizeof(struct ieee80211_vht_operation));\n\t\tieee80211_ie_build_vht_oper(pos, &sta->sta.deflink.vht_cap,\n\t\t\t\t\t    &sta->tdls_chandef);\n\t}\n\n\t/* add any remaining IEs */\n\tif (extra_ies_len) {\n\t\tnoffset = extra_ies_len;\n\t\tskb_put_data(skb, extra_ies + offset, noffset - offset);\n\t}\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nsta=Int('sta')\ns.add(sta == 0)\n```",
+      "response_filter_goto: ```json\n[\"!(WARN_ON_ONCE(!sta || !ap_sta))\"]\n```",
+      "z3 script: ```python\n# Z3 script generated from C constraint:\n#   !(WARN_ON_ONCE(!sta || !ap_sta))\n#\n# Reasoning:\n# - WARN_ON_ONCE(cond) is a kernel macro that evaluates its argument `cond`\n#   and returns the (boolean) result of that condition. It has no side\n#   effects on the constraint logic itself (it only emits a warning once).\n#   Therefore, for constraint-solving purposes, WARN_ON_ONCE(x) == x.\n# - The outer `!` negates the whole expression.\n# - Inside: `!sta || !ap_sta` in C means (sta == NULL) || (ap_sta == NULL).\n# - So the full constraint is: !( (sta == NULL) || (ap_sta == NULL) )\n#   which by De Morgan simplifies to: (sta != NULL) && (ap_sta != NULL).\n# - The relevant variable mentioned is `sta`; `ap_sta` is also referenced\n#   in the expression, so it must be modeled to preserve semantics.\n# - In Z3, pointers are modeled as integer addresses; NULL == 0.\n\nfrom z3 import *\n\n# Pointer variables (modeled as integer addresses; 0 == NULL)\nsta    = Int('sta')\nap_sta = Int('ap_sta')\n\ns = Solver()\n\n# Constraint: !(WARN_ON_ONCE(!sta || !ap_sta))\n#   WARN_ON_ONCE(x) behaves as x for constraint purposes.\n#   !sta      -> sta == 0\n#   !ap_sta   -> ap_sta == 0\n#   !( (sta == 0) || (ap_sta == 0) )\n#   <=> (sta != 0) && (ap_sta != 0)\ns.add(Not(Or(sta == 0, ap_sta == 0)))\n\n# Equivalent simplified form (kept for clarity / verification):\n# s.add(And(sta != 0, ap_sta != 0))\n\nprint(s.check())\nprint(s.model())\n```",
+      "final z3 script: def check_constraints():\n    from z3 import Int, Solver, Not, Or, sat\n\n    # Base script variables and constraints\n    sta = Int('sta')\n\n    # Constraint set 2 variables (ap_sta referenced in the constraint)\n    ap_sta = Int('ap_sta')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(sta == 0)\n\n    # Constraint set 2: !(WARN_ON_ONCE(!sta || !ap_sta))\n    #   <=> (sta != 0) && (ap_sta != 0)\n    s.add(Not(Or(sta == 0, ap_sta == 0)))\n\n    return s.check() == sat"
+    ],
+    "function_name_list": [],
+    "function_body_list": [],
+    "z3_script": "def check_constraints():\n    from z3 import Int, Solver, Not, Or, sat\n\n    # Base script variables and constraints\n    sta = Int('sta')\n\n    # Constraint set 2 variables (ap_sta referenced in the constraint)\n    ap_sta = Int('ap_sta')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(sta == 0)\n\n    # Constraint set 2: !(WARN_ON_ONCE(!sta || !ap_sta))\n    #   <=> (sta != 0) && (ap_sta != 0)\n    s.add(Not(Or(sta == 0, ap_sta == 0)))\n\n    return s.check() == sat",
+    "result": false
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, Not, Or, sat\n\n    # Base script variables and constraints\n    sta = Int('sta')\n\n    # Constraint set 2 variables (ap_sta referenced in the constraint)\n    ap_sta = Int('ap_sta')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(sta == 0)\n\n    # Constraint set 2: !(WARN_ON_ONCE(!sta || !ap_sta))\n    #   <=> (sta != 0) && (ap_sta != 0)\n    s.add(Not(Or(sta == 0, ap_sta == 0)))\n\n    return s.check() == sat",
+      "ok": true,
+      "feasible": false,
+      "queries": [
+        {
+          "result": "unsat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun sta () Int)\n(declare-fun ap_sta () Int)\n(assert\n (= sta 0))\n(assert\n (not (or (= sta 0) (= ap_sta 0))))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

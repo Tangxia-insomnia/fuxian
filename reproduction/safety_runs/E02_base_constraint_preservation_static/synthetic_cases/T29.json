@@ -1,0 +1,14 @@
+{
+  "test_id": "T29",
+  "scenario": "bitvector_zero_literal_coercion",
+  "B": "x=BitVec('x',64)\ns.add(x != 0)",
+  "delta": "",
+  "Final": "def check_constraints():\n    x=BitVec('x',64)\n    s=Solver()\n    s.add(x != 0)\n    return s.check() == sat",
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "expected_status": "PASS",
+  "expected_nonzero": null
+}

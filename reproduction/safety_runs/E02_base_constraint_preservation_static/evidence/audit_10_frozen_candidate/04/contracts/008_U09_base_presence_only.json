@@ -1,0 +1,16 @@
+{
+  "B": "```python\nfolio_test_slab=Int('folio_test_slab')\nobject=Int('object')\ns.add(folio_test_slab == 0)\ns.add(object == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Solver, Int, BitVec, sat\n\n    # Base script variables and constraints\n    folio_test_slab = Int('folio_test_slab')\n    object = Int('object')\n\n    s = Solver()\n    s.add(folio_test_slab == 0)\n    s.add(object == 0)\n\n    # Constraint set 1: object_ptr is NULL (ZERO_OR_NULL_PTR true)\n    object_ptr = Int('object_ptr')\n    s.add(object_ptr == 0)\n\n    # Constraint set 2: object (as BitVec 64) must be non-null\n    object_bv = BitVec('object_bv', 64)\n    s.add(object_bv != 0)\n\n    result = s.check()\n    return result == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/1/U02",
+    "frame/1/increment",
+    "results/raw/completed/calls/0238.json#/choices/0/message/content"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "event_id": 3,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, IntVal, Or, sat\n\n    # Base script variables and constraints\n    ENGINE_get_id_e = Int('ENGINE_get_id_e')\n    id = Int('id')\n\n    # Constraint set 2 variables\n    engines   = Int('engines')\n    pre_cmds  = Int('pre_cmds')\n    post_cmds = Int('post_cmds')\n    argv      = Int('argv')\n    argv_deref_deref = Int('argv_deref_deref')\n    o         = Int('o')\n    OPT_EOF   = IntVal(-1)\n    engine_id = Int('engine_id')\n    id_str    = Int('id_str')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(ENGINE_get_id_e == id)\n\n    # Constraint set 2 constraints\n    s.add(engines   != 0)\n    s.add(pre_cmds  != 0)\n    s.add(post_cmds != 0)\n\n    DASH = 45  # ord('-')\n    s.add(Or(argv == 0, argv_deref_deref != DASH))\n\n    s.add(o == OPT_EOF)\n\n    strcmp_equal = (engine_id == id_str)\n\n    result = s.check()\n    return result == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun id () Int)\n(declare-fun ENGINE_get_id_e () Int)\n(declare-fun engines () Int)\n(declare-fun pre_cmds () Int)\n(declare-fun post_cmds () Int)\n(declare-fun argv_deref_deref () Int)\n(declare-fun argv () Int)\n(declare-fun o () Int)\n(assert\n (= ENGINE_get_id_e id))\n(assert\n (and (distinct engines 0) true))\n(assert\n (and (distinct pre_cmds 0) true))\n(assert\n (and (distinct post_cmds 0) true))\n(assert\n (let (($x44 (= argv 0)))\n (or $x44 (and (distinct argv_deref_deref 45) true))))\n(assert\n (= (- 1) o))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

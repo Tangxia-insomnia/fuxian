@@ -1,0 +1,16 @@
+{
+  "B": "```python\nche=Int('che')\ns.add(che == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, Or, sat\n\n    # Variables from base script\n    che = Int('che')\n\n    # Variables from constraint set 2\n    elem_type = Int('elem_type')\n    TYPE_END = Int('TYPE_END')\n    TYPE_DSE = Int('TYPE_DSE')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(che == 0)\n\n    # Constraint set 2 constraint\n    s.add(Or(\n        elem_type == TYPE_END,\n        elem_type >= TYPE_DSE,\n        che != 0\n    ))\n\n    return s.check() == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0422.json#/choices/0/message/content"
+  ]
+}

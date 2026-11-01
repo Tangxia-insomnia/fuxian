@@ -1,0 +1,27 @@
+{
+  "B": "```python\nche=Int('che')\ns.add(che == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, Or, sat\n\n    # Variables from base script\n    che = Int('che')\n\n    # Variables from constraint set 2\n    elem_type = Int('elem_type')\n    TYPE_END = Int('TYPE_END')\n    TYPE_DSE = Int('TYPE_DSE')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(che == 0)\n\n    # Constraint set 2 constraint\n    s.add(Or(\n        elem_type == TYPE_END,\n        elem_type >= TYPE_DSE,\n        che != 0\n    ))\n\n    return s.check() == sat\n```",
+  "extra_deltas": [
+    {
+      "text": "",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0422.json#/choices/0/message/content#input_constraint_set_1"
+    },
+    {
+      "text": "```python\nfrom z3 import *\n\n# Declare variables appearing in the constraint\n# elem_type: result of get_bits(gb, 3) - an integer bitfield value\nelem_type = Int('elem_type')\n# TYPE_END and TYPE_DSE are C enum constants; model as symbolic Ints\nTYPE_END = Int('TYPE_END')\nTYPE_DSE = Int('TYPE_DSE')\n# che: result of get_che(...) - modeled as an integer (0 means NULL/false)\nche = Int('che')\n\ns = Solver()\n\n# Original C constraint:\n# !((elem_type = get_bits(gb, 3)) != TYPE_END) || !(elem_type < TYPE_DSE) || !(!(che=get_che(ac, elem_type, elem_id)))\n#\n# The assignment (elem_type = get_bits(gb,3)) is already captured by elem_type being\n# the value returned by get_bits; we treat elem_type as that value directly.\n# Similarly (che = get_che(...)) is captured by che being the return value.\n#\n# Rewrite in C logic:\n#   !(elem_type != TYPE_END) || !(elem_type < TYPE_DSE) || !(!(che != 0))\n# = (elem_type == TYPE_END) || (elem_type >= TYPE_DSE) || (che != 0)\n#\n# This constraint is included because it directly references `che` (and elem_type),\n# which are the relevant variables of interest.\n\ns.add(Or(\n    elem_type == TYPE_END,      # !(elem_type != TYPE_END)\n    elem_type >= TYPE_DSE,      # !(elem_type < TYPE_DSE)\n    che != 0                    # !(!(che != 0))  -> che is non-null/truthy\n))\n\nprint(s)\n```",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0422.json#/choices/0/message/content#input_constraint_set_2"
+    }
+  ],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0422.json#/choices/0/message/content"
+  ]
+}

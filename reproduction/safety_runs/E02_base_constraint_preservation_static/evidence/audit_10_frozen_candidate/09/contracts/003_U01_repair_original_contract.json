@@ -1,0 +1,27 @@
+{
+  "B": "```python\nidev=Int('idev')\ns.add(idev == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, Function, IntSort, BoolSort, Or, Not, And, sat\n\n    idev = Int('idev')\n    cfg_fc_ifindex = Int('cfg_fc_ifindex')\n    cfg_fc_flags = Int('cfg_fc_flags')\n    dev = Int('dev')\n    addr_type = Int('addr_type')\n    net_loopback_dev = Int('net_loopback_dev')\n    fib6_is_reject = Function('fib6_is_reject', IntSort(), IntSort(), IntSort(), BoolSort())\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(idev == 0)\n\n    # Constraint set 2 - Constraint 1\n    s.add(Or(\n        Not(fib6_is_reject(cfg_fc_flags, dev, addr_type)),\n        dev == net_loopback_dev,\n        idev != 0\n    ))\n\n    # Constraint set 2 - Constraint 2\n    s.add(Or(\n        cfg_fc_ifindex == 0,\n        idev != 0\n    ))\n\n    return s.check() == sat\n```",
+  "extra_deltas": [
+    {
+      "text": "",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0052.json#/choices/0/message/content#input_constraint_set_1"
+    },
+    {
+      "text": "```python\nfrom z3 import *\n\n# Declare variables relevant to the constraints.\n# idev is a pointer-like variable; model it as an integer (0 == NULL).\nidev = Int('idev')\n\n# The following variables appear in the constraints but are not part of the\n# \"relevant conditions/variables\" list. They are still needed to express the\n# constraints faithfully, so we declare them as uninterpreted integers.\n# (Their internal structure is irrelevant to the constraints we keep.)\ncfg_fc_ifindex = Int('cfg_fc_ifindex')\ncfg_fc_flags   = Int('cfg_fc_flags')\ndev            = Int('dev')\naddr_type      = Int('addr_type')\nnet_loopback_dev = Int('net_loopback_dev')\n\n# Uninterpreted predicate for fib6_is_reject(...)\nfib6_is_reject = Function('fib6_is_reject', IntSort(), IntSort(), IntSort(), BoolSort())\n\ns = Solver()\n\n# ---------------------------------------------------------------------------\n# Constraint 1:\n#   !(fib6_is_reject(cfg->fc_flags, dev, addr_type)) || !(dev != net->loopback_dev) || !(!idev)\n#\n# This constraint involves `idev` (the relevant variable), so it is included.\n# C-style translation:\n#   !(fib6_is_reject(...))            -> Not(fib6_is_reject(...))\n#   !(dev != net->loopback_dev)       -> dev == net_loopback_dev\n#   !(!idev)                          -> idev != 0   (i.e., idev is non-NULL)\n# ---------------------------------------------------------------------------\ns.add(Or(\n    Not(fib6_is_reject(cfg_fc_flags, dev, addr_type)),\n    dev == net_loopback_dev,\n    idev != 0\n))\n\n# ---------------------------------------------------------------------------\n# Constraint 2:\n#   !(cfg->fc_ifindex) || !(!idev)\n#\n# This constraint involves `idev` (the relevant variable), so it is included.\n# C-style translation:\n#   !(cfg->fc_ifindex)  -> cfg_fc_ifindex == 0\n#   !(!idev)            -> idev != 0\n# ---------------------------------------------------------------------------\ns.add(Or(\n    cfg_fc_ifindex == 0,\n    idev != 0\n))\n\n# Print the resulting script's model check (satisfiability).\nprint(s.check())\n```",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0052.json#/choices/0/message/content#input_constraint_set_2"
+    }
+  ],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0053.json#/choices/0/message/content"
+  ]
+}

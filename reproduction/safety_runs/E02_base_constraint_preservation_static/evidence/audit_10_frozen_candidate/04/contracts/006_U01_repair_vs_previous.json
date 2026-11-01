@@ -1,0 +1,16 @@
+{
+  "B": "```python\ndef check_constraints():\n    # Variables\n    # object is NULL (ZERO_OR_NULL_PTR true) -> object == 0\n    # kfree returns early when object is NULL\n    # folio_test_slab is not evaluated in this path\n\n    object_ptr = 0  # object is NULL\n\n    # Constraint: object is NULL (ZERO_OR_NULL_PTR true)\n    # This means kfree returns early, so folio_test_slab is not evaluated\n    constraints = []\n\n    # ZERO_OR_NULL_PTR(object) is true -> object == 0\n    constraints.append(object_ptr == 0)\n\n    # Since object is NULL, kfree returns early.\n    # folio_test_slab is not evaluated in this path.\n    # No additional constraints needed beyond existing ones.\n\n    # Validate all constraints\n    for c in constraints:\n        if not c:\n            return False\n    return True\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n\n    # Variables\n    # object is NULL (ZERO_OR_NULL_PTR true) -> object == 0\n    # kfree returns early when object is NULL\n    # folio_test_slab is not evaluated in this path\n\n    object_ptr = Int('object_ptr')\n\n    s = Solver()\n\n    # Constraint: object is NULL (ZERO_OR_NULL_PTR true)\n    # This means kfree returns early, so folio_test_slab is not evaluated\n    s.add(object_ptr == 0)\n\n    # Since object is NULL, kfree returns early.\n    # folio_test_slab is not evaluated in this path.\n    # No additional constraints needed beyond existing ones.\n\n    result = s.check()\n    return result == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/1/U02",
+    "frame/1/increment",
+    "results/raw/completed/calls/0235.json#/choices/0/message/content"
+  ]
+}

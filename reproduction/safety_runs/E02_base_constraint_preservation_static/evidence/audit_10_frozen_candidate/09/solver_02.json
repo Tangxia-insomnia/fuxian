@@ -1,0 +1,7 @@
+{
+  "event_id": 2,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Function, IntSort, BoolSort, Or, Not, And, sat\n\n    idev = Int('idev')\n    cfg_fc_ifindex = Int('cfg_fc_ifindex')\n    cfg_fc_flags = Int('cfg_fc_flags')\n    dev = Int('dev')\n    addr_type = Int('addr_type')\n    net_loopback_dev = Int('net_loopback_dev')\n    fib6_is_reject = Function('fib6_is_reject', IntSort(), IntSort(), IntSort(), BoolSort())\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(idev == 0)\n\n    # Constraint set 2 - Constraint 1\n    s.add(Or(\n        Not(fib6_is_reject(cfg_fc_flags, dev, addr_type)),\n        dev == net_loopback_dev,\n        idev != 0\n    ))\n\n    # Constraint set 2 - Constraint 2\n    s.add(Or(\n        cfg_fc_ifindex == 0,\n        idev != 0\n    ))\n\n    return s.check() == sat",
+  "ok": false,
+  "error": "ValueError: NameError: name 'Function' is not defined"
+}

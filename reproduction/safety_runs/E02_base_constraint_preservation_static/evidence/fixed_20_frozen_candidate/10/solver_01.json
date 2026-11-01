@@ -1,0 +1,14 @@
+{
+  "event_id": 1,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Solver, Int, BitVec, sat\n    \n    s = Solver()\n    \n    # Base script constraints\n    p_int = Int('p')\n    s.add(p_int == 0)\n    \n    # Constraint set 2 constraints\n    p_bv = BitVec('p', 64)\n    s.add(p_bv != 0)\n    \n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun p () Int)\n(declare-fun p () (_ BitVec 64))\n(assert\n (= p 0))\n(assert\n (and (distinct p (_ bv0 64)) true))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

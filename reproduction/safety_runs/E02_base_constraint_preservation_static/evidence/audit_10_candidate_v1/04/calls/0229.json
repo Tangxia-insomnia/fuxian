@@ -1,0 +1,45 @@
+{
+  "call_id": 229,
+  "sample_id": "NPD/codeql/kernel69:row=12:index=24",
+  "timestamp": "2026-10-26T00:47:46.664504+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: int tcp_set_allowed_congestion_control(char *val)\n{\n\tstruct tcp_congestion_ops *ca;\n\tchar *saved_clone, *clone, *name;\n\tint ret = 0;\n\n\tsaved_clone = clone = kstrdup(val, GFP_USER);\n\tif (!clone)\n\t\treturn -ENOMEM;\n\n\tspin_lock(&tcp_cong_list_lock);\n\t/* pass 1 check for bad entries */\n\twhile ((name = strsep(&clone, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tif (!ca) {\n\t\t\tret = -ENOENT;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\t/* pass 2 clear old values */\n\tlist_for_each_entry_rcu(ca, &tcp_cong_list, list)\n\t\tca->flags &= ~TCP_CONG_NON_RESTRICTED;\n\n\t/* pass 3 mark as allowed */\n\twhile ((name = strsep(&val, \" \")) && *name) {\n\t\tca = tcp_ca_find(name);\n\t\tWARN_ON(!ca);\n\t\tif (ca)\n\t\t\tca->flags |= TCP_CONG_NON_RESTRICTED;\n\t}\nout:\n\tspin_unlock(&tcp_cong_list_lock);\n\tkfree(saved_clone);\n\n\treturn ret;\n}\n        - Target variables: [], saved_clone\n        - Constraints: ['!(!clone)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "da4429c5-cb7e-463a-8515-4fbb5c0dd974",
+  "usage": {
+    "prompt_tokens": 373,
+    "completion_tokens": 5,
+    "total_tokens": 378,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 373
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6386467000002085,
+  "cost_upper_bound_cny": 0.000786
+}

@@ -1,0 +1,16 @@
+{
+  "B": "```python\nfib6_nh=Int('fib6_nh')\ns.add(fib6_nh == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, sat\n    fib6_nh = Int('fib6_nh')\n    s = Solver()\n    s.add(fib6_nh == 0)\n    return s.check() == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0242.json#/choices/0/message/content"
+  ]
+}

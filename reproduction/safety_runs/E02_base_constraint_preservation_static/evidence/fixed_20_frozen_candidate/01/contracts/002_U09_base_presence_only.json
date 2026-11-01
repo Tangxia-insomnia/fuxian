@@ -1,0 +1,16 @@
+{
+  "B": "```python\nbs=Int('bs')\ns.add(bs == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, sat\n\n    # Base script variables and constraints\n    bs = Int('bs')\n    s = Solver()\n    s.add(bs == 0)\n\n    # Constraint set 2 variables and constraints\n    loop_guard = Bool('loop_guard')\n    inf_eq_rev = Bool('inf_eq_rev')\n    single_is_null = Bool('single_is_null')\n    s.add(Or(Not(loop_guard), Not(inf_eq_rev), Not(single_is_null)))\n\n    return s.check() == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0781.json#/choices/0/message/content"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "B": "```python\nsaved_clone=Int('saved_clone')\ns.add(saved_clone == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, sat\n    saved_clone = Int('saved_clone')\n    s = Solver()\n    s.add(saved_clone == 0)\n    return s.check() == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0230.json#/choices/0/message/content"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "test_id": "T22",
+  "scenario": "different_solver_is_not_union",
+  "B": "x=Int('x')\ns.add(x == 0)\n",
+  "delta": "",
+  "Final": "def check_constraints():\n    x=Int('x')\n    s=Solver()\n    s.add(x == 0)\n    other=Solver()\n    r=other.check()\n    return r == sat\n",
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "expected_status": "FAIL",
+  "expected_nonzero": "missing_base_assertions"
+}

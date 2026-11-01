@@ -1,0 +1,27 @@
+{
+  "B": "```python\nskb=Int('skb')\ns.add(skb == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, sat\n    skb = Int('skb')\n    s = Solver()\n    s.add(skb == 0)\n    s.add(skb != 0)\n    return s.check() == sat\n```",
+  "extra_deltas": [
+    {
+      "text": "",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0076.json#/choices/0/message/content#input_constraint_set_1"
+    },
+    {
+      "text": "```python\n# Z3 script generated from C constraints\n# Constraint: !(!skb)\n#\n# In C, `skb` is a pointer. The expression `!skb` is true when skb is NULL\n# (i.e., skb == 0). The outer `!` negates that, so `!(!skb)` is true when\n# skb is NOT NULL (i.e., skb != 0).\n#\n# We model the pointer as an integer (0 = NULL, nonzero = valid pointer),\n# which is the standard way to encode C pointer null-checks in Z3.\n\nfrom z3 import *\n\n# Declare skb as an integer representing a pointer value (0 == NULL)\nskb = Int('skb')\n\n# Solver instance\ns = Solver()\n\n# Constraint: !(!skb)  ==>  skb != 0\n# Included because it directly constrains the variable `skb`.\ns.add(skb != 0)\n\n# Check satisfiability and print a model\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0076.json#/choices/0/message/content#input_constraint_set_2"
+    }
+  ],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0076.json#/choices/0/message/content"
+  ]
+}

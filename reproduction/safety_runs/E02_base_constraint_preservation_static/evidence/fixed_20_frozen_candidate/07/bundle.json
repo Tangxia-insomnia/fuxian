@@ -1,0 +1,105 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/kernel69:row=15:index=31",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "uh",
+    "function_name": "udp_gro_receive_segment",
+    "location": {
+      "file_path": "net/ipv4/udp_offload.c",
+      "region": {
+        "startLine": 477,
+        "startColumn": 7,
+        "endColumn": 9
+      },
+      "context": {
+        "startLine": 475,
+        "endLine": 479,
+        "snippet": {
+          "text": "\tif (!uh->check) {"
+        }
+      }
+    },
+    "function_code": "static struct sk_buff *udp_gro_receive_segment(struct list_head *head,\n\t\t\t\t\t       struct sk_buff *skb)\n{\n\tstruct udphdr *uh = udp_gro_udphdr(skb);\n\tstruct sk_buff *pp = NULL;\n\tstruct udphdr *uh2;\n\tstruct sk_buff *p;\n\tunsigned int ulen;\n\tint ret = 0;\n\tint flush;\n\n\t/* requires non zero csum, for symmetry with GSO */\n\tif (!uh->check) {\n\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;\n\t}\n\n\t/* Do not deal with padded or malicious packets, sorry ! */\n\tulen = ntohs(uh->len);\n\tif (ulen <= sizeof(*uh) || ulen != skb_gro_len(skb)) {\n\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;\n\t}\n\t/* pull encapsulating udp header */\n\tskb_gro_pull(skb, sizeof(struct udphdr));\n\n\tlist_for_each_entry(p, head, list) {\n\t\tif (!NAPI_GRO_CB(p)->same_flow)\n\t\t\tcontinue;\n\n\t\tuh2 = udp_hdr(p);\n\n\t\t/* Match ports only, as csum is always non zero */\n\t\tif ((*(u32 *)&uh->source != *(u32 *)&uh2->source)) {\n\t\t\tNAPI_GRO_CB(p)->same_flow = 0;\n\t\t\tcontinue;\n\t\t}\n\n\t\tif (NAPI_GRO_CB(skb)->is_flist != NAPI_GRO_CB(p)->is_flist) {\n\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\treturn p;\n\t\t}\n\n\t\tflush = NAPI_GRO_CB(p)->flush;\n\n\t\tif (NAPI_GRO_CB(p)->flush_id != 1 ||\n\t\t    NAPI_GRO_CB(p)->count != 1 ||\n\t\t    !NAPI_GRO_CB(p)->is_atomic)\n\t\t\tflush |= NAPI_GRO_CB(p)->flush_id;\n\t\telse\n\t\t\tNAPI_GRO_CB(p)->is_atomic = false;\n\n\t\t/* Terminate the flow on len mismatch or if it grow \"too much\".\n\t\t * Under small packet flood GRO count could elsewhere grow a lot\n\t\t * leading to excessive truesize values.\n\t\t * On len mismatch merge the first packet shorter than gso_size,\n\t\t * otherwise complete the GRO packet.\n\t\t */\n\t\tif (ulen > ntohs(uh2->len) || flush) {\n\t\t\tpp = p;\n\t\t} else {\n\t\t\tif (NAPI_GRO_CB(skb)->is_flist) {\n\t\t\t\tif (!pskb_may_pull(skb, skb_gro_offset(skb))) {\n\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;\n\t\t\t\t}\n\t\t\t\tif ((skb->ip_summed != p->ip_summed) ||\n\t\t\t\t    (skb->csum_level != p->csum_level)) {\n\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;\n\t\t\t\t}\n\t\t\t\tret = skb_gro_receive_list(p, skb);\n\t\t\t} else {\n\t\t\t\tskb_gro_postpull_rcsum(skb, uh,\n\t\t\t\t\t\t       sizeof(struct udphdr));\n\n\t\t\t\tret = skb_gro_receive(p, skb);\n\t\t\t}\n\t\t}\n\n\t\tif (ret || ulen != ntohs(uh2->len) ||\n\t\t    NAPI_GRO_CB(p)->count >= UDP_GRO_CNT_MAX)\n\t\t\tpp = p;\n\n\t\treturn pp;\n\t}\n\n\t/* mismatch, but we never need to flush */\n\treturn NULL;\n}",
+    "function_list": [
+      "udp_gro_udphdr",
+      "skb_gro_header",
+      "skb_gro_header_slow"
+    ],
+    "bug_line_constraints": [
+      {
+        "text": "\tif (!uh->check) {",
+        "condition": []
+      }
+    ],
+    "var_assign_conditions": [],
+    "pointer_null_postconditions": [],
+    "early_jump_constraints": [],
+    "index": 31
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "udp_gro_receive_segment",
+        "var_name": "uh",
+        "target": "\tif (!uh->check) {",
+        "code": "static struct sk_buff *udp_gro_receive_segment(struct list_head *head,\n\t\t\t\t\t       struct sk_buff *skb)\n{\n\tstruct udphdr *uh = udp_gro_udphdr(skb);\n\tstruct sk_buff *pp = NULL;\n\tstruct udphdr *uh2;\n\tstruct sk_buff *p;\n\tunsigned int ulen;\n\tint ret = 0;\n\tint flush;\n\n\t/* requires non zero csum, for symmetry with GSO */\n\tif (!uh->check) {\n\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;\n\t}\n\n\t/* Do not deal with padded or malicious packets, sorry ! */\n\tulen = ntohs(uh->len);\n\tif (ulen <= sizeof(*uh) || ulen != skb_gro_len(skb)) {\n\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;\n\t}\n\t/* pull encapsulating udp header */\n\tskb_gro_pull(skb, sizeof(struct udphdr));\n\n\tlist_for_each_entry(p, head, list) {\n\t\tif (!NAPI_GRO_CB(p)->same_flow)\n\t\t\tcontinue;\n\n\t\tuh2 = udp_hdr(p);\n\n\t\t/* Match ports only, as csum is always non zero */\n\t\tif ((*(u32 *)&uh->source != *(u32 *)&uh2->source)) {\n\t\t\tNAPI_GRO_CB(p)->same_flow = 0;\n\t\t\tcontinue;\n\t\t}\n\n\t\tif (NAPI_GRO_CB(skb)->is_flist != NAPI_GRO_CB(p)->is_flist) {\n\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\treturn p;\n\t\t}\n\n\t\tflush = NAPI_GRO_CB(p)->flush;\n\n\t\tif (NAPI_GRO_CB(p)->flush_id != 1 ||\n\t\t    NAPI_GRO_CB(p)->count != 1 ||\n\t\t    !NAPI_GRO_CB(p)->is_atomic)\n\t\t\tflush |= NAPI_GRO_CB(p)->flush_id;\n\t\telse\n\t\t\tNAPI_GRO_CB(p)->is_atomic = false;\n\n\t\t/* Terminate the flow on len mismatch or if it grow \"too much\".\n\t\t * Under small packet flood GRO count could elsewhere grow a lot\n\t\t * leading to excessive truesize values.\n\t\t * On len mismatch merge the first packet shorter than gso_size,\n\t\t * otherwise complete the GRO packet.\n\t\t */\n\t\tif (ulen > ntohs(uh2->len) || flush) {\n\t\t\tpp = p;\n\t\t} else {\n\t\t\tif (NAPI_GRO_CB(skb)->is_flist) {\n\t\t\t\tif (!pskb_may_pull(skb, skb_gro_offset(skb))) {\n\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;\n\t\t\t\t}\n\t\t\t\tif ((skb->ip_summed != p->ip_summed) ||\n\t\t\t\t    (skb->csum_level != p->csum_level)) {\n\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;\n\t\t\t\t}\n\t\t\t\tret = skb_gro_receive_list(p, skb);\n\t\t\t} else {\n\t\t\t\tskb_gro_postpull_rcsum(skb, uh,\n\t\t\t\t\t\t       sizeof(struct udphdr));\n\n\t\t\t\tret = skb_gro_receive(p, skb);\n\t\t\t}\n\t\t}\n\n\t\tif (ret || ulen != ntohs(uh2->len) ||\n\t\t    NAPI_GRO_CB(p)->count >= UDP_GRO_CNT_MAX)\n\t\t\tpp = p;\n\n\t\treturn pp;\n\t}\n\n\t/* mismatch, but we never need to flush */\n\treturn NULL;\n}",
+        "body_sha256": "a45084ac56e0e387de6582aa35d2a1b7f7ae70595725427b3991f4e3193330ed",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "\tif (!uh->check) {",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static struct sk_buff *udp_gro_receive_segment(struct list_head *head,",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [],
+          "filter_function_code": "static struct sk_buff *udp_gro_receive_segment(struct list_head *head,\n\t\t\t\t\t       struct sk_buff *skb)\n{\n\tstruct udphdr *uh = udp_gro_udphdr(skb);\n\tstruct sk_buff *pp = NULL;\n\tstruct udphdr *uh2;\n\tstruct sk_buff *p;\n\tunsigned int ulen;\n\tint ret = 0;\n\tint flush;\n\n\t/* requires non zero csum, for symmetry with GSO */\n\tif (!uh->check) {\n\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;\n\t}\n\n\t/* Do not deal with padded or malicious packets, sorry ! */\n\tulen = ntohs(uh->len);\n\tif (ulen <= sizeof(*uh) || ulen != skb_gro_len(skb)) {\n\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;\n\t}\n\t/* pull encapsulating udp header */\n\tskb_gro_pull(skb, sizeof(struct udphdr));\n\n\tlist_for_each_entry(p, head, list) {\n\t\tif (!NAPI_GRO_CB(p)->same_flow)\n\t\t\tcontinue;\n\n\t\tuh2 = udp_hdr(p);\n\n\t\t/* Match ports only, as csum is always non zero */\n\t\tif ((*(u32 *)&uh->source != *(u32 *)&uh2->source)) {\n\t\t\tNAPI_GRO_CB(p)->same_flow = 0;\n\t\t\tcontinue;\n\t\t}\n\n\t\tif (NAPI_GRO_CB(skb)->is_flist != NAPI_GRO_CB(p)->is_flist) {\n\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\treturn p;\n\t\t}\n\n\t\tflush = NAPI_GRO_CB(p)->flush;\n\n\t\tif (NAPI_GRO_CB(p)->flush_id != 1 ||\n\t\t    NAPI_GRO_CB(p)->count != 1 ||\n\t\t    !NAPI_GRO_CB(p)->is_atomic)\n\t\t\tflush |= NAPI_GRO_CB(p)->flush_id;\n\t\telse\n\t\t\tNAPI_GRO_CB(p)->is_atomic = false;\n\n\t\t/* Terminate the flow on len mismatch or if it grow \"too much\".\n\t\t * Under small packet flood GRO count could elsewhere grow a lot\n\t\t * leading to excessive truesize values.\n\t\t * On len mismatch merge the first packet shorter than gso_size,\n\t\t * otherwise complete the GRO packet.\n\t\t */\n\t\tif (ulen > ntohs(uh2->len) || flush) {\n\t\t\tpp = p;\n\t\t} else {\n\t\t\tif (NAPI_GRO_CB(skb)->is_flist) {\n\t\t\t\tif (!pskb_may_pull(skb, skb_gro_offset(skb))) {\n\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;\n\t\t\t\t}\n\t\t\t\tif ((skb->ip_summed != p->ip_summed) ||\n\t\t\t\t    (skb->csum_level != p->csum_level)) {\n\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;\n\t\t\t\t}\n\t\t\t\tret = skb_gro_receive_list(p, skb);\n\t\t\t} else {\n\t\t\t\tskb_gro_postpull_rcsum(skb, uh,\n\t\t\t\t\t\t       sizeof(struct udphdr));\n\n\t\t\t\tret = skb_gro_receive(p, skb);\n\t\t\t}\n\t\t}\n\n\t\tif (ret || ulen != ntohs(uh2->len) ||\n\t\t    NAPI_GRO_CB(p)->count >= UDP_GRO_CNT_MAX)\n\t\t\tpp = p;\n\n\t\treturn pp;\n\t}\n\n\t/* mismatch, but we never need to flush */\n\treturn NULL;\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static struct sk_buff *udp_gro_receive_segment(struct list_head *head,\n\t\t\t\t\t       struct sk_buff *skb)\n{\n\tstruct udphdr *uh = udp_gro_udphdr(skb);\n\tstruct sk_buff *pp = NULL;\n\tstruct udphdr *uh2;\n\tstruct sk_buff *p;\n\tunsigned int ulen;\n\tint ret = 0;\n\tint flush;\n\n\t/* requires non zero csum, for symmetry with GSO */\n\tif (!uh->check) {\n\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;\n\t}\n\n\t/* Do not deal with padded or malicious packets, sorry ! */\n\tulen = ntohs(uh->len);\n\tif (ulen <= sizeof(*uh) || ulen != skb_gro_len(skb)) {\n\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;\n\t}\n\t/* pull encapsulating udp header */\n\tskb_gro_pull(skb, sizeof(struct udphdr));\n\n\tlist_for_each_entry(p, head, list) {\n\t\tif (!NAPI_GRO_CB(p)->same_flow)\n\t\t\tcontinue;\n\n\t\tuh2 = udp_hdr(p);\n\n\t\t/* Match ports only, as csum is always non zero */\n\t\tif ((*(u32 *)&uh->source != *(u32 *)&uh2->source)) {\n\t\t\tNAPI_GRO_CB(p)->same_flow = 0;\n\t\t\tcontinue;\n\t\t}\n\n\t\tif (NAPI_GRO_CB(skb)->is_flist != NAPI_GRO_CB(p)->is_flist) {\n\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\treturn p;\n\t\t}\n\n\t\tflush = NAPI_GRO_CB(p)->flush;\n\n\t\tif (NAPI_GRO_CB(p)->flush_id != 1 ||\n\t\t    NAPI_GRO_CB(p)->count != 1 ||\n\t\t    !NAPI_GRO_CB(p)->is_atomic)\n\t\t\tflush |= NAPI_GRO_CB(p)->flush_id;\n\t\telse\n\t\t\tNAPI_GRO_CB(p)->is_atomic = false;\n\n\t\t/* Terminate the flow on len mismatch or if it grow \"too much\".\n\t\t * Under small packet flood GRO count could elsewhere grow a lot\n\t\t * leading to excessive truesize values.\n\t\t * On len mismatch merge the first packet shorter than gso_size,\n\t\t * otherwise complete the GRO packet.\n\t\t */\n\t\tif (ulen > ntohs(uh2->len) || flush) {\n\t\t\tpp = p;\n\t\t} else {\n\t\t\tif (NAPI_GRO_CB(skb)->is_flist) {\n\t\t\t\tif (!pskb_may_pull(skb, skb_gro_offset(skb))) {\n\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;\n\t\t\t\t}\n\t\t\t\tif ((skb->ip_summed != p->ip_summed) ||\n\t\t\t\t    (skb->csum_level != p->csum_level)) {\n\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;\n\t\t\t\t}\n\t\t\t\tret = skb_gro_receive_list(p, skb);\n\t\t\t} else {\n\t\t\t\tskb_gro_postpull_rcsum(skb, uh,\n\t\t\t\t\t\t       sizeof(struct udphdr));\n\n\t\t\t\tret = skb_gro_receive(p, skb);\n\t\t\t}\n\t\t}\n\n\t\tif (ret || ulen != ntohs(uh2->len) ||\n\t\t    NAPI_GRO_CB(p)->count >= UDP_GRO_CNT_MAX)\n\t\t\tpp = p;\n\n\t\treturn pp;\n\t}\n\n\t/* mismatch, but we never need to flush */\n\treturn NULL;\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nuh=Int('uh')\ns.add(uh == 0)\n```"
+    ],
+    "function_name_list": [],
+    "function_body_list": [],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    uh = Int('uh')\n    s = Solver()\n    s.add(uh == 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun uh () Int)\n(assert\n (= uh 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

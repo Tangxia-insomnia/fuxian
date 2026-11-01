@@ -1,0 +1,16 @@
+{
+  "B": "```python\nipv6_addr_any=Int('ipv6_addr_any')\ncfg_fc_prefsrc=Int('cfg_fc_prefsrc')\nfib6_nh=Int('fib6_nh')\ns.add(Not(ipv6_addr_any == 0) == 1)\ns.add(fib6_nh == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Solver, Int, Bool, And, Or, Not, sat, unsat\n\n    # Variables from base script\n    ipv6_addr_any = Int('ipv6_addr_any')\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n\n    # Variables from constraint set 2\n    nh = Bool('nh')\n    plen = Int('rt->fib6_src.plen')\n    nexthop_get_nh = Bool('nexthop_get(nh)')\n    err = Bool('err')\n\n    s = Solver()\n\n    # Base script constraints\n    s.add(Not(ipv6_addr_any == 0) == 1)\n    s.add(fib6_nh == 0)\n\n    # Constraint set 1\n    s.add(cfg_fc_prefsrc != 0)\n    s.add(fib6_nh == 0)\n    s.add(ipv6_addr_any != 0)\n\n    # Constraint set 2\n    s.add(Or(Not(nh), plen == 0))\n    s.add(Or(Not(nh), nexthop_get_nh))\n    s.add(Or(nh, Not(err)))\n\n    result = s.check()\n    return result == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0295.json#/choices/0/message/content"
+  ]
+}

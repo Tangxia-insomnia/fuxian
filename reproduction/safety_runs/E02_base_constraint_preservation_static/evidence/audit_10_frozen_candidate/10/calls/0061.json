@@ -1,0 +1,45 @@
+{
+  "call_id": 61,
+  "sample_id": "NPD/codeql/kernel69:row=65:index=95",
+  "timestamp": "2026-10-26T00:28:55.698396+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(WARN_ON_ONCE(!sta || !ap_sta))']\n        Relevant conditions/variables: [], sta\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "4605badd-9d7f-44bc-87ca-f3393d4de7eb",
+  "usage": {
+    "prompt_tokens": 118,
+    "completion_tokens": 448,
+    "total_tokens": 566,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 118
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\n# Z3 script generated from C constraint:\n#   !(WARN_ON_ONCE(!sta || !ap_sta))\n#\n# Reasoning:\n# - WARN_ON_ONCE(cond) is a kernel macro that evaluates its argument `cond`\n#   and returns the (boolean) result of that condition. It has no side\n#   effects on the constraint logic itself (it only emits a warning once).\n#   Therefore, for constraint-solving purposes, WARN_ON_ONCE(x) == x.\n# - The outer `!` negates the whole expression.\n# - Inside: `!sta || !ap_sta` in C means (sta == NULL) || (ap_sta == NULL).\n# - So the full constraint is: !( (sta == NULL) || (ap_sta == NULL) )\n#   which by De Morgan simplifies to: (sta != NULL) && (ap_sta != NULL).\n# - The relevant variable mentioned is `sta`; `ap_sta` is also referenced\n#   in the expression, so it must be modeled to preserve semantics.\n# - In Z3, pointers are modeled as integer addresses; NULL == 0.\n\nfrom z3 import *\n\n# Pointer variables (modeled as integer addresses; 0 == NULL)\nsta    = Int('sta')\nap_sta = Int('ap_sta')\n\ns = Solver()\n\n# Constraint: !(WARN_ON_ONCE(!sta || !ap_sta))\n#   WARN_ON_ONCE(x) behaves as x for constraint purposes.\n#   !sta      -> sta == 0\n#   !ap_sta   -> ap_sta == 0\n#   !( (sta == 0) || (ap_sta == 0) )\n#   <=> (sta != 0) && (ap_sta != 0)\ns.add(Not(Or(sta == 0, ap_sta == 0)))\n\n# Equivalent simplified form (kept for clarity / verification):\n# s.add(And(sta != 0, ap_sta != 0))\n\nprint(s.check())\nprint(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 2.945066300000235,
+  "cost_upper_bound_cny": 0.00382
+}

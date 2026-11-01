@@ -1,0 +1,16 @@
+{
+  "B": "```python\nskb_get_dst_pending_confirm=Int('skb_get_dst_pending_confirm')\nn=Int('n')\ns.add(skb_get_dst_pending_confirm == 1)\ns.add(n == 0)\n```",
+  "delta": "```python\n# Additional constraints based on line-by-line simulation\n# Line 2: if (skb_get_dst_pending_confirm(skb)) - condition is true (already constrained)\n# Line 3: struct sock *sk = skb->sk; - sk is derived from skb->sk\nsk=Int('sk')\n# Line 5: if (sk && READ_ONCE(sk->sk_dst_pending_confirm))\n# Since n == 0 (NULL), we're analyzing the path where sk may be non-null\n# sk_dst_pending_confirm is a field read from sk\nsk_dst_pending_confirm=Int('sk_dst_pending_confirm')\n# Constraint: sk is non-null (sk != 0) for the inner if to potentially execute\ns.add(sk != 0)\n# Constraint: sk_dst_pending_confirm is read (value range 0 or 1 for boolean-like field)\ns.add(Or(sk_dst_pending_confirm == 0, sk_dst_pending_confirm == 1))\n# Line 6: WRITE_ONCE(sk->sk_dst_pending_confirm, 0) - sets field to 0\n# After write, sk_dst_pending_confirm becomes 0\ns.add(sk_dst_pending_confirm == 0)\n# Line 7: neigh_confirm(n) - called with n == 0 (NULL)\n# neigh_confirm with NULL n - function name suggests confirming neighbor\nneigh_confirm_result=Int('neigh_confirm_result')\n# neigh_confirm returns void, but we track the call occurred\ns.add(neigh_confirm_result == 1)\n```",
+  "Final": "# Additional constraints based on line-by-line simulation\n# Line 2: if (skb_get_dst_pending_confirm(skb)) - condition is true (already constrained)\n# Line 3: struct sock *sk = skb->sk; - sk is derived from skb->sk\nsk=Int('sk')\n# Line 5: if (sk && READ_ONCE(sk->sk_dst_pending_confirm))\n# Since n == 0 (NULL), we're analyzing the path where sk may be non-null\n# sk_dst_pending_confirm is a field read from sk\nsk_dst_pending_confirm=Int('sk_dst_pending_confirm')\n# Constraint: sk is non-null (sk != 0) for the inner if to potentially execute\ns.add(sk != 0)\n# Constraint: sk_dst_pending_confirm is read (value range 0 or 1 for boolean-like field)\ns.add(Or(sk_dst_pending_confirm == 0, sk_dst_pending_confirm == 1))\n# Line 6: WRITE_ONCE(sk->sk_dst_pending_confirm, 0) - sets field to 0\n# After write, sk_dst_pending_confirm becomes 0\ns.add(sk_dst_pending_confirm == 0)\n# Line 7: neigh_confirm(n) - called with n == 0 (NULL)\n# neigh_confirm with NULL n - function name suggests confirming neighbor\nneigh_confirm_result=Int('neigh_confirm_result')\n# neigh_confirm returns void, but we track the call occurred\ns.add(neigh_confirm_result == 1)",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/1/U02",
+    "frame/1/increment",
+    "results/raw/completed/calls/0275.json#/messages/0/content"
+  ]
+}

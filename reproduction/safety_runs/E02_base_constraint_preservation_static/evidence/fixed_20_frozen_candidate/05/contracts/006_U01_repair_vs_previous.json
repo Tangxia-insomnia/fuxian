@@ -1,0 +1,16 @@
+{
+  "B": "```python\ndef check_constraints():\n    from z3 import Int, Solver, IntVal, Or, sat\n\n    # Base script variables and constraints\n    ENGINE_get_id_e = Int('ENGINE_get_id_e')\n    id = Int('id')\n\n    # Constraint set 2 variables\n    engines   = Int('engines')\n    pre_cmds  = Int('pre_cmds')\n    post_cmds = Int('post_cmds')\n    argv      = Int('argv')\n    argv_deref_deref = Int('argv_deref_deref')\n    o         = Int('o')\n    OPT_EOF   = IntVal(-1)\n    engine_id = Int('engine_id')\n    id_str    = Int('id_str')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(ENGINE_get_id_e == id)\n\n    # Constraint set 2 constraints\n    s.add(engines   != 0)\n    s.add(pre_cmds  != 0)\n    s.add(post_cmds != 0)\n\n    DASH = ord('-')\n    s.add(Or(argv == 0, argv_deref_deref != DASH))\n\n    s.add(o == OPT_EOF)\n\n    strcmp_equal = (engine_id == id_str)\n\n    result = s.check()\n    return result == sat\n```",
+  "delta": "",
+  "Final": "def check_constraints():\n    from z3 import Int, Solver, IntVal, Or, sat\n\n    # Base script variables and constraints\n    ENGINE_get_id_e = Int('ENGINE_get_id_e')\n    id = Int('id')\n\n    # Constraint set 2 variables\n    engines   = Int('engines')\n    pre_cmds  = Int('pre_cmds')\n    post_cmds = Int('post_cmds')\n    argv      = Int('argv')\n    argv_deref_deref = Int('argv_deref_deref')\n    o         = Int('o')\n    OPT_EOF   = IntVal(-1)\n    engine_id = Int('engine_id')\n    id_str    = Int('id_str')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(ENGINE_get_id_e == id)\n\n    # Constraint set 2 constraints\n    s.add(engines   != 0)\n    s.add(pre_cmds  != 0)\n    s.add(post_cmds != 0)\n\n    DASH = 45  # ord('-')\n    s.add(Or(argv == 0, argv_deref_deref != DASH))\n\n    s.add(o == OPT_EOF)\n\n    strcmp_equal = (engine_id == id_str)\n\n    result = s.check()\n    return result == sat",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0748.json#/choices/0/message/content"
+  ]
+}

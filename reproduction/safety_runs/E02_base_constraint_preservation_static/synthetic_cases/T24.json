@@ -1,0 +1,14 @@
+{
+  "test_id": "T24",
+  "scenario": "different_Python_alias_same_SMT_identity",
+  "B": "x=Int('x')\ns.add(x == 0)\n",
+  "delta": "",
+  "Final": "def check_constraints():\n    y=Int('x')\n    s=Solver()\n    s.add(y == 0)\n    return s.check() == sat\n",
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "expected_status": "PASS",
+  "expected_nonzero": null
+}

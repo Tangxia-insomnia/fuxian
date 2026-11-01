@@ -1,0 +1,16 @@
+{
+  "B": "```python\nfolio_test_slab=Int('folio_test_slab')\nobject=Int('object')\ns.add(folio_test_slab == 0)\ns.add(object == 0)\n```",
+  "delta": "```python\n# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones\n```",
+  "Final": "# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/1/U02",
+    "frame/1/increment",
+    "results/raw/completed/calls/0234.json#/messages/0/content"
+  ]
+}

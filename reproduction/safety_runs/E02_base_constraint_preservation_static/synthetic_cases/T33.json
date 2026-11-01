@@ -1,0 +1,14 @@
+{
+  "test_id": "T33",
+  "scenario": "pure_trailing_model_diagnostic",
+  "B": "x=Int('x')\ns.add(x == 0)\n",
+  "delta": "",
+  "Final": "x=Int('x')\ns=Solver()\ns.add(x == 0)\nif s.check() == sat:\n    print('Model:',s.model())\n",
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "expected_status": "PASS",
+  "expected_nonzero": null
+}

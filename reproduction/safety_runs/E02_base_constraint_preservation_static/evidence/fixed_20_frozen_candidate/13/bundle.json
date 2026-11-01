@@ -1,0 +1,35 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/cppcheck/linux:row=13:index=None",
+    "status": "blocked_context",
+    "prediction": null,
+    "error": "Function kvm_for_each_vcpu: 0 distinct available definitions",
+    "decision_basis": null
+  },
+  "alert": {
+    "var_name": "vcpu",
+    "function_name": "kvmppc_xics_find_server",
+    "location": {
+      "file_path": "arch/powerpc/kvm/book3s_xics.h",
+      "region": {
+        "startLine": 122,
+        "startColumn": 7,
+        "endColumn": 11
+      },
+      "context": {
+        "startLine": 120,
+        "endLine": 124,
+        "snippet": {
+          "text": "if (vcpu->arch.icp && nr == vcpu->arch.icp->server_num)"
+        }
+      }
+    },
+    "function_code": "static inline struct kvmppc_icp *kvmppc_xics_find_server(struct kvm *kvm,\n\t\t\t\t\t\t\t u32 nr)\n{\n\tstruct kvm_vcpu *vcpu = NULL;\n\tunsigned long i;\n\n\tkvm_for_each_vcpu(i, vcpu, kvm) {\n\t\tif (vcpu->arch.icp && nr == vcpu->arch.icp->server_num)\n\t\t\treturn vcpu->arch.icp;\n\t}\n\treturn NULL;\n}",
+    "loop_assign": 1
+  },
+  "context": null,
+  "recorded_answer": null,
+  "solver_events": [],
+  "issues": []
+}

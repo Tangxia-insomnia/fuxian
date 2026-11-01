@@ -1,0 +1,45 @@
+{
+  "call_id": 75,
+  "sample_id": "NPD/codeql/kernel69:row=11:index=23",
+  "timestamp": "2026-10-26T00:29:18.744394+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(!skb)']\n        Relevant conditions/variables: [], skb\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "ef717887-3371-4e42-ad22-ae64e74bd4b2",
+  "usage": {
+    "prompt_tokens": 110,
+    "completion_tokens": 237,
+    "total_tokens": 347,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 110
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\n# Z3 script generated from C constraints\n# Constraint: !(!skb)\n#\n# In C, `skb` is a pointer. The expression `!skb` is true when skb is NULL\n# (i.e., skb == 0). The outer `!` negates that, so `!(!skb)` is true when\n# skb is NOT NULL (i.e., skb != 0).\n#\n# We model the pointer as an integer (0 = NULL, nonzero = valid pointer),\n# which is the standard way to encode C pointer null-checks in Z3.\n\nfrom z3 import *\n\n# Declare skb as an integer representing a pointer value (0 == NULL)\nskb = Int('skb')\n\n# Solver instance\ns = Solver()\n\n# Constraint: !(!skb)  ==>  skb != 0\n# Included because it directly constrains the variable `skb`.\ns.add(skb != 0)\n\n# Check satisfiability and print a model\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 1.5934895999998844,
+  "cost_upper_bound_cny": 0.002116
+}

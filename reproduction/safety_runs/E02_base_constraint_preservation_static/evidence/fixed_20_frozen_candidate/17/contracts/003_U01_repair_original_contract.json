@@ -1,0 +1,27 @@
+{
+  "B": "```python\nneigh=Int('neigh')\ns.add(neigh == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, BitVec, Function, BoolSort, BitVecSort, Solver, Not, And, Or, ForAll, sat\n\n    # Base script constraints\n    neigh_int = Int('neigh')\n    s = Solver()\n    s.add(neigh_int == 0)\n\n    # Constraint set 2: pointer-like neigh as BitVec\n    neigh = BitVec('neigh', 64)\n    IS_ERR = Function('IS_ERR', BitVecSort(64), BoolSort())\n    IS_ERR_OR_NULL = Function('IS_ERR_OR_NULL', BitVecSort(64), BoolSort())\n\n    s.add(Not(And(IS_ERR_OR_NULL(neigh), IS_ERR(neigh))))\n    s.add(ForAll([neigh],\n        IS_ERR_OR_NULL(neigh) == Or(neigh == 0, IS_ERR(neigh))))\n\n    return s.check() == sat\n```",
+  "extra_deltas": [
+    {
+      "text": "",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0269.json#/choices/0/message/content#input_constraint_set_1"
+    },
+    {
+      "text": "```python\nfrom z3 import *\n\n# Variable: neigh (pointer-like value; 0 = NULL)\nneigh = BitVec('neigh', 64)\n\n# Helper predicates modeling the C macros:\n#   IS_ERR(ptr)          -> ptr is in the error-pointer range (non-NULL, high values)\n#   IS_ERR_OR_NULL(ptr)  -> ptr == NULL OR IS_ERR(ptr)\n# We model IS_ERR as a symbolic uninterpreted predicate over the pointer value,\n# since the exact kernel error range is not part of the given constraint.\nIS_ERR = Function('IS_ERR', BitVecSort(64), BoolSort())\nIS_ERR_OR_NULL = Function('IS_ERR_OR_NULL', BitVecSort(64), BoolSort())\n\ns = Solver()\n\n# Constraint from C code:\n#   !(unlikely(IS_ERR_OR_NULL(neigh))) || !(IS_ERR(neigh))\n# `unlikely(...)` is a branch-prediction hint only; it has no semantic effect,\n# so it is dropped. The expression becomes:\n#   !IS_ERR_OR_NULL(neigh) || !IS_ERR(neigh)\n# i.e. NOT (IS_ERR_OR_NULL(neigh) AND IS_ERR(neigh))\n# This is included because it is the only constraint referencing `neigh`.\ns.add(Not(And(IS_ERR_OR_NULL(neigh), IS_ERR(neigh))))\n\n# Consistency axioms tying the two predicates together, matching the C macros:\n#   IS_ERR_OR_NULL(p) == (p == 0) || IS_ERR(p)\ns.add(ForAll([neigh],\n    IS_ERR_OR_NULL(neigh) == Or(neigh == 0, IS_ERR(neigh))))\n\nprint(s.check())\n```",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0269.json#/choices/0/message/content#input_constraint_set_2"
+    }
+  ],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0270.json#/choices/0/message/content"
+  ]
+}

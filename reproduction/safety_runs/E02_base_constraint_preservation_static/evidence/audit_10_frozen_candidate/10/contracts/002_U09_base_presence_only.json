@@ -1,0 +1,16 @@
+{
+  "B": "```python\nsta=Int('sta')\ns.add(sta == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, Not, Or, sat\n\n    # Base script variables and constraints\n    sta = Int('sta')\n\n    # Constraint set 2 variables (ap_sta referenced in the constraint)\n    ap_sta = Int('ap_sta')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(sta == 0)\n\n    # Constraint set 2: !(WARN_ON_ONCE(!sta || !ap_sta))\n    #   <=> (sta != 0) && (ap_sta != 0)\n    s.add(Not(Or(sta == 0, ap_sta == 0)))\n\n    return s.check() == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0062.json#/choices/0/message/content"
+  ]
+}

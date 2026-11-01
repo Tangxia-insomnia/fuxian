@@ -1,0 +1,45 @@
+{
+  "call_id": 783,
+  "sample_id": "NPD/codeql/openssl:row=30:index=31",
+  "timestamp": "2026-10-26T01:00:29.648803+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: int OCSP_copy_nonce(OCSP_BASICRESP *resp, OCSP_REQUEST *req)\n{\n    X509_EXTENSION *req_ext;\n    int req_idx;\n    /* Check for nonce in request */\n    req_idx = OCSP_REQUEST_get_ext_by_NID(req, NID_id_pkix_OCSP_Nonce, -1);\n    /* If no nonce that's OK */\n    if (req_idx < 0)\n        return 2;\n    req_ext = OCSP_REQUEST_get_ext(req, req_idx);\n    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);\n}\n        - Target variables: [], resp\n        - Constraints: ['!(req_idx < 0)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "0266c176-f36e-4cd8-9c59-8dc2003c4854",
+  "usage": {
+    "prompt_tokens": 226,
+    "completion_tokens": 5,
+    "total_tokens": 231,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 226
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.8178007999995316,
+  "cost_upper_bound_cny": 0.000492
+}

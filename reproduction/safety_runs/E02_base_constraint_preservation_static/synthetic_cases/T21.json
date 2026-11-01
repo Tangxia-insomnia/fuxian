@@ -1,0 +1,14 @@
+{
+  "test_id": "T21",
+  "scenario": "last_query_does_not_include_later_add",
+  "B": "x=Int('x')\ns.add(x == 0)\n",
+  "delta": "",
+  "Final": "def check_constraints():\n    x=Int('x')\n    s=Solver()\n    r=s.check()\n    s.add(x == 0)\n    return r == sat\n",
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "expected_status": "FAIL",
+  "expected_nonzero": "missing_base_assertions"
+}

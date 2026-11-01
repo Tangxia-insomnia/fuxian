@@ -1,0 +1,14 @@
+{
+  "test_id": "T23",
+  "scenario": "push_pop_unsupported",
+  "B": "x=Int('x')\ns.add(x == 0)\n",
+  "delta": "",
+  "Final": "def check_constraints():\n    x=Int('x')\n    s=Solver()\n    s.add(x == 0)\n    s.push()\n    s.pop()\n    return s.check() == sat\n",
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "expected_status": "UNKNOWN",
+  "expected_nonzero": null
+}

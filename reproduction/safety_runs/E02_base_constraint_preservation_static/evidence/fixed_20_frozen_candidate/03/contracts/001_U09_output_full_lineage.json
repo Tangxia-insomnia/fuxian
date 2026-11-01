@@ -1,0 +1,27 @@
+{
+  "B": "```python\npctx=Int('pctx')\ns.add(pctx == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Bool, Or, Not, Solver, unsat\n\n    # Base script constraints\n    pctx = Int('pctx')\n\n    # Constraint set 2 variables\n    operation_is_smime_encrypt = Bool('operation_is_smime_encrypt')\n    loop_condition = Bool('loop_condition')\n    kparam_not_null = Bool('kparam_not_null')\n    cms_set_pkey_param_ok = Bool('cms_set_pkey_param_ok')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(pctx == 0)\n\n    # Constraint set 2 constraint\n    constraint = Or(\n        Not(operation_is_smime_encrypt),\n        Not(loop_condition),\n        Not(kparam_not_null),\n        cms_set_pkey_param_ok\n    )\n    s.add(constraint)\n\n    result = s.check()\n    return result != unsat\n```",
+  "extra_deltas": [
+    {
+      "text": "",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0671.json#/choices/0/message/content#input_constraint_set_1"
+    },
+    {
+      "text": "```python\nfrom z3 import *\n\n# Declare variables relevant to the constraints.\n# pctx is the only relevant condition/variable mentioned; model it as an uninterpreted\n# pointer-like integer (0 = NULL, non-zero = valid pointer).\npctx = Int('pctx')\n\n# The C constraint references several other symbols. Since they are not in the\n# \"relevant conditions/variables\" list, we still need them to express the\n# constraint faithfully, but we treat them as uninterpreted booleans/ints.\n# - operation == SMIME_ENCRYPT  -> modeled as a boolean flag\n# - sk_X509_num(encerts) loop   -> modeled as a boolean \"loop_condition\"\n# - kparam != NULL              -> modeled as a boolean\n# - cms_set_pkey_param(...)     -> modeled as a boolean return value\noperation_is_smime_encrypt = Bool('operation_is_smime_encrypt')\nloop_condition = Bool('loop_condition')          # represents (i = 0; i < sk_X509_num(encerts); i++)\nkparam_not_null = Bool('kparam_not_null')        # represents (kparam != NULL)\ncms_set_pkey_param_ok = Bool('cms_set_pkey_param_ok')  # represents !cms_set_pkey_param(...)\n\n# Original C constraint:\n#   !(operation == SMIME_ENCRYPT)\n#   || !(i = 0; i < sk_X509_num(encerts); i++)\n#   || !(kparam != NULL)\n#   || !(!cms_set_pkey_param(pctx, kparam->param))\n#\n# Note: the last term is a double negation: !(!cms_set_pkey_param(...))\n#       which simplifies to cms_set_pkey_param(...) being true.\n#\n# The constraint is a disjunction; we assert it as a validity check.\nconstraint = Or(\n    Not(operation_is_smime_encrypt),   # !(operation == SMIME_ENCRYPT)\n    Not(loop_condition),               # !(loop condition)\n    Not(kparam_not_null),              # !(kparam != NULL)\n    cms_set_pkey_param_ok              # !(!cms_set_pkey_param(...)) == cms_set_pkey_param(...)\n)\n\n# Check satisfiability of the constraint (i.e., whether there is an assignment\n# that violates the original C assertion). If unsat, the constraint always holds.\ns = Solver()\ns.add(Not(constraint))  # look for a counterexample to the constraint\nresult = s.check()\n\nif result == unsat:\n    print(\"Constraint is valid (no counterexample found).\")\nelse:\n    print(\"Constraint can be violated. Counterexample:\")\n    print(s.model())\n```",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0671.json#/choices/0/message/content#input_constraint_set_2"
+    }
+  ],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0671.json#/choices/0/message/content"
+  ]
+}

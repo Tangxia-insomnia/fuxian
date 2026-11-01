@@ -1,0 +1,16 @@
+{
+  "B": "```python\np=Int('p')\ns.add(p == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Solver, Int, BitVec, sat\n    \n    s = Solver()\n    \n    # Base script constraints\n    p_int = Int('p')\n    s.add(p_int == 0)\n    \n    # Constraint set 2 constraints\n    p_bv = BitVec('p', 64)\n    s.add(p_bv != 0)\n    \n    return s.check() == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/1099.json#/choices/0/message/content"
+  ]
+}

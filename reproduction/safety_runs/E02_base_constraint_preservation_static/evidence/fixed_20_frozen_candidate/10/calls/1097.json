@@ -1,0 +1,45 @@
+{
+  "call_id": 1097,
+  "sample_id": "NPD/cppcheck/openssl:row=2:index=None",
+  "timestamp": "2026-10-26T01:07:21.328000+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        Performing reachability analysis:\n\n        Given:\n        - Code segment: static void list_insert_sorted(QUIC_CFQ_ITEM_LIST *l, QUIC_CFQ_ITEM_EX *n,\n                               int (*cmp)(const QUIC_CFQ_ITEM_EX *a,\n                                          const QUIC_CFQ_ITEM_EX *b))\n{\n    QUIC_CFQ_ITEM_EX *p = l->head, *pprev = NULL;\n\n    if (p == NULL) {\n        l->head = l->tail = n;\n        n->prev = n->next = NULL;\n        return;\n    }\n\n    for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);\n\n    if (p == NULL)\n        list_insert_tail(l, n);\n    else if (pprev == NULL)\n        list_insert_head(l, n);\n    else\n        list_insert_after(l, pprev, n);\n}\n        - Target variables: [], p\n        - Constraints: ['!(p == NULL)']\n\n        Task:\n        1. Filter constraints affecting reachability\n        2. Include only constraints involving target variables\n        3. Verify filtered constraints step by step\n\n        Return filtered constraints in JSON array format: ```json[\"\",\"\",...]```"
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "8b48d39b-03bc-4826-9263-dffa37e2322f",
+  "usage": {
+    "prompt_tokens": 281,
+    "completion_tokens": 11,
+    "total_tokens": 292,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 281
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```json\n[\"!(p == NULL)\"]\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 0.6833999000000404,
+  "cost_upper_bound_cny": 0.00065
+}

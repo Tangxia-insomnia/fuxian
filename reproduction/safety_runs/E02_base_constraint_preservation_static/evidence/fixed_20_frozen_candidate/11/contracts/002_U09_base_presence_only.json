@@ -1,0 +1,16 @@
+{
+  "B": "```python\nectx=Int('ectx')\ns.add(ectx == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Bool, Solver, sat\n\n    # Base script constraints\n    ectx_int = Int('ectx_int')\n    s = Solver()\n    s.add(ectx_int == 0)\n\n    # Constraint set 2: ectx modeled as Bool, no constraints affect it\n    ectx = Bool('ectx')\n\n    # Check satisfiability\n    result = s.check() == sat\n    return result\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0725.json#/choices/0/message/content"
+  ]
+}

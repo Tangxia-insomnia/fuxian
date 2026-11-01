@@ -1,0 +1,45 @@
+{
+  "call_id": 596,
+  "sample_id": "NPD/codeql/libav:row=51:index=84",
+  "timestamp": "2026-10-26T00:55:39.034113+08:00",
+  "model_requested": "deepseek-flash",
+  "messages": [
+    {
+      "role": "user",
+      "content": "\n        As a C language expert, convert C code constraints to Z3 solver script.\n\n        Input constraints: ['!(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(ast->codecpar->channels <= 0)', '!(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(!ast)', '!(version == 2) || !(set_channels(avctx, ast, avio_rb32(pb)) < 0)', '!(version == 2) || !(!ast)']\n        Relevant conditions/variables: [], ast\n\n        Guidelines:\n        1. Convert only constraints affecting the specified conditions/variables\n        2. Add comments explaining why each constraint is included\n        3. Maintain original variable names\n        4. Convert C-style expressions properly (e.g., !ptr to ptr!=0)\n\n        Return only executable Z3 script with explanatory comments.\n        "
+    }
+  ],
+  "parameters": {
+    "temperature": 1e-07,
+    "max_tokens": 3072,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "http_status": 200,
+  "model_returned": "deepseek-flash",
+  "response_id": "16ebd705-4924-4d87-a408-48ab6ddff423",
+  "usage": {
+    "prompt_tokens": 221,
+    "completion_tokens": 739,
+    "total_tokens": 960,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 221
+  },
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```python\nfrom z3 import *\n\n# Declare variables used in the constraints\n# 'ast' is a pointer-like variable; model as an integer (0 = NULL, non-zero = valid)\nast = Int('ast')\n\n# 'version' is an integer compared against 2\nversion = Int('version')\n\n# 'avio_rb16(pb)' is a function call returning a 16-bit value; model as an uninterpreted int\navio_rb16_pb = Int('avio_rb16_pb')\n\n# 'mv->nb_audio_tracks' is an integer field\nmv_nb_audio_tracks = Int('mv_nb_audio_tracks')\n\n# 'ast->codecpar->channels' is an integer field\nast_codecpar_channels = Int('ast_codecpar_channels')\n\n# 'set_channels(avctx, ast, avio_rb32(pb))' returns an int; model as uninterpreted\nset_channels_ret = Int('set_channels_ret')\n\n# 'avio_rb32(pb)' is a function call returning a 32-bit value; model as uninterpreted int\navio_rb32_pb = Int('avio_rb32_pb')\n\ns = Solver()\n\n# Constraint 1: !(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(ast->codecpar->channels <= 0)\n# Included because it references 'ast' (via ast->codecpar->channels) and constrains its behavior.\n# C semantics: !(x) means x == 0; !(a && b) means !(a && b); !(c <= 0) means c > 0.\ns.add(Or(\n    Not(And(version == 0, avio_rb16_pb == 3)),\n    mv_nb_audio_tracks == 0,\n    Not(ast_codecpar_channels <= 0)\n))\n\n# Constraint 2: !(!version && avio_rb16(pb) == 3) || !(mv->nb_audio_tracks) || !(!ast)\n# Included because it directly references 'ast' (as a pointer null-check).\n# !(!ast) means ast != 0 (i.e., ast is non-null).\ns.add(Or(\n    Not(And(version == 0, avio_rb16_pb == 3)),\n    mv_nb_audio_tracks == 0,\n    Not(ast == 0)\n))\n\n# Constraint 3: !(version == 2) || !(set_channels(avctx, ast, avio_rb32(pb)) < 0)\n# Included because it references 'ast' as an argument to set_channels.\n# !(version == 2) means version != 2; !(ret < 0) means ret >= 0.\ns.add(Or(\n    version != 2,\n    Not(set_channels_ret < 0)\n))\n\n# Constraint 4: !(version == 2) || !(!ast)\n# Included because it directly references 'ast' (null-check).\n# !(!ast) means ast != 0.\ns.add(Or(\n    version != 2,\n    Not(ast == 0)\n))\n\n# Check satisfiability and print result\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "duration_seconds": 3.2180776999994123,
+  "cost_upper_bound_cny": 0.006354
+}

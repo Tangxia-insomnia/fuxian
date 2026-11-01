@@ -1,0 +1,53 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/kernel69:row=26:index=45",
+    "status": "blocked_context",
+    "prediction": null,
+    "error": "Expected one function definition, found 0",
+    "decision_basis": null
+  },
+  "alert": {
+    "var_name": "skb",
+    "function_name": "igmp6_event_report",
+    "location": {
+      "file_path": "net/ipv6/mcast.c",
+      "region": {
+        "startLine": 1558,
+        "startColumn": 12,
+        "endColumn": 15
+      },
+      "context": {
+        "startLine": 1556,
+        "endLine": 1560,
+        "snippet": {
+          "text": "\tkfree_skb(skb);"
+        }
+      }
+    },
+    "function_code": "void igmp6_event_report(struct sk_buff *skb)\n{\n\tstruct inet6_dev *idev = __in6_dev_get(skb->dev);\n\n\tif (!idev || idev->dead)\n\t\tgoto out;\n\n\tspin_lock_bh(&idev->mc_report_lock);\n\tif (skb_queue_len(&idev->mc_report_queue) < MLD_MAX_SKBS) {\n\t\t__skb_queue_tail(&idev->mc_report_queue, skb);\n\t\tif (!mod_delayed_work(mld_wq, &idev->mc_report_work, 0))\n\t\t\tin6_dev_hold(idev);\n\t\tskb = NULL;\n\t}\n\tspin_unlock_bh(&idev->mc_report_lock);\nout:\n\tkfree_skb(skb);\n}",
+    "bug_line_constraints": [
+      {
+        "text": "\tkfree_skb(skb);",
+        "condition": [
+          "goto out"
+        ]
+      }
+    ],
+    "var_assign_conditions": [
+      {
+        "text": "skb = NULL;",
+        "condition": [
+          "if (skb_queue_len(&idev->mc_report_queue) < MLD_MAX_SKBS)"
+        ]
+      }
+    ],
+    "pointer_null_postconditions": [],
+    "early_jump_constraints": [],
+    "index": 45
+  },
+  "context": null,
+  "recorded_answer": null,
+  "solver_events": [],
+  "issues": []
+}

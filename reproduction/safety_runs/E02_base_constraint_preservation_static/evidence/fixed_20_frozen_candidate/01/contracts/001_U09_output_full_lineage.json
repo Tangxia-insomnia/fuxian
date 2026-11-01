@@ -1,0 +1,27 @@
+{
+  "B": "```python\nbs=Int('bs')\ns.add(bs == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Bool, Solver, Or, Not, sat\n\n    # Base script variables and constraints\n    bs = Int('bs')\n    s = Solver()\n    s.add(bs == 0)\n\n    # Constraint set 2 variables and constraints\n    loop_guard = Bool('loop_guard')\n    inf_eq_rev = Bool('inf_eq_rev')\n    single_is_null = Bool('single_is_null')\n    s.add(Or(Not(loop_guard), Not(inf_eq_rev), Not(single_is_null)))\n\n    return s.check() == sat\n```",
+  "extra_deltas": [
+    {
+      "text": "",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0781.json#/choices/0/message/content#input_constraint_set_1"
+    },
+    {
+      "text": "```python\n# Z3 script generated from C constraints\n# Relevant conditions/variables: bs\n#\n# The original C expression is:\n#   !(i = 0; i < id_count; i++) || !(inf[DB_type][0] == DB_TYPE_REV) || !(single == NULL)\n#\n# Notes on translation:\n#   - The first clause \"!(i = 0; i < id_count; i++)\" is not a valid C boolean\n#     expression (it is a for-loop header). It is treated here as the negation\n#     of the loop condition, i.e. the loop does NOT execute: NOT(i < id_count).\n#     Since no loop variable is provided in the relevant variables, we model\n#     the loop guard as a boolean flag `loop_guard` (i < id_count).\n#   - \"inf[DB_type][0] == DB_TYPE_REV\" is modeled as a boolean flag\n#     `inf_DB_type_0_eq_DB_TYPE_REV`.\n#   - \"single == NULL\" is modeled as a boolean flag `single_is_null`.\n#   - The disjunction is: (NOT loop_guard) OR (NOT inf_eq) OR (NOT single_is_null)\n#     which is equivalent to: NOT(loop_guard AND inf_eq AND single_is_null).\n#\n# Since the only relevant variable is `bs`, and `bs` does not appear in the\n# original constraint, the constraint is asserted as a standalone boolean\n# formula. If `bs` were tied to any of the flags, that linkage would be added\n# here; none is present in the input.\n\nfrom z3 import *\n\n# Boolean flags representing the sub-expressions of the C constraint\nloop_guard = Bool('loop_guard')          # represents (i < id_count)\ninf_eq_rev = Bool('inf_eq_rev')          # represents (inf[DB_type][0] == DB_TYPE_REV)\nsingle_is_null = Bool('single_is_null')  # represents (single == NULL)\n\n# Relevant variable from the input\nbs = Bool('bs')\n\ns = Solver()\n\n# Constraint: !(loop_guard) || !(inf_eq_rev) || !(single_is_null)\n# i.e. at least one of the three sub-conditions must be false.\ns.add(Or(Not(loop_guard), Not(inf_eq_rev), Not(single_is_null)))\n\n# `bs` is listed as a relevant variable but does not appear in the constraint;\n# it is declared above for completeness. No additional constraint is added.\n\nprint(s.check())\nprint(s.model())\n```",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0781.json#/choices/0/message/content#input_constraint_set_2"
+    }
+  ],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0781.json#/choices/0/message/content"
+  ]
+}

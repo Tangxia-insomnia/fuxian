@@ -1,0 +1,14 @@
+{
+  "test_id": "T08",
+  "scenario": "new_solver_loses_old_assertion",
+  "B": "x=Int('x')\ns.add(x == 0)\n",
+  "delta": "",
+  "Final": "def check_constraints():\n    x=Int('x')\n    s=Solver()\n    s.add(x == 0)\n    s=Solver()\n    return s.check() == sat\n",
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "expected_status": "FAIL",
+  "expected_nonzero": "missing_base_assertions"
+}

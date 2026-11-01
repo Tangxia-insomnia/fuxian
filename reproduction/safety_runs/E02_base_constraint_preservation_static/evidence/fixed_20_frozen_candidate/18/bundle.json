@@ -1,0 +1,99 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/libav:row=19:index=26",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "prev",
+    "function_name": "epic_decode_from_cache",
+    "location": {
+      "file_path": "libavcodec/g2meet.c",
+      "region": {
+        "startLine": 789,
+        "startColumn": 21,
+        "endColumn": 25
+      },
+      "context": {
+        "startLine": 787,
+        "endLine": 791,
+        "snippet": {
+          "text": "prev->next      = list->next;"
+        }
+      }
+    },
+    "function_code": "static int epic_decode_from_cache(ePICContext *dc, uint32_t W, uint32_t *pPix)\n{\n    ePICPixListElem *list, *prev = NULL;\n    ePICPixHashElem *hash_elem = epic_hash_find(&dc->hash, W);\n\n    if (!hash_elem || !hash_elem->list)\n        return 0;\n\n    list = hash_elem->list;\n    while (list) {\n        if (!is_pixel_on_stack(dc, list->pixel)) {\n            if (ff_els_decode_bit(&dc->els_ctx, &list->rung)) {\n                *pPix = list->pixel;\n                if (list != hash_elem->list) {\n                    prev->next      = list->next;\n                    list->next      = hash_elem->list;\n                    hash_elem->list = list;\n                }\n                return 1;\n            }\n            dc->stack[dc->stack_pos++ & EPIC_PIX_STACK_MAX] = list->pixel;\n        }\n        prev = list;\n        list = list->next;\n    }\n\n    return 0;\n}",
+    "index": 26
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "epic_decode_from_cache",
+        "var_name": "prev",
+        "target": "prev->next      = list->next;",
+        "code": "static int epic_decode_from_cache(ePICContext *dc, uint32_t W, uint32_t *pPix)\n{\n    ePICPixListElem *list, *prev = NULL;\n    ePICPixHashElem *hash_elem = epic_hash_find(&dc->hash, W);\n\n    if (!hash_elem || !hash_elem->list)\n        return 0;\n\n    list = hash_elem->list;\n    while (list) {\n        if (!is_pixel_on_stack(dc, list->pixel)) {\n            if (ff_els_decode_bit(&dc->els_ctx, &list->rung)) {\n                *pPix = list->pixel;\n                if (list != hash_elem->list) {\n                    prev->next      = list->next;\n                    list->next      = hash_elem->list;\n                    hash_elem->list = list;\n                }\n                return 1;\n            }\n            dc->stack[dc->stack_pos++ & EPIC_PIX_STACK_MAX] = list->pixel;\n        }\n        prev = list;\n        list = list->next;\n    }\n\n    return 0;\n}",
+        "body_sha256": "c72e4819621cc2795adbc48005fdd7459cd8f967b3b49ac046e18f028352d1c1",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "prev->next      = list->next;",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static int epic_decode_from_cache(ePICContext *dc, uint32_t W, uint32_t *pPix)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": [
+                "!hash_elem || !hash_elem->list"
+              ]
+            }
+          ],
+          "filter_function_code": "static int epic_decode_from_cache(ePICContext *dc, uint32_t W, uint32_t *pPix)\n{\n    ePICPixListElem *list, *prev = NULL;\n    ePICPixHashElem *hash_elem = epic_hash_find(&dc->hash, W);\n\n    if (!hash_elem || !hash_elem->list)\n        return 0;\n\n    list = hash_elem->list;\n    while (list) {\n        if (!is_pixel_on_stack(dc, list->pixel)) {\n            if (ff_els_decode_bit(&dc->els_ctx, &list->rung)) {\n                *pPix = list->pixel;\n                if (list != hash_elem->list) {\n                    prev->next      = list->next;\n                    list->next      = hash_elem->list;\n                    hash_elem->list = list;\n                }\n                return 1;\n            }\n            dc->stack[dc->stack_pos++ & EPIC_PIX_STACK_MAX] = list->pixel;\n        }\n        prev = list;\n        list = list->next;\n    }\n\n    return 0;\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static int epic_decode_from_cache(ePICContext *dc, uint32_t W, uint32_t *pPix)\n{\n    ePICPixListElem *list, *prev = NULL;\n    ePICPixHashElem *hash_elem = epic_hash_find(&dc->hash, W);\n\n    if (!hash_elem || !hash_elem->list)\n        return 0;\n\n    list = hash_elem->list;\n    while (list) {\n        if (!is_pixel_on_stack(dc, list->pixel)) {\n            if (ff_els_decode_bit(&dc->els_ctx, &list->rung)) {\n                *pPix = list->pixel;\n                if (list != hash_elem->list) {\n                    prev->next      = list->next;\n                    list->next      = hash_elem->list;\n                    hash_elem->list = list;\n                }\n                return 1;\n            }\n            dc->stack[dc->stack_pos++ & EPIC_PIX_STACK_MAX] = list->pixel;\n        }\n        prev = list;\n        list = list->next;\n    }\n\n    return 0;\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nprev=Int('prev')\ns.add(prev == 0)\n```",
+      "response_filter_goto: ```json\n[]\n```"
+    ],
+    "function_name_list": [],
+    "function_body_list": [],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, sat\n    prev = Int('prev')\n    s = Solver()\n    s.add(prev == 0)\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun prev () Int)\n(assert\n (= prev 0))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

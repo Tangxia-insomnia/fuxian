@@ -1,0 +1,14 @@
+{
+  "test_id": "T35",
+  "scenario": "declaration_after_smt_query_is_not_present",
+  "B": "(declare-const x Int)\n(assert (= x 0))\n",
+  "delta": "",
+  "Final": "(assert (= x 0))\n(check-sat)\n(declare-const x Int)",
+  "formats": [
+    "smtlib",
+    "smtlib",
+    "smtlib"
+  ],
+  "expected_status": "FAIL",
+  "expected_nonzero": "missing_declarations"
+}

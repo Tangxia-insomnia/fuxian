@@ -1,0 +1,14 @@
+{
+  "test_id": "T32",
+  "scenario": "SMT_query_snapshot_before_added_assertion",
+  "B": "(declare-const x Int)\n(assert (= x 0))\n",
+  "delta": "",
+  "Final": "(declare-const x Int)\n(check-sat)\n(assert (= x 0))",
+  "formats": [
+    "smtlib",
+    "smtlib",
+    "smtlib"
+  ],
+  "expected_status": "FAIL",
+  "expected_nonzero": "missing_base_assertions"
+}

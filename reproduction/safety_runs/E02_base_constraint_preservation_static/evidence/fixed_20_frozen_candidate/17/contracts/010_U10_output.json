@@ -1,0 +1,16 @@
+{
+  "B": "```python\nn=Int('n')\ns.add(Not(n == 0))\ns.add(n == 0)\n```",
+  "delta": "Looking at the existing script, I see there's already a contradiction: `s.add(Not(n == 0))` and `s.add(n == 0)`. \n\nThe new constraint to add is from the `if (n)` condition at line 2. Since we're analyzing the branch where `n` is NULL (from the previous analysis), the condition `if (n)` evaluates to false, meaning `n == 0`.\n\nHowever, the existing script already has `s.add(n == 0)`. The new constraint from the `if (n)` check being false is essentially the same: `n == 0`.\n\nSince the guidelines say to add new constraints alongside existing ones (not modify/delete), and the constraint from `if (n)` being false is `n == 0`, I'll add it explicitly as the negation of the condition:\n\n```python\n# Constraint from 'if (n)' at line 2: condition is false (n is NULL)\ns.add(n == 0)\n```",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, sat\n    n = Int('n')\n    s = Solver()\n    s.add(n == 0)\n    return s.check() == sat\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/2/U02",
+    "frame/2/increment",
+    "results/raw/completed/calls/0279.json#/choices/0/message/content"
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "scope": "benchmark",
+  "candidate": {
+    "sample_id": "NPD/codeql/libav:row=35:index=51",
+    "status": "success",
+    "prediction": "keep",
+    "error": null,
+    "decision_basis": "z3"
+  },
+  "alert": {
+    "var_name": "link",
+    "function_name": "swap_sample_fmts_on_filter",
+    "location": {
+      "file_path": "libavfilter/avfiltergraph.c",
+      "region": {
+        "startLine": 652,
+        "startColumn": 14,
+        "endColumn": 18
+      },
+      "context": {
+        "startLine": 650,
+        "endLine": 654,
+        "snippet": {
+          "text": "format = link->out_formats->formats[0];"
+        }
+      }
+    },
+    "function_code": "static void swap_sample_fmts_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int format, bps;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_formats->nb_formats == 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    format = link->out_formats->formats[0];\n    bps    = av_get_bytes_per_sample(format);\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx = -1, best_score = INT_MIN;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_formats->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_formats->nb_formats; j++) {\n            int out_format = outlink->in_formats->formats[j];\n            int out_bps    = av_get_bytes_per_sample(out_format);\n            int score;\n\n            if (av_get_packed_sample_fmt(out_format) == format ||\n                av_get_planar_sample_fmt(out_format) == format) {\n                best_idx   = j;\n                break;\n            }\n\n            /* for s32 and float prefer double to prevent loss of information */\n            if (bps == 4 && out_bps == 8) {\n                best_idx = j;\n                break;\n            }\n\n            /* prefer closest higher or equal bps */\n            score = -abs(out_bps - bps);\n            if (out_bps >= bps)\n                score += INT_MAX/2;\n\n            if (score > best_score) {\n                best_score = score;\n                best_idx   = j;\n            }\n        }\n        av_assert0(best_idx >= 0);\n        FFSWAP(int, outlink->in_formats->formats[0],\n               outlink->in_formats->formats[best_idx]);\n    }\n}",
+    "index": 51
+  },
+  "context": {
+    "origin": "official_historical_baseline",
+    "historical_ref": "29ca96e0d5f860d1f4ce07cd3e54e5e25732d1a1",
+    "duplicate_equivalent_matches": 1,
+    "frames": [
+      {
+        "level": 0,
+        "function": "swap_sample_fmts_on_filter",
+        "var_name": "link",
+        "target": "format = link->out_formats->formats[0];",
+        "code": "static void swap_sample_fmts_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int format, bps;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_formats->nb_formats == 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    format = link->out_formats->formats[0];\n    bps    = av_get_bytes_per_sample(format);\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx = -1, best_score = INT_MIN;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_formats->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_formats->nb_formats; j++) {\n            int out_format = outlink->in_formats->formats[j];\n            int out_bps    = av_get_bytes_per_sample(out_format);\n            int score;\n\n            if (av_get_packed_sample_fmt(out_format) == format ||\n                av_get_planar_sample_fmt(out_format) == format) {\n                best_idx   = j;\n                break;\n            }\n\n            /* for s32 and float prefer double to prevent loss of information */\n            if (bps == 4 && out_bps == 8) {\n                best_idx = j;\n                break;\n            }\n\n            /* prefer closest higher or equal bps */\n            score = -abs(out_bps - bps);\n            if (out_bps >= bps)\n                score += INT_MAX/2;\n\n            if (score > best_score) {\n                best_score = score;\n                best_idx   = j;\n            }\n        }\n        av_assert0(best_idx >= 0);\n        FFSWAP(int, outlink->in_formats->formats[0],\n               outlink->in_formats->formats[best_idx]);\n    }\n}",
+        "body_sha256": "2680e5982eaf997a0ccab4c4a0450f691328e7437b52501788f82e7fcbca8b38",
+        "sink_kind": "direct_dereference",
+        "extracted": {
+          "bug_line_constraints": [
+            {
+              "text": "format = link->out_formats->formats[0];",
+              "condition": []
+            }
+          ],
+          "target_conditions": [],
+          "variable_assignments": {
+            "text": "static void swap_sample_fmts_on_filter(AVFilterContext *filter)",
+            "condition": []
+          },
+          "variable_non_empty": [],
+          "early_jump_constraints": [
+            {
+              "text": "return",
+              "condition": [
+                "i == filter->nb_inputs"
+              ]
+            },
+            {
+              "text": "break",
+              "condition": [
+                "i = 0; i < filter->nb_inputs; i++",
+                "link->type == AVMEDIA_TYPE_AUDIO && link->out_formats->nb_formats == 1"
+              ]
+            }
+          ],
+          "filter_function_code": "static void swap_sample_fmts_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int format, bps;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_formats->nb_formats == 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    format = link->out_formats->formats[0];\n    bps    = av_get_bytes_per_sample(format);\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx = -1, best_score = INT_MIN;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_formats->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_formats->nb_formats; j++) {\n            int out_format = outlink->in_formats->formats[j];\n            int out_bps    = av_get_bytes_per_sample(out_format);\n            int score;\n\n            if (av_get_packed_sample_fmt(out_format) == format ||\n                av_get_planar_sample_fmt(out_format) == format) {\n                best_idx   = j;\n                break;\n            }\n\n            /* for s32 and float prefer double to prevent loss of information */\n            if (bps == 4 && out_bps == 8) {\n                best_idx = j;\n                break;\n            }\n\n            /* prefer closest higher or equal bps */\n            score = -abs(out_bps - bps);\n            if (out_bps >= bps)\n                score += INT_MAX/2;\n\n            if (score > best_score) {\n                best_score = score;\n                best_idx   = j;\n            }\n        }\n        av_assert0(best_idx >= 0);\n        FFSWAP(int, outlink->in_formats->formats[0],\n               outlink->in_formats->formats[best_idx]);\n    }\n}"
+        }
+      }
+    ],
+    "function_call": [
+      "static void swap_sample_fmts_on_filter(AVFilterContext *filter)\n{\n    AVFilterLink *link = NULL;\n    int format, bps;\n    int i, j;\n\n    for (i = 0; i < filter->nb_inputs; i++) {\n        link = filter->inputs[i];\n\n        if (link->type == AVMEDIA_TYPE_AUDIO &&\n            link->out_formats->nb_formats == 1)\n            break;\n    }\n    if (i == filter->nb_inputs)\n        return;\n\n    format = link->out_formats->formats[0];\n    bps    = av_get_bytes_per_sample(format);\n\n    for (i = 0; i < filter->nb_outputs; i++) {\n        AVFilterLink *outlink = filter->outputs[i];\n        int best_idx = -1, best_score = INT_MIN;\n\n        if (outlink->type != AVMEDIA_TYPE_AUDIO ||\n            outlink->in_formats->nb_formats < 2)\n            continue;\n\n        for (j = 0; j < outlink->in_formats->nb_formats; j++) {\n            int out_format = outlink->in_formats->formats[j];\n            int out_bps    = av_get_bytes_per_sample(out_format);\n            int score;\n\n            if (av_get_packed_sample_fmt(out_format) == format ||\n                av_get_planar_sample_fmt(out_format) == format) {\n                best_idx   = j;\n                break;\n            }\n\n            /* for s32 and float prefer double to prevent loss of information */\n            if (bps == 4 && out_bps == 8) {\n                best_idx = j;\n                break;\n            }\n\n            /* prefer closest higher or equal bps */\n            score = -abs(out_bps - bps);\n            if (out_bps >= bps)\n                score += INT_MAX/2;\n\n            if (score > best_score) {\n                best_score = score;\n                best_idx   = j;\n            }\n        }\n        av_assert0(best_idx >= 0);\n        FFSWAP(int, outlink->in_formats->formats[0],\n               outlink->in_formats->formats[best_idx]);\n    }\n}"
+    ]
+  },
+  "recorded_answer": {
+    "response": [
+      "step 1 z3 script: ```python\nlink=Int('link')\ns.add(link == 0)\n```",
+      "response_filter_goto: ```json\n[\"!(i == filter->nb_inputs)\", \"!(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_formats->nb_formats == 1)\"]\n```",
+      "z3 script: ```python\nfrom z3 import *\n\n# Declare variables relevant to the constraints.\n# 'i' is the loop index used in the C constraints.\ni = Int('i')\n# 'filter->nb_inputs' is the number of inputs of the filter.\nnb_inputs = Int('nb_inputs')\n# 'link->type' represents the media type of the link (AVMEDIA_TYPE_AUDIO is a constant).\nlink_type = Int('link_type')\n# 'link->out_formats->nb_formats' is the number of output formats.\nnb_formats = Int('nb_formats')\n\n# Constant for AVMEDIA_TYPE_AUDIO (from FFmpeg, value is 1).\nAVMEDIA_TYPE_AUDIO = 1\n\n# Constraint 1: !(i == filter->nb_inputs)\n# Included because it directly references 'i' and 'filter->nb_inputs',\n# which are part of the loop/condition logic being modeled.\nc1 = Not(i == nb_inputs)\n\n# Constraint 2: !(i = 0; i < filter->nb_inputs; i++) || !(link->type == AVMEDIA_TYPE_AUDIO && link->out_formats->nb_formats == 1)\n# The first part is a C for-loop header, which is not a boolean expression.\n# In the context of the constraint, the loop condition is 'i < filter->nb_inputs'.\n# The negation of the loop (i.e., loop not executing / condition false) is modeled as\n# Not(i < nb_inputs). The second part negates the conjunction of link type and format count.\nloop_cond = i < nb_inputs\nlink_cond = And(link_type == AVMEDIA_TYPE_AUDIO, nb_formats == 1)\nc2 = Or(Not(loop_cond), Not(link_cond))\n\n# Create solver and add constraints.\ns = Solver()\ns.add(c1)\ns.add(c2)\n\n# Check satisfiability and print result.\nprint(s.check())\nif s.check() == sat:\n    print(s.model())\n```",
+      "final z3 script: def check_constraints():\n    from z3 import Int, Solver, Not, And, Or, sat\n\n    # Base script variables and constraints\n    link = Int('link')\n\n    # Constraint set 2 variables\n    i = Int('i')\n    nb_inputs = Int('nb_inputs')\n    link_type = Int('link_type')\n    nb_formats = Int('nb_formats')\n\n    AVMEDIA_TYPE_AUDIO = 1\n\n    s = Solver()\n\n    # Base constraint\n    s.add(link == 0)\n\n    # Constraint set 2 constraints\n    c1 = Not(i == nb_inputs)\n    loop_cond = i < nb_inputs\n    link_cond = And(link_type == AVMEDIA_TYPE_AUDIO, nb_formats == 1)\n    c2 = Or(Not(loop_cond), Not(link_cond))\n\n    s.add(c1)\n    s.add(c2)\n\n    return s.check() == sat"
+    ],
+    "function_name_list": [],
+    "function_body_list": [],
+    "result": true
+  },
+  "solver_events": [
+    {
+      "event_id": 1,
+      "level": 0,
+      "source": "def check_constraints():\n    from z3 import Int, Solver, Not, And, Or, sat\n\n    # Base script variables and constraints\n    link = Int('link')\n\n    # Constraint set 2 variables\n    i = Int('i')\n    nb_inputs = Int('nb_inputs')\n    link_type = Int('link_type')\n    nb_formats = Int('nb_formats')\n\n    AVMEDIA_TYPE_AUDIO = 1\n\n    s = Solver()\n\n    # Base constraint\n    s.add(link == 0)\n\n    # Constraint set 2 constraints\n    c1 = Not(i == nb_inputs)\n    loop_cond = i < nb_inputs\n    link_cond = And(link_type == AVMEDIA_TYPE_AUDIO, nb_formats == 1)\n    c2 = Or(Not(loop_cond), Not(link_cond))\n\n    s.add(c1)\n    s.add(c2)\n\n    return s.check() == sat",
+      "ok": true,
+      "feasible": true,
+      "queries": [
+        {
+          "result": "sat",
+          "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun link () Int)\n(declare-fun nb_inputs () Int)\n(declare-fun i () Int)\n(declare-fun nb_formats () Int)\n(declare-fun link_type () Int)\n(assert\n (= link 0))\n(assert\n (not (= i nb_inputs)))\n(assert\n (let (($x35 (and (= link_type 1) (= nb_formats 1))))\n(let (($x37 (not $x35)))\n(or (not (< i nb_inputs)) $x37))))\n(check-sat)\n"
+        }
+      ],
+      "stdout": ""
+    }
+  ],
+  "issues": []
+}

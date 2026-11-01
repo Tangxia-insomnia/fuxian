@@ -1,0 +1,16 @@
+{
+  "B": "```python\nipv6_addr_any=Int('ipv6_addr_any')\ncfg_fc_prefsrc=Int('cfg_fc_prefsrc')\nfib6_nh=Int('fib6_nh')\ns.add(Not(ipv6_addr_any == 0) == 1)\ns.add(fib6_nh == 0)\n```",
+  "delta": "```python\n# New constraints based on the condition: if (!ipv6_addr_any(&cfg->fc_prefsrc))\n# The condition is true when ipv6_addr_any returns 0 (address is NOT any)\n# Existing constraint already captures: Not(ipv6_addr_any == 0) == 1\n# This means ipv6_addr_any != 0, i.e., the address IS \"any\" (function returned non-zero)\n\n# Additional constraint: cfg->fc_prefsrc is a valid (non-zero) address reference\n# Since ipv6_addr_any(&cfg->fc_prefsrc) is being called, the pointer must be valid\ns.add(cfg_fc_prefsrc != 0)\n\n# Constraint: fib6_nh is NULL (already present, but reinforcing the dereference context)\n# When the condition is evaluated, fib6_nh->fib_nh_dev would be dereferenced inside the branch\n# Since fib6_nh == 0, this would be a NULL pointer dereference\ns.add(fib6_nh == 0)\n\n# The condition being true (entering the if-branch) requires ipv6_addr_any to return 0\n# Combined with existing: Not(ipv6_addr_any == 0) == 1 means ipv6_addr_any != 0\n# So the branch is NOT taken; the else branch executes: rt->fib6_prefsrc.plen = 0\ns.add(ipv6_addr_any != 0)\n```",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Solver, Int, And, Or, Not, sat, unsat\n    \n    s = Solver()\n    \n    # Declare all variables as Int type\n    cfg_fc_prefsrc = Int('cfg_fc_prefsrc')\n    fib6_nh = Int('fib6_nh')\n    ipv6_addr_any = Int('ipv6_addr_any')\n    \n    # Constraint: cfg->fc_prefsrc is a valid (non-zero) address reference\n    # Since ipv6_addr_any(&cfg->fc_prefsrc) is being called, the pointer must be valid\n    s.add(cfg_fc_prefsrc != 0)\n    \n    # Constraint: fib6_nh is NULL (dereference context)\n    s.add(fib6_nh == 0)\n    \n    # The condition being true (entering the if-branch) requires ipv6_addr_any to return 0\n    # Combined with existing: Not(ipv6_addr_any == 0) == 1 means ipv6_addr_any != 0\n    # So the branch is NOT taken; the else branch executes: rt->fib6_prefsrc.plen = 0\n    s.add(ipv6_addr_any != 0)\n    \n    # Check satisfiability\n    result = s.check()\n    \n    if result == sat:\n        return True\n    else:\n        return False\n```",
+  "extra_deltas": [],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0292.json#/choices/0/message/content"
+  ]
+}

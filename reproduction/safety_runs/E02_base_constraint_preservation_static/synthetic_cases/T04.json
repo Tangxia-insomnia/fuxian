@@ -1,0 +1,14 @@
+{
+  "test_id": "T04",
+  "scenario": "duplicate_assertion_visible",
+  "B": "(declare-const x Int)\n(assert (= x 0))\n",
+  "delta": "(assert (= x 0))",
+  "Final": "(declare-const x Int)\n(assert (= x 0))\n(assert (= x 0))",
+  "formats": [
+    "smtlib",
+    "smtlib",
+    "smtlib"
+  ],
+  "expected_status": "PASS",
+  "expected_nonzero": "duplicate_assertions"
+}

@@ -1,0 +1,14 @@
+{
+  "test_id": "T34",
+  "scenario": "model_diagnostic_cannot_hide_constraint",
+  "B": "x=Int('x')\ns.add(x == 0)\n",
+  "delta": "",
+  "Final": "x=Int('x')\ns=Solver()\nif s.check() == sat:\n    s.add(x == 0)\n",
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "expected_status": "UNKNOWN",
+  "expected_nonzero": null
+}

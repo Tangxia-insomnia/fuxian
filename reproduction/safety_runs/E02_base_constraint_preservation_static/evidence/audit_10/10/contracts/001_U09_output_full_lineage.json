@@ -1,0 +1,27 @@
+{
+  "B": "```python\nsta=Int('sta')\ns.add(sta == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, Not, Or, sat\n\n    # Base script variables and constraints\n    sta = Int('sta')\n\n    # Constraint set 2 variables (ap_sta referenced in the constraint)\n    ap_sta = Int('ap_sta')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(sta == 0)\n\n    # Constraint set 2: !(WARN_ON_ONCE(!sta || !ap_sta))\n    #   <=> (sta != 0) && (ap_sta != 0)\n    s.add(Not(Or(sta == 0, ap_sta == 0)))\n\n    return s.check() == sat\n```",
+  "extra_deltas": [
+    {
+      "text": "",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0062.json#/choices/0/message/content#input_constraint_set_1"
+    },
+    {
+      "text": "```python\n# Z3 script generated from C constraint:\n#   !(WARN_ON_ONCE(!sta || !ap_sta))\n#\n# Reasoning:\n# - WARN_ON_ONCE(cond) is a kernel macro that evaluates its argument `cond`\n#   and returns the (boolean) result of that condition. It has no side\n#   effects on the constraint logic itself (it only emits a warning once).\n#   Therefore, for constraint-solving purposes, WARN_ON_ONCE(x) == x.\n# - The outer `!` negates the whole expression.\n# - Inside: `!sta || !ap_sta` in C means (sta == NULL) || (ap_sta == NULL).\n# - So the full constraint is: !( (sta == NULL) || (ap_sta == NULL) )\n#   which by De Morgan simplifies to: (sta != NULL) && (ap_sta != NULL).\n# - The relevant variable mentioned is `sta`; `ap_sta` is also referenced\n#   in the expression, so it must be modeled to preserve semantics.\n# - In Z3, pointers are modeled as integer addresses; NULL == 0.\n\nfrom z3 import *\n\n# Pointer variables (modeled as integer addresses; 0 == NULL)\nsta    = Int('sta')\nap_sta = Int('ap_sta')\n\ns = Solver()\n\n# Constraint: !(WARN_ON_ONCE(!sta || !ap_sta))\n#   WARN_ON_ONCE(x) behaves as x for constraint purposes.\n#   !sta      -> sta == 0\n#   !ap_sta   -> ap_sta == 0\n#   !( (sta == 0) || (ap_sta == 0) )\n#   <=> (sta != 0) && (ap_sta != 0)\ns.add(Not(Or(sta == 0, ap_sta == 0)))\n\n# Equivalent simplified form (kept for clarity / verification):\n# s.add(And(sta != 0, ap_sta != 0))\n\nprint(s.check())\nprint(s.model())\n```",
+      "format": "python",
+      "reference": "results/raw/completed/calls/0062.json#/choices/0/message/content#input_constraint_set_2"
+    }
+  ],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/0062.json#/choices/0/message/content"
+  ]
+}

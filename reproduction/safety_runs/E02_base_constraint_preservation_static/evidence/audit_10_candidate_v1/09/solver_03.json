@@ -1,0 +1,14 @@
+{
+  "event_id": 3,
+  "level": 0,
+  "source": "def check_constraints():\n    from z3 import Int, Solver, Or, Not, sat\n\n    idev = Int('idev')\n    cfg_fc_ifindex = Int('cfg_fc_ifindex')\n    cfg_fc_flags = Int('cfg_fc_flags')\n    dev = Int('dev')\n    addr_type = Int('addr_type')\n    net_loopback_dev = Int('net_loopback_dev')\n    fib6_is_reject = Int('fib6_is_reject')\n\n    s = Solver()\n\n    # Base script constraint\n    s.add(idev == 0)\n\n    # Constraint set 2 - Constraint 1\n    # fib6_is_reject modeled as Int (0 = false, 1 = true)\n    s.add(Or(\n        fib6_is_reject == 0,\n        dev == net_loopback_dev,\n        idev != 0\n    ))\n\n    # Constraint set 2 - Constraint 2\n    s.add(Or(\n        cfg_fc_ifindex == 0,\n        idev != 0\n    ))\n\n    return s.check() == sat",
+  "ok": true,
+  "feasible": true,
+  "queries": [
+    {
+      "result": "sat",
+      "smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun idev () Int)\n(declare-fun net_loopback_dev () Int)\n(declare-fun dev () Int)\n(declare-fun fib6_is_reject () Int)\n(declare-fun cfg_fc_ifindex () Int)\n(assert\n (= idev 0))\n(assert\n (let (($x33 (and (distinct idev 0) true)))\n (let (($x32 (= dev net_loopback_dev)))\n (let (($x31 (= fib6_is_reject 0)))\n (or $x31 $x32 $x33)))))\n(assert\n (let (($x33 (and (distinct idev 0) true)))\n(let (($x37 (= cfg_fc_ifindex 0)))\n(or $x37 $x33))))\n(check-sat)\n"
+    }
+  ],
+  "stdout": ""
+}

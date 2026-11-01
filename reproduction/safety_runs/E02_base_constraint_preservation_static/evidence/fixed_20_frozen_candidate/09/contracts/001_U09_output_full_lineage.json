@@ -1,0 +1,27 @@
+{
+  "B": "```python\nrb_node=Int('rb_node')\ncie_tmp=Int('cie_tmp')\ns.add(rb_node != 0)\ns.add(cie_tmp == 0)\n```",
+  "delta": "",
+  "Final": "```python\ndef check_constraints():\n    from z3 import Int, Solver, sat\n    rb_node = Int('rb_node')\n    cie_tmp = Int('cie_tmp')\n    s = Solver()\n    s.add(rb_node != 0)\n    s.add(cie_tmp == 0)\n    s.add(cie_tmp != 0)\n    return s.check() == sat\n```",
+  "extra_deltas": [
+    {
+      "text": "",
+      "format": "python",
+      "reference": "results/raw/completed/calls/1039.json#/choices/0/message/content#input_constraint_set_1"
+    },
+    {
+      "text": "```python\nfrom z3 import *\n\n# Declare variable from the C code\ncie_tmp = Int('cie_tmp')\n\n# Constraint: !(cie_tmp == 0)\n# In C, this asserts that cie_tmp is non-zero.\n# Converted to Z3 as cie_tmp != 0.\ns = Solver()\ns.add(cie_tmp != 0)\n\n# Check satisfiability and print a model if one exists\nif s.check() == sat:\n    print(s.model())\nelse:\n    print(\"unsat\")\n```",
+      "format": "python",
+      "reference": "results/raw/completed/calls/1039.json#/choices/0/message/content#input_constraint_set_2"
+    }
+  ],
+  "formats": [
+    "python",
+    "python",
+    "python"
+  ],
+  "references": [
+    "frame/0/U02",
+    "frame/0/increment",
+    "results/raw/completed/calls/1039.json#/choices/0/message/content"
+  ]
+}
