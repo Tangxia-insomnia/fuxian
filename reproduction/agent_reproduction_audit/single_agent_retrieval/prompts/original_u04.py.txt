@@ -1,0 +1,19 @@
+    def analysis_constraints_prompt_context_multi(self, context_function_name, context_function_body, value, item_constrain):
+        """Extended analysis for constraints with function calls"""
+        return f"""
+        Function "{context_function_name}" body: "{context_function_body}"
+
+        Analysis steps:
+        1. Analyze the return value of function "{context_function_name}" when pointer "{value}" is NULL
+        2. Determine if "{item_constrain}" can be satisfied when pointer "{value}" is NULL
+        3. If direct analysis is not possible:
+        - Use search_context tool to obtain function bodies for calls involving pointer "{value}"
+        - Perform deeper analysis of related function calls
+
+        Conclude with one of:
+        ### Satisfied ###
+        ### Not satisfied ### 
+        ### Not sure ###
+
+        Note: Do not use ### markers anywhere else in your analysis to avoid processing errors.
+        """
