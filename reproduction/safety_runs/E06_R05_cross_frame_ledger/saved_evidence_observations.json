@@ -1,0 +1,924 @@
+{
+  "scope": "finite saved synthetic JSON/reference checks; not new analyzer/test/historical runs",
+  "new_C_parses": 0,
+  "new_regression_runs": 0,
+  "new_fixed20_runs": 0,
+  "new_model_Harness_Z3_calls": 0,
+  "artifacts": [
+    {
+      "path": "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S07_read.json",
+      "sha256": "ce3173894ba06e99faa3635c6d6ff5e0bbbe9cb38608a8d43f855130b5384ea0"
+    },
+    {
+      "path": "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S08_ignored.json",
+      "sha256": "83662e2ca1a0ba30532260d8fcadaf97e0ec5eaf53946b3bd295ed0942cf601e"
+    },
+    {
+      "path": "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S04_two_returns.json",
+      "sha256": "a790838b73645749e9ef0b39ae148558d1c6017d0b0e028aae8f4ef73a3b136e"
+    },
+    {
+      "path": "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S10_callsites.json",
+      "sha256": "905fe370fd14ade266110f5455a454987ee58a16ebdc56568be530706ec258c4"
+    },
+    {
+      "path": "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S11_caller_paths.json",
+      "sha256": "98076a7fcd95ca0c893b251a828b0de618f59c368fbd7a4bc3c61f1a93d65365"
+    },
+    {
+      "path": "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S12_nested_return.json",
+      "sha256": "d7968174adbcd375d7caba4fc817427e0501f8d6e30c932856ba9ce879c4157f"
+    },
+    {
+      "path": "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S02_read.json",
+      "sha256": "765604cb3d0a693af2577a366158914bfb004249d0076e9b2198bbe2723df4f2"
+    },
+    {
+      "path": "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/X_same_object_twice.json",
+      "sha256": "ee4bd688125b11898c866c70266ae54cc48f709c02cd847d90d15ceaa9b98abc"
+    },
+    {
+      "path": "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S24_two_writes.json",
+      "sha256": "3d8e97b7d83400821fc77570a19e11016edd3525d817855aafbfb289218015a4"
+    },
+    {
+      "path": "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S04_rebind.json",
+      "sha256": "1d223eea98596633c7377fb6bcdb2722f03d4c141b758694e27d7765464561a8"
+    },
+    {
+      "path": "safety_runs/E03_base_delta_explicit_transfer_fix/merge_audit.json",
+      "sha256": "6bbb9450f3eea15bb4fd866db41184e1956a0e7c45506bbc9157690c7c541925"
+    },
+    {
+      "path": "safety_runs/E06_R04_restricted_indirect_write/r02_core_recheck/S03_copy.json",
+      "sha256": "238b80e604876b834868d96ce3fcce0d399e63567d0e952df9e85d3666bb87ee"
+    },
+    {
+      "path": "safety_runs/E03_base_delta_explicit_transfer_fix/engine_traces/A04/constraint_transfer_e03/001.json",
+      "sha256": "9710fdcd93e6ba867b64908d63af7bfcdabc7d2d8bec533c231ba82d580cac37"
+    },
+    {
+      "path": "safety_runs/E03_base_delta_explicit_transfer_fix/evidence/A04/calls/0231.json",
+      "sha256": "59afcdcea35c32e11acb669ccffbb03f28a674d2c0bf2ea2ef4b14420789fbb4"
+    }
+  ],
+  "schema_samples": {
+    "R04": {
+      "top": [
+        "dataset_id",
+        "position",
+        "source",
+        "source_sha256",
+        "build_evidence",
+        "diagnostics",
+        "status",
+        "reasons",
+        "caller",
+        "address_evidence",
+        "memory_objects",
+        "memory_versions",
+        "call_contexts",
+        "callees",
+        "effect_transfers",
+        "call_attempts",
+        "summary_cache_used",
+        "SMT_generated",
+        "safety_decisions_produced",
+        "R01_evidence",
+        "context_isolation",
+        "metrics",
+        "elapsed_seconds"
+      ],
+      "address_evidence": [
+        "address_evidence_id",
+        "dataset_id",
+        "position",
+        "callsite_id",
+        "caller_path_id",
+        "original_expression",
+        "source_location",
+        "source_sha256",
+        "caller_body_sha256",
+        "target_memory_object_id",
+        "caller_slot_id",
+        "declaration_identity",
+        "caller_pre_version",
+        "type_compatibility",
+        "status",
+        "unknown_reason"
+      ],
+      "memory_object": [
+        "dataset_id",
+        "position",
+        "memory_object_id",
+        "owning_function",
+        "declaration_identity",
+        "caller_slot_id",
+        "object_type",
+        "object_scope",
+        "source_location",
+        "body_sha256",
+        "source_sha256",
+        "storage_kind",
+        "escape_status",
+        "status",
+        "unknown_reason",
+        "unique_by"
+      ],
+      "memory_version": [
+        "memory_object_id",
+        "memory_version_id",
+        "previous_memory_version_id",
+        "caller_value_version_id",
+        "write_event_id",
+        "kind",
+        "write_value",
+        "write_value_type",
+        "call_context_id",
+        "path_id",
+        "source_location",
+        "body_sha256",
+        "source_sha256",
+        "status",
+        "unknown_reason"
+      ],
+      "pointer_target": [
+        "pointer_target_id",
+        "pointer_slot_id",
+        "pointer_value_version_id",
+        "target_memory_object_id",
+        "target_address_evidence_id",
+        "call_context_id",
+        "caller_path_id",
+        "callee_entry_version_id",
+        "type_compatibility",
+        "uniqueness_status",
+        "source_location",
+        "parameter_identity",
+        "status",
+        "relation",
+        "slots_merged"
+      ],
+      "indirect_write": [
+        "indirect_write_id",
+        "caller_pre_version",
+        "target_memory_object_id",
+        "pointer_parameter_identity",
+        "pointer_slot_id",
+        "pointer_entry_version",
+        "pointer_current_version",
+        "indirect_write_location",
+        "original_expression",
+        "write_event_id",
+        "assigned_value",
+        "assigned_value_type",
+        "type_compatibility",
+        "callee_body_sha256",
+        "call_context_id",
+        "callee_path_id",
+        "caller_post_version",
+        "caller_post_memory_version",
+        "effect_coverage",
+        "source_evidence",
+        "status",
+        "reasons"
+      ],
+      "effect_transfer": [
+        "effect_transfer_id",
+        "call_context_id",
+        "callsite_id",
+        "target_memory_object_id",
+        "address_evidence_id",
+        "argument_transfer_id",
+        "pointer_target_id",
+        "caller_pre_version",
+        "caller_pre_memory_version",
+        "caller_post_version",
+        "caller_post_memory_version",
+        "caller_pre_environment",
+        "caller_post_environment",
+        "indirect_write_ids",
+        "effect_coverage",
+        "escape_coverage",
+        "unknown_effect_block_status",
+        "caller_new_version_status",
+        "pointer_entry_status",
+        "unique_target_status",
+        "status",
+        "reasons",
+        "source_sha256",
+        "caller_body_sha256",
+        "callee_body_sha256",
+        "evidence_chain"
+      ],
+      "value_version": [
+        "dataset_id",
+        "position",
+        "function_identity",
+        "declaration_identity",
+        "slot_id",
+        "value_version_id",
+        "version_number",
+        "display_name",
+        "previous_version_id",
+        "definition_event_id",
+        "definition_range",
+        "raw_assignment",
+        "type",
+        "assignment_kind",
+        "value",
+        "source_slot_id",
+        "source_value_version_id",
+        "path_id",
+        "status",
+        "reasons",
+        "reaching_definition_evidence",
+        "source_sha256",
+        "body_sha256",
+        "memory_object_identity_verified",
+        "call_effects_verified",
+        "frame_role",
+        "call_context_id"
+      ],
+      "read": [
+        "read_id",
+        "dataset_id",
+        "position",
+        "path_id",
+        "slot_id",
+        "value_version_id",
+        "source_range",
+        "expression",
+        "role",
+        "status",
+        "reasons",
+        "environment_before_read",
+        "source_sha256"
+      ],
+      "call_context": [
+        "call_context_id",
+        "dataset_id",
+        "position",
+        "caller_function_identity",
+        "callee_function_identity",
+        "caller_body_sha256",
+        "callee_body_sha256",
+        "source_sha256",
+        "callsite_id",
+        "callsite_range",
+        "caller_path_id",
+        "caller_pre_environment",
+        "parameter_mapping_records",
+        "summary_cache_used",
+        "callee_state_reused",
+        "callee_entry_bindings",
+        "status",
+        "target_memory_object_id"
+      ],
+      "address_argument": [
+        "argument_transfer_id",
+        "R01_original_transfer_id",
+        "address_evidence_id",
+        "target_memory_object_id",
+        "caller_pre_version",
+        "caller_pre_slot_id",
+        "formal_declaration",
+        "type_compatibility",
+        "status",
+        "value_category"
+      ]
+    },
+    "R03": {
+      "top": [
+        "dataset_id",
+        "position",
+        "source",
+        "source_sha256",
+        "build_evidence",
+        "status",
+        "reasons",
+        "diagnostics",
+        "caller",
+        "call_contexts",
+        "callees",
+        "return_transfers",
+        "call_attempts",
+        "source_return_inventory",
+        "summary_cache_used",
+        "SMT_generated",
+        "safety_decisions",
+        "R01_evidence",
+        "context_isolation",
+        "metrics",
+        "elapsed_seconds"
+      ],
+      "return_value": [
+        "dataset_id",
+        "position",
+        "caller_function_identity",
+        "callee_function_identity",
+        "call_context_id",
+        "callsite_id",
+        "callee_path_id",
+        "frame_role",
+        "return_event_id",
+        "return_source_range",
+        "raw_return_expression",
+        "return_type",
+        "value_category",
+        "source_slot_id",
+        "source_value_version_id",
+        "callee_current_versions",
+        "return_guard",
+        "source_sha256",
+        "body_sha256",
+        "status",
+        "reasons",
+        "type_compatibility",
+        "source_read_id",
+        "return_value_id"
+      ],
+      "path_return": [
+        "path_id",
+        "guard",
+        "return_event_id",
+        "return_value_id",
+        "normal_return",
+        "can_continue_caller",
+        "status",
+        "reasons",
+        "call_context_id"
+      ],
+      "return_transfer": [
+        "dataset_id",
+        "position",
+        "call_context_id",
+        "callsite_id",
+        "caller_pre_version",
+        "argument_transfer_id",
+        "callee_entry_version",
+        "callee_return_value_id",
+        "callee_path_id",
+        "return_event_id",
+        "caller_result_slot_id",
+        "caller_result_version_id",
+        "caller_post_path_id",
+        "return_value_received",
+        "return_value_ignored",
+        "void_normal_return",
+        "result_disposition",
+        "type_compatibility",
+        "call_effect_coverage",
+        "return_path_completeness",
+        "argument_mapping_status",
+        "argument_entry_status",
+        "return_binding_status",
+        "caller_result_status",
+        "complete_call_status",
+        "status",
+        "reasons",
+        "source_sha256",
+        "caller_body_sha256",
+        "callee_body_sha256",
+        "callee_return_terminates_caller",
+        "caller_pre_environment",
+        "caller_post_environment",
+        "evidence_chain",
+        "guard_transferred_to_caller",
+        "path_satisfiability_proven",
+        "return_transfer_id"
+      ],
+      "argument_transfer": [
+        "argument_transfer_id",
+        "actual_index_0based",
+        "formal_index_0based",
+        "caller_pre_slot_id",
+        "caller_pre_version",
+        "r01_actual_slot_id",
+        "r01_formal_slot_id",
+        "formal_declaration_offset",
+        "type_compatibility",
+        "actual_source_range",
+        "formal_source_range",
+        "status"
+      ],
+      "callee_entry": [
+        "argument_transfer_id",
+        "caller_pre_version",
+        "caller_pre_slot_id",
+        "callee_entry_version",
+        "callee_slot_id",
+        "formal_declaration_offset",
+        "slots_merged",
+        "status"
+      ]
+    },
+    "R01": {
+      "top": [
+        "dataset_id",
+        "position",
+        "status",
+        "reasons",
+        "source",
+        "source_sha256",
+        "build_evidence",
+        "diagnostics",
+        "macro_expansions",
+        "candidate_inventory",
+        "calls",
+        "elapsed_seconds"
+      ],
+      "call": [
+        "dataset_id",
+        "position",
+        "callsite_id",
+        "caller",
+        "callee",
+        "callsite",
+        "call_text",
+        "caller_body_sha256",
+        "callee_body_sha256",
+        "source_sha256",
+        "build_evidence",
+        "diagnostics_ref",
+        "status",
+        "reasons",
+        "mappings",
+        "ast_is_trusted",
+        "scope",
+        "reachability_verified",
+        "post_call_effects_verified",
+        "pointed_object_identity_verified"
+      ],
+      "mapping": [
+        "actual_index_0based",
+        "formal_index_0based",
+        "actual_expression",
+        "actual_source_range",
+        "actual_declaration",
+        "formal_declaration",
+        "actual_slot_id",
+        "formal_slot_id",
+        "formal_type",
+        "actual_type",
+        "conversion",
+        "status",
+        "reasons",
+        "relation",
+        "slot_equivalence",
+        "value_version_tracking",
+        "transfer_id"
+      ],
+      "declaration": [
+        "name",
+        "kind",
+        "usr",
+        "canonical_location",
+        "location",
+        "source_range",
+        "linkage",
+        "declaration_id"
+      ]
+    },
+    "B_delta": {
+      "bundle": [
+        "adapter_version",
+        "base",
+        "delta",
+        "merged_script",
+        "base_sha256",
+        "delta_sha256",
+        "merged_sha256",
+        "assembly_audit"
+      ],
+      "source": [
+        "stage",
+        "reference",
+        "raw_text",
+        "raw_sha256",
+        "provenance_scope",
+        "code_text",
+        "code_sha256",
+        "merged_span"
+      ],
+      "IR": [
+        "declarations",
+        "assertions",
+        "bindings",
+        "issues",
+        "snapshots",
+        "resets",
+        "source"
+      ]
+    },
+    "R02": {
+      "top": [
+        "dataset_id",
+        "position",
+        "source",
+        "source_sha256",
+        "build_evidence",
+        "status",
+        "reasons",
+        "diagnostics",
+        "functions",
+        "expression_evidence",
+        "elapsed_seconds",
+        "scope",
+        "SMT_generated",
+        "cross_function_state_propagated"
+      ],
+      "function": [
+        "function",
+        "body_sha256",
+        "status",
+        "reasons",
+        "slots",
+        "versions",
+        "reads",
+        "events",
+        "state_snapshots",
+        "final_environments",
+        "unprocessed_ranges",
+        "paths_merged",
+        "return_values_propagated",
+        "call_effects_proven"
+      ],
+      "value_version": [
+        "dataset_id",
+        "position",
+        "function_identity",
+        "declaration_identity",
+        "slot_id",
+        "value_version_id",
+        "version_number",
+        "display_name",
+        "previous_version_id",
+        "definition_event_id",
+        "definition_range",
+        "raw_assignment",
+        "type",
+        "assignment_kind",
+        "value",
+        "source_slot_id",
+        "source_value_version_id",
+        "path_id",
+        "status",
+        "reasons",
+        "reaching_definition_evidence",
+        "source_sha256",
+        "body_sha256",
+        "memory_object_identity_verified",
+        "call_effects_verified"
+      ],
+      "slot": [
+        "slot_id",
+        "declaration",
+        "type",
+        "r01_caller_slot_id",
+        "r01_callee_slot_id"
+      ],
+      "read": [
+        "read_id",
+        "dataset_id",
+        "position",
+        "path_id",
+        "slot_id",
+        "value_version_id",
+        "source_range",
+        "expression",
+        "role",
+        "status",
+        "reasons",
+        "environment_before_read",
+        "source_sha256"
+      ]
+    }
+  },
+  "observations": [
+    {
+      "observation": "R03_return_result_read_exact_reference",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S07_read.json#/return_transfers/0",
+        "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S07_read.json#/caller/reads"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R03_owning_context_null_producing_context_nested",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S07_read.json#/caller/versions"
+      ],
+      "detail": {
+        "producing_context": "call-context:8c6c02a7a6c0c2c1deabf0e4456d2baa0e770ea7f2130bd6aeaa1fb34d9208ba"
+      },
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R03_ignored_return_binding_without_result",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S08_ignored.json#/return_transfers"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R03_two_return_alternatives_not_merged",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S04_two_returns.json#/return_transfers"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R03_callee_guards_not_injected_into_caller",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S04_two_returns.json#/return_transfers"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R03_S10_callsites_distinct_context_ids",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S10_callsites.json#/call_contexts"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R03_S11_caller_paths_distinct_context_ids",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S11_caller_paths.json#/call_contexts"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R03_transfer_id_reused_across_paths",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S11_caller_paths.json#/call_contexts"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R03_nested_return_unknown",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R03_return_value_transfer/synthetic_runs/final_candidate_02/S12_nested_return.json#/status"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R04_committed_memory_value_read_bridge",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S02_read.json#/effect_transfers/0",
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S02_read.json#/memory_versions/1",
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S02_read.json#/caller/reads/0"
+      ],
+      "detail": {
+        "object_id": "memory-object:8077a0865f43d005ae33f30a672dd07eaef9536710006ae3c642024fe766e3c7",
+        "memory_version_id": "memory-version:c9d50ab64e88e7a176f27026b41fd936333b7384f8aa2e2d85b3b04e6a486209",
+        "caller_value_version_id": "value-version:9b2ce831e0d92c19f7675cf07d6b626e2274653e0445a842f60211e69847c81c",
+        "read_id": "read:1eb9d7302550faecac81d0fdc021dfe4c7f22f8fa389f2b323106ca57384e397",
+        "read_path_id": "r04-caller-post:ff11377a91a3e1af5b92cbf944f3e83c8d6c13632974059776f7181e27312d73",
+        "post_path_id": "r04-caller-post:ff11377a91a3e1af5b92cbf944f3e83c8d6c13632974059776f7181e27312d73"
+      },
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R04_generic_final_snapshots_omit_memory_current",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S02_read.json#/caller/final_environments",
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S02_read.json#/effect_transfers/0/caller_post_environment"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "lexical_instance_decl_ids_differ",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S02_read.json#/call_contexts/0/callee_function_identity",
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S02_read.json#/callees/0/function"
+      ],
+      "detail": {
+        "lexical_id": "decl:13b326a5eee29d938a2992ed6ab2b614811507ac7858c49d921904a4f2b8f950",
+        "instance_id": "decl:79aee1127ff570ac59b2826acfd7995ca664a047840035456c7a659f837a3520"
+      },
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R04_contexts_have_no_parent_context",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S02_read.json#/call_contexts"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R04_sequential_calls_chain_memory_and_value",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/X_same_object_twice.json#/effect_transfers"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R04_second_store_blocks_commit_despite_prefix_PASS",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S24_two_writes.json#/effect_transfers/0",
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S24_two_writes.json#/callees/0/indirect_writes"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R04_local_pointer_rebind_no_caller_store",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S04_rebind.json#/callees/0",
+        "safety_runs/E06_R04_restricted_indirect_write/synthetic_runs/final_candidate_01/S04_rebind.json#/effect_transfers/0"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A04_base_raw_hash_span",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E03_base_delta_explicit_transfer_fix/merge_audit.json#/cases"
+      ],
+      "detail": {
+        "span_unit": "Python character offset, half-open"
+      },
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A04_delta_raw_hash_span",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E03_base_delta_explicit_transfer_fix/merge_audit.json#/cases"
+      ],
+      "detail": {
+        "span_unit": "Python character offset, half-open"
+      },
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A04_copy_0231",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/calls/0231.json"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A04_copy_0233",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/calls/0233.json"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A04_copy_0234",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/calls/0234.json"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A04_copy_0235",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/calls/0235.json"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A04_copy_0238",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/calls/0238.json"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A01_base_raw_hash_span",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E03_base_delta_explicit_transfer_fix/merge_audit.json#/cases"
+      ],
+      "detail": {
+        "span_unit": "Python character offset, half-open"
+      },
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A01_delta_raw_hash_span",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E03_base_delta_explicit_transfer_fix/merge_audit.json#/cases"
+      ],
+      "detail": {
+        "span_unit": "Python character offset, half-open"
+      },
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A01_copy_0224",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/01/calls/0224.json"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A01_copy_0226",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/01/calls/0226.json"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "B_delta_A01_copy_0227",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/01/calls/0227.json"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no C semantics or path proof added"
+    },
+    {
+      "observation": "R02_copy_references_old_source_version",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R04_restricted_indirect_write/r02_core_recheck/S03_copy.json#/functions/0/versions"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no semantic proof added"
+    },
+    {
+      "observation": "R02_standalone_versions_have_no_context_field",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E06_R04_restricted_indirect_write/r02_core_recheck/S03_copy.json#/functions/0/versions"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no semantic proof added"
+    },
+    {
+      "observation": "B_delta_origins_are_script_locations_without_value_ids",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E03_base_delta_explicit_transfer_fix/engine_traces/A04/constraint_transfer_e03/001.json#/check_contract/ir/B/assertions"
+      ],
+      "detail": {
+        "example_origin": {
+          "reference": "position/12/frame/1/U02/raw_response",
+          "line": 3,
+          "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+        },
+        "engine_frame_level": 1
+      },
+      "scope": "saved-artifact structure only; no semantic proof added"
+    },
+    {
+      "observation": "B_raw_text_binds_saved_U02_choice_content",
+      "confirmed": true,
+      "evidence_refs": [
+        "safety_runs/E03_base_delta_explicit_transfer_fix/evidence/A04/calls/0231.json#/choices/0/message/content",
+        "safety_runs/E03_base_delta_explicit_transfer_fix/engine_traces/A04/constraint_transfer_e03/001.json#/bundle/base/raw_text"
+      ],
+      "detail": null,
+      "scope": "saved-artifact structure only; no semantic proof added"
+    }
+  ],
+  "all_observations_confirmed": true
+}
