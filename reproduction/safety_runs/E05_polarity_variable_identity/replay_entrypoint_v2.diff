@@ -1,0 +1,38 @@
+--- replay.py (preserved)
++++ replay_v2.py
+@@ -46,7 +46,7 @@
+ 
+ 
+ def assert_frozen():
+-    freeze = read(HERE / 'candidate_freeze.json')
++    freeze = read(HERE / 'candidate_freeze_v2.json')
+     for relative, expected in freeze['sha256'].items():
+         if digest(ROOT / relative) != expected:
+             raise RuntimeError('STOP: frozen input changed ' + relative)
+@@ -215,7 +215,7 @@
+ 
+ def audit_and_nd():
+     assert_frozen()
+-    save(HERE/'historical_started.json',{'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
++    save(HERE/'historical_attempt02_started.json',{'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
+     original=read(verified(E02/'audit_10_results.json'))['rows']
+     manifest=read(verified(ROOT/'audit/failure_audit_20261029/audit_samples.json'))
+     rows=manifest['samples'] if isinstance(manifest,dict) else manifest
+@@ -224,7 +224,7 @@
+     results=[sample(E02/'evidence/audit_10_frozen_candidate'/f'{i:02}',row,old)
+              for i,(row,old) in enumerate(zip(rows,original),1)]
+     source_path=verified(ND/'selected_source.c'); m=read(verified(ND/'sample_manifest.json'))
+-    selected=read(verified(ND/'selected_sample.json')); frame=m['frames'][m['target_frame']]
++    selected=read(verified(ND/'selected_sample.json')); frame=m['frames'][m['historical_target_frame']]
+     frame=dict(frame,code=source_path.read_text(encoding='utf-8'),extracted={'target_conditions':[]})
+     # Read source guards generically; use the original U02 request to bind which
+     # saved guard was actually converted. No invented assertion or ID special case.
+@@ -257,7 +257,7 @@
+     if not (HERE/'historical_replay.json').is_file():
+         raise RuntimeError('STOP: historical replay must precede fixed regression')
+     save(HERE/'fixed_20_started.json',{'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+-        'run_count':1,'candidate_sha256':digest(HERE/'candidate_freeze.json'),'no_post_result_tuning':True})
++        'run_count':1,'candidate_sha256':digest(HERE/'candidate_freeze_v2.json'),'no_post_result_tuning':True})
+     original=read(verified(E02/'fixed_20_results.json'))['rows']
+     manifest=read(verified(ROOT/'safety_runs/20261029_v1/fixed_holdout.json'))
+     if len(original)!=20 or len(manifest['samples'])!=20:

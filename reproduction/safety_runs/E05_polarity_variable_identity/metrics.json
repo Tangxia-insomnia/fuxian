@@ -1,0 +1,141 @@
+{
+  "created_at": "2026-11-02T04:32:53.213377+00:00",
+  "meaning": "Offline static diagnostics, not path accuracy, safety adjudication or new end-to-end execution",
+  "synthetic": {
+    "polarity_tests": {
+      "passed": 92,
+      "total": 92,
+      "seconds": 0.0577889000014693
+    },
+    "variable_identity_tests": {
+      "passed": 32,
+      "total": 32,
+      "seconds": 0.06911740000032296
+    },
+    "baseline_local_tests": {
+      "passed": 4,
+      "total": 4
+    }
+  },
+  "cohorts": {
+    "audit10": {
+      "sample_count": 10,
+      "new_E05_diagnostic_status_counts": {
+        "UNKNOWN": 10
+      },
+      "new_E05_unknown_ratio": 1.0,
+      "whole_context_verified_count": 0,
+      "local_condition_checks": 0,
+      "frame_count": 13,
+      "preprocessor_unsupported_frames": 4,
+      "retained_E01_local_conflict_count": 1,
+      "retained_E01_conflict_sample_ids": [
+        "NPD/codeql/kernel69:row=10:index=22"
+      ],
+      "structural_status_occurrences": {
+        "FAIL": 4,
+        "PASS": 9,
+        "UNKNOWN": 13
+      },
+      "structural_issue_occurrences": {
+        "missing_base_assertions": 6,
+        "missing_delta_assertions": 1,
+        "missing_declarations": 7,
+        "symbol_identity_conflicts": 3,
+        "type_conflicts": 1,
+        "duplicate_assertions": 0,
+        "duplicate_declarations": 0,
+        "extra_final_assertions": 7,
+        "extra_final_declarations": 8,
+        "solver_recreations": 0
+      },
+      "static_seconds": 0.16780349999862665,
+      "complete_semantic_coverage": 0,
+      "assertions_removed": 0,
+      "label_distribution": {
+        "1": 3,
+        "0": 7
+      }
+    },
+    "fixed20": {
+      "sample_count": 20,
+      "new_E05_diagnostic_status_counts": {
+        "UNKNOWN": 20
+      },
+      "new_E05_unknown_ratio": 1.0,
+      "whole_context_verified_count": 0,
+      "local_condition_checks": 0,
+      "frame_count": 23,
+      "preprocessor_unsupported_frames": 2,
+      "retained_E01_local_conflict_count": 0,
+      "retained_E01_conflict_sample_ids": [],
+      "structural_status_occurrences": {
+        "FAIL": 3,
+        "UNKNOWN": 34,
+        "PASS": 23
+      },
+      "structural_issue_occurrences": {
+        "missing_base_assertions": 4,
+        "missing_delta_assertions": 2,
+        "missing_declarations": 6,
+        "symbol_identity_conflicts": 3,
+        "type_conflicts": 1,
+        "duplicate_assertions": 0,
+        "duplicate_declarations": 0,
+        "extra_final_assertions": 29,
+        "extra_final_declarations": 42,
+        "solver_recreations": 0
+      },
+      "static_seconds": 0.3838161999992735,
+      "complete_semantic_coverage": 0,
+      "assertions_removed": 0,
+      "label_distribution": {
+        "1": 8,
+        "0": 12
+      }
+    }
+  },
+  "runtime": {
+    "model_calls": 0,
+    "z3_calls": 0,
+    "generated_code_executions": 0,
+    "harness_starts": 0,
+    "cost_cny": 0,
+    "tokens": 0
+  },
+  "safety": {
+    "alert_decisions_emitted": 0,
+    "true_bug_retention_rate": null,
+    "true_bug_deletion_rate": null,
+    "false_positive_filter_rate": null,
+    "reason": "No safety decisions made; these rates are not measured. No production path changed."
+  },
+  "candidate": {
+    "main": "candidate_freeze_v2.json",
+    "original_failed_adapter": "candidate_freeze.json",
+    "E01_retention_annex": "baseline_local_freeze.json",
+    "semantic_module_changed_after_initial_freeze": false,
+    "fixed20_runs": 1
+  },
+  "E04_ND": {
+    "diagnostic_status": "REJECT",
+    "polarity_error_detected": true,
+    "member_identity_error_detected": true,
+    "original_E03_structural_status": "PASS",
+    "global_semantics_verified": false,
+    "assertions_removed": 0,
+    "actual_guard_line": 271,
+    "model_comment_guard_line": 270,
+    "assignment_line": 176
+  },
+  "acceptance": {
+    "bounded_synthetic_expectations_pass": true,
+    "E04_ND_both_errors_detected": true,
+    "A01_original_E01_local_diagnostic_retained": true,
+    "A01_new_E05_source_parser_supported": false,
+    "A04_identity_type_diagnostics_retained": true,
+    "full_semantic_repair_claimed": false,
+    "production_integration_claimed": false,
+    "result": "BOUNDED_OFFLINE_VALIDATION_COMPLETE_WITH_LIMITATIONS"
+  }
+}

@@ -1,0 +1,1351 @@
+--- /dev/null
++++ b/reproduction/safety_runs/E05_polarity_variable_identity/baseline_local_check.py
+@@ -0,0 +1,82 @@
++"""Retain the original E01 *local* diagnostic independently of the new reader.
++
++No safety runner/solver is imported. This is not a relaxation of E05 source
++parsing: E05 still refuses unresolved preprocessing, and no global PASS results.
++"""
++import hashlib
++import importlib.util
++import json
++from pathlib import Path
++import sys
++
++import offline_boundary
++offline_boundary.install()
++from dependencies import ROOT, load
++
++HERE = Path(__file__).resolve().parent
++ADAPTER = ROOT / 'safety_runs/E01_predicate_polarity_consistency/offline_adapter.py'
++PIN = 'df26d3a71b7a3018efe5de319d4d2ed0563b2c78ea1b07c15dd502934fe88c4d'
++
++
++def original_adapter():
++    if hashlib.sha256(ADAPTER.read_bytes()).hexdigest() != PIN:
++        raise RuntimeError('STOP: E01 adapter hash mismatch')
++    sys.modules['predicate_check'] = load('e01')
++    spec = importlib.util.spec_from_file_location('_e05_original_e01_adapter', ADAPTER)
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def save(path, result):
++    with path.open('x', encoding='utf-8') as f:
++        json.dump(result, f, ensure_ascii=False, indent=2)
++        f.write('\n')
++
++
++def synthetic():
++    adapter = original_adapter()
++    rows = []
++    for condition, atom, expected in [('!x','Not(x == 0)',1), ('!x','x == 0',0),
++                                       ('x','x == 0',1), ('x','x != 0',0)]:
++        code='void f(void)\n{\n    int x;\n    if ('+condition+')\n        use(x);\n}\n'
++        bundle={'context':{'frames':[{'code':code,'function':'f','var_name':'other',
++                  'extracted':{'target_conditions':[{'condition':'if ('+condition+')','line_number':3}]}}]},
++                'recorded_answer':{'response':["step 1 z3 script: ```python\nx=Int('x')\ns.add("+atom+")\n```"]}}
++        result=adapter.inspect_bundle(bundle)
++        rows.append({'input':bundle,'expected_conflicts':expected,'actual':result,
++                     'passed':result['conflicting_condition_count']==expected})
++    save(HERE/'baseline_local_tests.json',{'rows':rows,'passed':sum(r['passed'] for r in rows),'total':len(rows),
++                                         'scope':'retention of unchanged E01 diagnostic only'})
++    if not all(r['passed'] for r in rows):
++        raise RuntimeError('STOP: original E01 local baseline regression')
++    print('original E01 local retention:',len(rows),'/',len(rows))
++
++
++def run(cohort):
++    freeze=json.loads((HERE/'baseline_local_freeze.json').read_text(encoding='utf-8'))
++    for relative, expected in freeze['sha256'].items():
++        if hashlib.sha256((ROOT/relative).read_bytes()).hexdigest()!=expected:
++            raise RuntimeError('STOP: local baseline freeze mismatch')
++    baseline=json.loads((HERE/'baseline_state.json').read_text(encoding='utf-8'))['protected_files']
++    adapter=original_adapter(); rows=[]
++    prefix=ROOT/'safety_runs/E02_base_constraint_preservation_static/evidence'/(cohort+'_frozen_candidate')
++    for p in sorted(prefix.glob('*/bundle.json')):
++        relative=p.relative_to(ROOT).as_posix()
++        if hashlib.sha256(p.read_bytes()).hexdigest()!=baseline[relative]:
++            raise RuntimeError('STOP: original bundle mismatch')
++        bundle=json.loads(p.read_text(encoding='utf-8'))
++        result=adapter.inspect_bundle(bundle)
++        rows.append({'sample_id':bundle['candidate']['sample_id'],'input':relative,'sha256':baseline[relative],
++                     'result':result,'alert_safety_decision':None})
++    save(HERE/('retained_E01_'+cohort+'.json'),{'rows':rows,'count':len(rows),'boundary_attempts':offline_boundary.ATTEMPTS,
++        'meaning':'Original E01 local evidence retained, not a new full E05 semantic proof or safety replay',
++        'z3_calls':0,'model_calls':0})
++    print('retained E01',cohort,'local conflicts:',sum(r['result']['conflicting_condition_count'] for r in rows))
++
++
++if __name__=='__main__':
++    if sys.argv[1]=='synthetic':
++        synthetic()
++    else:
++        run(sys.argv[1])
+--- /dev/null
++++ b/reproduction/safety_runs/E05_polarity_variable_identity/dependencies.py
+@@ -0,0 +1,29 @@
++"""Load only hash-pinned, side-effect-free historical static readers."""
++import hashlib
++import importlib.util
++from pathlib import Path
++import sys
++
++ROOT = Path(__file__).resolve().parents[2]
++PINS = {
++    'e01': ('safety_runs/E01_predicate_polarity_consistency/predicate_check.py',
++            '0d41c1142adee9a3047ce2014daad1ef6e6ea85eee674d9d4534e15cf63880e4'),
++    'e02': ('safety_runs/E02_base_constraint_preservation_static/checker.py',
++            '5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a'),
++    'e03': ('completion/constraint_bundle.py',
++            '7718ae636dd19d88aa51f44d96e0fb5c1d303f0d849804598181a6a9bc28a483'),
++}
++
++
++def load(name):
++    relative, expected = PINS[name]
++    path = ROOT / relative
++    if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
++        raise RuntimeError('STOP: dependency hash mismatch: ' + relative)
++    key = '_e05_pinned_' + name
++    if key not in sys.modules:
++        spec = importlib.util.spec_from_file_location(key, path)
++        module = importlib.util.module_from_spec(spec)
++        sys.modules[key] = module
++        spec.loader.exec_module(module)
++    return sys.modules[key]
+--- /dev/null
++++ b/reproduction/safety_runs/E05_polarity_variable_identity/offline_boundary.py
+@@ -0,0 +1,31 @@
++"""Fail closed if an offline replay attempts network, child process or Z3 import."""
++import importlib.abc
++import os
++import socket
++import subprocess
++import sys
++
++ATTEMPTS = []
++
++
++def deny(*args, **kwargs):
++    ATTEMPTS.append('forbidden_runtime_operation')
++    raise RuntimeError('STOP: E05 offline boundary violation')
++
++
++class NoLiveModules(importlib.abc.MetaPathFinder):
++    def find_spec(self, fullname, path=None, target=None):
++        if fullname.split('.')[0] in {'z3', 'openai', 'requests', 'httpx'} or fullname in {
++                'completion.engine', 'completion.model', 'completion.solver_worker'}:
++            ATTEMPTS.append('forbidden_import:' + fullname)
++            raise RuntimeError('STOP: E05 forbidden live/solver import')
++        return None
++
++
++def install():
++    if any(name.split('.')[0] in {'z3', 'openai'} for name in sys.modules):
++        raise RuntimeError('STOP: solver/model already imported')
++    sys.meta_path.insert(0, NoLiveModules())
++    socket.socket = socket.create_connection = socket.getaddrinfo = deny
++    subprocess.Popen = subprocess.run = subprocess.call = subprocess.check_call = subprocess.check_output = deny
++    os.system = os.popen = deny
+--- /dev/null
++++ b/reproduction/safety_runs/E05_polarity_variable_identity/replay.py
+@@ -0,0 +1,274 @@
++"""Hash-verified historical static replay. Never execute saved generated code.
++
++The same generic adapter processes all samples. Labels/IDs are bookkeeping
++only; no semantic rule dispatches on any sample ID or function name.
++"""
++import ast
++from collections import Counter
++import datetime
++import json
++from pathlib import Path
++import re
++import sys
++import time
++
++import offline_boundary
++offline_boundary.install()
++from dependencies import ROOT, PINS, load
++from semantics import Source, Unsupported, check_polarity, member_collapse_diagnostics, sha
++
++HERE = Path(__file__).resolve().parent
++E02 = ROOT / 'safety_runs/E02_base_constraint_preservation_static'
++ND = ROOT / 'safety_runs/E04_nonempty_delta_validation'
++
++
++def read(path):
++    return json.loads(path.read_text(encoding='utf-8'))
++
++
++def digest(path):
++    import hashlib
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def save(path, value):
++    with path.open('x', encoding='utf-8') as f:
++        json.dump(value, f, ensure_ascii=False, indent=2)
++        f.write('\n')
++
++
++def verified(path):
++    baseline = read(HERE / 'baseline_state.json')['protected_files']
++    relative = path.relative_to(ROOT).as_posix()
++    if relative not in baseline or digest(path) != baseline[relative]:
++        raise RuntimeError('STOP: unverified historical source ' + relative)
++    return path
++
++
++def assert_frozen():
++    freeze = read(HERE / 'candidate_freeze.json')
++    for relative, expected in freeze['sha256'].items():
++        if digest(ROOT / relative) != expected:
++            raise RuntimeError('STOP: frozen input changed ' + relative)
++
++
++def code_atoms(script):
++    """Read add() atoms without running expressions. Keep every original input."""
++    try:
++        code = load('e02').code_block(script)
++        tree = ast.parse(code)
++    except (SyntaxError, ValueError) as exc:
++        return [], ['unparseable_model_script:' + str(exc)]
++    if any(isinstance(n, (ast.If, ast.For, ast.While, ast.Try, ast.With, ast.Lambda)) for n in ast.walk(tree)):
++        return [], ['model_control_flow_unsupported']
++    declarations = {}
++    counts = Counter()
++    for n in ast.walk(tree):
++        if isinstance(n, ast.Assign):
++            for t in n.targets:
++                if isinstance(t, ast.Name):
++                    counts[t.id] += 1
++            if (len(n.targets)==1 and isinstance(n.targets[0],ast.Name) and
++                isinstance(n.value,ast.Call) and isinstance(n.value.func,ast.Name) and
++                n.value.func.id in ('Int','Bool','BitVec') and n.value.args and
++                isinstance(n.value.args[0],ast.Constant) and isinstance(n.value.args[0].value,str)):
++                declarations[n.targets[0].id] = (n.value.args[0].value,n.value.func.id)
++    result=[]
++
++    def add(node, line):
++        if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id=='And':
++            for arg in node.args:
++                add(arg,line)
++        else:
++            names=sorted({n.id for n in ast.walk(node) if isinstance(n,ast.Name)}-{'Not','And','Or','True','False'})
++            # A diagnostic association requires a single declared unchanged name.
++            result.append({'expression':ast.unparse(node),'generated_line':line,'names':names,
++                'binding': declarations.get(names[0]) if len(names)==1 and counts[names[0]]==1 else None,
++                'response_sha256':sha(script)})
++    for n in ast.walk(tree):
++        if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute) and n.func.attr=='add':
++            for arg in n.args:
++                add(arg,n.lineno)
++    return result, []
++
++
++def frame_semantics(frame, scripts, reference):
++    code=frame['code']; findings=[]; uncertainties=[]; polarities=[]; identities=[]
++    try:
++        source=Source(code,frame['function'],reference,frame.get('body_sha256'))
++    except Unsupported as exc:
++        return {'status':'UNKNOWN','reason':str(exc),'findings':[], 'whole_context_verified':False}
++    targets=[i for i,line in enumerate(code.splitlines(),1) if line.strip()==frame['target'].strip()]
++    entries=(frame.get('extracted') or {}).get('target_conditions',[])
++    local_specs=[]
++    if len(targets)!=1:
++        uncertainties.append('target_location_missing_or_ambiguous')
++    for entry in entries:
++        raw=entry.get('condition','')
++        m=re.fullmatch(r'\s*if\s*\((.*)\)\s*',raw)
++        if not m:
++            uncertainties.append('recorded_condition_not_simple_if:'+raw)
++            continue
++        # Find exact raw guard in real saved body. Record historical line separately.
++        canonical=re.sub(r'\s+','',raw)
++        hits=[i for i,line in enumerate(code.splitlines(),1)
++              if re.sub(r'\s+','',line.strip().removesuffix('{'))==canonical]
++        if len(hits)!=1 or len(targets)!=1:
++            uncertainties.append('source_guard_not_uniquely_bound:'+raw)
++            continue
++        try:
++            scalar=load('e01').normalize_c(m[1],True)
++        except load('e01').Unsupported as exc:
++            uncertainties.append(str(exc)+':'+raw)
++            continue
++        # Never confuse the injected null-pointer bug hypothesis with a path guard.
++        if scalar['variable']==frame.get('var_name'):
++            uncertainties.append('target_bug_assumption_and_guard_provenance_ambiguous')
++            continue
++        local_specs.append((entry,hits[0],targets[0],scalar))
++    multiplicity=Counter(spec[3]['variable'] for spec in local_specs)
++    for role,script,script_ref in scripts:
++        if role!='B':
++            # Later stages can encode different time states. Do not bind their
++            # same-name atoms to the sink guard without state provenance.
++            continue
++        atoms,reasons=code_atoms(script); uncertainties.extend(reasons)
++        for entry,guard,target,scalar in local_specs:
++            bound=[]
++            if multiplicity[scalar['variable']]==1:
++                bound=[a for a in atoms if a['names']==[scalar['variable']] and
++                       a['binding'] and a['binding'][0]==scalar['variable']]
++            if not bound:
++                uncertainties.append('no_unique_U02_condition_atom:'+scalar['variable'])
++            for atom in bound:
++                result=check_polarity(source,guard,target,True,atom['expression'],
++                    sort=atom['binding'][1],target_text=frame['target'],
++                    context_reasons=['historical_whole_context_unverified','assertion_role_diagnostic_association_only'])
++                result.update(model_source=script_ref,raw_response_sha256=sha(script),
++                    generated_line=atom['generated_line'],original_recorded_condition=entry,
++                    actual_guard_body_line=guard,
++                    provenance_basis='unique source guard + same-name explicit U02 declaration; diagnostic association, not author-provided assertion map')
++                polarities.append(result)
++                if result['local_status']=='REJECT':
++                    findings.append({'category':'polarity','codes':result['reasons'],
++                                     'model_source':script_ref,'guard_line':guard})
++    base=next((s for role,s,ref in scripts if role=='B'),None)
++    inherited=None
++    if base:
++        try:
++            inherited=load('e02')._parse(base,'python','U02/raw').env()
++        except load('e02').Unsupported as exc:
++            uncertainties.append('base_parse:'+str(exc))
++    for role,script,ref in scripts:
++        if role not in ('B','delta'):
++            continue
++        result=member_collapse_diagnostics(source,script,inherited)
++        result.update(role=role,model_source=ref,raw_response_sha256=sha(script))
++        identities.append(result)
++        if result['findings']:
++            findings.append({'category':'identity','codes':['pointer_member_identity_collapse'],
++                             'model_source':ref,'witnesses':result['findings']})
++    return {'status':'REJECT' if findings else 'UNKNOWN','polarity_checks':polarities,
++            'identity_checks':identities,'findings':findings,
++            'uncertainties':sorted(set(uncertainties+['full_C_state_types_control_and_provenance_not_proven'])),
++            'source_reference':reference,'source_sha256':source.digest,'source_declarations':source.declarations,
++            'whole_context_verified':False,'assertions_removed':0,'alert_safety_decision':None}
++
++
++def structural_checks(directory):
++    results=[]; scripts_by_frame={}
++    for path in sorted((directory/'contracts').glob('*.json')):
++        verified(path); c=read(path)
++        if not all(k in c for k in ('B','delta','Final')):
++            raise RuntimeError('STOP: historical contract schema unconfirmed')
++        refs=c.get('references', ['B','delta','Final'])
++        result=load('e02').check_contract(c['B'],c['delta'],c['Final'],
++                formats=tuple(c.get('formats',('python',)*3)),refs=tuple(refs),extra_deltas=c.get('extra_deltas',[]))
++        results.append({'input':path.relative_to(ROOT).as_posix(),'input_sha256':digest(path),
++                        'result':result})
++        m=re.fullmatch(r'frame/(\d+)/U02',refs[0]); frame=int(m[1]) if m else None
++        if frame is not None:
++            values=scripts_by_frame.setdefault(frame,{})
++            for role,field,ref in [('B','B',refs[0]),('delta','delta',refs[1])]:
++                if isinstance(c[field],str):
++                    values.setdefault((role,sha(c[field])),(role,c[field],ref))
++    return results,{f:list(v.values()) for f,v in scripts_by_frame.items()}
++
++
++def sample(directory, manifest_row, original_e02_row):
++    start=time.perf_counter(); path=verified(directory/'bundle.json'); bundle=read(path)
++    sid=bundle.get('candidate',{}).get('sample_id')
++    if sid!=manifest_row['sample_id'] or sid!=original_e02_row['sample_id']:
++        raise RuntimeError('STOP: fixed sample identity mismatch')
++    structural,scripts=structural_checks(directory)
++    frames=[]
++    for i,frame in enumerate((bundle.get('context') or {}).get('frames',[])):
++        frames.append(frame_semantics(frame,scripts.get(i,[]),path.relative_to(ROOT).as_posix()+f'#/context/frames/{i}'))
++    findings=[x for f in frames for x in f['findings']]
++    return {'sample_id':sid,'dataset_label':manifest_row.get('dataset_label',manifest_row.get('label')),
++        'label_use':'metadata only; published labels not individually verified; never used by checks',
++        'diagnostic_status':'REJECT' if findings else 'UNKNOWN','frames':frames,'structural_checks':structural,
++        'bundle_sha256':digest(path),'bundle_reference':path.relative_to(ROOT).as_posix(),
++        'local_findings':findings,'whole_context_verified':False,'alert_safety_decision':None,
++        'seconds':time.perf_counter()-start,'model_calls':0,'z3_calls':0,'assertions_removed':0}
++
++
++def audit_and_nd():
++    assert_frozen()
++    save(HERE/'historical_started.json',{'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
++    original=read(verified(E02/'audit_10_results.json'))['rows']
++    manifest=read(verified(ROOT/'audit/failure_audit_20261029/audit_samples.json'))
++    rows=manifest['samples'] if isinstance(manifest,dict) else manifest
++    if len(rows)!=10 or len(original)!=10:
++        raise RuntimeError('STOP: audit manifest size changed')
++    results=[sample(E02/'evidence/audit_10_frozen_candidate'/f'{i:02}',row,old)
++             for i,(row,old) in enumerate(zip(rows,original),1)]
++    source_path=verified(ND/'selected_source.c'); m=read(verified(ND/'sample_manifest.json'))
++    selected=read(verified(ND/'selected_sample.json')); frame=m['frames'][m['target_frame']]
++    frame=dict(frame,code=source_path.read_text(encoding='utf-8'),extracted={'target_conditions':[]})
++    # Read source guards generically; use the original U02 request to bind which
++    # saved guard was actually converted. No invented assertion or ID special case.
++    calls={}
++    for path in sorted((ND/'model_calls').glob('*.json')):
++        verified(path); d=read(path)
++        if d.get('e04_stage') in ('U02','U06','U10'):
++            calls[d['e04_stage']]=(d,path)
++    u02,p02=calls['U02']; content=u02['messages'][0]['content']
++    found=re.findall(r"'condition':\s*'(if\s*\([^'\n]+\))'\s*,\s*'line_number':\s*(\d+)",content)
++    frame['extracted']['target_conditions']=[{'condition':x,'line_number':int(y)} for x,y in found]
++    scripts=[('B',calls['U02'][0]['choices'][0]['message']['content'],calls['U02'][1].relative_to(ROOT).as_posix()),
++             ('delta',calls['U06'][0]['choices'][0]['message']['content'],calls['U06'][1].relative_to(ROOT).as_posix())]
++    final=calls['U10'][0]['choices'][0]['message']['content']
++    structural=load('e03').validate_base_delta(scripts[0][1],scripts[1][1],final)
++    nd={'sample_id':m['sample_id'],'dataset':m['dataset'],'position':m['position'],
++        'frame':frame_semantics(frame,scripts,source_path.relative_to(ROOT).as_posix()),
++        'original_U02_guard_records':frame['extracted']['target_conditions'],
++        'structural_check':structural,'original_selected_sample':selected,
++        'response_hashes':{k:sha(v[0]['choices'][0]['message']['content']) for k,v in calls.items()},
++        'model_calls':0,'z3_calls':0,'alert_safety_decision':None}
++    save(HERE/'historical_replay.json',{'audit_10':results,'E04_ND':nd,'scope':'offline cached data only',
++                                      'boundary_attempts':offline_boundary.ATTEMPTS})
++    print('audit10',dict(Counter(x['diagnostic_status'] for x in results)))
++    print('ND local findings',[(x['category'],x['codes']) for x in nd['frame']['findings']])
++
++
++def fixed():
++    assert_frozen()
++    if not (HERE/'historical_replay.json').is_file():
++        raise RuntimeError('STOP: historical replay must precede fixed regression')
++    save(HERE/'fixed_20_started.json',{'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
++        'run_count':1,'candidate_sha256':digest(HERE/'candidate_freeze.json'),'no_post_result_tuning':True})
++    original=read(verified(E02/'fixed_20_results.json'))['rows']
++    manifest=read(verified(ROOT/'safety_runs/20261029_v1/fixed_holdout.json'))
++    if len(original)!=20 or len(manifest['samples'])!=20:
++        raise RuntimeError('STOP: fixed set size changed')
++    results=[sample(E02/'evidence/fixed_20_frozen_candidate'/f'{i:02}',row,old)
++             for i,(row,old) in enumerate(zip(manifest['samples'],original),1)]
++    save(HERE/'fixed_holdout_results.json',{'sample_count':20,'seed':manifest['seed'],
++        'scope':'previously encountered fixed regression, not blind','rows':results,
++        'boundary_attempts':offline_boundary.ATTEMPTS,'model_calls':0,'z3_calls':0,'cost_cny':0})
++    print('fixed20',dict(Counter(x['diagnostic_status'] for x in results)))
++
++
++if __name__=='__main__':
++    {'historical':audit_and_nd,'fixed20':fixed}[sys.argv[1]]()
+--- /dev/null
++++ b/reproduction/safety_runs/E05_polarity_variable_identity/replay_v2.py
+@@ -0,0 +1,274 @@
++"""Hash-verified historical static replay. Never execute saved generated code.
++
++The same generic adapter processes all samples. Labels/IDs are bookkeeping
++only; no semantic rule dispatches on any sample ID or function name.
++"""
++import ast
++from collections import Counter
++import datetime
++import json
++from pathlib import Path
++import re
++import sys
++import time
++
++import offline_boundary
++offline_boundary.install()
++from dependencies import ROOT, PINS, load
++from semantics import Source, Unsupported, check_polarity, member_collapse_diagnostics, sha
++
++HERE = Path(__file__).resolve().parent
++E02 = ROOT / 'safety_runs/E02_base_constraint_preservation_static'
++ND = ROOT / 'safety_runs/E04_nonempty_delta_validation'
++
++
++def read(path):
++    return json.loads(path.read_text(encoding='utf-8'))
++
++
++def digest(path):
++    import hashlib
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def save(path, value):
++    with path.open('x', encoding='utf-8') as f:
++        json.dump(value, f, ensure_ascii=False, indent=2)
++        f.write('\n')
++
++
++def verified(path):
++    baseline = read(HERE / 'baseline_state.json')['protected_files']
++    relative = path.relative_to(ROOT).as_posix()
++    if relative not in baseline or digest(path) != baseline[relative]:
++        raise RuntimeError('STOP: unverified historical source ' + relative)
++    return path
++
++
++def assert_frozen():
++    freeze = read(HERE / 'candidate_freeze_v2.json')
++    for relative, expected in freeze['sha256'].items():
++        if digest(ROOT / relative) != expected:
++            raise RuntimeError('STOP: frozen input changed ' + relative)
++
++
++def code_atoms(script):
++    """Read add() atoms without running expressions. Keep every original input."""
++    try:
++        code = load('e02').code_block(script)
++        tree = ast.parse(code)
++    except (SyntaxError, ValueError) as exc:
++        return [], ['unparseable_model_script:' + str(exc)]
++    if any(isinstance(n, (ast.If, ast.For, ast.While, ast.Try, ast.With, ast.Lambda)) for n in ast.walk(tree)):
++        return [], ['model_control_flow_unsupported']
++    declarations = {}
++    counts = Counter()
++    for n in ast.walk(tree):
++        if isinstance(n, ast.Assign):
++            for t in n.targets:
++                if isinstance(t, ast.Name):
++                    counts[t.id] += 1
++            if (len(n.targets)==1 and isinstance(n.targets[0],ast.Name) and
++                isinstance(n.value,ast.Call) and isinstance(n.value.func,ast.Name) and
++                n.value.func.id in ('Int','Bool','BitVec') and n.value.args and
++                isinstance(n.value.args[0],ast.Constant) and isinstance(n.value.args[0].value,str)):
++                declarations[n.targets[0].id] = (n.value.args[0].value,n.value.func.id)
++    result=[]
++
++    def add(node, line):
++        if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id=='And':
++            for arg in node.args:
++                add(arg,line)
++        else:
++            names=sorted({n.id for n in ast.walk(node) if isinstance(n,ast.Name)}-{'Not','And','Or','True','False'})
++            # A diagnostic association requires a single declared unchanged name.
++            result.append({'expression':ast.unparse(node),'generated_line':line,'names':names,
++                'binding': declarations.get(names[0]) if len(names)==1 and counts[names[0]]==1 else None,
++                'response_sha256':sha(script)})
++    for n in ast.walk(tree):
++        if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute) and n.func.attr=='add':
++            for arg in n.args:
++                add(arg,n.lineno)
++    return result, []
++
++
++def frame_semantics(frame, scripts, reference):
++    code=frame['code']; findings=[]; uncertainties=[]; polarities=[]; identities=[]
++    try:
++        source=Source(code,frame['function'],reference,frame.get('body_sha256'))
++    except Unsupported as exc:
++        return {'status':'UNKNOWN','reason':str(exc),'findings':[], 'whole_context_verified':False}
++    targets=[i for i,line in enumerate(code.splitlines(),1) if line.strip()==frame['target'].strip()]
++    entries=(frame.get('extracted') or {}).get('target_conditions',[])
++    local_specs=[]
++    if len(targets)!=1:
++        uncertainties.append('target_location_missing_or_ambiguous')
++    for entry in entries:
++        raw=entry.get('condition','')
++        m=re.fullmatch(r'\s*if\s*\((.*)\)\s*',raw)
++        if not m:
++            uncertainties.append('recorded_condition_not_simple_if:'+raw)
++            continue
++        # Find exact raw guard in real saved body. Record historical line separately.
++        canonical=re.sub(r'\s+','',raw)
++        hits=[i for i,line in enumerate(code.splitlines(),1)
++              if re.sub(r'\s+','',line.strip().removesuffix('{'))==canonical]
++        if len(hits)!=1 or len(targets)!=1:
++            uncertainties.append('source_guard_not_uniquely_bound:'+raw)
++            continue
++        try:
++            scalar=load('e01').normalize_c(m[1],True)
++        except load('e01').Unsupported as exc:
++            uncertainties.append(str(exc)+':'+raw)
++            continue
++        # Never confuse the injected null-pointer bug hypothesis with a path guard.
++        if scalar['variable']==frame.get('var_name'):
++            uncertainties.append('target_bug_assumption_and_guard_provenance_ambiguous')
++            continue
++        local_specs.append((entry,hits[0],targets[0],scalar))
++    multiplicity=Counter(spec[3]['variable'] for spec in local_specs)
++    for role,script,script_ref in scripts:
++        if role!='B':
++            # Later stages can encode different time states. Do not bind their
++            # same-name atoms to the sink guard without state provenance.
++            continue
++        atoms,reasons=code_atoms(script); uncertainties.extend(reasons)
++        for entry,guard,target,scalar in local_specs:
++            bound=[]
++            if multiplicity[scalar['variable']]==1:
++                bound=[a for a in atoms if a['names']==[scalar['variable']] and
++                       a['binding'] and a['binding'][0]==scalar['variable']]
++            if not bound:
++                uncertainties.append('no_unique_U02_condition_atom:'+scalar['variable'])
++            for atom in bound:
++                result=check_polarity(source,guard,target,True,atom['expression'],
++                    sort=atom['binding'][1],target_text=frame['target'],
++                    context_reasons=['historical_whole_context_unverified','assertion_role_diagnostic_association_only'])
++                result.update(model_source=script_ref,raw_response_sha256=sha(script),
++                    generated_line=atom['generated_line'],original_recorded_condition=entry,
++                    actual_guard_body_line=guard,
++                    provenance_basis='unique source guard + same-name explicit U02 declaration; diagnostic association, not author-provided assertion map')
++                polarities.append(result)
++                if result['local_status']=='REJECT':
++                    findings.append({'category':'polarity','codes':result['reasons'],
++                                     'model_source':script_ref,'guard_line':guard})
++    base=next((s for role,s,ref in scripts if role=='B'),None)
++    inherited=None
++    if base:
++        try:
++            inherited=load('e02')._parse(base,'python','U02/raw').env()
++        except load('e02').Unsupported as exc:
++            uncertainties.append('base_parse:'+str(exc))
++    for role,script,ref in scripts:
++        if role not in ('B','delta'):
++            continue
++        result=member_collapse_diagnostics(source,script,inherited)
++        result.update(role=role,model_source=ref,raw_response_sha256=sha(script))
++        identities.append(result)
++        if result['findings']:
++            findings.append({'category':'identity','codes':['pointer_member_identity_collapse'],
++                             'model_source':ref,'witnesses':result['findings']})
++    return {'status':'REJECT' if findings else 'UNKNOWN','polarity_checks':polarities,
++            'identity_checks':identities,'findings':findings,
++            'uncertainties':sorted(set(uncertainties+['full_C_state_types_control_and_provenance_not_proven'])),
++            'source_reference':reference,'source_sha256':source.digest,'source_declarations':source.declarations,
++            'whole_context_verified':False,'assertions_removed':0,'alert_safety_decision':None}
++
++
++def structural_checks(directory):
++    results=[]; scripts_by_frame={}
++    for path in sorted((directory/'contracts').glob('*.json')):
++        verified(path); c=read(path)
++        if not all(k in c for k in ('B','delta','Final')):
++            raise RuntimeError('STOP: historical contract schema unconfirmed')
++        refs=c.get('references', ['B','delta','Final'])
++        result=load('e02').check_contract(c['B'],c['delta'],c['Final'],
++                formats=tuple(c.get('formats',('python',)*3)),refs=tuple(refs),extra_deltas=c.get('extra_deltas',[]))
++        results.append({'input':path.relative_to(ROOT).as_posix(),'input_sha256':digest(path),
++                        'result':result})
++        m=re.fullmatch(r'frame/(\d+)/U02',refs[0]); frame=int(m[1]) if m else None
++        if frame is not None:
++            values=scripts_by_frame.setdefault(frame,{})
++            for role,field,ref in [('B','B',refs[0]),('delta','delta',refs[1])]:
++                if isinstance(c[field],str):
++                    values.setdefault((role,sha(c[field])),(role,c[field],ref))
++    return results,{f:list(v.values()) for f,v in scripts_by_frame.items()}
++
++
++def sample(directory, manifest_row, original_e02_row):
++    start=time.perf_counter(); path=verified(directory/'bundle.json'); bundle=read(path)
++    sid=bundle.get('candidate',{}).get('sample_id')
++    if sid!=manifest_row['sample_id'] or sid!=original_e02_row['sample_id']:
++        raise RuntimeError('STOP: fixed sample identity mismatch')
++    structural,scripts=structural_checks(directory)
++    frames=[]
++    for i,frame in enumerate((bundle.get('context') or {}).get('frames',[])):
++        frames.append(frame_semantics(frame,scripts.get(i,[]),path.relative_to(ROOT).as_posix()+f'#/context/frames/{i}'))
++    findings=[x for f in frames for x in f['findings']]
++    return {'sample_id':sid,'dataset_label':manifest_row.get('dataset_label',manifest_row.get('label')),
++        'label_use':'metadata only; published labels not individually verified; never used by checks',
++        'diagnostic_status':'REJECT' if findings else 'UNKNOWN','frames':frames,'structural_checks':structural,
++        'bundle_sha256':digest(path),'bundle_reference':path.relative_to(ROOT).as_posix(),
++        'local_findings':findings,'whole_context_verified':False,'alert_safety_decision':None,
++        'seconds':time.perf_counter()-start,'model_calls':0,'z3_calls':0,'assertions_removed':0}
++
++
++def audit_and_nd():
++    assert_frozen()
++    save(HERE/'historical_attempt02_started.json',{'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
++    original=read(verified(E02/'audit_10_results.json'))['rows']
++    manifest=read(verified(ROOT/'audit/failure_audit_20261029/audit_samples.json'))
++    rows=manifest['samples'] if isinstance(manifest,dict) else manifest
++    if len(rows)!=10 or len(original)!=10:
++        raise RuntimeError('STOP: audit manifest size changed')
++    results=[sample(E02/'evidence/audit_10_frozen_candidate'/f'{i:02}',row,old)
++             for i,(row,old) in enumerate(zip(rows,original),1)]
++    source_path=verified(ND/'selected_source.c'); m=read(verified(ND/'sample_manifest.json'))
++    selected=read(verified(ND/'selected_sample.json')); frame=m['frames'][m['historical_target_frame']]
++    frame=dict(frame,code=source_path.read_text(encoding='utf-8'),extracted={'target_conditions':[]})
++    # Read source guards generically; use the original U02 request to bind which
++    # saved guard was actually converted. No invented assertion or ID special case.
++    calls={}
++    for path in sorted((ND/'model_calls').glob('*.json')):
++        verified(path); d=read(path)
++        if d.get('e04_stage') in ('U02','U06','U10'):
++            calls[d['e04_stage']]=(d,path)
++    u02,p02=calls['U02']; content=u02['messages'][0]['content']
++    found=re.findall(r"'condition':\s*'(if\s*\([^'\n]+\))'\s*,\s*'line_number':\s*(\d+)",content)
++    frame['extracted']['target_conditions']=[{'condition':x,'line_number':int(y)} for x,y in found]
++    scripts=[('B',calls['U02'][0]['choices'][0]['message']['content'],calls['U02'][1].relative_to(ROOT).as_posix()),
++             ('delta',calls['U06'][0]['choices'][0]['message']['content'],calls['U06'][1].relative_to(ROOT).as_posix())]
++    final=calls['U10'][0]['choices'][0]['message']['content']
++    structural=load('e03').validate_base_delta(scripts[0][1],scripts[1][1],final)
++    nd={'sample_id':m['sample_id'],'dataset':m['dataset'],'position':m['position'],
++        'frame':frame_semantics(frame,scripts,source_path.relative_to(ROOT).as_posix()),
++        'original_U02_guard_records':frame['extracted']['target_conditions'],
++        'structural_check':structural,'original_selected_sample':selected,
++        'response_hashes':{k:sha(v[0]['choices'][0]['message']['content']) for k,v in calls.items()},
++        'model_calls':0,'z3_calls':0,'alert_safety_decision':None}
++    save(HERE/'historical_replay.json',{'audit_10':results,'E04_ND':nd,'scope':'offline cached data only',
++                                      'boundary_attempts':offline_boundary.ATTEMPTS})
++    print('audit10',dict(Counter(x['diagnostic_status'] for x in results)))
++    print('ND local findings',[(x['category'],x['codes']) for x in nd['frame']['findings']])
++
++
++def fixed():
++    assert_frozen()
++    if not (HERE/'historical_replay.json').is_file():
++        raise RuntimeError('STOP: historical replay must precede fixed regression')
++    save(HERE/'fixed_20_started.json',{'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
++        'run_count':1,'candidate_sha256':digest(HERE/'candidate_freeze_v2.json'),'no_post_result_tuning':True})
++    original=read(verified(E02/'fixed_20_results.json'))['rows']
++    manifest=read(verified(ROOT/'safety_runs/20261029_v1/fixed_holdout.json'))
++    if len(original)!=20 or len(manifest['samples'])!=20:
++        raise RuntimeError('STOP: fixed set size changed')
++    results=[sample(E02/'evidence/fixed_20_frozen_candidate'/f'{i:02}',row,old)
++             for i,(row,old) in enumerate(zip(manifest['samples'],original),1)]
++    save(HERE/'fixed_holdout_results.json',{'sample_count':20,'seed':manifest['seed'],
++        'scope':'previously encountered fixed regression, not blind','rows':results,
++        'boundary_attempts':offline_boundary.ATTEMPTS,'model_calls':0,'z3_calls':0,'cost_cny':0})
++    print('fixed20',dict(Counter(x['diagnostic_status'] for x in results)))
++
++
++if __name__=='__main__':
++    {'historical':audit_and_nd,'fixed20':fixed}[sys.argv[1]]()
+--- /dev/null
++++ b/reproduction/safety_runs/E05_polarity_variable_identity/semantics.py
+@@ -0,0 +1,454 @@
++"""Bounded source/constraint diagnostics. No solver, code execution or alert verdict.
++
++PASS is local consistency under explicit evidence, never full C semantics.
++REJECT means reject a constraint candidate; UNKNOWN means insufficient evidence.
++No function in this file edits constraints or synthesizes replacement assertions.
++"""
++import ast
++import hashlib
++import json
++import re
++
++from dependencies import load
++
++VERSION = 'e05-local-semantic-rejection-v1'
++NAME = r'[A-Za-z_]\w*'
++TYPE = r'(?:(?:const|volatile)\s+)*(?:struct\s+' + NAME + r'|void|bool|_Bool|(?:(?:unsigned|signed)\s+)?(?:char|short(?:\s+int)?|int|long(?:\s+long)?(?:\s+int)?))'
++
++
++class Unsupported(ValueError):
++    pass
++
++
++def sha(text):
++    return hashlib.sha256(text.encode('utf-8')).hexdigest()
++
++
++def mask(code):
++    """Keep offsets/lines; comments and string/char literals cannot create scopes."""
++    return re.sub(r'/\*.*?\*/|//[^\n]*|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'',
++                  lambda m: ''.join('\n' if c == '\n' else ' ' for c in m[0]), code, flags=re.S)
++
++
++def ctype(spelling):
++    s = re.sub(r'\s+', ' ', spelling.strip())
++    if '*' in s:
++        kind = 'pointer'
++    elif s in ('bool', '_Bool'):
++        kind = 'boolean'
++    elif re.fullmatch(r'(?:(?:unsigned|signed) )?(?:char|short(?: int)?|int|long(?: long)?(?: int)?)', s):
++        kind = 'integer'
++    elif s.startswith('struct '):
++        kind = 'aggregate'
++    else:
++        kind = 'unknown'
++    return {'spelling': s, 'kind': kind, 'unsigned': s.startswith('unsigned '),
++            'width': None, 'arithmetic_semantics': 'NOT_MODELED'}
++
++
++class Source:
++    """Lexical scopes + explicit simple declarations, not a C compiler/CFG.
++
++    Preprocessor directives are refused. Historical macro invocations can still
++    be recorded but cannot obtain whole-context approval. Declaration discovery
++    accepts primitive types and struct pointers only; typedefs remain unknown.
++    """
++    def __init__(self, code, function, reference, expected_sha=None):
++        self.code, self.function, self.reference = code, function, reference
++        self.digest, self.clean = sha(code), mask(code)
++        if expected_sha is not None and self.digest != expected_sha:
++            raise Unsupported('source_hash_mismatch')
++        if re.search(r'^\s*#', self.clean, re.M):
++            raise Unsupported('preprocessor_configuration_unresolved')
++        self.pairs = {}
++        stacks = {'(': [], '{': [], '[': []}
++        close = {')': '(', '}': '{', ']': '['}
++        for i, c in enumerate(self.clean):
++            if c in stacks:
++                stacks[c].append(i)
++            elif c in close:
++                stack = stacks[close[c]]
++                if not stack:
++                    raise Unsupported('unbalanced_source')
++                self.pairs[stack.pop()] = i
++        if any(stacks.values()):
++            raise Unsupported('unbalanced_source')
++        headers = []
++        for m in re.finditer(r'\b' + re.escape(function) + r'\s*\(', self.clean):
++            start = self.clean.index('(', m.start()); end = self.pairs[start]
++            body = self.space(end + 1)
++            if body < len(code) and self.clean[body] == '{':
++                headers.append((start, end, body, self.pairs[body]))
++        if len(headers) != 1:
++            raise Unsupported('function_definition_not_unique')
++        self.args_start, self.args_end, self.start, self.end = headers[0]
++        self.scopes = [(a, b) for a, b in self.pairs.items()
++                       if self.clean[a] == '{' and self.start <= a < b <= self.end]
++        self.declarations = []
++        self._discover()
++
++    def line(self, offset):
++        return self.code.count('\n', 0, offset) + 1
++
++    def offset(self, line):
++        if type(line) is not int or not 1 <= line <= len(self.code.splitlines()):
++            raise Unsupported('invalid_source_line')
++        return sum(len(s) for s in self.code.splitlines(keepends=True)[:line - 1])
++
++    def space(self, offset):
++        while offset < len(self.clean) and self.clean[offset].isspace():
++            offset += 1
++        return offset
++
++    def location(self, offset):
++        return {'reference': self.reference, 'body_sha256': self.digest,
++                'function': self.function, 'line': self.line(offset), 'offset': offset,
++                'line_basis': 'one-based saved source body; no absolute-file claim'}
++
++    def _decl(self, text, offset, scope):
++        match = re.fullmatch(r'\s*(' + TYPE + r')\s+(.+?)\s*', text, re.S)
++        if not match:
++            return
++        # Commas in initializers/complex declarators are unsupported, not guessed.
++        cursor = match.start(2)
++        for part in match[2].split(','):
++            d = re.fullmatch(r'\s*(\*+\s*)?(' + NAME + r')\s*(?:=\s*[^,]+)?\s*', part, re.S)
++            if not d:
++                cursor += len(part) + 1
++                continue
++            name = d[2]; spelling = match[1] + (' ' + d[1].strip() if d[1] else '')
++            name_offset = offset + cursor + d.start(2)
++            record = {'name': name, 'type': ctype(spelling), 'scope': list(scope),
++                      'declaration': self.location(name_offset), 'declaration_text': text.strip(),
++                      'structure': {'kind': 'identifier', 'name': name}}
++            record['identity'] = sha(json.dumps([self.digest, self.function, scope, name_offset,
++                                                spelling, record['structure']], sort_keys=True))
++            self.declarations.append(record)
++            cursor += len(part) + 1
++
++    def _discover(self):
++        args = self.clean[self.args_start + 1:self.args_end]
++        cursor = self.args_start + 1
++        parts, last, depth = [], 0, 0
++        for i, char in enumerate(args):
++            if char in '([':
++                depth += 1
++            elif char in ')]':
++                depth -= 1
++            elif char == ',' and depth == 0:
++                parts.append(args[last:i]); last = i + 1
++        parts.append(args[last:])
++        for part in parts:
++            # Function-pointer parameters/prototypes remain unsupported; their
++            # nested argument declarations must never become this function's locals.
++            if '(' in part or '[' in part:
++                cursor += len(part) + 1
++                continue
++            self._decl(part, cursor, (self.start, self.end))
++            cursor += len(part) + 1
++        # A local declaration must start a statement (or block), not match a call/cast.
++        pattern = r'(?:^|(?<=[;{}]))(?P<decl>\s*(?:' + TYPE + r')\s+[^;{}]+);'
++        for m in re.finditer(pattern, self.clean[self.start:self.end], re.M):
++            a = self.start + m.start('decl'); text = m['decl']
++            scopes = [s for s in self.scopes if s[0] <= a < s[1]]
++            if scopes:
++                self._decl(text, a, max(scopes, key=lambda s: s[0]))
++
++    def resolve(self, expression, use_line):
++        """Resolve identifier/member/pointee from checked source evidence."""
++        use = self.offset(use_line)
++        m = re.fullmatch(r'\s*(\*)?(' + NAME + r')(?:\s*(->|\.)\s*(' + NAME + r'))?\s*', expression)
++        if not m:
++            return {'status': 'UNKNOWN', 'reason': 'unsupported_source_expression', 'expression': expression}
++        candidates = [d for d in self.declarations if d['name'] == m[2] and
++                      d['scope'][0] <= use < d['scope'][1] and d['declaration']['line'] <= use_line]
++        if candidates:
++            deepest = max(d['scope'][0] for d in candidates)
++            candidates = [d for d in candidates if d['scope'][0] == deepest]
++        if len(candidates) != 1:
++            return {'status': 'UNKNOWN', 'reason': 'declaration_missing_or_ambiguous',
++                    'expression': expression, 'candidates': candidates}
++        root = candidates[0]
++        prior = self.clean[max(self.start, root['declaration']['offset']):use]
++        writes = re.search(r'\b' + re.escape(root['name']) + r'\s*(?:=(?!=)|\+=|-=|\+\+|--)|(?:\+\+|--)\s*\b' + re.escape(root['name']) + r'\b', prior)
++        address = re.search(r'&\s*\b' + re.escape(root['name']) + r'\b', prior)
++        state_reasons = (['assignment_or_reassignment_deferred_E06'] if writes else [])
++        if address:
++            state_reasons.append('address_escape_or_call_effect_deferred_E06')
++        result = dict(root, status='PASS', expression=expression, use=self.location(use),
++                      state_uncertainties=state_reasons)
++        if not m[1] and not m[3]:
++            return result
++        structure = {'kind': 'pointee' if m[1] else 'member', 'root_identity': root['identity'],
++                     'operator': '*' if m[1] else m[3], 'member': m[4]}
++        if m[1] and m[3]:
++            return dict(result, status='UNKNOWN', reason='complex_dereference_unsupported')
++        pointer = root['type']['kind'] == 'pointer'
++        if (m[1] or m[3] == '->') != pointer:
++            return dict(result, status='UNKNOWN', reason='expression_type_mismatch')
++        t = root['type']['spelling'].rstrip('* ').strip()
++        if m[1]:
++            result['type'] = ctype(t)
++        else:
++            definitions = [d for d in re.finditer(r'\b' + re.escape(t) + r'\s*\{', self.clean)
++                           if d.start() < use and not any(self.clean[a] == '{' and a < d.start() < b
++                                                         for a,b in self.pairs.items())]
++            member = []
++            if len(definitions) == 1:
++                definition = definitions[0]
++                a = self.clean.index('{', definition.start()); b = self.pairs[a]
++                for decl in re.finditer(r'(' + TYPE + r')\s+(\*+\s*)?' + re.escape(m[4]) + r'\s*;', self.clean[a+1:b]):
++                    member.append((ctype(decl[1] + (' '+decl[2].strip() if decl[2] else '')), a+1+decl.start()))
++            if len(member) != 1:
++                result.update(status='UNKNOWN', reason='member_type_or_definition_missing', type=ctype('unknown'))
++            else:
++                result['type'], member_offset = member[0]
++                result['member_declaration'] = self.location(member_offset)
++        result['structure'] = structure
++        result['identity'] = sha(json.dumps([root['identity'], structure, result['type']], sort_keys=True))
++        return result
++
++    def statement_end(self, start):
++        """Bounded single statement. Complex control statements are refused."""
++        start = self.space(start)
++        if self.clean[start] == '{':
++            return self.pairs[start] + 1
++        if re.match(r'(if|for|while|switch|do)\b', self.clean[start:]):
++            raise Unsupported('nested_control_statement_not_supported')
++        i = start
++        while i < self.end:
++            if self.clean[i] in '([':
++                i = self.pairs[i] + 1
++            elif self.clean[i] == ';':
++                return i + 1
++            elif self.clean[i] in '{}':
++                break
++            else:
++                i += 1
++        raise Unsupported('statement_boundary_unknown')
++
++    def guard(self, guard_line, target_line, branch, target_text=None):
++        """Verify immediate arm or tightly bounded post-return edge.
++
++        A local arm can be recognized inside a larger unsupported function. A
++        post-return edge requires same lexical scope, no bypass label/control,
++        and an unconditional return; gotos/break/continue are not inferred.
++        """
++        if type(branch) is not bool:
++            raise Unsupported('branch_direction_unconfirmed')
++        start, target = self.offset(guard_line), self.offset(target_line)
++        line = self.clean.splitlines()[guard_line - 1]
++        m = re.match(r'\s*if\s*\(', line)
++        if not m:
++            raise Unsupported('guard_location_not_if')
++        op = start + m.end() - 1; close = self.pairs[op]
++        expression = self.clean[op+1:close].strip()
++        body_start = self.space(close + 1); body_end = self.statement_end(body_start)
++        target = self.space(target)
++        if target_text is not None and target_text.strip() not in self.code.splitlines()[target_line - 1]:
++            raise Unsupported('target_text_location_mismatch')
++        after = self.space(body_end); else_start = else_end = None
++        if re.match(r'else\b', self.clean[after:]):
++            else_start = self.space(after+4); else_end = self.statement_end(else_start)
++        if body_start <= target < body_end:
++            actual, basis = True, 'lexical_true_arm'
++        elif else_start is not None and else_start <= target < else_end:
++            actual, basis = False, 'lexical_false_arm'
++        elif target >= body_end and else_start is None:
++            body = self.clean[body_start:body_end].strip()
++            if body.startswith('{') and body.endswith('}'):
++                body = body[1:-1].strip()
++            if not re.fullmatch(r'return\b[^;{}]*;', body):
++                raise Unsupported('post_guard_not_unconditional_return')
++            gap = self.clean[body_end:target]
++            scopes = lambda pos: [s for s in self.scopes if s[0] <= pos < s[1]]
++            if scopes(start) != scopes(target) or re.search(r'\b(if|for|while|do|goto|switch|return)\b|[{}:]|\belse\b', gap):
++                raise Unsupported('early_return_dominance_unconfirmed')
++            # No statements between guard and use: no hidden reassignment/call effects.
++            if gap.strip():
++                raise Unsupported('intervening_state_or_call_deferred_E06')
++            actual, basis = False, 'immediate_after_unconditional_return'
++        else:
++            raise Unsupported('target_branch_not_verified')
++        if branch != actual:
++            raise Unsupported('claimed_branch_disagrees_with_source')
++        return {'expression': expression, 'branch': actual, 'basis': basis,
++                'guard': self.location(op), 'target': self.location(target),
++                'target_text': self.code.splitlines()[target_line - 1]}
++
++
++def formula_truth(node, name, is_zero, kind):
++    """Two-element zero/nonzero abstraction; no SAT solver or eval."""
++    if isinstance(node, ast.Constant) and type(node.value) is bool:
++        return node.value
++    if isinstance(node, ast.Name) and node.id == name and kind == 'boolean':
++        return not is_zero
++    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and not node.keywords:
++        fn = node.func.id
++        if fn == 'Not' and len(node.args) == 1:
++            return not formula_truth(node.args[0], name, is_zero, kind)
++        if fn in ('And', 'Or') and node.args:
++            vals = [formula_truth(x, name, is_zero, kind) for x in node.args]
++            return all(vals) if fn == 'And' else any(vals)
++    if (kind != 'boolean' and isinstance(node, ast.Compare) and len(node.ops) == 1 and
++            isinstance(node.ops[0], (ast.Eq, ast.NotEq))):
++        a, b = node.left, node.comparators[0]
++        if isinstance(b, ast.Name):
++            a, b = b, a
++        if (isinstance(a, ast.Name) and a.id == name and isinstance(b, ast.Constant) and
++                type(b.value) is int and b.value == 0):
++            return is_zero if isinstance(node.ops[0], ast.Eq) else not is_zero
++    raise Unsupported('formula_outside_single_bound_zero_test')
++
++
++def check_polarity(source, guard_line, target_line, branch, generated, *,
++                   expected_identity=None, sort='Int', context_reasons=(), target_text=None):
++    out = {'status': 'UNKNOWN', 'local_status': 'UNKNOWN', 'generated': generated,
++           'reasons': [], 'context_reasons': list(context_reasons), 'assertions_removed': 0,
++           'alert_safety_decision': None}
++    try:
++        evidence = source.guard(guard_line, target_line, branch, target_text)
++        normalized = load('e01').normalize_c(evidence['expression'], branch)
++        binding = source.resolve(normalized['variable'], guard_line)
++        out.update(source=evidence, normalized=normalized, binding=binding)
++        out['context_reasons'].extend(binding.get('state_uncertainties', []))
++        if re.search(r'\b(goto|for|while|switch|do)\b', source.clean[source.start:source.end]):
++            out['context_reasons'].append('complex_control_flow_not_verified')
++        if binding['status'] != 'PASS':
++            raise Unsupported(binding['reason'])
++        if expected_identity is not None and expected_identity != binding['identity']:
++            raise Unsupported('symbol_scope_identity_mismatch')
++        kind = binding['type']['kind']
++        if kind not in ('integer', 'pointer', 'boolean'):
++            raise Unsupported('unknown_or_nonscalar_type')
++        if sort != ('Bool' if kind == 'boolean' else 'Int'):
++            out['local_status'] = 'REJECT'
++            out['reasons'].append('c_type_smt_sort_conflict')
++        else:
++            node = ast.parse(generated, mode='eval').body
++            truth = [formula_truth(node, binding['name'], zero, kind) for zero in (True, False)]
++            expected = [normalized['zero'], not normalized['zero']]
++            out.update(truth_zero_nonzero=truth, expected_zero_nonzero=expected,
++                       abstraction='zero/nonzero only; no width/arithmetic/alias proof')
++            if truth == expected:
++                out['local_status'] = 'PASS'
++            else:
++                out['local_status'] = 'REJECT'
++                out['reasons'].append('tautological_branch_weakening' if all(truth) else
++                                      'constant_false_branch' if not any(truth) else 'polarity_conflict')
++        out['status'] = ('REJECT' if out['local_status'] == 'REJECT' else
++                         'UNKNOWN' if out['context_reasons'] else out['local_status'])
++    except (Unsupported, load('e01').Unsupported, SyntaxError, ValueError) as exc:
++        out['reasons'].append(str(exc))
++    return out
++
++
++def check_mappings(bindings):
++    """Bindings must include a Source.resolve result, SMT symbol/sort and use mode.
++
++    Int pointer symbols may only represent zero tests. A PASS on these limited
++    bindings does not model addresses, C arithmetic or object memory.
++    """
++    diagnostics, by_symbol, by_identity = [], {}, {}
++    for item in bindings:
++        b, symbol = item['source'], item['symbol']
++        status, reason = 'PASS', 'explicit_local_binding'
++        kind, sort, mode = b.get('type', {}).get('kind'), item.get('sort'), item.get('mode')
++        if b.get('status') != 'PASS' or kind in (None, 'unknown', 'aggregate'):
++            status, reason = 'UNKNOWN', b.get('reason', 'unknown_or_nonscalar_type')
++        elif sort != ('Bool' if kind == 'boolean' else 'Int'):
++            status, reason = 'REJECT', 'c_type_smt_sort_conflict'
++        elif mode not in ('zero_test', 'boolean_test'):
++            status, reason = 'UNKNOWN', 'width_overflow_or_address_semantics_unmodeled'
++        if item.get('alias_unresolved') or item.get('state_changed') or item.get('cross_function') or b.get('state_uncertainties'):
++            status, reason = 'UNKNOWN', 'alias_state_or_cross_function_deferred_E06'
++        diagnostics.append({'symbol': symbol, 'source': b, 'sort': sort, 'mode': mode,
++                            'status': status, 'reason': reason})
++        if b.get('identity'):
++            by_symbol.setdefault(symbol, set()).add(b['identity'])
++            by_identity.setdefault(b['identity'], set()).add(symbol)
++    collisions = [{'symbol': s, 'identities': sorted(ids)} for s, ids in by_symbol.items() if len(ids) > 1]
++    splits = [{'identity': i, 'symbols': sorted(names)} for i, names in by_identity.items() if len(names) > 1]
++    status = ('REJECT' if collisions or any(d['status'] == 'REJECT' for d in diagnostics) else
++              'UNKNOWN' if splits or not bindings or any(d['status'] == 'UNKNOWN' for d in diagnostics) else 'PASS')
++    return {'status': status, 'bindings': diagnostics, 'distinct_objects_merged': collisions,
++            'split_identity_unproven': splits, 'assertions_removed': 0, 'alert_safety_decision': None}
++
++
++def arithmetic_tree(node):
++    if isinstance(node, ast.Name):
++        return node.id
++    if isinstance(node, ast.Constant) and type(node.value) is int:
++        return str(node.value)
++    if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Sub)):
++        return ['+' if isinstance(node.op, ast.Add) else '-', arithmetic_tree(node.left), arithmetic_tree(node.right)]
++    raise Unsupported('arithmetic_shape_outside_subset')
++
++
++def member_collapse_diagnostics(source, raw_script, inherited=None):
++    """Compare direct assignment shapes with model equalities, never execute.
++
++    Only a complete +/- tree match with a member leaf replaced by its pointer
++    root is flagged. This establishes local expression-identity corruption of
++    the claimed assignment, NOT which assignment/state reaches the sink.
++    """
++    checker = load('e02')
++    try:
++        ir = checker._parse(raw_script, 'python', 'model/raw', inherited)
++    except checker.Unsupported as exc:
++        return {'status': 'UNKNOWN', 'reasons': [str(exc)], 'findings': []}
++    env = {b['python_name']: b['symbol'] for b in ir.bindings}
++    if inherited:
++        env.update({k:k for k in inherited})
++    assignments = []
++    for m in re.finditer(r'\b(' + NAME + r')\s*=(?!=)\s*([^;{}]+);', source.clean):
++        if not source.start < m.start() < source.end:
++            continue
++        rhs = m[2].strip()
++        leaves = re.findall(r'\b' + NAME + r'\s*->\s*' + NAME, rhs)
++        if not leaves:
++            continue
++        transformed, members = rhs, {}
++        for j, leaf in enumerate(dict.fromkeys(leaves)):
++            key = 'E05_MEMBER_' + str(j)
++            root = leaf.split('->')[0].strip()
++            root_binding = source.resolve(root, source.line(m.start()))
++            if root_binding.get('type', {}).get('kind') != 'pointer' or root_binding.get('status') != 'PASS':
++                continue
++            transformed = transformed.replace(leaf, key)
++            members[key] = {'expression': leaf, 'root': root, 'root_binding': root_binding,
++                            'member_binding': source.resolve(leaf, source.line(m.start()))}
++        try:
++            tree = arithmetic_tree(ast.parse(transformed, mode='eval').body)
++        except (SyntaxError, Unsupported):
++            continue
++        if members:
++            assignments.append((m, tree, members))
++
++    def replace(tree, members):
++        if isinstance(tree, (list, tuple)):
++            return tuple(replace(x, members) for x in tree)
++        return members[tree]['root'] if tree in members else env.get(tree, tree)
++
++    def equalities(tree):
++        if isinstance(tree, (list, tuple)):
++            if len(tree) == 3 and tree[0] == '=':
++                yield tree
++            for child in tree[1:]:
++                yield from equalities(child)
++
++    findings = []
++    for assertion in ir.assertions:
++        for expr in checker.expressions(assertion['formula']):
++            for eq in equalities(expr):
++                for m, expected, members in assignments:
++                    if eq[1] == env.get(m[1], m[1]) and eq[2] == replace(expected, members):
++                        findings.append({'code': 'pointer_member_identity_collapse',
++                            'source_assignment': source.code[m.start():m.end()],
++                            'source': source.location(m.start()), 'members': members,
++                            'actual_formula': assertion, 'expected_source_shape': expected,
++                            'basis': 'exact +/- assignment shape; member replaced by pointer root',
++                            'path_state': 'UNKNOWN/deferred_E06', 'member_type_semantics': 'NOT_PROVEN'})
++    return {'status': 'REJECT' if findings else 'UNKNOWN', 'findings': findings,
++            'reasons': [] if findings else ['no_supported_member_collapse_witness'],
++            'assertions_removed': 0, 'alert_safety_decision': None}
+--- /dev/null
++++ b/reproduction/safety_runs/E05_polarity_variable_identity/test_semantics.py
+@@ -0,0 +1,164 @@
++"""Offline behavioral cases. Synthetic C and generated text are stored verbatim."""
++import json
++from pathlib import Path
++import sys
++import time
++
++import offline_boundary
++offline_boundary.install()
++
++from semantics import Source, check_polarity, check_mappings, member_collapse_diagnostics, sha
++from dependencies import load
++
++HERE = Path(__file__).resolve().parent
++
++
++def tests():
++    polarity, identity = [], []
++
++    def pred(name, code, guard, target, branch, generated, expected, **kwargs):
++        source = Source(code, 'f', 'synthetic/' + name)
++        result = check_polarity(source, guard, target, branch, generated, **kwargs)
++        polarity.append({'case': name, 'input': {'code': code, 'sha256': sha(code), 'guard_line': guard,
++                         'target_line': target, 'branch': branch, 'generated': generated, **kwargs},
++                         'expected': expected, 'actual': result, 'passed': result['status'] == expected})
++
++    for condition, truth in [('x', 'x != 0'), ('!x', 'x == 0'), ('!!x', 'x != 0'),
++                             ('x == 0', 'x == 0'), ('x != 0', 'x != 0'),
++                             ('!(((!!x)))', 'x == 0'), ('((x) == (0))', 'x == 0'),
++                             ('!!!!((x))', 'x != 0')]:
++        for branch in (True, False):
++            code = 'void f(int x)\n{\n    if ('+condition+') {\n        use(x);\n    } else {\n        other(x);\n    }\n}\n'
++            correct = truth if branch else 'Not(' + truth + ')'
++            for label, generated, expected in [('correct', correct, 'PASS'),
++                    ('opposite', 'Not('+correct+')', 'REJECT'),
++                    ('tautology', 'Or(x == 0, x != 0)', 'REJECT'),
++                    ('contradiction', 'And(x == 0, x != 0)', 'REJECT')]:
++                pred(condition + '/' + str(branch) + '/' + label, code, 3, 4 if branch else 6,
++                     branch, generated, expected)
++    early = 'void f(int *p)\n{\n    if (!p)\n        return;\n    use(p);\n}\n'
++    pred('early_return_after', early, 3, 5, False, 'p != 0', 'PASS')
++    pred('early_return_opposite', early, 3, 5, False, 'p == 0', 'REJECT')
++    pred('early_return_wrong_claim', early, 3, 5, True, 'p == 0', 'UNKNOWN')
++    pred('inside_return_arm', early, 3, 4, True, 'p == 0', 'PASS')
++    pred('intervening_assignment', early.replace('    use(p);','    p = alloc();\n    use(p);'),
++         3, 6, False, 'p != 0', 'UNKNOWN')
++    pred('conditional_return', early.replace('        return;', '        if (a) return;'),
++         3, 5, False, 'p != 0', 'UNKNOWN')
++    pred('label_bypass', early.replace('    use(p);', 'label:\n    use(p);'), 3, 6, False, 'p != 0', 'UNKNOWN')
++    pred('goto_not_return', early.replace('return;', 'goto done;'), 3, 5, False, 'p != 0', 'UNKNOWN')
++    for expression in ['MACRO(x)', 'x && y', 'x > 3', 'x->len', 'x + 1', '(x = 0)']:
++        code = 'void f(int x)\n{\n    if ('+expression+')\n        use(x);\n}\n'
++        pred('unsupported/' + expression, code, 3, 4, True, 'x != 0', 'UNKNOWN')
++    simple = 'void f(int x)\n{\n    if (x)\n        use(x);\n}\n'
++    pred('unknown_branch', simple, 3, 4, None, 'x != 0', 'UNKNOWN')
++    pred('wrong_sort', simple, 3, 4, True, 'x != 0', 'REJECT', sort='Bool')
++    pred('wrong_identity', simple, 3, 4, True, 'x != 0', 'UNKNOWN', expected_identity='wrong-scope')
++    pred('unknown_type', simple.replace('int x', 'size_t x'), 3, 4, True, 'x != 0', 'UNKNOWN')
++    pred('bool_condition', simple.replace('int x', 'bool x'), 3, 4, True, 'x', 'PASS', sort='Bool')
++    pred('bool_negation', simple.replace('int x', 'bool x').replace('if (x)', 'if (!x)'),
++         3, 4, True, 'Not(x)', 'PASS', sort='Bool')
++    pred('different_symbol', simple, 3, 4, True, 'y != 0', 'UNKNOWN')
++    pred('unknown_formula', simple, 3, 4, True, 'Other(x)', 'UNKNOWN')
++    pred('source_target_mismatch', simple, 3, 4, True, 'x != 0', 'UNKNOWN', target_text='wrong();')
++    pred('unsigned_zero_only', simple.replace('int x', 'unsigned int x'), 3, 4, True, 'x != 0', 'PASS')
++    pred('local_match_global_unknown', simple, 3, 4, True, 'x != 0', 'UNKNOWN',
++         context_reasons=['state_not_proven'])
++    pred('local_reject_not_hidden', simple, 3, 4, True, 'x == 0', 'REJECT',
++         context_reasons=['state_not_proven'])
++    pred('complex_loop_unknown', simple.replace('    if (x)', '    while (a) {}\n    if (x)'),
++         4, 5, True, 'x != 0', 'UNKNOWN')
++    pred('assignment_state_unknown', simple.replace('    if (x)', '    x = next();\n    if (x)'),
++         4, 5, True, 'x != 0', 'UNKNOWN')
++
++    code = ('struct item { unsigned int len; char *data; };\n'
++            'void f(struct item *p)\n{\n    int value;\n    use(p);\n    {\n        int value;\n'
++            '        use(value);\n    }\n    use(value);\n}\n'
++            'void g(int value)\n{\n    use(value);\n}\n')
++    f, g = Source(code, 'f', 'synthetic/types'), Source(code, 'g', 'synthetic/types')
++    p, member, data, pointee = [f.resolve(x, 5) for x in ('p', 'p->len', 'p->data', '*p')]
++    outer, inner, other = f.resolve('value', 10), f.resolve('value', 8), g.resolve('value', 14)
++
++    def mapping_case(name, bs, expected):
++        result = check_mappings(bs)
++        identity.append({'case': name, 'input': bs, 'expected': expected, 'actual': result,
++                         'passed': result['status'] == expected})
++
++    def b(source, symbol, sort='Int', mode='zero_test', **extra):
++        return dict(source=source, symbol=symbol, sort=sort, mode=mode, **extra)
++
++    mapping_case('distinct_pointer_member_and_data', [b(p,'ptr'),b(member,'len'),b(data,'data')], 'PASS')
++    mapping_case('collapse_pointer_member', [b(p,'same'), b(member,'same')], 'REJECT')
++    mapping_case('collapse_member_data', [b(member,'same'), b(data,'same')], 'REJECT')
++    mapping_case('pointee_aggregate_unmodeled', [b(pointee,'object')], 'UNKNOWN')
++    mapping_case('same_name_separate_scopes', [b(outer,'outer'), b(inner,'inner')], 'PASS')
++    mapping_case('same_name_merged_scopes', [b(outer,'value'), b(inner,'value')], 'REJECT')
++    mapping_case('same_name_separate_functions', [b(outer,'f_value'), b(other,'g_value')], 'PASS')
++    mapping_case('same_name_merged_functions', [b(outer,'value'), b(other,'value')], 'REJECT')
++    mapping_case('unproven_split_or_rename', [b(p,'p'), b(p,'p_ptr')], 'UNKNOWN')
++    mapping_case('pointer_Bool_wrong_sort', [b(p,'p','Bool')], 'REJECT')
++    mapping_case('integer_Bool_wrong_sort', [b(outer,'value','Bool')], 'REJECT')
++    mapping_case('pointer_address_arithmetic', [b(p,'p',mode='arithmetic')], 'UNKNOWN')
++    mapping_case('unsigned_overflow_not_modeled', [b(member,'len',mode='arithmetic')], 'UNKNOWN')
++    mapping_case('signed_overflow_not_modeled', [b(outer,'value',mode='arithmetic')], 'UNKNOWN')
++    for name, flags in [('alias', {'alias_unresolved':True}),('state', {'state_changed':True}),
++                        ('cross_function', {'cross_function':True})]:
++        mapping_case(name+'_E06', [b(p,'p',**flags)], 'UNKNOWN')
++    missing = Source('void f(struct missing *p)\n{\n    use(p);\n}\n', 'f', 'missing/member')
++    mapping_case('missing_member_definition', [b(missing.resolve('p->len',3),'len')], 'UNKNOWN')
++    unknown = Source('void f(size_t x)\n{\n    use(x);\n}\n', 'f', 'unknown/typedef')
++    mapping_case('unknown_typedef_never_default_Int', [b(unknown.resolve('x',3),'x')], 'UNKNOWN')
++    ambiguous = Source('void f(int x)\n{\n    int x;\n    use(x);\n}\n','f','ambiguous')
++    mapping_case('multiple_candidate_declarations', [b(ambiguous.resolve('x',4),'x')], 'UNKNOWN')
++    bo = Source('void f(bool x)\n{\n    use(x);\n}\n','f','bool')
++    mapping_case('boolean_sort', [b(bo.resolve('x',3),'x','Bool','boolean_test')], 'PASS')
++    mapping_case('boolean_Int_wrong_sort', [b(bo.resolve('x',3),'x')], 'REJECT')
++    mapping_case('merged_integer_and_boolean', [b(outer,'shared'),b(bo.resolve('x',3),'shared','Bool','boolean_test')], 'REJECT')
++    nested = Source('void f(int cb(int n, struct item *p), struct item *p)\n{\n    use(p);\n}\n',
++                    'f','function_pointer_parameter')
++    mapping_case('nested_callback_parameters_not_locals', [b(nested.resolve('p',3),'p')], 'PASS')
++    adjacent = Source('void f(void)\n{\n    int first;\n    int second;\n    use(second);\n}\n',
++                      'f','adjacent_declarations')
++    mapping_case('adjacent_declaration_not_skipped', [b(adjacent.resolve('second',5),'second')], 'PASS')
++
++    collapse_source = 'void f(struct item *p, int limit)\n{\n    int n;\n    n = p->len - limit;\n    use(n);\n}\n'
++    cs = Source(collapse_source, 'f', 'synthetic/collapse')
++    for label, script, expected in [
++        ('field_to_pointer', "n=Int('n')\np=Int('p')\nlimit=Int('limit')\ns.add(n == p-limit)", 'REJECT'),
++        ('member_symbol_not_guessed', "n=Int('n')\np_len=Int('p_len')\nlimit=Int('limit')\ns.add(n == p_len-limit)", 'UNKNOWN'),
++        ('different_shape_not_falsely_bound', "n=Int('n')\np=Int('p')\ns.add(n == p)", 'UNKNOWN')]:
++        result = member_collapse_diagnostics(cs, script)
++        identity.append({'case': label, 'input':{'code':collapse_source,'script':script},
++                         'expected':expected,'actual':result,'passed':result['status']==expected})
++    # Existing structural contract remains independent of semantic diagnostics.
++    for label, final, expected in [('retained', "x=Int('x')\ns.add(x != 0)", 'PASS'),
++                                    ('lost', "x=Int('x')\ns.add(x == 0)", 'FAIL')]:
++        result=load('e03').validate_base_delta("x=Int('x')\ns.add(x != 0)", '# empty delta', final)
++        identity.append({'case':'unchanged_E03_'+label,'expected':expected,'actual':result,
++                         'passed':result['contract_status']==expected})
++    malicious="__import__('os').system('E05_SHOULD_NEVER_EXECUTE')"
++    result=load('e03').validate_base_delta("x=Int('x')\ns.add(x != 0)", '', malicious)
++    identity.append({'case':'generated_call_never_executed','input':malicious,
++                     'actual':result,'expected':'UNKNOWN','passed':result['contract_status']=='UNKNOWN'})
++    # Evidence hash failures cannot silently bind to a different source.
++    try:
++        Source(simple,'f','hash_mismatch',expected_sha='0'*64)
++        valid=False
++    except ValueError as exc:
++        valid=str(exc)=='source_hash_mismatch'
++    identity.append({'case':'source_hash_mismatch','expected':'refuse','passed':valid})
++    return polarity, identity
++
++
++if __name__ == '__main__':
++    start=time.perf_counter(); p,v=tests()
++    suffix=sys.argv[1] if len(sys.argv)>1 else ''
++    for name,rows in [('polarity_tests',p),('variable_identity_tests',v)]:
++        path=HERE/(name+suffix+'.json')
++        with path.open('x',encoding='utf-8') as f:
++            json.dump({'cases':rows,'passed':sum(x['passed'] for x in rows),'total':len(rows),
++                       'seconds':time.perf_counter()-start,'solver_calls':0,'model_calls':0},f,ensure_ascii=False,indent=2)
++            f.write('\n')
++        print(name, sum(x['passed'] for x in rows),'/',len(rows))
++        print('failed:', [x['case'] for x in rows if not x['passed']])
++    sys.exit(0 if all(x['passed'] for x in p+v) else 1)
+--- /dev/null
++++ b/reproduction/safety_runs/E05_polarity_variable_identity/experiment_config.json
+@@ -0,0 +1,19 @@
++{
++  "experiment": "E05_polarity_variable_identity",
++  "version": "e05-local-semantic-rejection-v1",
++  "paper": "arXiv:2506.10322v1",
++  "official_commit": "4efb4b9bf7e845e180451b43ba29a25e3edaa0e3",
++  "mode": "offline static candidate rejection; not integrated in engine",
++  "model_calls_allowed": 0,
++  "solver_calls_allowed": 0,
++  "generated_code_execution_allowed": false,
++  "cost_cny": 0,
++  "constraint_mutation_allowed": false,
++  "alert_safety_decision_allowed": false,
++  "polarity_scope": "source-bound scalar zero tests, explicit arm, immediate unconditional return edge; single-symbol truth abstraction",
++  "identity_scope": "lexical function/scope/declaration/type/expression/hash; zero or boolean tests only",
++  "historical_binding": "unique saved U02 target guard, matching explicit unchanged symbol; local diagnostic association, not independent semantic proof",
++  "historical_full_context_support": false,
++  "deferred": ["cross-function state", "SSA", "reallocation", "call effects", "alias state", "unsigned widths and overflow", "general C CFG"],
++  "order": ["integrity", "synthetic", "freeze", "audit10_and_E04_ND", "fixed20_once", "report", "preservation", "publish_only_E05"]
++}

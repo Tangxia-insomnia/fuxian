@@ -1,0 +1,415 @@
+{
+  "rows": [
+    {
+      "input": {
+        "context": {
+          "frames": [
+            {
+              "code": "void f(void)\n{\n    int x;\n    if (!x)\n        use(x);\n}\n",
+              "function": "f",
+              "var_name": "other",
+              "extracted": {
+                "target_conditions": [
+                  {
+                    "condition": "if (!x)",
+                    "line_number": 3
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "recorded_answer": {
+          "response": [
+            "step 1 z3 script: ```python\nx=Int('x')\ns.add(Not(x == 0))\n```"
+          ]
+        }
+      },
+      "expected_conflicts": 1,
+      "actual": {
+        "status": "rejected",
+        "checks": [
+          {
+            "condition_id": "frame/0/condition/0",
+            "original_expression": "!x",
+            "branch_direction": true,
+            "symbol": {
+              "name": "x",
+              "declaration_line": 3,
+              "type_spelling": "int",
+              "type_kind": "integer",
+              "type_evidence": "explicit_declaration",
+              "identity": "3ffc0e0896a3e3673bb0b07b234eea86b14ac142997f87f5cab7dad73520f64a:declaration:3:x"
+            },
+            "source": {
+              "path": null,
+              "path_basis": "saved alert path; callee absolute path not established",
+              "frame": 0,
+              "function": "f",
+              "line": 4,
+              "line_numbering": "1-based in saved function, not absolute file",
+              "absolute_file_line": null,
+              "code_sha256": "3ffc0e0896a3e3673bb0b07b234eea86b14ac142997f87f5cab7dad73520f64a"
+            },
+            "status": "rejected",
+            "local_status": "mismatch",
+            "normalized_condition": "x == 0",
+            "reasons": [
+              "polarity_conflict_with_source_branch"
+            ],
+            "atom_checks": [
+              {
+                "expression": "Not(x == 0)",
+                "origin": {
+                  "kind": "saved_model_response",
+                  "response_index": 0,
+                  "response_sha256": "b881f8abee95cccdb8c2d1a4f4165035aa4b6fbb66db70e8b7f8eff24a9879c2",
+                  "script_sha256": "4cfbe98485046988fcac316fdfd4bf59344beedf91fb803635538064078886f3",
+                  "generated_line": 2
+                },
+                "status": "mismatch",
+                "normalized": "x != 0"
+              }
+            ],
+            "context_unsupported": [
+              "whole_program_state_and_control_not_verified_in_e01"
+            ],
+            "candidate_accepted": false,
+            "verdict_on_rejection": "UNKNOWN",
+            "action": "KEEP",
+            "branch_basis": "saved_target_condition; local recorded edge only, not a new CFG proof",
+            "binding_basis": "unique recorded target predicate and matching generated declaration; diagnostic association only, not independent assertion provenance"
+          }
+        ],
+        "source_condition_count": 1,
+        "locally_checked_condition_count": 1,
+        "conflicting_condition_count": 1,
+        "conflicting_conditions": [
+          "frame/0/condition/0"
+        ],
+        "conflicting_atom_occurrences": 1,
+        "whole_sample_supported": false,
+        "whole_sample_unsupported_reason": "C state, control and full merge provenance not established; R02/R03 untouched",
+        "saved_script_count": 1,
+        "saved_generated_atom_count": 1,
+        "unsupported_reasons": {
+          "polarity_conflict_with_source_branch": 1
+        },
+        "atoms_removed": 0,
+        "original_scripts_sha256": [
+          "4cfbe98485046988fcac316fdfd4bf59344beedf91fb803635538064078886f3"
+        ],
+        "cache_scope": "original saved response consistency only, not a new end-to-end experiment"
+      },
+      "passed": true
+    },
+    {
+      "input": {
+        "context": {
+          "frames": [
+            {
+              "code": "void f(void)\n{\n    int x;\n    if (!x)\n        use(x);\n}\n",
+              "function": "f",
+              "var_name": "other",
+              "extracted": {
+                "target_conditions": [
+                  {
+                    "condition": "if (!x)",
+                    "line_number": 3
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "recorded_answer": {
+          "response": [
+            "step 1 z3 script: ```python\nx=Int('x')\ns.add(x == 0)\n```"
+          ]
+        }
+      },
+      "expected_conflicts": 0,
+      "actual": {
+        "status": "unsupported",
+        "checks": [
+          {
+            "condition_id": "frame/0/condition/0",
+            "original_expression": "!x",
+            "branch_direction": true,
+            "symbol": {
+              "name": "x",
+              "declaration_line": 3,
+              "type_spelling": "int",
+              "type_kind": "integer",
+              "type_evidence": "explicit_declaration",
+              "identity": "3ffc0e0896a3e3673bb0b07b234eea86b14ac142997f87f5cab7dad73520f64a:declaration:3:x"
+            },
+            "source": {
+              "path": null,
+              "path_basis": "saved alert path; callee absolute path not established",
+              "frame": 0,
+              "function": "f",
+              "line": 4,
+              "line_numbering": "1-based in saved function, not absolute file",
+              "absolute_file_line": null,
+              "code_sha256": "3ffc0e0896a3e3673bb0b07b234eea86b14ac142997f87f5cab7dad73520f64a"
+            },
+            "status": "unsupported",
+            "local_status": "consistent",
+            "normalized_condition": "x == 0",
+            "reasons": [
+              "program_context_outside_e01"
+            ],
+            "atom_checks": [
+              {
+                "expression": "x == 0",
+                "origin": {
+                  "kind": "saved_model_response",
+                  "response_index": 0,
+                  "response_sha256": "31484e928119010411231582580ae69850ec5a9c0c709ef3338eb7a2e7bf8f3b",
+                  "script_sha256": "c861994ad1da32ae84b487b07645c0479a391a28494bd1340a8b670597bbe7be",
+                  "generated_line": 2
+                },
+                "status": "consistent",
+                "normalized": "x == 0"
+              }
+            ],
+            "context_unsupported": [
+              "whole_program_state_and_control_not_verified_in_e01"
+            ],
+            "candidate_accepted": false,
+            "verdict_on_rejection": "UNKNOWN",
+            "action": "KEEP",
+            "branch_basis": "saved_target_condition; local recorded edge only, not a new CFG proof",
+            "binding_basis": "unique recorded target predicate and matching generated declaration; diagnostic association only, not independent assertion provenance"
+          }
+        ],
+        "source_condition_count": 1,
+        "locally_checked_condition_count": 1,
+        "conflicting_condition_count": 0,
+        "conflicting_conditions": [],
+        "conflicting_atom_occurrences": 0,
+        "whole_sample_supported": false,
+        "whole_sample_unsupported_reason": "C state, control and full merge provenance not established; R02/R03 untouched",
+        "saved_script_count": 1,
+        "saved_generated_atom_count": 1,
+        "unsupported_reasons": {
+          "program_context_outside_e01": 1
+        },
+        "atoms_removed": 0,
+        "original_scripts_sha256": [
+          "c861994ad1da32ae84b487b07645c0479a391a28494bd1340a8b670597bbe7be"
+        ],
+        "cache_scope": "original saved response consistency only, not a new end-to-end experiment"
+      },
+      "passed": true
+    },
+    {
+      "input": {
+        "context": {
+          "frames": [
+            {
+              "code": "void f(void)\n{\n    int x;\n    if (x)\n        use(x);\n}\n",
+              "function": "f",
+              "var_name": "other",
+              "extracted": {
+                "target_conditions": [
+                  {
+                    "condition": "if (x)",
+                    "line_number": 3
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "recorded_answer": {
+          "response": [
+            "step 1 z3 script: ```python\nx=Int('x')\ns.add(x == 0)\n```"
+          ]
+        }
+      },
+      "expected_conflicts": 1,
+      "actual": {
+        "status": "rejected",
+        "checks": [
+          {
+            "condition_id": "frame/0/condition/0",
+            "original_expression": "x",
+            "branch_direction": true,
+            "symbol": {
+              "name": "x",
+              "declaration_line": 3,
+              "type_spelling": "int",
+              "type_kind": "integer",
+              "type_evidence": "explicit_declaration",
+              "identity": "6bfc60ab50d5bf9e348727fe7a6ce6bd55112e778c828aa809f1aa1eb8665649:declaration:3:x"
+            },
+            "source": {
+              "path": null,
+              "path_basis": "saved alert path; callee absolute path not established",
+              "frame": 0,
+              "function": "f",
+              "line": 4,
+              "line_numbering": "1-based in saved function, not absolute file",
+              "absolute_file_line": null,
+              "code_sha256": "6bfc60ab50d5bf9e348727fe7a6ce6bd55112e778c828aa809f1aa1eb8665649"
+            },
+            "status": "rejected",
+            "local_status": "mismatch",
+            "normalized_condition": "x != 0",
+            "reasons": [
+              "polarity_conflict_with_source_branch"
+            ],
+            "atom_checks": [
+              {
+                "expression": "x == 0",
+                "origin": {
+                  "kind": "saved_model_response",
+                  "response_index": 0,
+                  "response_sha256": "31484e928119010411231582580ae69850ec5a9c0c709ef3338eb7a2e7bf8f3b",
+                  "script_sha256": "c861994ad1da32ae84b487b07645c0479a391a28494bd1340a8b670597bbe7be",
+                  "generated_line": 2
+                },
+                "status": "mismatch",
+                "normalized": "x == 0"
+              }
+            ],
+            "context_unsupported": [
+              "whole_program_state_and_control_not_verified_in_e01"
+            ],
+            "candidate_accepted": false,
+            "verdict_on_rejection": "UNKNOWN",
+            "action": "KEEP",
+            "branch_basis": "saved_target_condition; local recorded edge only, not a new CFG proof",
+            "binding_basis": "unique recorded target predicate and matching generated declaration; diagnostic association only, not independent assertion provenance"
+          }
+        ],
+        "source_condition_count": 1,
+        "locally_checked_condition_count": 1,
+        "conflicting_condition_count": 1,
+        "conflicting_conditions": [
+          "frame/0/condition/0"
+        ],
+        "conflicting_atom_occurrences": 1,
+        "whole_sample_supported": false,
+        "whole_sample_unsupported_reason": "C state, control and full merge provenance not established; R02/R03 untouched",
+        "saved_script_count": 1,
+        "saved_generated_atom_count": 1,
+        "unsupported_reasons": {
+          "polarity_conflict_with_source_branch": 1
+        },
+        "atoms_removed": 0,
+        "original_scripts_sha256": [
+          "c861994ad1da32ae84b487b07645c0479a391a28494bd1340a8b670597bbe7be"
+        ],
+        "cache_scope": "original saved response consistency only, not a new end-to-end experiment"
+      },
+      "passed": true
+    },
+    {
+      "input": {
+        "context": {
+          "frames": [
+            {
+              "code": "void f(void)\n{\n    int x;\n    if (x)\n        use(x);\n}\n",
+              "function": "f",
+              "var_name": "other",
+              "extracted": {
+                "target_conditions": [
+                  {
+                    "condition": "if (x)",
+                    "line_number": 3
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "recorded_answer": {
+          "response": [
+            "step 1 z3 script: ```python\nx=Int('x')\ns.add(x != 0)\n```"
+          ]
+        }
+      },
+      "expected_conflicts": 0,
+      "actual": {
+        "status": "unsupported",
+        "checks": [
+          {
+            "condition_id": "frame/0/condition/0",
+            "original_expression": "x",
+            "branch_direction": true,
+            "symbol": {
+              "name": "x",
+              "declaration_line": 3,
+              "type_spelling": "int",
+              "type_kind": "integer",
+              "type_evidence": "explicit_declaration",
+              "identity": "6bfc60ab50d5bf9e348727fe7a6ce6bd55112e778c828aa809f1aa1eb8665649:declaration:3:x"
+            },
+            "source": {
+              "path": null,
+              "path_basis": "saved alert path; callee absolute path not established",
+              "frame": 0,
+              "function": "f",
+              "line": 4,
+              "line_numbering": "1-based in saved function, not absolute file",
+              "absolute_file_line": null,
+              "code_sha256": "6bfc60ab50d5bf9e348727fe7a6ce6bd55112e778c828aa809f1aa1eb8665649"
+            },
+            "status": "unsupported",
+            "local_status": "consistent",
+            "normalized_condition": "x != 0",
+            "reasons": [
+              "program_context_outside_e01"
+            ],
+            "atom_checks": [
+              {
+                "expression": "x != 0",
+                "origin": {
+                  "kind": "saved_model_response",
+                  "response_index": 0,
+                  "response_sha256": "53fea106462d8c0873be9a7f46d90077d6dd852b1c321f40e9ab464edbb6d81c",
+                  "script_sha256": "50af2cb15c2ff030ea759398bf3bcc9dff02064af12049449c16dcd1311e7e79",
+                  "generated_line": 2
+                },
+                "status": "consistent",
+                "normalized": "x != 0"
+              }
+            ],
+            "context_unsupported": [
+              "whole_program_state_and_control_not_verified_in_e01"
+            ],
+            "candidate_accepted": false,
+            "verdict_on_rejection": "UNKNOWN",
+            "action": "KEEP",
+            "branch_basis": "saved_target_condition; local recorded edge only, not a new CFG proof",
+            "binding_basis": "unique recorded target predicate and matching generated declaration; diagnostic association only, not independent assertion provenance"
+          }
+        ],
+        "source_condition_count": 1,
+        "locally_checked_condition_count": 1,
+        "conflicting_condition_count": 0,
+        "conflicting_conditions": [],
+        "conflicting_atom_occurrences": 0,
+        "whole_sample_supported": false,
+        "whole_sample_unsupported_reason": "C state, control and full merge provenance not established; R02/R03 untouched",
+        "saved_script_count": 1,
+        "saved_generated_atom_count": 1,
+        "unsupported_reasons": {
+          "program_context_outside_e01": 1
+        },
+        "atoms_removed": 0,
+        "original_scripts_sha256": [
+          "50af2cb15c2ff030ea759398bf3bcc9dff02064af12049449c16dcd1311e7e79"
+        ],
+        "cache_scope": "original saved response consistency only, not a new end-to-end experiment"
+      },
+      "passed": true
+    }
+  ],
+  "passed": 4,
+  "total": 4,
+  "scope": "retention of unchanged E01 diagnostic only"
+}
