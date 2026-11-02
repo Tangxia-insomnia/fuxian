@@ -1,0 +1,51 @@
+{
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "position": 12,
+  "row_index": 24,
+  "sample_id_expected": "NPD/codeql/kernel69:row=12:index=24",
+  "context_origin": "official_historical_baseline",
+  "frame_count": 2,
+  "frame": {
+    "level": 1,
+    "function": "kfree",
+    "var_name": "object",
+    "target": "\t\tfree_large_kmalloc(folio, (void *)object);",
+    "code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}",
+    "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+    "sink_kind": "author_historical_macro_or_call_sink"
+  },
+  "extracted_conditions": {
+    "bug_line_constraints": [
+      {
+        "text": "\t\tfree_large_kmalloc(folio, (void *)object);",
+        "condition": [
+          {
+            "condition": "if (unlikely(!folio_test_slab(folio)))",
+            "line_number": 13
+          }
+        ]
+      }
+    ],
+    "target_conditions": [
+      {
+        "condition": "if (unlikely(!folio_test_slab(folio)))",
+        "line_number": 13
+      }
+    ],
+    "variable_assignments": {
+      "text": "void kfree(const void *object)",
+      "condition": []
+    },
+    "variable_non_empty": [],
+    "early_jump_constraints": [
+      {
+        "text": "return",
+        "condition": [
+          "unlikely(ZERO_OR_NULL_PTR(object))"
+        ]
+      }
+    ],
+    "filter_function_code": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;\n\t}\n\n\tslab = folio_slab(folio);\n\ts = slab->slab_cache;\n\tslab_free(s, slab, x, _RET_IP_);\n}"
+  },
+  "key_configured": true
+}

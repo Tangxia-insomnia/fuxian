@@ -1,0 +1,16 @@
+# E03 BEGIN U02 BASE raw_sha256=7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92
+folio_test_slab=Int('folio_test_slab')
+object=Int('object')
+s.add(folio_test_slab == 0)
+s.add(object == 0)
+
+# E03 END U02 BASE
+# E03 BEGIN U06 DELTA raw_sha256=c92548f94ba4604ef0b08c4a015e23561e1bb2c40a3f29f94fe7cce405eca1d9
+# Additional constraints based on line-by-line simulation
+# Line 9: if (unlikely(ZERO_OR_NULL_PTR(object))) return;
+# Since object == 0, ZERO_OR_NULL_PTR(object) is true, so function returns early
+# This means folio_test_slab is never evaluated (unreachable), but we keep existing constraint
+# Line 13: if (unlikely(!folio_test_slab(folio))) - unreachable due to early return
+# No new constraints can be derived since the code path is unreachable
+
+# E03 END U06 DELTA

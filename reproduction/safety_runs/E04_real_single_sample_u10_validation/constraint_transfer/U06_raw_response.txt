@@ -1,0 +1,8 @@
+```python
+# Additional constraints based on line-by-line simulation
+# Line 9: if (unlikely(ZERO_OR_NULL_PTR(object))) return;
+# Since object == 0, ZERO_OR_NULL_PTR(object) is true, so function returns early
+# This means folio_test_slab is never evaluated (unreachable), but we keep existing constraint
+# Line 13: if (unlikely(!folio_test_slab(folio))) - unreachable due to early return
+# No new constraints can be derived since the code path is unreachable
+```

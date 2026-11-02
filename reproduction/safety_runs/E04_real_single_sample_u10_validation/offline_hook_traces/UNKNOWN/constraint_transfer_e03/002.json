@@ -1,0 +1,197 @@
+{
+  "adapter_version": "e03-base-delta-explicit-transfer-v1",
+  "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+  "base_sha256": "18e937029c25a28a77ef2715407dd654066b8b9f26b0489d1125cf5ce1ddf986",
+  "delta_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+  "final_sha256": "7dc05db0d40486cf357f8fce400dbe2807cba352fc180e104b49a3d3db35168c",
+  "contract_status": "UNKNOWN",
+  "accepted": false,
+  "rejection_reasons": [
+    "contract_not_PASS",
+    "unsupported_syntax"
+  ],
+  "counts": {
+    "missing_declarations": null,
+    "missing_base_assertions": null,
+    "missing_delta_assertions": null,
+    "type_conflicts": null,
+    "symbol_identity_conflicts": null,
+    "duplicate_declarations": null,
+    "duplicate_assertions": null,
+    "final_duplicate_assertions": null,
+    "final_duplicate_declarations": null
+  },
+  "check_contract": {
+    "checker_version": "e02-static-contract-v1",
+    "contract_status": "UNKNOWN",
+    "reasons": [
+      "UNSUPPORTED_input_or_expression"
+    ],
+    "scope": "exact structural B+delta preservation only",
+    "semantic_correctness": "NOT_ASSESSED",
+    "polarity_correctness": "NOT_ASSESSED",
+    "solver_executed": false,
+    "alert_safety_decision": null,
+    "counts": {},
+    "inputs": {
+      "B": {
+        "reference": "position/0/frame/0/U02/raw_response",
+        "sha256": "18e937029c25a28a77ef2715407dd654066b8b9f26b0489d1125cf5ce1ddf986",
+        "format": "python"
+      },
+      "delta": {
+        "reference": "position/0/frame/0/U06/raw_response",
+        "sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+        "format": "python"
+      },
+      "Final": {
+        "reference": "U10/output",
+        "sha256": "7dc05db0d40486cf357f8fce400dbe2807cba352fc180e104b49a3d3db35168c",
+        "format": "python"
+      }
+    },
+    "ir": {
+      "B": {
+        "declarations": [
+          {
+            "symbol": "x",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/0/frame/0/U02/raw_response",
+              "line": 1,
+              "source_sha256": "18e937029c25a28a77ef2715407dd654066b8b9f26b0489d1125cf5ce1ddf986"
+            }
+          }
+        ],
+        "assertions": [
+          {
+            "formula": "(= x 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/0/frame/0/U02/raw_response",
+              "line": 2,
+              "source_sha256": "18e937029c25a28a77ef2715407dd654066b8b9f26b0489d1125cf5ce1ddf986"
+            }
+          }
+        ],
+        "bindings": [
+          {
+            "python_name": "x",
+            "symbol": "x",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/0/frame/0/U02/raw_response",
+              "line": 1,
+              "source_sha256": "18e937029c25a28a77ef2715407dd654066b8b9f26b0489d1125cf5ce1ddf986"
+            }
+          }
+        ],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(= x 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/0/frame/0/U02/raw_response",
+                  "line": 2,
+                  "source_sha256": "18e937029c25a28a77ef2715407dd654066b8b9f26b0489d1125cf5ce1ddf986"
+                }
+              }
+            ],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "position/0/frame/0/U02/raw_response",
+          "sha256": "18e937029c25a28a77ef2715407dd654066b8b9f26b0489d1125cf5ce1ddf986",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      },
+      "delta": {
+        "declarations": [],
+        "assertions": [
+          {
+            "formula": "(>= x 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/0/frame/0/U06/raw_response",
+              "line": 1,
+              "source_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6"
+            }
+          }
+        ],
+        "bindings": [],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(>= x 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/0/frame/0/U06/raw_response",
+                  "line": 1,
+                  "source_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6"
+                }
+              }
+            ],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "position/0/frame/0/U06/raw_response",
+          "sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      }
+    },
+    "parse_errors": [
+      {
+        "role": "Final",
+        "error": "python_expression_outside_subset:List"
+      }
+    ],
+    "seconds": 0.00030220000007830095
+  },
+  "semantic_correctness": "NOT_ASSESSED",
+  "polarity_correctness": "NOT_ASSESSED",
+  "alert_safety_decision": null,
+  "solver_executed": false,
+  "sources": {
+    "base": {
+      "stage": "U02",
+      "reference": "position/0/frame/0/U02/raw_response",
+      "raw_text": "x=Int('x')\ns.add(x == 0)",
+      "raw_sha256": "18e937029c25a28a77ef2715407dd654066b8b9f26b0489d1125cf5ce1ddf986",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    },
+    "delta": {
+      "stage": "U06",
+      "reference": "position/0/frame/0/U06/raw_response",
+      "raw_text": "s.add(x >= 0)",
+      "raw_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    },
+    "final": {
+      "stage": "Final",
+      "reference": "U10/output",
+      "raw_text": "def check_constraints():\n values=[]\n return True",
+      "raw_sha256": "7dc05db0d40486cf357f8fce400dbe2807cba352fc180e104b49a3d3db35168c",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    }
+  },
+  "stage": "after_U10_before_solver",
+  "attempt": 1,
+  "merged_sha256": "d6026fe9941ae1b647f809c51ef351fafd1c2fb598efdca1f5e9b30fea88c259",
+  "event_id": 2,
+  "sample_position": 0,
+  "frame_level": 0,
+  "dataset": "offline_synthetic",
+  "sample_id": "offline_hook_UNKNOWN"
+}

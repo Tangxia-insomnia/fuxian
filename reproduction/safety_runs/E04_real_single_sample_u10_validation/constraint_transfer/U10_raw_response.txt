@@ -1,0 +1,22 @@
+```python
+def check_constraints():
+    from z3 import Int, Solver, sat
+    
+    # Define all variables
+    folio_test_slab = Int('folio_test_slab')
+    object = Int('object')
+    
+    s = Solver()
+    
+    # Base constraints
+    s.add(folio_test_slab == 0)
+    s.add(object == 0)
+    
+    # Delta constraints: object == 0 means ZERO_OR_NULL_PTR(object) is true,
+    # so the function returns early and folio_test_slab is never evaluated.
+    # No additional constraints needed since the code path is unreachable.
+    
+    # Validate the constraints are satisfiable
+    result = s.check()
+    return result == sat
+```
