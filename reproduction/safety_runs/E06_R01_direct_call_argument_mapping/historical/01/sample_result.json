@@ -1,0 +1,116 @@
+{
+  "sample_id": "NPD/codeql/kernel69:row=24:index=43",
+  "dataset_id": "codeql_linux",
+  "position": 24,
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+  "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json",
+  "bundle_sha256": "4df7f7014d4eeeca31e8768db1adbfd8c58e10ffbc7551a5330e4d3a6a9729b3",
+  "frame_count": 3,
+  "status": "UNKNOWN",
+  "reasons": [
+    "missing_original_build_evidence",
+    "no_verified_original_TU_or_type_identity"
+  ],
+  "missing_source_evidence": false,
+  "missing_build_evidence": true,
+  "type_evidence_status": "MISSING_OR_UNVERIFIED",
+  "build_status": "saved-source-only",
+  "frames": [
+    {
+      "frame": 0,
+      "function": "ip6_finish_output2",
+      "body_sha256": "90b47239055d70d6940ddc13e68fc1f3e80746d0d735ccb383f25c4c6471a940",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "ast_report": "frame_0_ast.json",
+      "diagnostic_count": 78,
+      "diagnostic_severity_counts": {
+        "2": 3,
+        "3": 75
+      },
+      "semantic_mapping_status": "UNKNOWN"
+    },
+    {
+      "frame": 1,
+      "function": "sock_confirm_neigh",
+      "body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/1",
+      "source_copy": "frame_1.c",
+      "ast_report": "frame_1_ast.json",
+      "diagnostic_count": 9,
+      "diagnostic_severity_counts": {
+        "2": 2,
+        "3": 7
+      },
+      "semantic_mapping_status": "UNKNOWN"
+    },
+    {
+      "frame": 2,
+      "function": "neigh_confirm",
+      "body_sha256": "468f1bceeb2bb427c7a70f1345ed27aa19925bbfcf2197e94b7f6476cc260be9",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/2",
+      "source_copy": "frame_2.c",
+      "ast_report": "frame_2_ast.json",
+      "diagnostic_count": 6,
+      "diagnostic_severity_counts": {
+        "2": 1,
+        "3": 5
+      },
+      "semantic_mapping_status": "UNKNOWN"
+    }
+  ],
+  "edges": [
+    {
+      "caller": "ip6_finish_output2",
+      "callee": "sock_confirm_neigh",
+      "caller_body_sha256": "90b47239055d70d6940ddc13e68fc1f3e80746d0d735ccb383f25c4c6471a940",
+      "callee_body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "caller_frame": 0,
+      "callee_frame": 1,
+      "candidate_callsites": [
+        {
+          "line_1based_in_saved_body": 77,
+          "column_1based": 2,
+          "call_text_candidate": "sock_confirm_neigh(skb, neigh)",
+          "original_body_line": "\tsock_confirm_neigh(skb, neigh);",
+          "location_method": "literal_locator_not_AST_proof",
+          "binding_status": "UNKNOWN"
+        }
+      ],
+      "status": "UNKNOWN",
+      "approved_mappings": [],
+      "reasons": [
+        "missing_original_build_evidence",
+        "no_verified_AST_declaration_or_type_mapping"
+      ]
+    },
+    {
+      "caller": "sock_confirm_neigh",
+      "callee": "neigh_confirm",
+      "caller_body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "callee_body_sha256": "468f1bceeb2bb427c7a70f1345ed27aa19925bbfcf2197e94b7f6476cc260be9",
+      "caller_frame": 1,
+      "callee_frame": 2,
+      "candidate_callsites": [
+        {
+          "line_1based_in_saved_body": 8,
+          "column_1based": 3,
+          "call_text_candidate": "neigh_confirm(n)",
+          "original_body_line": "\t\tneigh_confirm(n);",
+          "location_method": "literal_locator_not_AST_proof",
+          "binding_status": "UNKNOWN"
+        }
+      ],
+      "status": "UNKNOWN",
+      "approved_mappings": [],
+      "reasons": [
+        "missing_original_build_evidence",
+        "no_verified_AST_declaration_or_type_mapping"
+      ]
+    }
+  ],
+  "labels_used": false,
+  "prior_solver_results_used": false,
+  "elapsed_seconds": 0.16976900000008754
+}

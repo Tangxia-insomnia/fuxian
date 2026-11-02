@@ -1,0 +1,10 @@
+{
+  "status": "RUNNER_FAILED_BEFORE_FIRST_PARSE",
+  "exception": "RuntimeError: R01 forbidden external operation: socket.gethostname",
+  "cause": "Python platform.system called the local hostname API while lazily loading libclang; the R01 audit guard overblocked local metadata access.",
+  "network_connection_attempts": 0,
+  "model_calls": 0,
+  "mapper_checks_executed": 0,
+  "action": "Allow only socket.gethostname (local metadata); all other socket audit events remain prohibited. Preserve this failed attempt and run into a new directory.",
+  "environment_gate_result": "environment/result.json remains PASS; this was a runner guard error, not a libclang load failure"
+}

@@ -1,0 +1,2554 @@
+{
+  "tests": [
+    {
+      "test": "M01_direct",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": {
+        "fixture": "M01.c",
+        "source_sha256": "39a401d2f2b23ae462108bdc5ff957ab337f0296815ba8505d7c392049d75556",
+        "report": "M01_direct.json"
+      }
+    },
+    {
+      "test": "M01_distinct_slots",
+      "expected": "different caller/formal slots",
+      "actual": [
+        "caller-slot:79c6a6fe478969dbf0a66dae1670d045d4210f1b364bbe1fab2eb7308bd251e0",
+        "callee-slot:035e0f4ef430598c37eee82682d1396aaaf81492b9500c293fb921242f22080e"
+      ],
+      "passed": true,
+      "evidence": {
+        "actual_index_0based": 0,
+        "formal_index_0based": 0,
+        "actual_expression": "p",
+        "actual_source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+            "line_1based": 2,
+            "column_1based": 25,
+            "byte_offset": 58
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+            "line_1based": 2,
+            "column_1based": 26,
+            "byte_offset": 59
+          }
+        },
+        "actual_declaration": {
+          "name": "p",
+          "kind": "PARM_DECL",
+          "usr": "c:M01.c@46@F@caller@p",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+            "line_1based": 2,
+            "column_1based": 18,
+            "byte_offset": 51
+          },
+          "location": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+            "line_1based": 2,
+            "column_1based": 18,
+            "byte_offset": 51
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+              "line_1based": 2,
+              "column_1based": 13,
+              "byte_offset": 46
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+              "line_1based": 2,
+              "column_1based": 19,
+              "byte_offset": 52
+            }
+          },
+          "linkage": "NO_LINKAGE",
+          "declaration_id": "decl:9e7eaaa25a4f0fa031fdfb873a07a54ce2678947432f401d321469e0647db632"
+        },
+        "formal_declaration": {
+          "name": "item",
+          "kind": "PARM_DECL",
+          "usr": "c:M01.c@7@F@f@item",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+            "line_1based": 1,
+            "column_1based": 13,
+            "byte_offset": 12
+          },
+          "location": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+            "line_1based": 1,
+            "column_1based": 13,
+            "byte_offset": 12
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+              "line_1based": 1,
+              "column_1based": 8,
+              "byte_offset": 7
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+              "line_1based": 1,
+              "column_1based": 17,
+              "byte_offset": 16
+            }
+          },
+          "linkage": "NO_LINKAGE",
+          "declaration_id": "decl:448f21a7c81ff51e7e6c6937f479c79d868bb1f20a75c881db104eaa772f3ca4"
+        },
+        "actual_slot_id": "caller-slot:79c6a6fe478969dbf0a66dae1670d045d4210f1b364bbe1fab2eb7308bd251e0",
+        "formal_slot_id": "callee-slot:035e0f4ef430598c37eee82682d1396aaaf81492b9500c293fb921242f22080e",
+        "formal_type": {
+          "spelling": "int *",
+          "canonical": "int *",
+          "kind": "POINTER",
+          "size_bytes": 8,
+          "const": false,
+          "volatile": false,
+          "restrict": false,
+          "pointee": {
+            "spelling": "int",
+            "canonical": "int",
+            "kind": "INT",
+            "size_bytes": 4,
+            "const": false,
+            "volatile": false,
+            "restrict": false
+          }
+        },
+        "actual_type": {
+          "spelling": "int *",
+          "canonical": "int *",
+          "kind": "POINTER",
+          "size_bytes": 8,
+          "const": false,
+          "volatile": false,
+          "restrict": false,
+          "pointee": {
+            "spelling": "int",
+            "canonical": "int",
+            "kind": "INT",
+            "size_bytes": 4,
+            "const": false,
+            "volatile": false,
+            "restrict": false
+          }
+        },
+        "conversion": {
+          "actual_type": {
+            "spelling": "int *",
+            "canonical": "int *",
+            "kind": "POINTER",
+            "size_bytes": 8,
+            "const": false,
+            "volatile": false,
+            "restrict": false,
+            "pointee": {
+              "spelling": "int",
+              "canonical": "int",
+              "kind": "INT",
+              "size_bytes": 4,
+              "const": false,
+              "volatile": false,
+              "restrict": false
+            }
+          },
+          "formal_type": {
+            "spelling": "int *",
+            "canonical": "int *",
+            "kind": "POINTER",
+            "size_bytes": 8,
+            "const": false,
+            "volatile": false,
+            "restrict": false,
+            "pointee": {
+              "spelling": "int",
+              "canonical": "int",
+              "kind": "INT",
+              "size_bytes": 4,
+              "const": false,
+              "volatile": false,
+              "restrict": false
+            }
+          },
+          "ast_argument_type": {
+            "spelling": "int *",
+            "canonical": "int *",
+            "kind": "POINTER",
+            "size_bytes": 8,
+            "const": false,
+            "volatile": false,
+            "restrict": false,
+            "pointee": {
+              "spelling": "int",
+              "canonical": "int",
+              "kind": "INT",
+              "size_bytes": 4,
+              "const": false,
+              "volatile": false,
+              "restrict": false
+            }
+          },
+          "kind": "identity",
+          "status": "PASS",
+          "reasons": []
+        },
+        "status": "PASS",
+        "reasons": [],
+        "relation": "converted_callsite_value_equals_parameter_entry_value",
+        "slot_equivalence": false,
+        "value_version_tracking": false,
+        "transfer_id": "transfer:898ce4e641415b6e4659440fc223aad97289011d7425add60f8a17715490228d"
+      }
+    },
+    {
+      "test": "M01_struct",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": {
+        "fixture": "M01_struct.c",
+        "source_sha256": "4244c3b31c392aba4839d8172a26b74f6bbb97a06fdfc0613a8e95d1f5dd5fbd",
+        "report": "M01_struct.json"
+      }
+    },
+    {
+      "test": "M01_widen",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": {
+        "fixture": "M01_widen.c",
+        "source_sha256": "daf3132c6eb581bb7cd4bcb4e12ed29ba350049ee88fc1cc3c84cae8972a6116",
+        "report": "M01_widen.json"
+      }
+    },
+    {
+      "test": "M01_const",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": {
+        "fixture": "M01_const.c",
+        "source_sha256": "71f71941338cfb7aa76def0e34aba08e746fa87f89bea026217c4ae5e4c7deae",
+        "report": "M01_const.json"
+      }
+    },
+    {
+      "test": "M02_reference",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": {
+        "fixture": "M02.c",
+        "source_sha256": "445034b68ed15d6058f1a4f267be3fc26112e4bf8ae8ba57fb7c94143e2753ad",
+        "report": "M02_reference.json"
+      }
+    },
+    {
+      "test": "M02_swapped_indexes",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "passed": true,
+      "evidence": {
+        "status": "REJECT",
+        "reasons": [
+          "proposal_conflicts_with_AST_index_slot_or_conversion"
+        ],
+        "expected": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_slot_id": "caller-slot:e88c33b2d9e33eee1e5d9013f585bda889f5a19730e0e9d19edeb790650c9ed4",
+            "formal_slot_id": "callee-slot:45badefbff72cc3abe67e55e8dfabd60bf157913822565706a53eb7724f58b91",
+            "conversion_kind": "identity"
+          },
+          {
+            "actual_index_0based": 1,
+            "formal_index_0based": 1,
+            "actual_slot_id": "caller-slot:3b117c0080594ca6d91d5089505f83c23a17bf96ed1738e8bd7c56447b8d65ff",
+            "formal_slot_id": "callee-slot:7d4b9d6605f247c1b873df6ebb45ac7d8054493d2efdcde960f0488abd447b10",
+            "conversion_kind": "identity"
+          }
+        ],
+        "proposed": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 1,
+            "actual_slot_id": "caller-slot:e88c33b2d9e33eee1e5d9013f585bda889f5a19730e0e9d19edeb790650c9ed4",
+            "formal_slot_id": "callee-slot:45badefbff72cc3abe67e55e8dfabd60bf157913822565706a53eb7724f58b91",
+            "conversion_kind": "identity"
+          },
+          {
+            "actual_index_0based": 1,
+            "formal_index_0based": 0,
+            "actual_slot_id": "caller-slot:3b117c0080594ca6d91d5089505f83c23a17bf96ed1738e8bd7c56447b8d65ff",
+            "formal_slot_id": "callee-slot:7d4b9d6605f247c1b873df6ebb45ac7d8054493d2efdcde960f0488abd447b10",
+            "conversion_kind": "identity"
+          }
+        ]
+      }
+    },
+    {
+      "test": "M02_correct_proposal",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": {
+        "status": "PASS",
+        "reasons": [],
+        "checked_mapping_count": 2
+      }
+    },
+    {
+      "test": "M03_scope_binding",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": {
+        "fixture": "M03.c",
+        "source_sha256": "fc4e4651052c5b02b7c3122f1e1d84c67308cfc3690cb6f077cf86020f545431",
+        "report": "M03_scope_binding.json"
+      }
+    },
+    {
+      "test": "M03_scope_isolation",
+      "expected": "3 distinct actual slots, one declared formal slot",
+      "actual": [
+        "caller-slot:38d2d39a462d83d0c78d5825c7f7a94a4105c3093e6fccd69af3e358f022dd9a",
+        "caller-slot:58afb3d0f8eea77826746a2478401d497b35153a26b1edf3edfed78aeb1fc6ce",
+        "caller-slot:381a792fbabeea8aefe98782a84d2a23b24cc0780d468588b7898e66e5ff2468"
+      ],
+      "passed": true,
+      "evidence": {
+        "mappings": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_expression": "p",
+            "actual_source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 2,
+                "column_1based": 24,
+                "byte_offset": 51
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 2,
+                "column_1based": 25,
+                "byte_offset": 52
+              }
+            },
+            "actual_declaration": {
+              "name": "p",
+              "kind": "PARM_DECL",
+              "usr": "c:M03.c@39@F@first@p",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 2,
+                "column_1based": 17,
+                "byte_offset": 44
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 2,
+                "column_1based": 17,
+                "byte_offset": 44
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 2,
+                  "column_1based": 12,
+                  "byte_offset": 39
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 2,
+                  "column_1based": 18,
+                  "byte_offset": 45
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:bcf2474dd8e272dd487ab8c19f8b0a0a02460e9555d4fb25bd699e6ced04a151"
+            },
+            "formal_declaration": {
+              "name": "p",
+              "kind": "PARM_DECL",
+              "usr": "c:M03.c@7@F@f@p",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 1,
+                "column_1based": 13,
+                "byte_offset": 12
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 1,
+                "column_1based": 13,
+                "byte_offset": 12
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 1,
+                  "column_1based": 8,
+                  "byte_offset": 7
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 1,
+                  "column_1based": 14,
+                  "byte_offset": 13
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:e8c09a20b4ab5caa650300253d3cdb931c025969420cb657226a16d160aee2a9"
+            },
+            "actual_slot_id": "caller-slot:38d2d39a462d83d0c78d5825c7f7a94a4105c3093e6fccd69af3e358f022dd9a",
+            "formal_slot_id": "callee-slot:e07df49d876c41073d5243ef903f98362fec1d56572d06623098fb26aee9f9a2",
+            "formal_type": {
+              "spelling": "int *",
+              "canonical": "int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "int",
+                "canonical": "int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": false,
+                "restrict": false
+              }
+            },
+            "actual_type": {
+              "spelling": "int *",
+              "canonical": "int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "int",
+                "canonical": "int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": false,
+                "restrict": false
+              }
+            },
+            "conversion": {
+              "actual_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "formal_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "ast_argument_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "kind": "identity",
+              "status": "PASS",
+              "reasons": []
+            },
+            "status": "PASS",
+            "reasons": [],
+            "relation": "converted_callsite_value_equals_parameter_entry_value",
+            "slot_equivalence": false,
+            "value_version_tracking": false,
+            "transfer_id": "transfer:c7f742aa1172bf2864e906fcd891b3f91869eeac178c8b8a78ff70199ff4f84e"
+          },
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_expression": "p",
+            "actual_source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 2,
+                "column_1based": 44,
+                "byte_offset": 71
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 2,
+                "column_1based": 45,
+                "byte_offset": 72
+              }
+            },
+            "actual_declaration": {
+              "name": "p",
+              "kind": "VAR_DECL",
+              "usr": "c:M03.c@57@F@first@p",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 2,
+                "column_1based": 35,
+                "byte_offset": 62
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 2,
+                "column_1based": 35,
+                "byte_offset": 62
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 2,
+                  "column_1based": 30,
+                  "byte_offset": 57
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 2,
+                  "column_1based": 40,
+                  "byte_offset": 67
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:0b19248d9745b2c7318bb6605e7e1a1ee113a2b26d0be36bdff87264f7029762"
+            },
+            "formal_declaration": {
+              "name": "p",
+              "kind": "PARM_DECL",
+              "usr": "c:M03.c@7@F@f@p",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 1,
+                "column_1based": 13,
+                "byte_offset": 12
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 1,
+                "column_1based": 13,
+                "byte_offset": 12
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 1,
+                  "column_1based": 8,
+                  "byte_offset": 7
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 1,
+                  "column_1based": 14,
+                  "byte_offset": 13
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:e8c09a20b4ab5caa650300253d3cdb931c025969420cb657226a16d160aee2a9"
+            },
+            "actual_slot_id": "caller-slot:58afb3d0f8eea77826746a2478401d497b35153a26b1edf3edfed78aeb1fc6ce",
+            "formal_slot_id": "callee-slot:e07df49d876c41073d5243ef903f98362fec1d56572d06623098fb26aee9f9a2",
+            "formal_type": {
+              "spelling": "int *",
+              "canonical": "int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "int",
+                "canonical": "int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": false,
+                "restrict": false
+              }
+            },
+            "actual_type": {
+              "spelling": "int *",
+              "canonical": "int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "int",
+                "canonical": "int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": false,
+                "restrict": false
+              }
+            },
+            "conversion": {
+              "actual_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "formal_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "ast_argument_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "kind": "identity",
+              "status": "PASS",
+              "reasons": []
+            },
+            "status": "PASS",
+            "reasons": [],
+            "relation": "converted_callsite_value_equals_parameter_entry_value",
+            "slot_equivalence": false,
+            "value_version_tracking": false,
+            "transfer_id": "transfer:ad4b484f8d2f7aa3e531ade6392ce8685de9f6334e80528dc8efbf5e0b0d6e32"
+          },
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_expression": "p",
+            "actual_source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 3,
+                "column_1based": 25,
+                "byte_offset": 103
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 3,
+                "column_1based": 26,
+                "byte_offset": 104
+              }
+            },
+            "actual_declaration": {
+              "name": "p",
+              "kind": "PARM_DECL",
+              "usr": "c:M03.c@91@F@second@p",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 3,
+                "column_1based": 18,
+                "byte_offset": 96
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 3,
+                "column_1based": 18,
+                "byte_offset": 96
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 3,
+                  "column_1based": 13,
+                  "byte_offset": 91
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 3,
+                  "column_1based": 19,
+                  "byte_offset": 97
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:54fcbe03456f3002190eeffc85af3f26574481e6e0dfd191d7c486ddac920ac7"
+            },
+            "formal_declaration": {
+              "name": "p",
+              "kind": "PARM_DECL",
+              "usr": "c:M03.c@7@F@f@p",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 1,
+                "column_1based": 13,
+                "byte_offset": 12
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                "line_1based": 1,
+                "column_1based": 13,
+                "byte_offset": 12
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 1,
+                  "column_1based": 8,
+                  "byte_offset": 7
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M03.c",
+                  "line_1based": 1,
+                  "column_1based": 14,
+                  "byte_offset": 13
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:e8c09a20b4ab5caa650300253d3cdb931c025969420cb657226a16d160aee2a9"
+            },
+            "actual_slot_id": "caller-slot:381a792fbabeea8aefe98782a84d2a23b24cc0780d468588b7898e66e5ff2468",
+            "formal_slot_id": "callee-slot:e07df49d876c41073d5243ef903f98362fec1d56572d06623098fb26aee9f9a2",
+            "formal_type": {
+              "spelling": "int *",
+              "canonical": "int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "int",
+                "canonical": "int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": false,
+                "restrict": false
+              }
+            },
+            "actual_type": {
+              "spelling": "int *",
+              "canonical": "int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "int",
+                "canonical": "int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": false,
+                "restrict": false
+              }
+            },
+            "conversion": {
+              "actual_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "formal_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "ast_argument_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "kind": "identity",
+              "status": "PASS",
+              "reasons": []
+            },
+            "status": "PASS",
+            "reasons": [],
+            "relation": "converted_callsite_value_equals_parameter_entry_value",
+            "slot_equivalence": false,
+            "value_version_tracking": false,
+            "transfer_id": "transfer:da385d14213d15243e9679fef68a754e9c40bcc5bfe80fc8d547ee51e4ca04ab"
+          }
+        ],
+        "meaning": "formal lexical slot reused with separate callsite transfers"
+      }
+    },
+    {
+      "test": "M03_wrong_scope_candidate",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "passed": true,
+      "evidence": {
+        "status": "REJECT",
+        "reasons": [
+          "proposal_conflicts_with_AST_index_slot_or_conversion"
+        ],
+        "expected": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_slot_id": "caller-slot:58afb3d0f8eea77826746a2478401d497b35153a26b1edf3edfed78aeb1fc6ce",
+            "formal_slot_id": "callee-slot:e07df49d876c41073d5243ef903f98362fec1d56572d06623098fb26aee9f9a2",
+            "conversion_kind": "identity"
+          }
+        ],
+        "proposed": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_slot_id": "caller-slot:38d2d39a462d83d0c78d5825c7f7a94a4105c3093e6fccd69af3e358f022dd9a",
+            "formal_slot_id": "callee-slot:e07df49d876c41073d5243ef903f98362fec1d56572d06623098fb26aee9f9a2",
+            "conversion_kind": "identity"
+          }
+        ]
+      }
+    },
+    {
+      "test": "M04_duplicate_actual",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": {
+        "fixture": "M04.c",
+        "source_sha256": "230ee2ff55f832206f96120a9cde16822ccff5d0a605ca125ba491d1233bec14",
+        "report": "M04_duplicate_actual.json"
+      }
+    },
+    {
+      "test": "M04_formals_not_merged",
+      "expected": "same actual, distinct formals/transfers",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": {
+        "dataset_id": "synthetic-r01",
+        "position": 0,
+        "callsite_id": "call:4f49c6e1a7d32ae523cfcf5d4fb5243e3a45403cef5f619bf5d5018aa7e40020",
+        "caller": {
+          "name": "caller",
+          "kind": "FUNCTION_DECL",
+          "usr": "c:@F@caller",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+            "line_1based": 2,
+            "column_1based": 6,
+            "byte_offset": 50
+          },
+          "location": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+            "line_1based": 2,
+            "column_1based": 6,
+            "byte_offset": 50
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+              "line_1based": 2,
+              "column_1based": 1,
+              "byte_offset": 45
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+              "line_1based": 2,
+              "column_1based": 33,
+              "byte_offset": 77
+            }
+          },
+          "linkage": "EXTERNAL",
+          "declaration_id": "decl:5ae765d2ec63c318e3e82203de6a93f13758ff249a98810293db2056cefd3932"
+        },
+        "callee": {
+          "name": "f",
+          "kind": "FUNCTION_DECL",
+          "usr": "c:@F@f",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+            "line_1based": 1,
+            "column_1based": 6,
+            "byte_offset": 5
+          },
+          "location": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+            "line_1based": 1,
+            "column_1based": 6,
+            "byte_offset": 5
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+              "line_1based": 1,
+              "column_1based": 1,
+              "byte_offset": 0
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+              "line_1based": 1,
+              "column_1based": 45,
+              "byte_offset": 44
+            }
+          },
+          "linkage": "EXTERNAL",
+          "declaration_id": "decl:4618062a699f39c13d469f918427cf649ac5230359f32ec217f952aeed569106"
+        },
+        "callsite": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+            "line_1based": 2,
+            "column_1based": 23,
+            "byte_offset": 67
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+            "line_1based": 2,
+            "column_1based": 30,
+            "byte_offset": 74
+          }
+        },
+        "call_text": "f(p, p)",
+        "caller_body_sha256": "4b2c9c27db6906e0321ea066b4105caccf8d8691aa1847f9620519a3cc043a22",
+        "callee_body_sha256": "26a4a1cee4d629c56e05ade93253a2f0a6f85b109f75695b3319f2c23ac2013f",
+        "source_sha256": "230ee2ff55f832206f96120a9cde16822ccff5d0a605ca125ba491d1233bec14",
+        "build_evidence": {
+          "status": "synthetic-self-contained",
+          "args": [
+            "-x",
+            "c",
+            "-std=c11",
+            "-nostdinc",
+            "-Werror=implicit-function-declaration",
+            "-ferror-limit=0"
+          ],
+          "original_project_build_verified": false,
+          "controlled_synthetic_TU": true
+        },
+        "diagnostics": [],
+        "status": "PASS",
+        "reasons": [],
+        "mappings": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_expression": "p",
+            "actual_source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 2,
+                "column_1based": 25,
+                "byte_offset": 69
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 2,
+                "column_1based": 26,
+                "byte_offset": 70
+              }
+            },
+            "actual_declaration": {
+              "name": "p",
+              "kind": "PARM_DECL",
+              "usr": "c:M04.c@57@F@caller@p",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 2,
+                "column_1based": 18,
+                "byte_offset": 62
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 2,
+                "column_1based": 18,
+                "byte_offset": 62
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                  "line_1based": 2,
+                  "column_1based": 13,
+                  "byte_offset": 57
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                  "line_1based": 2,
+                  "column_1based": 19,
+                  "byte_offset": 63
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:97e19572e4f9eaf8b31931afe665ceba4c183ad6ffa86a9af4cc691f58bf1296"
+            },
+            "formal_declaration": {
+              "name": "a",
+              "kind": "PARM_DECL",
+              "usr": "c:M04.c@7@F@f@a",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 1,
+                "column_1based": 13,
+                "byte_offset": 12
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 1,
+                "column_1based": 13,
+                "byte_offset": 12
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                  "line_1based": 1,
+                  "column_1based": 8,
+                  "byte_offset": 7
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                  "line_1based": 1,
+                  "column_1based": 14,
+                  "byte_offset": 13
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:be372356b9c605503faf443439faadbc5d0f6b041b872dae4d27c73be18dea2c"
+            },
+            "actual_slot_id": "caller-slot:e773d0471cf15c6130d0d19e2658b39f1c6a3255dfc532aed6482f4d96f88297",
+            "formal_slot_id": "callee-slot:3fadba6da7e3fb32f5bf4f43fbf8e6a1ff233bfc4f559a2e0be1223d4914ef79",
+            "formal_type": {
+              "spelling": "int *",
+              "canonical": "int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "int",
+                "canonical": "int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": false,
+                "restrict": false
+              }
+            },
+            "actual_type": {
+              "spelling": "int *",
+              "canonical": "int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "int",
+                "canonical": "int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": false,
+                "restrict": false
+              }
+            },
+            "conversion": {
+              "actual_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "formal_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "ast_argument_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "kind": "identity",
+              "status": "PASS",
+              "reasons": []
+            },
+            "status": "PASS",
+            "reasons": [],
+            "relation": "converted_callsite_value_equals_parameter_entry_value",
+            "slot_equivalence": false,
+            "value_version_tracking": false,
+            "transfer_id": "transfer:9b8bae360d21be5b8b6d6738a685d3af2fc4d2b477dfb661bb4abf341283fd09"
+          },
+          {
+            "actual_index_0based": 1,
+            "formal_index_0based": 1,
+            "actual_expression": "p",
+            "actual_source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 2,
+                "column_1based": 28,
+                "byte_offset": 72
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 2,
+                "column_1based": 29,
+                "byte_offset": 73
+              }
+            },
+            "actual_declaration": {
+              "name": "p",
+              "kind": "PARM_DECL",
+              "usr": "c:M04.c@57@F@caller@p",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 2,
+                "column_1based": 18,
+                "byte_offset": 62
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 2,
+                "column_1based": 18,
+                "byte_offset": 62
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                  "line_1based": 2,
+                  "column_1based": 13,
+                  "byte_offset": 57
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                  "line_1based": 2,
+                  "column_1based": 19,
+                  "byte_offset": 63
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:97e19572e4f9eaf8b31931afe665ceba4c183ad6ffa86a9af4cc691f58bf1296"
+            },
+            "formal_declaration": {
+              "name": "b",
+              "kind": "PARM_DECL",
+              "usr": "c:M04.c@15@F@f@b",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 1,
+                "column_1based": 21,
+                "byte_offset": 20
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                "line_1based": 1,
+                "column_1based": 21,
+                "byte_offset": 20
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                  "line_1based": 1,
+                  "column_1based": 16,
+                  "byte_offset": 15
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M04.c",
+                  "line_1based": 1,
+                  "column_1based": 22,
+                  "byte_offset": 21
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:c86f395ea7a4830e0069c52313bd79303d84df3a406d873bcd5bafc7f61ccb68"
+            },
+            "actual_slot_id": "caller-slot:e773d0471cf15c6130d0d19e2658b39f1c6a3255dfc532aed6482f4d96f88297",
+            "formal_slot_id": "callee-slot:f05f9bfe78d9b5757293e30d52fb12ec2ae8581ab21a87dd3ce7e92214251efd",
+            "formal_type": {
+              "spelling": "int *",
+              "canonical": "int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "int",
+                "canonical": "int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": false,
+                "restrict": false
+              }
+            },
+            "actual_type": {
+              "spelling": "int *",
+              "canonical": "int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "int",
+                "canonical": "int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": false,
+                "restrict": false
+              }
+            },
+            "conversion": {
+              "actual_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "formal_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "ast_argument_type": {
+                "spelling": "int *",
+                "canonical": "int *",
+                "kind": "POINTER",
+                "size_bytes": 8,
+                "const": false,
+                "volatile": false,
+                "restrict": false,
+                "pointee": {
+                  "spelling": "int",
+                  "canonical": "int",
+                  "kind": "INT",
+                  "size_bytes": 4,
+                  "const": false,
+                  "volatile": false,
+                  "restrict": false
+                }
+              },
+              "kind": "identity",
+              "status": "PASS",
+              "reasons": []
+            },
+            "status": "PASS",
+            "reasons": [],
+            "relation": "converted_callsite_value_equals_parameter_entry_value",
+            "slot_equivalence": false,
+            "value_version_tracking": false,
+            "transfer_id": "transfer:47aa1b5ad80fb4f5f8e1b1cfcb5e843aee625df1c62ac6717f215199b22cdab4"
+          }
+        ],
+        "ast_is_trusted": true,
+        "scope": "direct-call-entry-value-only",
+        "reachability_verified": false,
+        "post_call_effects_verified": false,
+        "pointed_object_identity_verified": false
+      }
+    },
+    {
+      "test": "M04_merged_formal_candidate",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "passed": true,
+      "evidence": {
+        "status": "REJECT",
+        "reasons": [
+          "proposal_conflicts_with_AST_index_slot_or_conversion"
+        ],
+        "expected": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_slot_id": "caller-slot:e773d0471cf15c6130d0d19e2658b39f1c6a3255dfc532aed6482f4d96f88297",
+            "formal_slot_id": "callee-slot:3fadba6da7e3fb32f5bf4f43fbf8e6a1ff233bfc4f559a2e0be1223d4914ef79",
+            "conversion_kind": "identity"
+          },
+          {
+            "actual_index_0based": 1,
+            "formal_index_0based": 1,
+            "actual_slot_id": "caller-slot:e773d0471cf15c6130d0d19e2658b39f1c6a3255dfc532aed6482f4d96f88297",
+            "formal_slot_id": "callee-slot:f05f9bfe78d9b5757293e30d52fb12ec2ae8581ab21a87dd3ce7e92214251efd",
+            "conversion_kind": "identity"
+          }
+        ],
+        "proposed": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_slot_id": "caller-slot:e773d0471cf15c6130d0d19e2658b39f1c6a3255dfc532aed6482f4d96f88297",
+            "formal_slot_id": "callee-slot:3fadba6da7e3fb32f5bf4f43fbf8e6a1ff233bfc4f559a2e0be1223d4914ef79",
+            "conversion_kind": "identity"
+          },
+          {
+            "actual_index_0based": 1,
+            "formal_index_0based": 1,
+            "actual_slot_id": "caller-slot:e773d0471cf15c6130d0d19e2658b39f1c6a3255dfc532aed6482f4d96f88297",
+            "formal_slot_id": "callee-slot:3fadba6da7e3fb32f5bf4f43fbf8e6a1ff233bfc4f559a2e0be1223d4914ef79",
+            "conversion_kind": "identity"
+          }
+        ]
+      }
+    },
+    {
+      "test": "M05_narrow",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M05_narrow.c",
+        "source_sha256": "ac35e64f1266a596aad69a8d3c74dbdb675082478feeab0f0b5184a6c4635a9d",
+        "report": "M05_narrow.json"
+      }
+    },
+    {
+      "test": "M05_cast",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M05_cast.c",
+        "source_sha256": "b6da53828c71f3bc733576fe30bf6b6aa1c825795fe32a4ad357132e4c847cb0",
+        "report": "M05_cast.json"
+      }
+    },
+    {
+      "test": "M05_invalid",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M05_invalid.c",
+        "source_sha256": "2ffcb3f4a51c88f5e6149eef6af91dad9efb887753fea1432b3861a707d27a34",
+        "report": "M05_invalid.json"
+      }
+    },
+    {
+      "test": "M05_void",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M05_void.c",
+        "source_sha256": "aa02b4b83f8dd94b236f282d17c1a4a2841757495cb4dc91703b8bae727db52c",
+        "report": "M05_void.json"
+      }
+    },
+    {
+      "test": "M05_distinct_struct",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M05_distinct_struct.c",
+        "source_sha256": "34d62f620c34977ee629f5b2a7b02782b4848430dd7e1f8c97e270bd38837112",
+        "report": "M05_distinct_struct.json"
+      }
+    },
+    {
+      "test": "M05_missing_evidence",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "status": "UNKNOWN",
+        "reasons": [
+          "proposal_missing_required_evidence"
+        ]
+      }
+    },
+    {
+      "test": "M05_false_conversion_claim",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "passed": true,
+      "evidence": {
+        "status": "REJECT",
+        "reasons": [
+          "proposal_conflicts_with_AST_index_slot_or_conversion"
+        ],
+        "expected": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_slot_id": "caller-slot:e773d0471cf15c6130d0d19e2658b39f1c6a3255dfc532aed6482f4d96f88297",
+            "formal_slot_id": "callee-slot:3fadba6da7e3fb32f5bf4f43fbf8e6a1ff233bfc4f559a2e0be1223d4914ef79",
+            "conversion_kind": "identity"
+          },
+          {
+            "actual_index_0based": 1,
+            "formal_index_0based": 1,
+            "actual_slot_id": "caller-slot:e773d0471cf15c6130d0d19e2658b39f1c6a3255dfc532aed6482f4d96f88297",
+            "formal_slot_id": "callee-slot:f05f9bfe78d9b5757293e30d52fb12ec2ae8581ab21a87dd3ce7e92214251efd",
+            "conversion_kind": "identity"
+          }
+        ],
+        "proposed": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_slot_id": "caller-slot:e773d0471cf15c6130d0d19e2658b39f1c6a3255dfc532aed6482f4d96f88297",
+            "formal_slot_id": "callee-slot:3fadba6da7e3fb32f5bf4f43fbf8e6a1ff233bfc4f559a2e0be1223d4914ef79",
+            "conversion_kind": "invented_cast"
+          },
+          {
+            "actual_index_0based": 1,
+            "formal_index_0based": 1,
+            "actual_slot_id": "caller-slot:e773d0471cf15c6130d0d19e2658b39f1c6a3255dfc532aed6482f4d96f88297",
+            "formal_slot_id": "callee-slot:f05f9bfe78d9b5757293e30d52fb12ec2ae8581ab21a87dd3ce7e92214251efd",
+            "conversion_kind": "identity"
+          }
+        ]
+      }
+    },
+    {
+      "test": "M06_missing",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M06_missing.c",
+        "source_sha256": "4651ff78d98bbe4f4a4e44fd7bd8960b48179bcda8695c901dbe4b5bca688889",
+        "report": "M06_missing.json"
+      }
+    },
+    {
+      "test": "M06_ambiguous",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M06_missing.c",
+        "source_sha256": "4651ff78d98bbe4f4a4e44fd7bd8960b48179bcda8695c901dbe4b5bca688889",
+        "report": "M06_ambiguous.json"
+      }
+    },
+    {
+      "test": "M06_detect_ambiguity",
+      "expected": "multiple_definition_candidates",
+      "actual": [
+        "missing_or_nonunique_local_definition",
+        "multiple_definition_candidates"
+      ],
+      "passed": true,
+      "evidence": [
+        {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M06_definition_one.c",
+          "sha256": "58a7986c315d35305429039cf3e5cad09466b7f2dee4d0ca7800a87f6a16bc37",
+          "diagnostics": [],
+          "usable_for_ambiguity_check": true,
+          "definitions": [
+            "c:@F@f"
+          ]
+        },
+        {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M06_definition_two.c",
+          "sha256": "58a7986c315d35305429039cf3e5cad09466b7f2dee4d0ca7800a87f6a16bc37",
+          "diagnostics": [],
+          "usable_for_ambiguity_check": true,
+          "definitions": [
+            "c:@F@f"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "M07_pointer",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M07_pointer.c",
+        "source_sha256": "ff222cf6dc6fcd8649aee5e1e41a1ed28e4bbeff37a89e07d2a22e3aca458eb5",
+        "report": "M07_pointer.json"
+      }
+    },
+    {
+      "test": "M07_callback",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M07_callback.c",
+        "source_sha256": "aa7a1e071187dca563d1e7ee572f5bd77e7307b6a225fefb1b8f5abc74d80ee8",
+        "report": "M07_callback.json"
+      }
+    },
+    {
+      "test": "M07_macro",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M07_macro.c",
+        "source_sha256": "e802cc44c6c40b58a2c28a7ef2b8d844899c5054079b8152c6c804a5274798e0",
+        "report": "M07_macro.json"
+      }
+    },
+    {
+      "test": "M08_byvalue",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M08_byvalue.c",
+        "source_sha256": "0d234357fa147b3928b95d00702d2d68b194c34249bef612997b4a59ff9356d5",
+        "report": "M08_byvalue.json"
+      }
+    },
+    {
+      "test": "M08_member",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M08_member.c",
+        "source_sha256": "505d8ebf64599d575ef56db7ad0726a3bb8a60c42da9dc8912fa57cf09051dcb",
+        "report": "M08_member.json"
+      }
+    },
+    {
+      "test": "M08_address",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "fixture": "M08_address.c",
+        "source_sha256": "6681f799fc6671c9216eaf6fdc1d5932b060551af52133d43b3d58da3b8efd2b",
+        "report": "M08_address.json"
+      }
+    },
+    {
+      "test": "G01_build_missing",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": {
+        "dataset_id": "history-negative",
+        "position": 3,
+        "status": "UNKNOWN",
+        "reasons": [
+          "missing_original_build_evidence"
+        ],
+        "source": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+        "source_sha256": "39a401d2f2b23ae462108bdc5ff957ab337f0296815ba8505d7c392049d75556",
+        "build_evidence": {
+          "status": "saved-source-only",
+          "args": [
+            "-x",
+            "c",
+            "-std=c11",
+            "-nostdinc",
+            "-Werror=implicit-function-declaration",
+            "-ferror-limit=0"
+          ],
+          "original_project_build_verified": false,
+          "controlled_synthetic_TU": false
+        },
+        "diagnostics": [],
+        "macro_expansions": [],
+        "candidate_inventory": [],
+        "calls": [
+          {
+            "dataset_id": "history-negative",
+            "position": 3,
+            "callsite_id": "call:1fe009b0973222f1d6cf6164787c3c21e81471bf5c747e3c932e8a90811dcaf5",
+            "caller": {
+              "name": "caller",
+              "kind": "FUNCTION_DECL",
+              "usr": "c:@F@caller",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                "line_1based": 2,
+                "column_1based": 6,
+                "byte_offset": 39
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                "line_1based": 2,
+                "column_1based": 6,
+                "byte_offset": 39
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 2,
+                  "column_1based": 1,
+                  "byte_offset": 34
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 2,
+                  "column_1based": 30,
+                  "byte_offset": 63
+                }
+              },
+              "linkage": "EXTERNAL",
+              "declaration_id": "decl:4ad6ad4255ee3665d5787ceff3e0806d85936398347f6a928530647da8888977"
+            },
+            "callee": {
+              "name": "f",
+              "kind": "FUNCTION_DECL",
+              "usr": "c:@F@f",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                "line_1based": 1,
+                "column_1based": 6,
+                "byte_offset": 5
+              },
+              "location": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                "line_1based": 1,
+                "column_1based": 6,
+                "byte_offset": 5
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 1,
+                  "column_1based": 1,
+                  "byte_offset": 0
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 1,
+                  "column_1based": 34,
+                  "byte_offset": 33
+                }
+              },
+              "linkage": "EXTERNAL",
+              "declaration_id": "decl:e7bdfb7fc12e750079e0971f689addac616dad1afe2bb4eaa58a1e90fe3fa85e"
+            },
+            "callsite": {
+              "start": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                "line_1based": 2,
+                "column_1based": 23,
+                "byte_offset": 56
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                "line_1based": 2,
+                "column_1based": 27,
+                "byte_offset": 60
+              }
+            },
+            "call_text": "f(p)",
+            "caller_body_sha256": "3d1d53677b9fd54c518ace08c3ab0df968d3736e52e71a633cb272e833171ba0",
+            "callee_body_sha256": null,
+            "source_sha256": "39a401d2f2b23ae462108bdc5ff957ab337f0296815ba8505d7c392049d75556",
+            "build_evidence": {
+              "status": "saved-source-only",
+              "args": [
+                "-x",
+                "c",
+                "-std=c11",
+                "-nostdinc",
+                "-Werror=implicit-function-declaration",
+                "-ferror-limit=0"
+              ],
+              "original_project_build_verified": false,
+              "controlled_synthetic_TU": false
+            },
+            "diagnostics": [],
+            "status": "UNKNOWN",
+            "reasons": [
+              "missing_original_build_evidence"
+            ],
+            "mappings": [],
+            "ast_is_trusted": false,
+            "scope": "direct-call-entry-value-only",
+            "reachability_verified": false,
+            "post_call_effects_verified": false,
+            "pointed_object_identity_verified": false
+          }
+        ],
+        "elapsed_seconds": 0.015108300000065356
+      }
+    },
+    {
+      "test": "G02_repeatability",
+      "expected": "identical semantic output",
+      "actual": true,
+      "passed": true,
+      "evidence": {
+        "first": {
+          "dataset_id": "repeat",
+          "position": 0,
+          "status": "PASS",
+          "reasons": [],
+          "source": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+          "source_sha256": "39a401d2f2b23ae462108bdc5ff957ab337f0296815ba8505d7c392049d75556",
+          "build_evidence": {
+            "status": "synthetic-self-contained",
+            "args": [
+              "-x",
+              "c",
+              "-std=c11",
+              "-nostdinc",
+              "-Werror=implicit-function-declaration",
+              "-ferror-limit=0"
+            ],
+            "original_project_build_verified": false,
+            "controlled_synthetic_TU": true
+          },
+          "diagnostics": [],
+          "macro_expansions": [],
+          "candidate_inventory": [],
+          "calls": [
+            {
+              "dataset_id": "repeat",
+              "position": 0,
+              "callsite_id": "call:036ff52ff594c085ae0880aebc0aa8dc37ef671d7c9a3a61ba4461f6f2fbb96c",
+              "caller": {
+                "name": "caller",
+                "kind": "FUNCTION_DECL",
+                "usr": "c:@F@caller",
+                "canonical_location": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 2,
+                  "column_1based": 6,
+                  "byte_offset": 39
+                },
+                "location": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 2,
+                  "column_1based": 6,
+                  "byte_offset": 39
+                },
+                "source_range": {
+                  "start": {
+                    "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                    "line_1based": 2,
+                    "column_1based": 1,
+                    "byte_offset": 34
+                  },
+                  "end_exclusive": {
+                    "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                    "line_1based": 2,
+                    "column_1based": 30,
+                    "byte_offset": 63
+                  }
+                },
+                "linkage": "EXTERNAL",
+                "declaration_id": "decl:7abd163499710479951e30b63deea1f1e8abb061288a9e46d8b7bfa515cebd33"
+              },
+              "callee": {
+                "name": "f",
+                "kind": "FUNCTION_DECL",
+                "usr": "c:@F@f",
+                "canonical_location": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 1,
+                  "column_1based": 6,
+                  "byte_offset": 5
+                },
+                "location": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 1,
+                  "column_1based": 6,
+                  "byte_offset": 5
+                },
+                "source_range": {
+                  "start": {
+                    "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                    "line_1based": 1,
+                    "column_1based": 1,
+                    "byte_offset": 0
+                  },
+                  "end_exclusive": {
+                    "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                    "line_1based": 1,
+                    "column_1based": 34,
+                    "byte_offset": 33
+                  }
+                },
+                "linkage": "EXTERNAL",
+                "declaration_id": "decl:0b4d323eefdca8c2e72531dff56efa2484d748c18239ad23164a841680b74bf9"
+              },
+              "callsite": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 2,
+                  "column_1based": 23,
+                  "byte_offset": 56
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 2,
+                  "column_1based": 27,
+                  "byte_offset": 60
+                }
+              },
+              "call_text": "f(p)",
+              "caller_body_sha256": "3d1d53677b9fd54c518ace08c3ab0df968d3736e52e71a633cb272e833171ba0",
+              "callee_body_sha256": "eaa36bb656b3874e29c4b82fc093f71bc7c01f4051745d4909a00000af603665",
+              "source_sha256": "39a401d2f2b23ae462108bdc5ff957ab337f0296815ba8505d7c392049d75556",
+              "build_evidence": {
+                "status": "synthetic-self-contained",
+                "args": [
+                  "-x",
+                  "c",
+                  "-std=c11",
+                  "-nostdinc",
+                  "-Werror=implicit-function-declaration",
+                  "-ferror-limit=0"
+                ],
+                "original_project_build_verified": false,
+                "controlled_synthetic_TU": true
+              },
+              "diagnostics": [],
+              "status": "PASS",
+              "reasons": [],
+              "mappings": [
+                {
+                  "actual_index_0based": 0,
+                  "formal_index_0based": 0,
+                  "actual_expression": "p",
+                  "actual_source_range": {
+                    "start": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 2,
+                      "column_1based": 25,
+                      "byte_offset": 58
+                    },
+                    "end_exclusive": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 2,
+                      "column_1based": 26,
+                      "byte_offset": 59
+                    }
+                  },
+                  "actual_declaration": {
+                    "name": "p",
+                    "kind": "PARM_DECL",
+                    "usr": "c:M01.c@46@F@caller@p",
+                    "canonical_location": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 2,
+                      "column_1based": 18,
+                      "byte_offset": 51
+                    },
+                    "location": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 2,
+                      "column_1based": 18,
+                      "byte_offset": 51
+                    },
+                    "source_range": {
+                      "start": {
+                        "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                        "line_1based": 2,
+                        "column_1based": 13,
+                        "byte_offset": 46
+                      },
+                      "end_exclusive": {
+                        "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                        "line_1based": 2,
+                        "column_1based": 19,
+                        "byte_offset": 52
+                      }
+                    },
+                    "linkage": "NO_LINKAGE",
+                    "declaration_id": "decl:0e08a8ce345bcb1ae39edb6bf31d2bde8e5cac3b466a21f3e38b13de30f3af00"
+                  },
+                  "formal_declaration": {
+                    "name": "item",
+                    "kind": "PARM_DECL",
+                    "usr": "c:M01.c@7@F@f@item",
+                    "canonical_location": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 1,
+                      "column_1based": 13,
+                      "byte_offset": 12
+                    },
+                    "location": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 1,
+                      "column_1based": 13,
+                      "byte_offset": 12
+                    },
+                    "source_range": {
+                      "start": {
+                        "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                        "line_1based": 1,
+                        "column_1based": 8,
+                        "byte_offset": 7
+                      },
+                      "end_exclusive": {
+                        "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                        "line_1based": 1,
+                        "column_1based": 17,
+                        "byte_offset": 16
+                      }
+                    },
+                    "linkage": "NO_LINKAGE",
+                    "declaration_id": "decl:d72fe91752e1ccddb18809a6303d9209b731d87386a3467139c327f507080075"
+                  },
+                  "actual_slot_id": "caller-slot:e335b16a692f24bc45ecb03457dbd6b00be37c9f85dde5dfa9323d7796f265aa",
+                  "formal_slot_id": "callee-slot:e3bd00a9d1f0d93e8d7832150e6c15dc80eab2e9f904229d09a00e6c1b8a67ec",
+                  "formal_type": {
+                    "spelling": "int *",
+                    "canonical": "int *",
+                    "kind": "POINTER",
+                    "size_bytes": 8,
+                    "const": false,
+                    "volatile": false,
+                    "restrict": false,
+                    "pointee": {
+                      "spelling": "int",
+                      "canonical": "int",
+                      "kind": "INT",
+                      "size_bytes": 4,
+                      "const": false,
+                      "volatile": false,
+                      "restrict": false
+                    }
+                  },
+                  "actual_type": {
+                    "spelling": "int *",
+                    "canonical": "int *",
+                    "kind": "POINTER",
+                    "size_bytes": 8,
+                    "const": false,
+                    "volatile": false,
+                    "restrict": false,
+                    "pointee": {
+                      "spelling": "int",
+                      "canonical": "int",
+                      "kind": "INT",
+                      "size_bytes": 4,
+                      "const": false,
+                      "volatile": false,
+                      "restrict": false
+                    }
+                  },
+                  "conversion": {
+                    "actual_type": {
+                      "spelling": "int *",
+                      "canonical": "int *",
+                      "kind": "POINTER",
+                      "size_bytes": 8,
+                      "const": false,
+                      "volatile": false,
+                      "restrict": false,
+                      "pointee": {
+                        "spelling": "int",
+                        "canonical": "int",
+                        "kind": "INT",
+                        "size_bytes": 4,
+                        "const": false,
+                        "volatile": false,
+                        "restrict": false
+                      }
+                    },
+                    "formal_type": {
+                      "spelling": "int *",
+                      "canonical": "int *",
+                      "kind": "POINTER",
+                      "size_bytes": 8,
+                      "const": false,
+                      "volatile": false,
+                      "restrict": false,
+                      "pointee": {
+                        "spelling": "int",
+                        "canonical": "int",
+                        "kind": "INT",
+                        "size_bytes": 4,
+                        "const": false,
+                        "volatile": false,
+                        "restrict": false
+                      }
+                    },
+                    "ast_argument_type": {
+                      "spelling": "int *",
+                      "canonical": "int *",
+                      "kind": "POINTER",
+                      "size_bytes": 8,
+                      "const": false,
+                      "volatile": false,
+                      "restrict": false,
+                      "pointee": {
+                        "spelling": "int",
+                        "canonical": "int",
+                        "kind": "INT",
+                        "size_bytes": 4,
+                        "const": false,
+                        "volatile": false,
+                        "restrict": false
+                      }
+                    },
+                    "kind": "identity",
+                    "status": "PASS",
+                    "reasons": []
+                  },
+                  "status": "PASS",
+                  "reasons": [],
+                  "relation": "converted_callsite_value_equals_parameter_entry_value",
+                  "slot_equivalence": false,
+                  "value_version_tracking": false,
+                  "transfer_id": "transfer:ea905435e5fdc4aed2fe5e3eb31e3e70ea17e8f884312f158ceaabe148662d6a"
+                }
+              ],
+              "ast_is_trusted": true,
+              "scope": "direct-call-entry-value-only",
+              "reachability_verified": false,
+              "post_call_effects_verified": false,
+              "pointed_object_identity_verified": false
+            }
+          ]
+        },
+        "second": {
+          "dataset_id": "repeat",
+          "position": 0,
+          "status": "PASS",
+          "reasons": [],
+          "source": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+          "source_sha256": "39a401d2f2b23ae462108bdc5ff957ab337f0296815ba8505d7c392049d75556",
+          "build_evidence": {
+            "status": "synthetic-self-contained",
+            "args": [
+              "-x",
+              "c",
+              "-std=c11",
+              "-nostdinc",
+              "-Werror=implicit-function-declaration",
+              "-ferror-limit=0"
+            ],
+            "original_project_build_verified": false,
+            "controlled_synthetic_TU": true
+          },
+          "diagnostics": [],
+          "macro_expansions": [],
+          "candidate_inventory": [],
+          "calls": [
+            {
+              "dataset_id": "repeat",
+              "position": 0,
+              "callsite_id": "call:036ff52ff594c085ae0880aebc0aa8dc37ef671d7c9a3a61ba4461f6f2fbb96c",
+              "caller": {
+                "name": "caller",
+                "kind": "FUNCTION_DECL",
+                "usr": "c:@F@caller",
+                "canonical_location": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 2,
+                  "column_1based": 6,
+                  "byte_offset": 39
+                },
+                "location": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 2,
+                  "column_1based": 6,
+                  "byte_offset": 39
+                },
+                "source_range": {
+                  "start": {
+                    "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                    "line_1based": 2,
+                    "column_1based": 1,
+                    "byte_offset": 34
+                  },
+                  "end_exclusive": {
+                    "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                    "line_1based": 2,
+                    "column_1based": 30,
+                    "byte_offset": 63
+                  }
+                },
+                "linkage": "EXTERNAL",
+                "declaration_id": "decl:7abd163499710479951e30b63deea1f1e8abb061288a9e46d8b7bfa515cebd33"
+              },
+              "callee": {
+                "name": "f",
+                "kind": "FUNCTION_DECL",
+                "usr": "c:@F@f",
+                "canonical_location": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 1,
+                  "column_1based": 6,
+                  "byte_offset": 5
+                },
+                "location": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 1,
+                  "column_1based": 6,
+                  "byte_offset": 5
+                },
+                "source_range": {
+                  "start": {
+                    "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                    "line_1based": 1,
+                    "column_1based": 1,
+                    "byte_offset": 0
+                  },
+                  "end_exclusive": {
+                    "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                    "line_1based": 1,
+                    "column_1based": 34,
+                    "byte_offset": 33
+                  }
+                },
+                "linkage": "EXTERNAL",
+                "declaration_id": "decl:0b4d323eefdca8c2e72531dff56efa2484d748c18239ad23164a841680b74bf9"
+              },
+              "callsite": {
+                "start": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 2,
+                  "column_1based": 23,
+                  "byte_offset": 56
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                  "line_1based": 2,
+                  "column_1based": 27,
+                  "byte_offset": 60
+                }
+              },
+              "call_text": "f(p)",
+              "caller_body_sha256": "3d1d53677b9fd54c518ace08c3ab0df968d3736e52e71a633cb272e833171ba0",
+              "callee_body_sha256": "eaa36bb656b3874e29c4b82fc093f71bc7c01f4051745d4909a00000af603665",
+              "source_sha256": "39a401d2f2b23ae462108bdc5ff957ab337f0296815ba8505d7c392049d75556",
+              "build_evidence": {
+                "status": "synthetic-self-contained",
+                "args": [
+                  "-x",
+                  "c",
+                  "-std=c11",
+                  "-nostdinc",
+                  "-Werror=implicit-function-declaration",
+                  "-ferror-limit=0"
+                ],
+                "original_project_build_verified": false,
+                "controlled_synthetic_TU": true
+              },
+              "diagnostics": [],
+              "status": "PASS",
+              "reasons": [],
+              "mappings": [
+                {
+                  "actual_index_0based": 0,
+                  "formal_index_0based": 0,
+                  "actual_expression": "p",
+                  "actual_source_range": {
+                    "start": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 2,
+                      "column_1based": 25,
+                      "byte_offset": 58
+                    },
+                    "end_exclusive": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 2,
+                      "column_1based": 26,
+                      "byte_offset": 59
+                    }
+                  },
+                  "actual_declaration": {
+                    "name": "p",
+                    "kind": "PARM_DECL",
+                    "usr": "c:M01.c@46@F@caller@p",
+                    "canonical_location": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 2,
+                      "column_1based": 18,
+                      "byte_offset": 51
+                    },
+                    "location": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 2,
+                      "column_1based": 18,
+                      "byte_offset": 51
+                    },
+                    "source_range": {
+                      "start": {
+                        "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                        "line_1based": 2,
+                        "column_1based": 13,
+                        "byte_offset": 46
+                      },
+                      "end_exclusive": {
+                        "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                        "line_1based": 2,
+                        "column_1based": 19,
+                        "byte_offset": 52
+                      }
+                    },
+                    "linkage": "NO_LINKAGE",
+                    "declaration_id": "decl:0e08a8ce345bcb1ae39edb6bf31d2bde8e5cac3b466a21f3e38b13de30f3af00"
+                  },
+                  "formal_declaration": {
+                    "name": "item",
+                    "kind": "PARM_DECL",
+                    "usr": "c:M01.c@7@F@f@item",
+                    "canonical_location": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 1,
+                      "column_1based": 13,
+                      "byte_offset": 12
+                    },
+                    "location": {
+                      "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                      "line_1based": 1,
+                      "column_1based": 13,
+                      "byte_offset": 12
+                    },
+                    "source_range": {
+                      "start": {
+                        "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                        "line_1based": 1,
+                        "column_1based": 8,
+                        "byte_offset": 7
+                      },
+                      "end_exclusive": {
+                        "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M01.c",
+                        "line_1based": 1,
+                        "column_1based": 17,
+                        "byte_offset": 16
+                      }
+                    },
+                    "linkage": "NO_LINKAGE",
+                    "declaration_id": "decl:d72fe91752e1ccddb18809a6303d9209b731d87386a3467139c327f507080075"
+                  },
+                  "actual_slot_id": "caller-slot:e335b16a692f24bc45ecb03457dbd6b00be37c9f85dde5dfa9323d7796f265aa",
+                  "formal_slot_id": "callee-slot:e3bd00a9d1f0d93e8d7832150e6c15dc80eab2e9f904229d09a00e6c1b8a67ec",
+                  "formal_type": {
+                    "spelling": "int *",
+                    "canonical": "int *",
+                    "kind": "POINTER",
+                    "size_bytes": 8,
+                    "const": false,
+                    "volatile": false,
+                    "restrict": false,
+                    "pointee": {
+                      "spelling": "int",
+                      "canonical": "int",
+                      "kind": "INT",
+                      "size_bytes": 4,
+                      "const": false,
+                      "volatile": false,
+                      "restrict": false
+                    }
+                  },
+                  "actual_type": {
+                    "spelling": "int *",
+                    "canonical": "int *",
+                    "kind": "POINTER",
+                    "size_bytes": 8,
+                    "const": false,
+                    "volatile": false,
+                    "restrict": false,
+                    "pointee": {
+                      "spelling": "int",
+                      "canonical": "int",
+                      "kind": "INT",
+                      "size_bytes": 4,
+                      "const": false,
+                      "volatile": false,
+                      "restrict": false
+                    }
+                  },
+                  "conversion": {
+                    "actual_type": {
+                      "spelling": "int *",
+                      "canonical": "int *",
+                      "kind": "POINTER",
+                      "size_bytes": 8,
+                      "const": false,
+                      "volatile": false,
+                      "restrict": false,
+                      "pointee": {
+                        "spelling": "int",
+                        "canonical": "int",
+                        "kind": "INT",
+                        "size_bytes": 4,
+                        "const": false,
+                        "volatile": false,
+                        "restrict": false
+                      }
+                    },
+                    "formal_type": {
+                      "spelling": "int *",
+                      "canonical": "int *",
+                      "kind": "POINTER",
+                      "size_bytes": 8,
+                      "const": false,
+                      "volatile": false,
+                      "restrict": false,
+                      "pointee": {
+                        "spelling": "int",
+                        "canonical": "int",
+                        "kind": "INT",
+                        "size_bytes": 4,
+                        "const": false,
+                        "volatile": false,
+                        "restrict": false
+                      }
+                    },
+                    "ast_argument_type": {
+                      "spelling": "int *",
+                      "canonical": "int *",
+                      "kind": "POINTER",
+                      "size_bytes": 8,
+                      "const": false,
+                      "volatile": false,
+                      "restrict": false,
+                      "pointee": {
+                        "spelling": "int",
+                        "canonical": "int",
+                        "kind": "INT",
+                        "size_bytes": 4,
+                        "const": false,
+                        "volatile": false,
+                        "restrict": false
+                      }
+                    },
+                    "kind": "identity",
+                    "status": "PASS",
+                    "reasons": []
+                  },
+                  "status": "PASS",
+                  "reasons": [],
+                  "relation": "converted_callsite_value_equals_parameter_entry_value",
+                  "slot_equivalence": false,
+                  "value_version_tracking": false,
+                  "transfer_id": "transfer:ea905435e5fdc4aed2fe5e3eb31e3e70ea17e8f884312f158ceaabe148662d6a"
+                }
+              ],
+              "ast_is_trusted": true,
+              "scope": "direct-call-entry-value-only",
+              "reachability_verified": false,
+              "post_call_effects_verified": false,
+              "pointed_object_identity_verified": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "test": "G03_invalid_input_0",
+      "expected": "ValueError",
+      "actual": true,
+      "passed": true,
+      "evidence": {
+        "dataset_id": null,
+        "position": 0
+      }
+    },
+    {
+      "test": "G03_invalid_input_1",
+      "expected": "ValueError",
+      "actual": true,
+      "passed": true,
+      "evidence": {
+        "dataset_id": "x",
+        "position": -1
+      }
+    },
+    {
+      "test": "G03_invalid_input_2",
+      "expected": "ValueError",
+      "actual": true,
+      "passed": true,
+      "evidence": {
+        "dataset_id": "x",
+        "position": true
+      }
+    }
+  ],
+  "passed": 35,
+  "total": 35,
+  "all_passed": true,
+  "elapsed_seconds": 0.4405626999996457,
+  "external_operations": [],
+  "LLM_calls": 0,
+  "Z3_calls": 0,
+  "C_runtime_executions": 0
+}

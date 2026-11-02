@@ -1,0 +1,678 @@
+{
+  "rows": [
+    {
+      "sample_id": "NPD/codeql/openssl:row=30:index=31",
+      "dataset_id": "codeql_openssl",
+      "position": 30,
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json",
+      "bundle_sha256": "8c18fdbffdb74745318fe4e45481c42c4b21b64dec35900916ec0c658c9c39c3",
+      "frame_count": 3,
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "no_verified_original_TU_or_type_identity"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "MISSING_OR_UNVERIFIED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "frame": 0,
+          "function": "make_ocsp_response",
+          "body_sha256": "0710255ad6325f07f68ca2e2b35754df6a9c26fbf063e37b6c9f66555683feca",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/0",
+          "source_copy": "frame_0.c",
+          "ast_report": "frame_0_ast.json",
+          "diagnostic_count": 225,
+          "diagnostic_severity_counts": {
+            "3": 225
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        },
+        {
+          "frame": 1,
+          "function": "OCSP_copy_nonce",
+          "body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/1",
+          "source_copy": "frame_1.c",
+          "ast_report": "frame_1_ast.json",
+          "diagnostic_count": 10,
+          "diagnostic_severity_counts": {
+            "3": 10
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        },
+        {
+          "frame": 2,
+          "function": "OCSP_BASICRESP_add_ext",
+          "body_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/2",
+          "source_copy": "frame_2.c",
+          "ast_report": "frame_2_ast.json",
+          "diagnostic_count": 4,
+          "diagnostic_severity_counts": {
+            "3": 4
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        }
+      ],
+      "edges": [
+        {
+          "caller": "make_ocsp_response",
+          "callee": "OCSP_copy_nonce",
+          "caller_body_sha256": "0710255ad6325f07f68ca2e2b35754df6a9c26fbf063e37b6c9f66555683feca",
+          "callee_body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+          "caller_frame": 0,
+          "callee_frame": 1,
+          "candidate_callsites": [
+            {
+              "line_1based_in_saved_body": 112,
+              "column_1based": 5,
+              "call_text_candidate": "OCSP_copy_nonce(bs, req)",
+              "original_body_line": "    OCSP_copy_nonce(bs, req);",
+              "location_method": "literal_locator_not_AST_proof",
+              "binding_status": "UNKNOWN"
+            }
+          ],
+          "status": "UNKNOWN",
+          "approved_mappings": [],
+          "reasons": [
+            "missing_original_build_evidence",
+            "no_verified_AST_declaration_or_type_mapping"
+          ]
+        },
+        {
+          "caller": "OCSP_copy_nonce",
+          "callee": "OCSP_BASICRESP_add_ext",
+          "caller_body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+          "callee_body_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+          "caller_frame": 1,
+          "callee_frame": 2,
+          "candidate_callsites": [
+            {
+              "line_1based_in_saved_body": 11,
+              "column_1based": 12,
+              "call_text_candidate": "OCSP_BASICRESP_add_ext(resp, req_ext, -1)",
+              "original_body_line": "    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);",
+              "location_method": "literal_locator_not_AST_proof",
+              "binding_status": "UNKNOWN"
+            }
+          ],
+          "status": "UNKNOWN",
+          "approved_mappings": [],
+          "reasons": [
+            "missing_original_build_evidence",
+            "no_verified_AST_declaration_or_type_mapping"
+          ]
+        }
+      ],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.13382070000079693,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=33:index=53",
+      "dataset_id": "codeql_linux",
+      "position": 33,
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/02/bundle.json",
+      "bundle_sha256": "4bc18c1834c41ce117c1881fc2f395b45251454ceeac89932e0b3d14d84adec4",
+      "frame_count": 1,
+      "status": "NOT_APPLICABLE",
+      "reasons": [
+        "single_saved_frame_no_cross_frame_pair_requested"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "NOT_CHECKED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "function": "ip6_route_info_create",
+          "body_sha256": "c59e0935767987ac1be4757ae88affcee8f1e98b5615e79e52c0fac449291f20",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/02/bundle.json#/context/frames/0",
+          "parsing": "NOT_ATTEMPTED_NO_REQUESTED_EDGE"
+        }
+      ],
+      "edges": [],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.002083600000332808,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/codeql/openssl:row=6:index=7",
+      "dataset_id": "codeql_openssl",
+      "position": 6,
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/03/bundle.json",
+      "bundle_sha256": "60db3afce7affcbf2a8f8d971058bb218c7e2b1c1fed3303a4065ba0bacdf9af",
+      "frame_count": 1,
+      "status": "NOT_APPLICABLE",
+      "reasons": [
+        "single_saved_frame_no_cross_frame_pair_requested"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "NOT_CHECKED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "function": "cms_main",
+          "body_sha256": "069f6e246f25b6f04e7138c11606d9ec60014f7ce405d4c6b44acaeef3f2cd7b",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/03/bundle.json#/context/frames/0",
+          "parsing": "NOT_ATTEMPTED_NO_REQUESTED_EDGE"
+        }
+      ],
+      "edges": [],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.00422670000079961,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/infer/openssl:row=11:index=None",
+      "dataset_id": "infer_openssl",
+      "position": 11,
+      "dataset": "benchmark/NPD/infer/infer_openssl_nullpointer.json",
+      "dataset_sha256": "8d0828a40f04ede896e19f0fb993e3d5f70c23556208275d913b5a1d6a3cb0d2",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/04/bundle.json",
+      "bundle_sha256": "4dc4c81433403be7616caff192266e8826d78f6cc1c49c8d6c2394aa99cba28a",
+      "frame_count": 1,
+      "status": "NOT_APPLICABLE",
+      "reasons": [
+        "single_saved_frame_no_cross_frame_pair_requested"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "NOT_CHECKED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "function": "ossl_quic_tls_is_cert_request",
+          "body_sha256": "541c1087c652cd957da042ca0f68876b8e8a64f7de37345ea818d18e6dad7435",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/04/bundle.json#/context/frames/0",
+          "parsing": "NOT_ATTEMPTED_NO_REQUESTED_EDGE"
+        }
+      ],
+      "edges": [],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.0007206999998743413,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/codeql/openssl:row=20:index=21",
+      "dataset_id": "codeql_openssl",
+      "position": 20,
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json",
+      "bundle_sha256": "fea617683e27ca9b4efeea4d35c82e4558a141987932a64d1b21d443bdf41dcf",
+      "frame_count": 1,
+      "status": "NOT_APPLICABLE",
+      "reasons": [
+        "single_saved_frame_no_cross_frame_pair_requested"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "NOT_CHECKED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "function": "engine_main",
+          "body_sha256": "7f3704779b9788908200f89b70d718036a397fff750c02cf9d593ca97fc7bab0",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json#/context/frames/0",
+          "parsing": "NOT_ATTEMPTED_NO_REQUESTED_EDGE"
+        }
+      ],
+      "edges": [],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.0033554000001458917,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=17:index=36",
+      "dataset_id": "codeql_linux",
+      "position": 17,
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/06/bundle.json",
+      "bundle_sha256": "94f026d01d02ac07ca3453725035f5d9e61fe065d922f42500e8c9c08f4869eb",
+      "frame_count": 1,
+      "status": "NOT_APPLICABLE",
+      "reasons": [
+        "single_saved_frame_no_cross_frame_pair_requested"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "NOT_CHECKED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "function": "ipv6_route_native_seq_show",
+          "body_sha256": "93ca160d4d293117f2064e48065d5d6b75956d177744cf0a5ea2fdbd518ab120",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/06/bundle.json#/context/frames/0",
+          "parsing": "NOT_ATTEMPTED_NO_REQUESTED_EDGE"
+        }
+      ],
+      "edges": [],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.0017612999999983003,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=15:index=31",
+      "dataset_id": "codeql_linux",
+      "position": 15,
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/07/bundle.json",
+      "bundle_sha256": "a6bfc8afd6d4025367490228c8be793f61ddd5408bb17d6319e944c5bc486091",
+      "frame_count": 1,
+      "status": "NOT_APPLICABLE",
+      "reasons": [
+        "single_saved_frame_no_cross_frame_pair_requested"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "NOT_CHECKED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "function": "udp_gro_receive_segment",
+          "body_sha256": "a45084ac56e0e387de6582aa35d2a1b7f7ae70595725427b3991f4e3193330ed",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/07/bundle.json#/context/frames/0",
+          "parsing": "NOT_ATTEMPTED_NO_REQUESTED_EDGE"
+        }
+      ],
+      "edges": [],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.0017678000003797933,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/codeql/libav:row=50:index=83",
+      "dataset_id": "codeql_libav",
+      "position": 50,
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/08/bundle.json",
+      "bundle_sha256": "35522c180712d1180adcc749920b209c8747374bcb56be06db24c50ea8869244",
+      "frame_count": 1,
+      "status": "NOT_APPLICABLE",
+      "reasons": [
+        "single_saved_frame_no_cross_frame_pair_requested"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "NOT_CHECKED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "function": "mpegts_write_header",
+          "body_sha256": "de2853d3515c2f8809d23949a76f85b5d2b8a1e2f015ad0e7d9863b43eef46eb",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/08/bundle.json#/context/frames/0",
+          "parsing": "NOT_ATTEMPTED_NO_REQUESTED_EDGE"
+        }
+      ],
+      "edges": [],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.0014508999993267935,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/cppcheck/linux:row=63:index=None",
+      "dataset_id": "cppcheck_linux",
+      "position": 63,
+      "dataset": "benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+      "dataset_sha256": "bc1fcdd59756e855c0ee7987e6b788d408a5b0815f207e9f4ef272bf1ca234b6",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json",
+      "bundle_sha256": "5723c7a0334c67b6265b623f9ceb85276306687869a456571355601facde57d1",
+      "frame_count": 1,
+      "status": "NOT_APPLICABLE",
+      "reasons": [
+        "single_saved_frame_no_cross_frame_pair_requested"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "NOT_CHECKED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "function": "dwarf_lookup_cie",
+          "body_sha256": "05ec37a3e03aa0c41998ccd3a4ccf6fa7be20d3a2cc59551bda5d02001c2f840",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json#/context/frames/0",
+          "parsing": "NOT_ATTEMPTED_NO_REQUESTED_EDGE"
+        }
+      ],
+      "edges": [],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.0035659999994095415,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/cppcheck/openssl:row=2:index=None",
+      "dataset_id": "cppcheck_openssl",
+      "position": 2,
+      "dataset": "benchmark/NPD/cppcheck/cppcheck_openssl_nullpointer.json",
+      "dataset_sha256": "5a7e89ffb017ece94403f862a5cc8d33f478fc92360d4e957648d66aeee12d29",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/10/bundle.json",
+      "bundle_sha256": "fbc3e8e54313eb8049cfb016ae10d78c93b879651ffea1e288b31f7b797706de",
+      "frame_count": 1,
+      "status": "NOT_APPLICABLE",
+      "reasons": [
+        "single_saved_frame_no_cross_frame_pair_requested"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "NOT_CHECKED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "function": "list_insert_sorted",
+          "body_sha256": "ab5c588dd223e8d495f5be6cc7b13541276eaef002b91d5e3b34a358c3d377b2",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/10/bundle.json#/context/frames/0",
+          "parsing": "NOT_ATTEMPTED_NO_REQUESTED_EDGE"
+        }
+      ],
+      "edges": [],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.001217200000610319,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/codeql/openssl:row=15:index=16",
+      "dataset_id": "codeql_openssl",
+      "position": 15,
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/11/bundle.json",
+      "bundle_sha256": "e915e542e1d85d9f730344b17336f941d9884050450ec3556a5fd58a560cb16f",
+      "frame_count": 1,
+      "status": "NOT_APPLICABLE",
+      "reasons": [
+        "single_saved_frame_no_cross_frame_pair_requested"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "NOT_CHECKED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "function": "ec_main",
+          "body_sha256": "236f72d059109c68d50daee0bcaa02b952dd1df495342a5108387d94a6073713",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/11/bundle.json#/context/frames/0",
+          "parsing": "NOT_ATTEMPTED_NO_REQUESTED_EDGE"
+        }
+      ],
+      "edges": [],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.0036729000003106194,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/codeql/libav:row=51:index=84",
+      "dataset_id": "codeql_libav",
+      "position": 51,
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json",
+      "bundle_sha256": "3961f9297cbed26747521f3f4337bd84b84e916d20ac0da23342a46bbb7129c4",
+      "frame_count": 2,
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "no_verified_original_TU_or_type_identity"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "MISSING_OR_UNVERIFIED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "frame": 0,
+          "function": "mv_read_header",
+          "body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/0",
+          "source_copy": "frame_0.c",
+          "ast_report": "frame_0_ast.json",
+          "diagnostic_count": 148,
+          "diagnostic_severity_counts": {
+            "3": 148
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        },
+        {
+          "frame": 1,
+          "function": "read_index",
+          "body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/1",
+          "source_copy": "frame_1.c",
+          "ast_report": "frame_1_ast.json",
+          "diagnostic_count": 15,
+          "diagnostic_severity_counts": {
+            "3": 15
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        }
+      ],
+      "edges": [
+        {
+          "caller": "mv_read_header",
+          "callee": "read_index",
+          "caller_body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+          "callee_body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+          "caller_frame": 0,
+          "callee_frame": 1,
+          "candidate_callsites": [
+            {
+              "line_1based_in_saved_body": 119,
+              "column_1based": 13,
+              "call_text_candidate": "read_index(pb, ast)",
+              "original_body_line": "            read_index(pb, ast);",
+              "location_method": "literal_locator_not_AST_proof",
+              "binding_status": "UNKNOWN"
+            },
+            {
+              "line_1based_in_saved_body": 122,
+              "column_1based": 13,
+              "call_text_candidate": "read_index(pb, vst)",
+              "original_body_line": "            read_index(pb, vst);",
+              "location_method": "literal_locator_not_AST_proof",
+              "binding_status": "UNKNOWN"
+            }
+          ],
+          "status": "UNKNOWN",
+          "approved_mappings": [],
+          "reasons": [
+            "missing_original_build_evidence",
+            "no_verified_AST_declaration_or_type_mapping"
+          ]
+        }
+      ],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.05829679999988002,
+      "execution_status": "COMPLETED"
+    },
+    {
+      "sample_id": "NPD/cppcheck/linux:row=13:index=None",
+      "ordinal_1based": 13,
+      "dataset": "benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+      "position": 13,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/13/bundle.json",
+      "bundle_sha256": "4ec4f1c0d70e890838eee90f7f165afdfefc59303a9f1232a824022794bd8c94",
+      "status": "UNKNOWN",
+      "execution_status": "RUNTIME_ERROR",
+      "reasons": [
+        "runner_null_context_error"
+      ],
+      "static_result_available": false,
+      "design_metadata_frame_count": 0,
+      "metadata_is_new_static_verification": false
+    },
+    {
+      "sample_id": "NPD/codeql/libav:row=32:index=47",
+      "ordinal_1based": 14,
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "position": 32,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/14/bundle.json",
+      "bundle_sha256": "2ba332628dfd14d1e8443e643df544a70973fb8739c33e41e52d3989f349c119",
+      "status": "UNKNOWN",
+      "execution_status": "NOT_EXECUTED",
+      "reasons": [
+        "not_run_after_frozen_candidate_failure"
+      ],
+      "static_result_available": false,
+      "design_metadata_frame_count": 1,
+      "metadata_is_new_static_verification": false
+    },
+    {
+      "sample_id": "NPD/infer/openssl:row=1:index=None",
+      "ordinal_1based": 15,
+      "dataset": "benchmark/NPD/infer/infer_openssl_nullpointer.json",
+      "position": 1,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/15/bundle.json",
+      "bundle_sha256": "12fd9fc0e4a0929813b36c357611afb9a789c19c66b324684772c152fd886649",
+      "status": "UNKNOWN",
+      "execution_status": "NOT_EXECUTED",
+      "reasons": [
+        "not_run_after_frozen_candidate_failure"
+      ],
+      "static_result_available": false,
+      "design_metadata_frame_count": 1,
+      "metadata_is_new_static_verification": false
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=26:index=45",
+      "ordinal_1based": 16,
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "position": 26,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/16/bundle.json",
+      "bundle_sha256": "5de1aafe31c99ac54c3c638db21f407dfce75bb0075c544fa7d016e25eba06b3",
+      "status": "UNKNOWN",
+      "execution_status": "NOT_EXECUTED",
+      "reasons": [
+        "not_run_after_frozen_candidate_failure"
+      ],
+      "static_result_available": false,
+      "design_metadata_frame_count": 0,
+      "metadata_is_new_static_verification": false
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=24:index=43",
+      "ordinal_1based": 17,
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "position": 24,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json",
+      "bundle_sha256": "4df7f7014d4eeeca31e8768db1adbfd8c58e10ffbc7551a5330e4d3a6a9729b3",
+      "status": "UNKNOWN",
+      "execution_status": "NOT_EXECUTED",
+      "reasons": [
+        "not_run_after_frozen_candidate_failure"
+      ],
+      "static_result_available": false,
+      "design_metadata_frame_count": 3,
+      "metadata_is_new_static_verification": false
+    },
+    {
+      "sample_id": "NPD/codeql/libav:row=19:index=26",
+      "ordinal_1based": 18,
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "position": 19,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/18/bundle.json",
+      "bundle_sha256": "77890adfb560533976d2ae76daefe945db8c11271dfaa9cc363f89eaee2281e4",
+      "status": "UNKNOWN",
+      "execution_status": "NOT_EXECUTED",
+      "reasons": [
+        "not_run_after_frozen_candidate_failure"
+      ],
+      "static_result_available": false,
+      "design_metadata_frame_count": 1,
+      "metadata_is_new_static_verification": false
+    },
+    {
+      "sample_id": "NPD/codeql/openssl:row=16:index=17",
+      "ordinal_1based": 19,
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "position": 16,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/19/bundle.json",
+      "bundle_sha256": "67c9b55383be69e2e7a5e2eff0b628f022b542c6badb34d7b5d2397e9c49d8df",
+      "status": "UNKNOWN",
+      "execution_status": "NOT_EXECUTED",
+      "reasons": [
+        "not_run_after_frozen_candidate_failure"
+      ],
+      "static_result_available": false,
+      "design_metadata_frame_count": 1,
+      "metadata_is_new_static_verification": false
+    },
+    {
+      "sample_id": "NPD/codeql/libav:row=35:index=51",
+      "ordinal_1based": 20,
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "position": 35,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/20/bundle.json",
+      "bundle_sha256": "7d2286c39b43777fca47675477cd5a9c358abffc2430a2084d4880c24a9bb3be",
+      "status": "UNKNOWN",
+      "execution_status": "NOT_EXECUTED",
+      "reasons": [
+        "not_run_after_frozen_candidate_failure"
+      ],
+      "static_result_available": false,
+      "design_metadata_frame_count": 1,
+      "metadata_is_new_static_verification": false
+    }
+  ],
+  "metrics": {
+    "run_status": "STOPPED_FROZEN_CANDIDATE_FAILURE",
+    "attempt_count": 1,
+    "fixed_is_blind": false,
+    "manifest_order_preserved": true,
+    "sample_count": 20,
+    "completed_sample_count": 12,
+    "completed_status_counts": {
+      "UNKNOWN": 2,
+      "NOT_APPLICABLE": 10
+    },
+    "runtime_error_count": 1,
+    "not_executed_count": 7,
+    "all20_reporting_status_counts": {
+      "UNKNOWN": 10,
+      "NOT_APPLICABLE": 10
+    },
+    "note": "UNKNOWN for eight incomplete records is an execution/evidence gap, not a completed static mapping result.",
+    "requested_adjacent_pairs_in_completed_records": 3,
+    "literal_callsite_candidates_in_completed_records": 4,
+    "approved_mapping_count": 0,
+    "assessed_missing_source_evidence": 0,
+    "missing_source_from_prefrozen_design_metadata_only": 2,
+    "completed_records_type_status_counts": {
+      "MISSING_OR_UNVERIFIED": 2,
+      "NOT_CHECKED": 10
+    },
+    "completed_missing_build_evidence": 12,
+    "static_record_completion_rate": 0.6,
+    "semantic_PASS_over_all20": 0.0,
+    "completed_record_elapsed_seconds_sum": 0.21594000000186497,
+    "failed_command_wall_seconds_tool_reported": 1.3357058,
+    "retry_count": 0,
+    "post_failure_checker_changes": 0
+  },
+  "report_assembly_only": true,
+  "new_sample_checks_in_report_assembly": 0
+}

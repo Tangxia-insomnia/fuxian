@@ -1,0 +1,170 @@
+{
+  "dataset_id": "synthetic-r01",
+  "position": 0,
+  "status": "UNKNOWN",
+  "reasons": [
+    "clang_diagnostics_prevent_semantic_approval"
+  ],
+  "source": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+  "source_sha256": "34d62f620c34977ee629f5b2a7b02782b4848430dd7e1f8c97e270bd38837112",
+  "build_evidence": {
+    "status": "synthetic-self-contained",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": true
+  },
+  "diagnostics": [
+    {
+      "severity": 2,
+      "spelling": "incompatible pointer types passing 'struct B *' to parameter of type 'struct A *'",
+      "location": {
+        "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+        "line_1based": 4,
+        "column_1based": 30,
+        "byte_offset": 110
+      },
+      "option": "-Wincompatible-pointer-types",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+            "line_1based": 4,
+            "column_1based": 30,
+            "byte_offset": 110
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+            "line_1based": 4,
+            "column_1based": 31,
+            "byte_offset": 111
+          }
+        }
+      ]
+    }
+  ],
+  "macro_expansions": [],
+  "candidate_inventory": [],
+  "calls": [
+    {
+      "dataset_id": "synthetic-r01",
+      "position": 0,
+      "callsite_id": "call:4ae2a9e6ec956343499fe793cfd4e18828adec8b1adfb5ad74842664f69ae322",
+      "caller": {
+        "name": "caller",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@caller",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+          "line_1based": 4,
+          "column_1based": 6,
+          "byte_offset": 86
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+          "line_1based": 4,
+          "column_1based": 6,
+          "byte_offset": 86
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+            "line_1based": 4,
+            "column_1based": 1,
+            "byte_offset": 81
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+            "line_1based": 4,
+            "column_1based": 35,
+            "byte_offset": 115
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:a30ef82d5f8ec59f1d5b407a846ad415f7c8bbdbe5a54cbaa467e737be2bdac0"
+      },
+      "callee": {
+        "name": "f",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@f",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+          "line_1based": 3,
+          "column_1based": 6,
+          "byte_offset": 47
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+          "line_1based": 3,
+          "column_1based": 6,
+          "byte_offset": 47
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+            "line_1based": 3,
+            "column_1based": 1,
+            "byte_offset": 42
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+            "line_1based": 3,
+            "column_1based": 39,
+            "byte_offset": 80
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:6081aaf660c5beed15ff95bbfa7ef8b04e2bb71b2126fda921bd0a3eac226355"
+      },
+      "callsite": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+          "line_1based": 4,
+          "column_1based": 28,
+          "byte_offset": 108
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_distinct_struct.c",
+          "line_1based": 4,
+          "column_1based": 32,
+          "byte_offset": 112
+        }
+      },
+      "call_text": "f(p)",
+      "caller_body_sha256": "6ab466cdd9fb1af33c4589a4138b10f756876fe3d62109563bc10e06b679809a",
+      "callee_body_sha256": null,
+      "source_sha256": "34d62f620c34977ee629f5b2a7b02782b4848430dd7e1f8c97e270bd38837112",
+      "build_evidence": {
+        "status": "synthetic-self-contained",
+        "args": [
+          "-x",
+          "c",
+          "-std=c11",
+          "-nostdinc",
+          "-Werror=implicit-function-declaration",
+          "-ferror-limit=0"
+        ],
+        "original_project_build_verified": false,
+        "controlled_synthetic_TU": true
+      },
+      "diagnostics_ref": "#/diagnostics",
+      "status": "UNKNOWN",
+      "reasons": [
+        "clang_diagnostics_prevent_semantic_approval"
+      ],
+      "mappings": [],
+      "ast_is_trusted": false,
+      "scope": "direct-call-entry-value-only",
+      "reachability_verified": false,
+      "post_call_effects_verified": false,
+      "pointed_object_identity_verified": false
+    }
+  ],
+  "elapsed_seconds": 0.01610679999976128
+}

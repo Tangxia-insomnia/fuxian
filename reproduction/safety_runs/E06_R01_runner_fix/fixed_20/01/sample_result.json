@@ -1,0 +1,117 @@
+{
+  "sample_id": "NPD/codeql/openssl:row=30:index=31",
+  "dataset_id": "codeql_openssl",
+  "position": 30,
+  "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+  "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+  "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json",
+  "bundle_sha256": "8c18fdbffdb74745318fe4e45481c42c4b21b64dec35900916ec0c658c9c39c3",
+  "frame_count": 3,
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "execution_status": "COMPLETED",
+  "status": "UNKNOWN",
+  "reasons": [
+    "missing_original_build_evidence",
+    "no_verified_original_TU_or_type_identity"
+  ],
+  "missing_source_evidence": false,
+  "missing_build_evidence": true,
+  "type_evidence_status": "MISSING_OR_UNVERIFIED",
+  "build_status": "saved-source-only",
+  "frames": [
+    {
+      "frame": 0,
+      "function": "make_ocsp_response",
+      "body_sha256": "0710255ad6325f07f68ca2e2b35754df6a9c26fbf063e37b6c9f66555683feca",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "ast_report": "frame_0_ast.json",
+      "diagnostic_count": 225,
+      "diagnostic_severity_counts": {
+        "3": 225
+      },
+      "semantic_mapping_status": "UNKNOWN"
+    },
+    {
+      "frame": 1,
+      "function": "OCSP_copy_nonce",
+      "body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/1",
+      "source_copy": "frame_1.c",
+      "ast_report": "frame_1_ast.json",
+      "diagnostic_count": 10,
+      "diagnostic_severity_counts": {
+        "3": 10
+      },
+      "semantic_mapping_status": "UNKNOWN"
+    },
+    {
+      "frame": 2,
+      "function": "OCSP_BASICRESP_add_ext",
+      "body_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/2",
+      "source_copy": "frame_2.c",
+      "ast_report": "frame_2_ast.json",
+      "diagnostic_count": 4,
+      "diagnostic_severity_counts": {
+        "3": 4
+      },
+      "semantic_mapping_status": "UNKNOWN"
+    }
+  ],
+  "edges": [
+    {
+      "caller": "make_ocsp_response",
+      "callee": "OCSP_copy_nonce",
+      "caller_body_sha256": "0710255ad6325f07f68ca2e2b35754df6a9c26fbf063e37b6c9f66555683feca",
+      "callee_body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+      "caller_frame": 0,
+      "callee_frame": 1,
+      "candidate_callsites": [
+        {
+          "line_1based_in_saved_body": 112,
+          "column_1based": 5,
+          "call_text_candidate": "OCSP_copy_nonce(bs, req)",
+          "original_body_line": "    OCSP_copy_nonce(bs, req);",
+          "location_method": "literal_locator_not_AST_proof",
+          "binding_status": "UNKNOWN"
+        }
+      ],
+      "status": "UNKNOWN",
+      "approved_mappings": [],
+      "reasons": [
+        "missing_original_build_evidence",
+        "no_verified_AST_declaration_or_type_mapping"
+      ]
+    },
+    {
+      "caller": "OCSP_copy_nonce",
+      "callee": "OCSP_BASICRESP_add_ext",
+      "caller_body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+      "callee_body_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+      "caller_frame": 1,
+      "callee_frame": 2,
+      "candidate_callsites": [
+        {
+          "line_1based_in_saved_body": 11,
+          "column_1based": 12,
+          "call_text_candidate": "OCSP_BASICRESP_add_ext(resp, req_ext, -1)",
+          "original_body_line": "    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);",
+          "location_method": "literal_locator_not_AST_proof",
+          "binding_status": "UNKNOWN"
+        }
+      ],
+      "status": "UNKNOWN",
+      "approved_mappings": [],
+      "reasons": [
+        "missing_original_build_evidence",
+        "no_verified_AST_declaration_or_type_mapping"
+      ]
+    }
+  ],
+  "labels_used": false,
+  "prior_solver_results_used": false,
+  "elapsed_seconds": 0.1041016999988642
+}

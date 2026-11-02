@@ -1,0 +1,305 @@
+{
+  "mode": "historical",
+  "rows": [
+    {
+      "sample_id": "NPD/codeql/kernel69:row=24:index=43",
+      "dataset_id": "codeql_linux",
+      "position": 24,
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json",
+      "bundle_sha256": "4df7f7014d4eeeca31e8768db1adbfd8c58e10ffbc7551a5330e4d3a6a9729b3",
+      "frame_count": 3,
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "no_verified_original_TU_or_type_identity"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "MISSING_OR_UNVERIFIED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ip6_finish_output2",
+          "body_sha256": "90b47239055d70d6940ddc13e68fc1f3e80746d0d735ccb383f25c4c6471a940",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/0",
+          "source_copy": "frame_0.c",
+          "ast_report": "frame_0_ast.json",
+          "diagnostic_count": 78,
+          "diagnostic_severity_counts": {
+            "2": 3,
+            "3": 75
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        },
+        {
+          "frame": 1,
+          "function": "sock_confirm_neigh",
+          "body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/1",
+          "source_copy": "frame_1.c",
+          "ast_report": "frame_1_ast.json",
+          "diagnostic_count": 9,
+          "diagnostic_severity_counts": {
+            "2": 2,
+            "3": 7
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        },
+        {
+          "frame": 2,
+          "function": "neigh_confirm",
+          "body_sha256": "468f1bceeb2bb427c7a70f1345ed27aa19925bbfcf2197e94b7f6476cc260be9",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/2",
+          "source_copy": "frame_2.c",
+          "ast_report": "frame_2_ast.json",
+          "diagnostic_count": 6,
+          "diagnostic_severity_counts": {
+            "2": 1,
+            "3": 5
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        }
+      ],
+      "edges": [
+        {
+          "caller": "ip6_finish_output2",
+          "callee": "sock_confirm_neigh",
+          "caller_body_sha256": "90b47239055d70d6940ddc13e68fc1f3e80746d0d735ccb383f25c4c6471a940",
+          "callee_body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+          "caller_frame": 0,
+          "callee_frame": 1,
+          "candidate_callsites": [
+            {
+              "line_1based_in_saved_body": 77,
+              "column_1based": 2,
+              "call_text_candidate": "sock_confirm_neigh(skb, neigh)",
+              "original_body_line": "\tsock_confirm_neigh(skb, neigh);",
+              "location_method": "literal_locator_not_AST_proof",
+              "binding_status": "UNKNOWN"
+            }
+          ],
+          "status": "UNKNOWN",
+          "approved_mappings": [],
+          "reasons": [
+            "missing_original_build_evidence",
+            "no_verified_AST_declaration_or_type_mapping"
+          ]
+        },
+        {
+          "caller": "sock_confirm_neigh",
+          "callee": "neigh_confirm",
+          "caller_body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+          "callee_body_sha256": "468f1bceeb2bb427c7a70f1345ed27aa19925bbfcf2197e94b7f6476cc260be9",
+          "caller_frame": 1,
+          "callee_frame": 2,
+          "candidate_callsites": [
+            {
+              "line_1based_in_saved_body": 8,
+              "column_1based": 3,
+              "call_text_candidate": "neigh_confirm(n)",
+              "original_body_line": "\t\tneigh_confirm(n);",
+              "location_method": "literal_locator_not_AST_proof",
+              "binding_status": "UNKNOWN"
+            }
+          ],
+          "status": "UNKNOWN",
+          "approved_mappings": [],
+          "reasons": [
+            "missing_original_build_evidence",
+            "no_verified_AST_declaration_or_type_mapping"
+          ]
+        }
+      ],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.16976900000008754
+    },
+    {
+      "sample_id": "NPD/codeql/libav:row=51:index=84",
+      "dataset_id": "codeql_libav",
+      "position": 51,
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json",
+      "bundle_sha256": "3961f9297cbed26747521f3f4337bd84b84e916d20ac0da23342a46bbb7129c4",
+      "frame_count": 2,
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "no_verified_original_TU_or_type_identity"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "MISSING_OR_UNVERIFIED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "frame": 0,
+          "function": "mv_read_header",
+          "body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/0",
+          "source_copy": "frame_0.c",
+          "ast_report": "frame_0_ast.json",
+          "diagnostic_count": 148,
+          "diagnostic_severity_counts": {
+            "3": 148
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        },
+        {
+          "frame": 1,
+          "function": "read_index",
+          "body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/1",
+          "source_copy": "frame_1.c",
+          "ast_report": "frame_1_ast.json",
+          "diagnostic_count": 15,
+          "diagnostic_severity_counts": {
+            "3": 15
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        }
+      ],
+      "edges": [
+        {
+          "caller": "mv_read_header",
+          "callee": "read_index",
+          "caller_body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+          "callee_body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+          "caller_frame": 0,
+          "callee_frame": 1,
+          "candidate_callsites": [
+            {
+              "line_1based_in_saved_body": 119,
+              "column_1based": 13,
+              "call_text_candidate": "read_index(pb, ast)",
+              "original_body_line": "            read_index(pb, ast);",
+              "location_method": "literal_locator_not_AST_proof",
+              "binding_status": "UNKNOWN"
+            },
+            {
+              "line_1based_in_saved_body": 122,
+              "column_1based": 13,
+              "call_text_candidate": "read_index(pb, vst)",
+              "original_body_line": "            read_index(pb, vst);",
+              "location_method": "literal_locator_not_AST_proof",
+              "binding_status": "UNKNOWN"
+            }
+          ],
+          "status": "UNKNOWN",
+          "approved_mappings": [],
+          "reasons": [
+            "missing_original_build_evidence",
+            "no_verified_AST_declaration_or_type_mapping"
+          ]
+        }
+      ],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.10084949999873061
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=12:index=24",
+      "dataset_id": "codeql_linux",
+      "position": 12,
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/bundle.json",
+      "bundle_sha256": "a46c96403fc3a90c2bbdc7f85c4540d8a06f2f10bab18b1ee3a5a1db08d91143",
+      "frame_count": 2,
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "no_verified_original_TU_or_type_identity"
+      ],
+      "missing_source_evidence": false,
+      "missing_build_evidence": true,
+      "type_evidence_status": "MISSING_OR_UNVERIFIED",
+      "build_status": "saved-source-only",
+      "frames": [
+        {
+          "frame": 0,
+          "function": "tcp_set_allowed_congestion_control",
+          "body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/bundle.json#/context/frames/0",
+          "source_copy": "frame_0.c",
+          "ast_report": "frame_0_ast.json",
+          "diagnostic_count": 22,
+          "diagnostic_severity_counts": {
+            "3": 22
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        },
+        {
+          "frame": 1,
+          "function": "kfree",
+          "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/bundle.json#/context/frames/1",
+          "source_copy": "frame_1.c",
+          "ast_report": "frame_1_ast.json",
+          "diagnostic_count": 13,
+          "diagnostic_severity_counts": {
+            "3": 13
+          },
+          "semantic_mapping_status": "UNKNOWN"
+        }
+      ],
+      "edges": [
+        {
+          "caller": "tcp_set_allowed_congestion_control",
+          "callee": "kfree",
+          "caller_body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+          "callee_body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+          "caller_frame": 0,
+          "callee_frame": 1,
+          "candidate_callsites": [
+            {
+              "line_1based_in_saved_body": 34,
+              "column_1based": 2,
+              "call_text_candidate": "kfree(saved_clone)",
+              "original_body_line": "\tkfree(saved_clone);",
+              "location_method": "literal_locator_not_AST_proof",
+              "binding_status": "UNKNOWN"
+            }
+          ],
+          "status": "UNKNOWN",
+          "approved_mappings": [],
+          "reasons": [
+            "missing_original_build_evidence",
+            "no_verified_AST_declaration_or_type_mapping"
+          ]
+        }
+      ],
+      "labels_used": false,
+      "prior_solver_results_used": false,
+      "elapsed_seconds": 0.10206060000018624
+    }
+  ],
+  "metrics": {
+    "sample_count": 3,
+    "status_counts": {
+      "UNKNOWN": 3
+    },
+    "missing_source_evidence": 0,
+    "missing_build_evidence": 3,
+    "type_evidence_status_counts": {
+      "MISSING_OR_UNVERIFIED": 3
+    },
+    "requested_adjacent_frame_pairs": 4,
+    "located_literal_callsite_candidates": 5,
+    "approved_mapping_count": 0,
+    "PASS_over_all_requested_samples": 0.0,
+    "PASS_over_applicable_samples": 0.0,
+    "elapsed_seconds": 1.1691200000004756,
+    "LLM_calls": 0,
+    "tokens": 0,
+    "API_cost_CNY": 0,
+    "Z3_calls": 0,
+    "generated_code_executions": 0,
+    "C_runtime_executions": 0,
+    "external_operations": []
+  }
+}

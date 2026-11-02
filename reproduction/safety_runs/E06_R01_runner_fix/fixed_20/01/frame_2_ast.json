@@ -1,0 +1,79 @@
+{
+  "dataset_id": "codeql_openssl",
+  "position": 30,
+  "status": "UNKNOWN",
+  "reasons": [
+    "missing_original_build_evidence",
+    "clang_diagnostics_prevent_semantic_approval",
+    "no_call_expr_recovered"
+  ],
+  "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\01\\frame_2.c",
+  "source_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+  "build_evidence": {
+    "status": "saved-source-only",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": false
+  },
+  "diagnostics": [
+    {
+      "severity": 3,
+      "spelling": "unknown type name 'OCSP_BASICRESP'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\01\\frame_2.c",
+        "line_1based": 1,
+        "column_1based": 28,
+        "byte_offset": 27
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "unknown type name 'X509_EXTENSION'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\01\\frame_2.c",
+        "line_1based": 1,
+        "column_1based": 47,
+        "byte_offset": 46
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'X509v3_add_ext'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\01\\frame_2.c",
+        "line_1based": 3,
+        "column_1based": 13,
+        "byte_offset": 89
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'NULL'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\01\\frame_2.c",
+        "line_1based": 4,
+        "column_1based": 16,
+        "byte_offset": 170
+      },
+      "option": "",
+      "ranges": []
+    }
+  ],
+  "macro_expansions": [],
+  "candidate_inventory": [],
+  "calls": [],
+  "elapsed_seconds": 0.03419159999975818
+}

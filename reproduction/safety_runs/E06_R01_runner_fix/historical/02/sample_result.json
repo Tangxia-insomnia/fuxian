@@ -1,0 +1,88 @@
+{
+  "sample_id": "NPD/codeql/libav:row=51:index=84",
+  "dataset_id": "codeql_libav",
+  "position": 51,
+  "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+  "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+  "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json",
+  "bundle_sha256": "3961f9297cbed26747521f3f4337bd84b84e916d20ac0da23342a46bbb7129c4",
+  "frame_count": 2,
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "execution_status": "COMPLETED",
+  "status": "UNKNOWN",
+  "reasons": [
+    "missing_original_build_evidence",
+    "no_verified_original_TU_or_type_identity"
+  ],
+  "missing_source_evidence": false,
+  "missing_build_evidence": true,
+  "type_evidence_status": "MISSING_OR_UNVERIFIED",
+  "build_status": "saved-source-only",
+  "frames": [
+    {
+      "frame": 0,
+      "function": "mv_read_header",
+      "body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "ast_report": "frame_0_ast.json",
+      "diagnostic_count": 148,
+      "diagnostic_severity_counts": {
+        "3": 148
+      },
+      "semantic_mapping_status": "UNKNOWN"
+    },
+    {
+      "frame": 1,
+      "function": "read_index",
+      "body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/1",
+      "source_copy": "frame_1.c",
+      "ast_report": "frame_1_ast.json",
+      "diagnostic_count": 15,
+      "diagnostic_severity_counts": {
+        "3": 15
+      },
+      "semantic_mapping_status": "UNKNOWN"
+    }
+  ],
+  "edges": [
+    {
+      "caller": "mv_read_header",
+      "callee": "read_index",
+      "caller_body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+      "callee_body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+      "caller_frame": 0,
+      "callee_frame": 1,
+      "candidate_callsites": [
+        {
+          "line_1based_in_saved_body": 119,
+          "column_1based": 13,
+          "call_text_candidate": "read_index(pb, ast)",
+          "original_body_line": "            read_index(pb, ast);",
+          "location_method": "literal_locator_not_AST_proof",
+          "binding_status": "UNKNOWN"
+        },
+        {
+          "line_1based_in_saved_body": 122,
+          "column_1based": 13,
+          "call_text_candidate": "read_index(pb, vst)",
+          "original_body_line": "            read_index(pb, vst);",
+          "location_method": "literal_locator_not_AST_proof",
+          "binding_status": "UNKNOWN"
+        }
+      ],
+      "status": "UNKNOWN",
+      "approved_mappings": [],
+      "reasons": [
+        "missing_original_build_evidence",
+        "no_verified_AST_declaration_or_type_mapping"
+      ]
+    }
+  ],
+  "labels_used": false,
+  "prior_solver_results_used": false,
+  "elapsed_seconds": 0.07395770000039192
+}

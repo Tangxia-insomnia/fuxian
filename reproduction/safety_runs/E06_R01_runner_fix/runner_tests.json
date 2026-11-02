@@ -1,0 +1,462 @@
+{
+  "tests": [
+    {
+      "test": "null_with_provenance",
+      "input": {
+        "candidate": {
+          "status": "blocked_context",
+          "error": "SYNTHETIC: source context unavailable"
+        },
+        "context": null
+      },
+      "provenance": {
+        "verified": true,
+        "context_file_absent": true,
+        "historical_status": "blocked_context",
+        "historical_error": "SYNTHETIC: source context unavailable",
+        "scope": "synthetic_runner_fixture_only"
+      },
+      "expected": {
+        "state": "EXPLICIT_NULL_SAVED_CONTEXT_UNAVAILABLE",
+        "exception": null
+      },
+      "actual": {
+        "state": "EXPLICIT_NULL_SAVED_CONTEXT_UNAVAILABLE",
+        "exception": null,
+        "exception_type": null,
+        "frames": null
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "null_without_provenance",
+      "input": {
+        "candidate": {
+          "status": "blocked_context",
+          "error": "SYNTHETIC: source context unavailable"
+        },
+        "context": null
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE"
+      },
+      "actual": {
+        "state": null,
+        "exception": "NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 44, in context_state\n    raise DataShapeError('NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE')\nrun_regression.DataShapeError: NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "missing_context_field",
+      "input": {
+        "candidate": {
+          "status": "blocked_context",
+          "error": "SYNTHETIC: source context unavailable"
+        }
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "CONTEXT_FIELD_MISSING"
+      },
+      "actual": {
+        "state": null,
+        "exception": "CONTEXT_FIELD_MISSING",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 33, in context_state\n    raise DataShapeError('CONTEXT_FIELD_MISSING')\nrun_regression.DataShapeError: CONTEXT_FIELD_MISSING\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "empty_context_object",
+      "input": {
+        "context": {}
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "FRAMES_FIELD_MISSING"
+      },
+      "actual": {
+        "state": null,
+        "exception": "FRAMES_FIELD_MISSING",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 49, in context_state\n    raise DataShapeError('FRAMES_FIELD_MISSING')\nrun_regression.DataShapeError: FRAMES_FIELD_MISSING\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "empty_context_array",
+      "input": {
+        "context": []
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL"
+      },
+      "actual": {
+        "state": null,
+        "exception": "CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 47, in context_state\n    raise DataShapeError('CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL')\nrun_regression.DataShapeError: CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "context_string",
+      "input": {
+        "context": "wrong"
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL"
+      },
+      "actual": {
+        "state": null,
+        "exception": "CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 47, in context_state\n    raise DataShapeError('CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL')\nrun_regression.DataShapeError: CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "context_number",
+      "input": {
+        "context": 7
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL"
+      },
+      "actual": {
+        "state": null,
+        "exception": "CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 47, in context_state\n    raise DataShapeError('CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL')\nrun_regression.DataShapeError: CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "context_boolean",
+      "input": {
+        "context": false
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL"
+      },
+      "actual": {
+        "state": null,
+        "exception": "CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 47, in context_state\n    raise DataShapeError('CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL')\nrun_regression.DataShapeError: CONTEXT_MUST_BE_OBJECT_OR_PROVEN_ABSENT_NULL\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "empty_frames_array",
+      "input": {
+        "context": {
+          "frames": []
+        }
+      },
+      "provenance": null,
+      "expected": {
+        "state": "EMPTY_FRAMES_ARRAY",
+        "exception": null
+      },
+      "actual": {
+        "state": "EMPTY_FRAMES_ARRAY",
+        "exception": null,
+        "exception_type": null,
+        "frames": []
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "frames_null",
+      "input": {
+        "context": {
+          "frames": null
+        }
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "FRAMES_MUST_BE_ARRAY"
+      },
+      "actual": {
+        "state": null,
+        "exception": "FRAMES_MUST_BE_ARRAY",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 52, in context_state\n    raise DataShapeError('FRAMES_MUST_BE_ARRAY')\nrun_regression.DataShapeError: FRAMES_MUST_BE_ARRAY\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "frames_object",
+      "input": {
+        "context": {
+          "frames": {}
+        }
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "FRAMES_MUST_BE_ARRAY"
+      },
+      "actual": {
+        "state": null,
+        "exception": "FRAMES_MUST_BE_ARRAY",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 52, in context_state\n    raise DataShapeError('FRAMES_MUST_BE_ARRAY')\nrun_regression.DataShapeError: FRAMES_MUST_BE_ARRAY\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "invalid_frame",
+      "input": {
+        "context": {
+          "frames": [
+            null
+          ]
+        }
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "FRAME_0_MUST_BE_OBJECT"
+      },
+      "actual": {
+        "state": null,
+        "exception": "FRAME_0_MUST_BE_OBJECT",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 55, in context_state\n    raise DataShapeError(f'FRAME_{i}_MUST_BE_OBJECT')\nrun_regression.DataShapeError: FRAME_0_MUST_BE_OBJECT\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "valid_context",
+      "input": {
+        "context": {
+          "frames": [
+            {
+              "function": "f",
+              "code": "void f(int *p) { (void)p; }\n",
+              "body_sha256": "c5edd2c2729c656d79836db91220aee491abe32a1b5f291498927265bfb51e18"
+            }
+          ]
+        }
+      },
+      "provenance": null,
+      "expected": {
+        "state": "FRAMES_PRESENT",
+        "exception": null
+      },
+      "actual": {
+        "state": "FRAMES_PRESENT",
+        "exception": null,
+        "exception_type": null,
+        "frames": [
+          {
+            "function": "f",
+            "code": "void f(int *p) { (void)p; }\n",
+            "body_sha256": "c5edd2c2729c656d79836db91220aee491abe32a1b5f291498927265bfb51e18"
+          }
+        ]
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "body_hash_conflict",
+      "input": {
+        "context": {
+          "frames": [
+            {
+              "function": "f",
+              "code": "void f(int *p) { (void)p; }\n",
+              "body_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          ]
+        }
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "FRAME_0_BODY_HASH_MISMATCH"
+      },
+      "actual": {
+        "state": null,
+        "exception": "FRAME_0_BODY_HASH_MISMATCH",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 60, in context_state\n    raise DataShapeError(f'FRAME_{i}_BODY_HASH_MISMATCH')\nrun_regression.DataShapeError: FRAME_0_BODY_HASH_MISMATCH\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "code_not_text",
+      "input": {
+        "context": {
+          "frames": [
+            {
+              "function": "f",
+              "code": 7,
+              "body_sha256": "c5edd2c2729c656d79836db91220aee491abe32a1b5f291498927265bfb51e18"
+            }
+          ]
+        }
+      },
+      "provenance": null,
+      "expected": {
+        "state": null,
+        "exception": "FRAME_0_INVALID_code"
+      },
+      "actual": {
+        "state": null,
+        "exception": "FRAME_0_INVALID_code",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 58, in context_state\n    raise DataShapeError(f'FRAME_{i}_INVALID_{key}')\nrun_regression.DataShapeError: FRAME_0_INVALID_code\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "null_conflicting_provenance",
+      "input": {
+        "candidate": {
+          "status": "blocked_context",
+          "error": "SYNTHETIC: source context unavailable"
+        },
+        "context": null
+      },
+      "provenance": {
+        "verified": true,
+        "context_file_absent": true,
+        "historical_status": "blocked_context",
+        "historical_error": "different",
+        "scope": "synthetic_runner_fixture_only"
+      },
+      "expected": {
+        "state": null,
+        "exception": "NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE"
+      },
+      "actual": {
+        "state": null,
+        "exception": "NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 44, in context_state\n    raise DataShapeError('NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE')\nrun_regression.DataShapeError: NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "null_status_conflict",
+      "input": {
+        "candidate": {
+          "status": "success",
+          "error": "SYNTHETIC: source context unavailable"
+        },
+        "context": null
+      },
+      "provenance": {
+        "verified": true,
+        "context_file_absent": true,
+        "historical_status": "blocked_context",
+        "historical_error": "SYNTHETIC: source context unavailable",
+        "scope": "synthetic_runner_fixture_only"
+      },
+      "expected": {
+        "state": null,
+        "exception": "NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE"
+      },
+      "actual": {
+        "state": null,
+        "exception": "NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE",
+        "exception_type": "DataShapeError",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 55, in main\n    state, frames = runner.context_state(bundle, provenance)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 44, in context_state\n    raise DataShapeError('NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE')\nrun_regression.DataShapeError: NULL_CONTEXT_WITHOUT_VERIFIED_ABSENCE_PROVENANCE\n"
+      },
+      "input_unchanged": true,
+      "passed": true
+    },
+    {
+      "test": "old_expression_error_reproduction",
+      "expected": "TypeError",
+      "actual": "TypeError",
+      "passed": true,
+      "exception": "'NoneType' object is not subscriptable",
+      "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 71, in main\n    synthetic['context']['frames']\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^\nTypeError: 'NoneType' object is not subscriptable\n",
+      "provenance": "new synthetic reproduction, not original run stderr"
+    },
+    {
+      "test": "fail_stop_RuntimeError",
+      "expected": "rethrow, save traceback, stop",
+      "actual": {
+        "execution_status": "FAILED_STOPPED",
+        "ordinal_1based": 1,
+        "sample_id": "synthetic-1",
+        "completed_samples": 0,
+        "exception_type": "RuntimeError",
+        "exception": "SYNTHETIC unexpected parser failure",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 211, in execute_specs\n    rows.append(check_sample(spec, output/f'{i:02d}', baseline))\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22803\\anaconda3\\Lib\\unittest\\mock.py\", line 1124, in __call__\n    return self._mock_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22803\\anaconda3\\Lib\\unittest\\mock.py\", line 1128, in _mock_call\n    return self._execute_mock_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22803\\anaconda3\\Lib\\unittest\\mock.py\", line 1189, in _execute_mock_call\n    result = effect(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 85, in failing_check\n    raise error\nRuntimeError: SYNTHETIC unexpected parser failure\n",
+        "mapping_status": null,
+        "action": "STOP_NO_RETRY",
+        "result_relabeling": false
+      },
+      "called_samples": [
+        "synthetic-1"
+      ],
+      "passed": true
+    },
+    {
+      "test": "fail_stop_DataShapeError",
+      "expected": "rethrow, save traceback, stop",
+      "actual": {
+        "execution_status": "FAILED_STOPPED",
+        "ordinal_1based": 1,
+        "sample_id": "synthetic-1",
+        "completed_samples": 0,
+        "exception_type": "DataShapeError",
+        "exception": "SYNTHETIC malformed evidence",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\run_regression.py\", line 211, in execute_specs\n    rows.append(check_sample(spec, output/f'{i:02d}', baseline))\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22803\\anaconda3\\Lib\\unittest\\mock.py\", line 1124, in __call__\n    return self._mock_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22803\\anaconda3\\Lib\\unittest\\mock.py\", line 1128, in _mock_call\n    return self._execute_mock_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22803\\anaconda3\\Lib\\unittest\\mock.py\", line 1189, in _execute_mock_call\n    result = effect(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\test_runner.py\", line 85, in failing_check\n    raise error\nrun_regression.DataShapeError: SYNTHETIC malformed evidence\n",
+        "mapping_status": null,
+        "action": "STOP_NO_RETRY",
+        "result_relabeling": false
+      },
+      "called_samples": [
+        "synthetic-1"
+      ],
+      "passed": true
+    }
+  ],
+  "passed": 20,
+  "total": 20,
+  "all_passed": true,
+  "elapsed_seconds": 0.04050479999932577,
+  "live_model_calls": 0,
+  "Z3_calls": 0,
+  "generated_code_executions": 0,
+  "blocked_external_operations": [],
+  "core_module_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\mapper.py"
+}

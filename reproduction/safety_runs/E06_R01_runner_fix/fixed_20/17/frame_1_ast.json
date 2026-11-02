@@ -1,0 +1,644 @@
+{
+  "dataset_id": "codeql_linux",
+  "position": 24,
+  "status": "UNKNOWN",
+  "reasons": [
+    "missing_original_build_evidence",
+    "clang_diagnostics_prevent_semantic_approval"
+  ],
+  "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+  "source_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+  "build_evidence": {
+    "status": "saved-source-only",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": false
+  },
+  "diagnostics": [
+    {
+      "severity": 2,
+      "spelling": "declaration of 'struct sk_buff' will not be visible outside of this function",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+        "line_1based": 1,
+        "column_1based": 46,
+        "byte_offset": 45
+      },
+      "option": "-Wvisibility",
+      "ranges": []
+    },
+    {
+      "severity": 2,
+      "spelling": "declaration of 'struct neighbour' will not be visible outside of this function",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+        "line_1based": 1,
+        "column_1based": 67,
+        "byte_offset": 66
+      },
+      "option": "-Wvisibility",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_get_dst_pending_confirm'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+        "line_1based": 3,
+        "column_1based": 6,
+        "byte_offset": 87
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sk_buff'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+        "line_1based": 4,
+        "column_1based": 24,
+        "byte_offset": 146
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 4,
+            "column_1based": 21,
+            "byte_offset": 143
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 4,
+            "column_1based": 24,
+            "byte_offset": 146
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'READ_ONCE'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+        "line_1based": 6,
+        "column_1based": 13,
+        "byte_offset": 165
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+        "line_1based": 6,
+        "column_1based": 25,
+        "byte_offset": 177
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 6,
+            "column_1based": 23,
+            "byte_offset": 175
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 6,
+            "column_1based": 25,
+            "byte_offset": 177
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'WRITE_ONCE'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+        "line_1based": 7,
+        "column_1based": 4,
+        "byte_offset": 207
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+        "line_1based": 7,
+        "column_1based": 17,
+        "byte_offset": 220
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 7,
+            "column_1based": 15,
+            "byte_offset": 218
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 7,
+            "column_1based": 17,
+            "byte_offset": 220
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'neigh_confirm'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+        "line_1based": 8,
+        "column_1based": 3,
+        "byte_offset": 252
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    }
+  ],
+  "macro_expansions": [],
+  "candidate_inventory": [],
+  "calls": [
+    {
+      "dataset_id": "codeql_linux",
+      "position": 24,
+      "callsite_id": "call:3961546af84a93c9b16225fd81489901980b8ea2f3c3beb069668aa295146d5f",
+      "caller": {
+        "name": "sock_confirm_neigh",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:frame_1.c@F@sock_confirm_neigh",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 1,
+          "column_1based": 20,
+          "byte_offset": 19
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 1,
+          "column_1based": 20,
+          "byte_offset": 19
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 1,
+            "column_1based": 1,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 10,
+            "column_1based": 2,
+            "byte_offset": 274
+          }
+        },
+        "linkage": "INTERNAL",
+        "declaration_id": "decl:81efca62e11eeffdd7f1acc7211f905bc404ba7c3b247a200382b355614b5779"
+      },
+      "callee": {
+        "name": "skb_get_dst_pending_confirm",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@skb_get_dst_pending_confirm",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 3,
+          "column_1based": 6,
+          "byte_offset": 87
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 3,
+          "column_1based": 6,
+          "byte_offset": 87
+        },
+        "source_range": {
+          "start": {
+            "file": null,
+            "line_1based": 0,
+            "column_1based": 0,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": null,
+            "line_1based": 0,
+            "column_1based": 0,
+            "byte_offset": 0
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:6c1d623f6ca64aea74b4b6a32ff7ed83f8cd6085a33d1c74df96473337ea858c"
+      },
+      "callsite": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 3,
+          "column_1based": 6,
+          "byte_offset": 87
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 3,
+          "column_1based": 38,
+          "byte_offset": 119
+        }
+      },
+      "call_text": "skb_get_dst_pending_confirm(skb)",
+      "caller_body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "callee_body_sha256": null,
+      "source_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "build_evidence": {
+        "status": "saved-source-only",
+        "args": [
+          "-x",
+          "c",
+          "-std=c11",
+          "-nostdinc",
+          "-Werror=implicit-function-declaration",
+          "-ferror-limit=0"
+        ],
+        "original_project_build_verified": false,
+        "controlled_synthetic_TU": false
+      },
+      "diagnostics_ref": "#/diagnostics",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_prevent_semantic_approval",
+        "missing_or_nonunique_local_definition"
+      ],
+      "mappings": [],
+      "ast_is_trusted": false,
+      "scope": "direct-call-entry-value-only",
+      "reachability_verified": false,
+      "post_call_effects_verified": false,
+      "pointed_object_identity_verified": false
+    },
+    {
+      "dataset_id": "codeql_linux",
+      "position": 24,
+      "callsite_id": "call:6f5b051917c25595ff79f83e6b5de260c40e40f6e6a7d961dc602a1c6c29db42",
+      "caller": {
+        "name": "sock_confirm_neigh",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:frame_1.c@F@sock_confirm_neigh",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 1,
+          "column_1based": 20,
+          "byte_offset": 19
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 1,
+          "column_1based": 20,
+          "byte_offset": 19
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 1,
+            "column_1based": 1,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 10,
+            "column_1based": 2,
+            "byte_offset": 274
+          }
+        },
+        "linkage": "INTERNAL",
+        "declaration_id": "decl:81efca62e11eeffdd7f1acc7211f905bc404ba7c3b247a200382b355614b5779"
+      },
+      "callee": {
+        "name": "READ_ONCE",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@READ_ONCE",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 6,
+          "column_1based": 13,
+          "byte_offset": 165
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 6,
+          "column_1based": 13,
+          "byte_offset": 165
+        },
+        "source_range": {
+          "start": {
+            "file": null,
+            "line_1based": 0,
+            "column_1based": 0,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": null,
+            "line_1based": 0,
+            "column_1based": 0,
+            "byte_offset": 0
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:9f24d9c16f1edf410d35cecc5245eec63b9a905dd6cfbfc80181d46c8c6ae776"
+      },
+      "callsite": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 6,
+          "column_1based": 13,
+          "byte_offset": 165
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 6,
+          "column_1based": 50,
+          "byte_offset": 202
+        }
+      },
+      "call_text": "READ_ONCE(sk->sk_dst_pending_confirm)",
+      "caller_body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "callee_body_sha256": null,
+      "source_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "build_evidence": {
+        "status": "saved-source-only",
+        "args": [
+          "-x",
+          "c",
+          "-std=c11",
+          "-nostdinc",
+          "-Werror=implicit-function-declaration",
+          "-ferror-limit=0"
+        ],
+        "original_project_build_verified": false,
+        "controlled_synthetic_TU": false
+      },
+      "diagnostics_ref": "#/diagnostics",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_prevent_semantic_approval",
+        "missing_or_nonunique_local_definition"
+      ],
+      "mappings": [],
+      "ast_is_trusted": false,
+      "scope": "direct-call-entry-value-only",
+      "reachability_verified": false,
+      "post_call_effects_verified": false,
+      "pointed_object_identity_verified": false
+    },
+    {
+      "dataset_id": "codeql_linux",
+      "position": 24,
+      "callsite_id": "call:890e6e5fc41b5ed4a131535467f09afa3ca866bda35d5b218aca787d009d6502",
+      "caller": {
+        "name": "sock_confirm_neigh",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:frame_1.c@F@sock_confirm_neigh",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 1,
+          "column_1based": 20,
+          "byte_offset": 19
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 1,
+          "column_1based": 20,
+          "byte_offset": 19
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 1,
+            "column_1based": 1,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 10,
+            "column_1based": 2,
+            "byte_offset": 274
+          }
+        },
+        "linkage": "INTERNAL",
+        "declaration_id": "decl:81efca62e11eeffdd7f1acc7211f905bc404ba7c3b247a200382b355614b5779"
+      },
+      "callee": {
+        "name": "WRITE_ONCE",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@WRITE_ONCE",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 7,
+          "column_1based": 4,
+          "byte_offset": 207
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 7,
+          "column_1based": 4,
+          "byte_offset": 207
+        },
+        "source_range": {
+          "start": {
+            "file": null,
+            "line_1based": 0,
+            "column_1based": 0,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": null,
+            "line_1based": 0,
+            "column_1based": 0,
+            "byte_offset": 0
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:425ddc0da91b2f9b3e4a109a87fceb250458e86753ebea6898507f3f9b5a4be5"
+      },
+      "callsite": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 7,
+          "column_1based": 4,
+          "byte_offset": 207
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 7,
+          "column_1based": 45,
+          "byte_offset": 248
+        }
+      },
+      "call_text": "WRITE_ONCE(sk->sk_dst_pending_confirm, 0)",
+      "caller_body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "callee_body_sha256": null,
+      "source_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "build_evidence": {
+        "status": "saved-source-only",
+        "args": [
+          "-x",
+          "c",
+          "-std=c11",
+          "-nostdinc",
+          "-Werror=implicit-function-declaration",
+          "-ferror-limit=0"
+        ],
+        "original_project_build_verified": false,
+        "controlled_synthetic_TU": false
+      },
+      "diagnostics_ref": "#/diagnostics",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_prevent_semantic_approval",
+        "missing_or_nonunique_local_definition"
+      ],
+      "mappings": [],
+      "ast_is_trusted": false,
+      "scope": "direct-call-entry-value-only",
+      "reachability_verified": false,
+      "post_call_effects_verified": false,
+      "pointed_object_identity_verified": false
+    },
+    {
+      "dataset_id": "codeql_linux",
+      "position": 24,
+      "callsite_id": "call:c75bff318ee04d82030862353c4f1e308dc6ab11e619aa9a3e8f9423b5d30c86",
+      "caller": {
+        "name": "sock_confirm_neigh",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:frame_1.c@F@sock_confirm_neigh",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 1,
+          "column_1based": 20,
+          "byte_offset": 19
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 1,
+          "column_1based": 20,
+          "byte_offset": 19
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 1,
+            "column_1based": 1,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+            "line_1based": 10,
+            "column_1based": 2,
+            "byte_offset": 274
+          }
+        },
+        "linkage": "INTERNAL",
+        "declaration_id": "decl:81efca62e11eeffdd7f1acc7211f905bc404ba7c3b247a200382b355614b5779"
+      },
+      "callee": {
+        "name": "neigh_confirm",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@neigh_confirm",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 8,
+          "column_1based": 3,
+          "byte_offset": 252
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 8,
+          "column_1based": 3,
+          "byte_offset": 252
+        },
+        "source_range": {
+          "start": {
+            "file": null,
+            "line_1based": 0,
+            "column_1based": 0,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": null,
+            "line_1based": 0,
+            "column_1based": 0,
+            "byte_offset": 0
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:0acb7ba0d7e2e1bbea601eed3ec2d6580da9549c1a8bd905f7906e6499671479"
+      },
+      "callsite": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 8,
+          "column_1based": 3,
+          "byte_offset": 252
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R01_runner_fix\\fixed_20\\17\\frame_1.c",
+          "line_1based": 8,
+          "column_1based": 19,
+          "byte_offset": 268
+        }
+      },
+      "call_text": "neigh_confirm(n)",
+      "caller_body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "callee_body_sha256": null,
+      "source_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "build_evidence": {
+        "status": "saved-source-only",
+        "args": [
+          "-x",
+          "c",
+          "-std=c11",
+          "-nostdinc",
+          "-Werror=implicit-function-declaration",
+          "-ferror-limit=0"
+        ],
+        "original_project_build_verified": false,
+        "controlled_synthetic_TU": false
+      },
+      "diagnostics_ref": "#/diagnostics",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_prevent_semantic_approval",
+        "missing_or_nonunique_local_definition"
+      ],
+      "mappings": [],
+      "ast_is_trusted": false,
+      "scope": "direct-call-entry-value-only",
+      "reachability_verified": false,
+      "post_call_effects_verified": false,
+      "pointed_object_identity_verified": false
+    }
+  ],
+  "elapsed_seconds": 0.021527300001253025
+}
