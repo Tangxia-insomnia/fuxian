@@ -1,0 +1,1136 @@
+{
+  "adapter_version": "e03-base-delta-explicit-transfer-v1",
+  "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+  "base_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+  "delta_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+  "final_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb",
+  "contract_status": "PASS",
+  "accepted": true,
+  "rejection_reasons": [],
+  "counts": {
+    "missing_declarations": 0,
+    "missing_base_assertions": 0,
+    "missing_delta_assertions": 0,
+    "type_conflicts": 0,
+    "symbol_identity_conflicts": 0,
+    "duplicate_declarations": 0,
+    "duplicate_assertions": 0,
+    "final_duplicate_assertions": 0,
+    "final_duplicate_declarations": 0
+  },
+  "check_contract": {
+    "checker_version": "e02-static-contract-v1",
+    "contract_status": "PASS",
+    "reasons": [
+      "all_required_structural_members_present"
+    ],
+    "scope": "exact structural B+delta preservation only",
+    "semantic_correctness": "NOT_ASSESSED",
+    "polarity_correctness": "NOT_ASSESSED",
+    "solver_executed": false,
+    "alert_safety_decision": null,
+    "counts": {
+      "missing_base_assertions": 0,
+      "missing_delta_assertions": 0,
+      "missing_declarations": 0,
+      "symbol_identity_conflicts": 0,
+      "type_conflicts": 0,
+      "duplicate_assertions": 0,
+      "duplicate_declarations": 0,
+      "extra_final_assertions": 0,
+      "extra_final_declarations": 0,
+      "solver_recreations": 0
+    },
+    "inputs": {
+      "B": {
+        "reference": "position/23/frame/0/U02/raw_response",
+        "sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+        "format": "python"
+      },
+      "delta": {
+        "reference": "position/23/frame/0/U06/raw_response",
+        "sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+        "format": "python"
+      },
+      "Final": {
+        "reference": "deterministic_U02_code_plus_U06_code",
+        "sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb",
+        "format": "python"
+      }
+    },
+    "ir": {
+      "B": {
+        "declarations": [
+          {
+            "symbol": "fraggap",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 1,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          },
+          {
+            "symbol": "skb_prev",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 2,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          }
+        ],
+        "assertions": [
+          {
+            "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 3,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          },
+          {
+            "formula": "(= skb_prev 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 4,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          }
+        ],
+        "bindings": [
+          {
+            "python_name": "fraggap",
+            "symbol": "fraggap",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 1,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          },
+          {
+            "python_name": "skb_prev",
+            "symbol": "skb_prev",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 2,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          }
+        ],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U02/raw_response",
+                  "line": 3,
+                  "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                }
+              },
+              {
+                "formula": "(= skb_prev 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U02/raw_response",
+                  "line": 4,
+                  "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                }
+              }
+            ],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "position/23/frame/0/U02/raw_response",
+          "sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      },
+      "delta": {
+        "declarations": [
+          {
+            "symbol": "skb",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 6,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          },
+          {
+            "symbol": "maxfraglen",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 7,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          }
+        ],
+        "assertions": [
+          {
+            "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 8,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          },
+          {
+            "formula": "(distinct fraggap 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 12,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          },
+          {
+            "formula": "(distinct skb 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 15,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          }
+        ],
+        "bindings": [
+          {
+            "python_name": "skb",
+            "symbol": "skb",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 6,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          },
+          {
+            "python_name": "maxfraglen",
+            "symbol": "maxfraglen",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 7,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          }
+        ],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 8,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              },
+              {
+                "formula": "(distinct fraggap 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 12,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              },
+              {
+                "formula": "(distinct skb 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 15,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              }
+            ],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "position/23/frame/0/U06/raw_response",
+          "sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      },
+      "Final": {
+        "declarations": [
+          {
+            "symbol": "fraggap",
+            "sort": "Int",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 2,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          },
+          {
+            "symbol": "skb_prev",
+            "sort": "Int",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 3,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          },
+          {
+            "symbol": "skb",
+            "sort": "Int",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 14,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          },
+          {
+            "symbol": "maxfraglen",
+            "sort": "Int",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 15,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          }
+        ],
+        "assertions": [
+          {
+            "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 4,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          },
+          {
+            "formula": "(= skb_prev 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 5,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          },
+          {
+            "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 16,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          },
+          {
+            "formula": "(distinct fraggap 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 20,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          },
+          {
+            "formula": "(distinct skb 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 23,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          }
+        ],
+        "bindings": [
+          {
+            "python_name": "fraggap",
+            "symbol": "fraggap",
+            "sort": "Int",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 2,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          },
+          {
+            "python_name": "skb_prev",
+            "symbol": "skb_prev",
+            "sort": "Int",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 3,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          },
+          {
+            "python_name": "skb",
+            "symbol": "skb",
+            "sort": "Int",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 14,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          },
+          {
+            "python_name": "maxfraglen",
+            "symbol": "maxfraglen",
+            "sort": "Int",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 15,
+              "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+            }
+          }
+        ],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 4,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "formula": "(= skb_prev 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 5,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 16,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "formula": "(distinct fraggap 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 20,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "formula": "(distinct skb 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 23,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              }
+            ],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "deterministic_U02_code_plus_U06_code",
+          "sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      }
+    },
+    "missing_base_assertions": [],
+    "missing_delta_assertions": [],
+    "missing_declarations": [],
+    "type_conflicts": {},
+    "identity_conflicts": [],
+    "unexpected_final_assertions": [],
+    "duplicate_assertions_by_role": {
+      "B": 0,
+      "delta": 0,
+      "Final": 0
+    },
+    "duplicate_declarations_by_role": {
+      "B": 0,
+      "delta": 0,
+      "Final": 0
+    },
+    "expected_declarations": [
+      [
+        "fraggap",
+        "Int"
+      ],
+      [
+        "maxfraglen",
+        "Int"
+      ],
+      [
+        "skb",
+        "Int"
+      ],
+      [
+        "skb_prev",
+        "Int"
+      ]
+    ],
+    "observed_declarations": [
+      [
+        "fraggap",
+        "Int"
+      ],
+      [
+        "maxfraglen",
+        "Int"
+      ],
+      [
+        "skb",
+        "Int"
+      ],
+      [
+        "skb_prev",
+        "Int"
+      ]
+    ],
+    "unexpected_final_declarations": [],
+    "seconds": 0.0034149000002798857
+  },
+  "semantic_correctness": "NOT_ASSESSED",
+  "polarity_correctness": "NOT_ASSESSED",
+  "alert_safety_decision": null,
+  "solver_executed": false,
+  "sources": {
+    "base": {
+      "stage": "U02",
+      "reference": "position/23/frame/0/U02/raw_response",
+      "raw_text": "```python\nfraggap=Int('fraggap')\nskb_prev=Int('skb_prev')\ns.add(Or(fraggap == 0, fraggap != 0))\ns.add(skb_prev == 0)\n```",
+      "raw_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    },
+    "delta": {
+      "stage": "U06",
+      "reference": "position/23/frame/0/U06/raw_response",
+      "raw_text": "```python\n# Additional constraints based on line-by-line simulation\n\n# fraggap is computed as: if (skb) fraggap = skb->len - maxfraglen; else fraggap = 0\n# Since skb_prev == 0, we are in the alloc_new_skb path.\n# Model both branches: skb NULL => fraggap == 0; skb non-NULL => fraggap == skb->len - maxfraglen\nskb=Int('skb')\nmaxfraglen=Int('maxfraglen')\ns.add(Or(And(skb == 0, fraggap == 0),\n         And(skb != 0, fraggap == skb - maxfraglen)))\n\n# Condition at line 270: if (fraggap) — the branch is taken, so fraggap != 0\ns.add(fraggap != 0)\n\n# Since fraggap != 0, skb must be non-NULL (from the Or above)\ns.add(skb != 0)\n```",
+      "raw_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    },
+    "final": {
+      "stage": "Final",
+      "reference": "deterministic_U02_code_plus_U06_code",
+      "raw_text": "# E03 BEGIN U02 BASE raw_sha256=beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3\nfraggap=Int('fraggap')\nskb_prev=Int('skb_prev')\ns.add(Or(fraggap == 0, fraggap != 0))\ns.add(skb_prev == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69\n# Additional constraints based on line-by-line simulation\n\n# fraggap is computed as: if (skb) fraggap = skb->len - maxfraglen; else fraggap = 0\n# Since skb_prev == 0, we are in the alloc_new_skb path.\n# Model both branches: skb NULL => fraggap == 0; skb non-NULL => fraggap == skb->len - maxfraglen\nskb=Int('skb')\nmaxfraglen=Int('maxfraglen')\ns.add(Or(And(skb == 0, fraggap == 0),\n         And(skb != 0, fraggap == skb - maxfraglen)))\n\n# Condition at line 270: if (fraggap) — the branch is taken, so fraggap != 0\ns.add(fraggap != 0)\n\n# Since fraggap != 0, skb must be non-NULL (from the Or above)\ns.add(skb != 0)\n\n# E03 END U06 DELTA\n",
+      "raw_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    }
+  },
+  "stage": "before_U10",
+  "merged_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb",
+  "bundle": {
+    "adapter_version": "e03-base-delta-explicit-transfer-v1",
+    "base": {
+      "stage": "U02",
+      "reference": "position/23/frame/0/U02/raw_response",
+      "raw_text": "```python\nfraggap=Int('fraggap')\nskb_prev=Int('skb_prev')\ns.add(Or(fraggap == 0, fraggap != 0))\ns.add(skb_prev == 0)\n```",
+      "raw_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation",
+      "code_text": "fraggap=Int('fraggap')\nskb_prev=Int('skb_prev')\ns.add(Or(fraggap == 0, fraggap != 0))\ns.add(skb_prev == 0)\n",
+      "code_sha256": "6b4a69a2c119455761eb5332b87becc8fd1888ba759a700f07b7f75675696a57",
+      "merged_span": {
+        "start": 97,
+        "end": 204,
+        "unit": "Python character offset, half-open"
+      }
+    },
+    "delta": {
+      "stage": "U06",
+      "reference": "position/23/frame/0/U06/raw_response",
+      "raw_text": "```python\n# Additional constraints based on line-by-line simulation\n\n# fraggap is computed as: if (skb) fraggap = skb->len - maxfraglen; else fraggap = 0\n# Since skb_prev == 0, we are in the alloc_new_skb path.\n# Model both branches: skb NULL => fraggap == 0; skb non-NULL => fraggap == skb->len - maxfraglen\nskb=Int('skb')\nmaxfraglen=Int('maxfraglen')\ns.add(Or(And(skb == 0, fraggap == 0),\n         And(skb != 0, fraggap == skb - maxfraglen)))\n\n# Condition at line 270: if (fraggap) — the branch is taken, so fraggap != 0\ns.add(fraggap != 0)\n\n# Since fraggap != 0, skb must be non-NULL (from the Or above)\ns.add(skb != 0)\n```",
+      "raw_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation",
+      "code_text": "# Additional constraints based on line-by-line simulation\n\n# fraggap is computed as: if (skb) fraggap = skb->len - maxfraglen; else fraggap = 0\n# Since skb_prev == 0, we are in the alloc_new_skb path.\n# Model both branches: skb NULL => fraggap == 0; skb non-NULL => fraggap == skb->len - maxfraglen\nskb=Int('skb')\nmaxfraglen=Int('maxfraglen')\ns.add(Or(And(skb == 0, fraggap == 0),\n         And(skb != 0, fraggap == skb - maxfraglen)))\n\n# Condition at line 270: if (fraggap) — the branch is taken, so fraggap != 0\ns.add(fraggap != 0)\n\n# Since fraggap != 0, skb must be non-NULL (from the Or above)\ns.add(skb != 0)\n",
+      "code_sha256": "5988f8d77b08c3eb72b224ae9e9c4cdc5b66d72d510eb08d0df896e8c71b6b46",
+      "merged_span": {
+        "start": 322,
+        "end": 935,
+        "unit": "Python character offset, half-open"
+      }
+    },
+    "merged_script": "# E03 BEGIN U02 BASE raw_sha256=beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3\nfraggap=Int('fraggap')\nskb_prev=Int('skb_prev')\ns.add(Or(fraggap == 0, fraggap != 0))\ns.add(skb_prev == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69\n# Additional constraints based on line-by-line simulation\n\n# fraggap is computed as: if (skb) fraggap = skb->len - maxfraglen; else fraggap = 0\n# Since skb_prev == 0, we are in the alloc_new_skb path.\n# Model both branches: skb NULL => fraggap == 0; skb non-NULL => fraggap == skb->len - maxfraglen\nskb=Int('skb')\nmaxfraglen=Int('maxfraglen')\ns.add(Or(And(skb == 0, fraggap == 0),\n         And(skb != 0, fraggap == skb - maxfraglen)))\n\n# Condition at line 270: if (fraggap) — the branch is taken, so fraggap != 0\ns.add(fraggap != 0)\n\n# Since fraggap != 0, skb must be non-NULL (from the Or above)\ns.add(skb != 0)\n\n# E03 END U06 DELTA\n",
+    "base_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+    "delta_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+    "merged_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb",
+    "assembly_audit": {
+      "adapter_version": "e03-base-delta-explicit-transfer-v1",
+      "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+      "base_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+      "delta_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+      "final_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb",
+      "contract_status": "PASS",
+      "accepted": true,
+      "rejection_reasons": [],
+      "counts": {
+        "missing_declarations": 0,
+        "missing_base_assertions": 0,
+        "missing_delta_assertions": 0,
+        "type_conflicts": 0,
+        "symbol_identity_conflicts": 0,
+        "duplicate_declarations": 0,
+        "duplicate_assertions": 0,
+        "final_duplicate_assertions": 0,
+        "final_duplicate_declarations": 0
+      },
+      "check_contract": {
+        "checker_version": "e02-static-contract-v1",
+        "contract_status": "PASS",
+        "reasons": [
+          "all_required_structural_members_present"
+        ],
+        "scope": "exact structural B+delta preservation only",
+        "semantic_correctness": "NOT_ASSESSED",
+        "polarity_correctness": "NOT_ASSESSED",
+        "solver_executed": false,
+        "alert_safety_decision": null,
+        "counts": {
+          "missing_base_assertions": 0,
+          "missing_delta_assertions": 0,
+          "missing_declarations": 0,
+          "symbol_identity_conflicts": 0,
+          "type_conflicts": 0,
+          "duplicate_assertions": 0,
+          "duplicate_declarations": 0,
+          "extra_final_assertions": 0,
+          "extra_final_declarations": 0,
+          "solver_recreations": 0
+        },
+        "inputs": {
+          "B": {
+            "reference": "position/23/frame/0/U02/raw_response",
+            "sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+            "format": "python"
+          },
+          "delta": {
+            "reference": "position/23/frame/0/U06/raw_response",
+            "sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+            "format": "python"
+          },
+          "Final": {
+            "reference": "deterministic_U02_code_plus_U06_code",
+            "sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb",
+            "format": "python"
+          }
+        },
+        "ir": {
+          "B": {
+            "declarations": [
+              {
+                "symbol": "fraggap",
+                "sort": "Int",
+                "origin": {
+                  "reference": "position/23/frame/0/U02/raw_response",
+                  "line": 1,
+                  "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                }
+              },
+              {
+                "symbol": "skb_prev",
+                "sort": "Int",
+                "origin": {
+                  "reference": "position/23/frame/0/U02/raw_response",
+                  "line": 2,
+                  "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                }
+              }
+            ],
+            "assertions": [
+              {
+                "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U02/raw_response",
+                  "line": 3,
+                  "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                }
+              },
+              {
+                "formula": "(= skb_prev 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U02/raw_response",
+                  "line": 4,
+                  "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                }
+              }
+            ],
+            "bindings": [
+              {
+                "python_name": "fraggap",
+                "symbol": "fraggap",
+                "sort": "Int",
+                "origin": {
+                  "reference": "position/23/frame/0/U02/raw_response",
+                  "line": 1,
+                  "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                }
+              },
+              {
+                "python_name": "skb_prev",
+                "symbol": "skb_prev",
+                "sort": "Int",
+                "origin": {
+                  "reference": "position/23/frame/0/U02/raw_response",
+                  "line": 2,
+                  "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                }
+              }
+            ],
+            "issues": [],
+            "snapshots": [
+              {
+                "all_recorded_assertions": [
+                  {
+                    "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/23/frame/0/U02/raw_response",
+                      "line": 3,
+                      "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                    }
+                  },
+                  {
+                    "formula": "(= skb_prev 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/23/frame/0/U02/raw_response",
+                      "line": 4,
+                      "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                    }
+                  }
+                ],
+                "selected_query_solver": null
+              }
+            ],
+            "resets": [],
+            "source": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+              "format": "python_ast_fragment",
+              "implicit_receiver": "s"
+            }
+          },
+          "delta": {
+            "declarations": [
+              {
+                "symbol": "skb",
+                "sort": "Int",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 6,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              },
+              {
+                "symbol": "maxfraglen",
+                "sort": "Int",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 7,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              }
+            ],
+            "assertions": [
+              {
+                "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 8,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              },
+              {
+                "formula": "(distinct fraggap 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 12,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              },
+              {
+                "formula": "(distinct skb 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 15,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              }
+            ],
+            "bindings": [
+              {
+                "python_name": "skb",
+                "symbol": "skb",
+                "sort": "Int",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 6,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              },
+              {
+                "python_name": "maxfraglen",
+                "symbol": "maxfraglen",
+                "sort": "Int",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 7,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              }
+            ],
+            "issues": [],
+            "snapshots": [
+              {
+                "all_recorded_assertions": [
+                  {
+                    "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/23/frame/0/U06/raw_response",
+                      "line": 8,
+                      "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                    }
+                  },
+                  {
+                    "formula": "(distinct fraggap 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/23/frame/0/U06/raw_response",
+                      "line": 12,
+                      "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                    }
+                  },
+                  {
+                    "formula": "(distinct skb 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/23/frame/0/U06/raw_response",
+                      "line": 15,
+                      "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                    }
+                  }
+                ],
+                "selected_query_solver": null
+              }
+            ],
+            "resets": [],
+            "source": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+              "format": "python_ast_fragment",
+              "implicit_receiver": "s"
+            }
+          },
+          "Final": {
+            "declarations": [
+              {
+                "symbol": "fraggap",
+                "sort": "Int",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 2,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "symbol": "skb_prev",
+                "sort": "Int",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 3,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "symbol": "skb",
+                "sort": "Int",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 14,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "symbol": "maxfraglen",
+                "sort": "Int",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 15,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              }
+            ],
+            "assertions": [
+              {
+                "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 4,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "formula": "(= skb_prev 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 5,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 16,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "formula": "(distinct fraggap 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 20,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "formula": "(distinct skb 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 23,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              }
+            ],
+            "bindings": [
+              {
+                "python_name": "fraggap",
+                "symbol": "fraggap",
+                "sort": "Int",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 2,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "python_name": "skb_prev",
+                "symbol": "skb_prev",
+                "sort": "Int",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 3,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "python_name": "skb",
+                "symbol": "skb",
+                "sort": "Int",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 14,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              },
+              {
+                "python_name": "maxfraglen",
+                "symbol": "maxfraglen",
+                "sort": "Int",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 15,
+                  "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                }
+              }
+            ],
+            "issues": [],
+            "snapshots": [
+              {
+                "all_recorded_assertions": [
+                  {
+                    "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 4,
+                      "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                    }
+                  },
+                  {
+                    "formula": "(= skb_prev 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 5,
+                      "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                    }
+                  },
+                  {
+                    "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 16,
+                      "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                    }
+                  },
+                  {
+                    "formula": "(distinct fraggap 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 20,
+                      "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                    }
+                  },
+                  {
+                    "formula": "(distinct skb 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 23,
+                      "source_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+                    }
+                  }
+                ],
+                "selected_query_solver": null
+              }
+            ],
+            "resets": [],
+            "source": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb",
+              "format": "python_ast_fragment",
+              "implicit_receiver": "s"
+            }
+          }
+        },
+        "missing_base_assertions": [],
+        "missing_delta_assertions": [],
+        "missing_declarations": [],
+        "type_conflicts": {},
+        "identity_conflicts": [],
+        "unexpected_final_assertions": [],
+        "duplicate_assertions_by_role": {
+          "B": 0,
+          "delta": 0,
+          "Final": 0
+        },
+        "duplicate_declarations_by_role": {
+          "B": 0,
+          "delta": 0,
+          "Final": 0
+        },
+        "expected_declarations": [
+          [
+            "fraggap",
+            "Int"
+          ],
+          [
+            "maxfraglen",
+            "Int"
+          ],
+          [
+            "skb",
+            "Int"
+          ],
+          [
+            "skb_prev",
+            "Int"
+          ]
+        ],
+        "observed_declarations": [
+          [
+            "fraggap",
+            "Int"
+          ],
+          [
+            "maxfraglen",
+            "Int"
+          ],
+          [
+            "skb",
+            "Int"
+          ],
+          [
+            "skb_prev",
+            "Int"
+          ]
+        ],
+        "unexpected_final_declarations": [],
+        "seconds": 0.0034149000002798857
+      },
+      "semantic_correctness": "NOT_ASSESSED",
+      "polarity_correctness": "NOT_ASSESSED",
+      "alert_safety_decision": null,
+      "solver_executed": false,
+      "sources": {
+        "base": {
+          "stage": "U02",
+          "reference": "position/23/frame/0/U02/raw_response",
+          "raw_text": "```python\nfraggap=Int('fraggap')\nskb_prev=Int('skb_prev')\ns.add(Or(fraggap == 0, fraggap != 0))\ns.add(skb_prev == 0)\n```",
+          "raw_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+          "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+        },
+        "delta": {
+          "stage": "U06",
+          "reference": "position/23/frame/0/U06/raw_response",
+          "raw_text": "```python\n# Additional constraints based on line-by-line simulation\n\n# fraggap is computed as: if (skb) fraggap = skb->len - maxfraglen; else fraggap = 0\n# Since skb_prev == 0, we are in the alloc_new_skb path.\n# Model both branches: skb NULL => fraggap == 0; skb non-NULL => fraggap == skb->len - maxfraglen\nskb=Int('skb')\nmaxfraglen=Int('maxfraglen')\ns.add(Or(And(skb == 0, fraggap == 0),\n         And(skb != 0, fraggap == skb - maxfraglen)))\n\n# Condition at line 270: if (fraggap) — the branch is taken, so fraggap != 0\ns.add(fraggap != 0)\n\n# Since fraggap != 0, skb must be non-NULL (from the Or above)\ns.add(skb != 0)\n```",
+          "raw_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+          "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+        },
+        "final": {
+          "stage": "Final",
+          "reference": "deterministic_U02_code_plus_U06_code",
+          "raw_text": "# E03 BEGIN U02 BASE raw_sha256=beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3\nfraggap=Int('fraggap')\nskb_prev=Int('skb_prev')\ns.add(Or(fraggap == 0, fraggap != 0))\ns.add(skb_prev == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69\n# Additional constraints based on line-by-line simulation\n\n# fraggap is computed as: if (skb) fraggap = skb->len - maxfraglen; else fraggap = 0\n# Since skb_prev == 0, we are in the alloc_new_skb path.\n# Model both branches: skb NULL => fraggap == 0; skb non-NULL => fraggap == skb->len - maxfraglen\nskb=Int('skb')\nmaxfraglen=Int('maxfraglen')\ns.add(Or(And(skb == 0, fraggap == 0),\n         And(skb != 0, fraggap == skb - maxfraglen)))\n\n# Condition at line 270: if (fraggap) — the branch is taken, so fraggap != 0\ns.add(fraggap != 0)\n\n# Since fraggap != 0, skb must be non-NULL (from the Or above)\ns.add(skb != 0)\n\n# E03 END U06 DELTA\n",
+          "raw_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb",
+          "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+        }
+      },
+      "stage": "before_U10",
+      "merged_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb"
+    }
+  },
+  "event_id": 1,
+  "sample_position": 23,
+  "frame_level": 0,
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "sample_id": "NPD/codeql/kernel69:row=23:index=42"
+}

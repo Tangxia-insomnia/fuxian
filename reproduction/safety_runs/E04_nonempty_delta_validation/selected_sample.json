@@ -1,0 +1,58 @@
+{
+  "selected_at": "2026-11-02T11:52:47.005367+08:00",
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "dataset_id": "codeql_linux",
+  "position": 23,
+  "index": 42,
+  "sample_id": "NPD/codeql/kernel69:row=23:index=42",
+  "target_frame": 0,
+  "function": "__ip6_append_data",
+  "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+  "target": "\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,",
+  "source_basis": [
+    {
+      "body_line": 170,
+      "text": "\t\t\tunsigned int fraggap;",
+      "role": "unsigned scalar declaration"
+    },
+    {
+      "body_line": 271,
+      "text": "\t\t\tif (fraggap) {",
+      "role": "true branch containing target"
+    },
+    {
+      "body_line": 275,
+      "text": "\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,",
+      "role": "target statement"
+    }
+  ],
+  "selection_note": "Audit A01 has known polarity risk; other audit cases lack the normal U06 path or have comment-only delta. Existing historical corpus screened read-only; this candidate has explicit native unsigned scalar type and direct scalar branch. No labels or historic predictions were used.",
+  "historical_sources": [
+    {
+      "source": "results/raw/completed/calls/0010.json",
+      "copy": "historical_evidence/0010.json",
+      "sha256": "83e021c9b72b0e287ccee435f3e588ca776c4e931164e74e9516e959ce28d71b",
+      "call_id": 10
+    },
+    {
+      "source": "results/raw/completed/calls/0011.json",
+      "copy": "historical_evidence/0011.json",
+      "sha256": "f922bde5a20824afb66a61b2d798114bb7a5fc5781eecb0bf2b70f314afaf9ae",
+      "call_id": 11
+    },
+    {
+      "source": "results/raw/completed/calls/0012.json",
+      "copy": "historical_evidence/0012.json",
+      "sha256": "de003872c3895636103a2db1107b725d1ce0872a1d3aa357be2cea9a90abd17e",
+      "call_id": 12
+    },
+    {
+      "source": "results/raw/completed/calls/0013.json",
+      "copy": "historical_evidence/0013.json",
+      "sha256": "b596f358d03191c7bf28fb84c45ad0e49038ae3e7ad4858f65945f2ae2e7e98d",
+      "call_id": 13
+    }
+  ],
+  "historical_outputs_are_not_new_experiment_outputs": true,
+  "one_live_attempt_only": true
+}

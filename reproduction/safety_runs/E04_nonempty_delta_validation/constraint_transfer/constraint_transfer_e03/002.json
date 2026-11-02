@@ -1,0 +1,566 @@
+{
+  "adapter_version": "e03-base-delta-explicit-transfer-v1",
+  "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+  "base_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+  "delta_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+  "final_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23",
+  "contract_status": "PASS",
+  "accepted": true,
+  "rejection_reasons": [],
+  "counts": {
+    "missing_declarations": 0,
+    "missing_base_assertions": 0,
+    "missing_delta_assertions": 0,
+    "type_conflicts": 0,
+    "symbol_identity_conflicts": 0,
+    "duplicate_declarations": 0,
+    "duplicate_assertions": 0,
+    "final_duplicate_assertions": 0,
+    "final_duplicate_declarations": 0
+  },
+  "check_contract": {
+    "checker_version": "e02-static-contract-v1",
+    "contract_status": "PASS",
+    "reasons": [
+      "all_required_structural_members_present"
+    ],
+    "scope": "exact structural B+delta preservation only",
+    "semantic_correctness": "NOT_ASSESSED",
+    "polarity_correctness": "NOT_ASSESSED",
+    "solver_executed": false,
+    "alert_safety_decision": null,
+    "counts": {
+      "missing_base_assertions": 0,
+      "missing_delta_assertions": 0,
+      "missing_declarations": 0,
+      "symbol_identity_conflicts": 0,
+      "type_conflicts": 0,
+      "duplicate_assertions": 0,
+      "duplicate_declarations": 0,
+      "extra_final_assertions": 0,
+      "extra_final_declarations": 0,
+      "solver_recreations": 0
+    },
+    "inputs": {
+      "B": {
+        "reference": "position/23/frame/0/U02/raw_response",
+        "sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+        "format": "python"
+      },
+      "delta": {
+        "reference": "position/23/frame/0/U06/raw_response",
+        "sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+        "format": "python"
+      },
+      "Final": {
+        "reference": "U10/output",
+        "sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23",
+        "format": "python"
+      }
+    },
+    "ir": {
+      "B": {
+        "declarations": [
+          {
+            "symbol": "fraggap",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 1,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          },
+          {
+            "symbol": "skb_prev",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 2,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          }
+        ],
+        "assertions": [
+          {
+            "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 3,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          },
+          {
+            "formula": "(= skb_prev 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 4,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          }
+        ],
+        "bindings": [
+          {
+            "python_name": "fraggap",
+            "symbol": "fraggap",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 1,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          },
+          {
+            "python_name": "skb_prev",
+            "symbol": "skb_prev",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U02/raw_response",
+              "line": 2,
+              "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+            }
+          }
+        ],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U02/raw_response",
+                  "line": 3,
+                  "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                }
+              },
+              {
+                "formula": "(= skb_prev 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U02/raw_response",
+                  "line": 4,
+                  "source_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3"
+                }
+              }
+            ],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "position/23/frame/0/U02/raw_response",
+          "sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      },
+      "delta": {
+        "declarations": [
+          {
+            "symbol": "skb",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 6,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          },
+          {
+            "symbol": "maxfraglen",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 7,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          }
+        ],
+        "assertions": [
+          {
+            "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 8,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          },
+          {
+            "formula": "(distinct fraggap 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 12,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          },
+          {
+            "formula": "(distinct skb 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 15,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          }
+        ],
+        "bindings": [
+          {
+            "python_name": "skb",
+            "symbol": "skb",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 6,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          },
+          {
+            "python_name": "maxfraglen",
+            "symbol": "maxfraglen",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/23/frame/0/U06/raw_response",
+              "line": 7,
+              "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+            }
+          }
+        ],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 8,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              },
+              {
+                "formula": "(distinct fraggap 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 12,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              },
+              {
+                "formula": "(distinct skb 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/23/frame/0/U06/raw_response",
+                  "line": 15,
+                  "source_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69"
+                }
+              }
+            ],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "position/23/frame/0/U06/raw_response",
+          "sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      },
+      "Final": {
+        "declarations": [
+          {
+            "symbol": "fraggap",
+            "sort": "Int",
+            "origin": {
+              "reference": "U10/output",
+              "line": 6,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          },
+          {
+            "symbol": "skb_prev",
+            "sort": "Int",
+            "origin": {
+              "reference": "U10/output",
+              "line": 7,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          },
+          {
+            "symbol": "skb",
+            "sort": "Int",
+            "origin": {
+              "reference": "U10/output",
+              "line": 8,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          },
+          {
+            "symbol": "maxfraglen",
+            "sort": "Int",
+            "origin": {
+              "reference": "U10/output",
+              "line": 9,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          }
+        ],
+        "assertions": [
+          {
+            "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "U10/output",
+              "line": 12,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          },
+          {
+            "formula": "(= skb_prev 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "U10/output",
+              "line": 13,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          },
+          {
+            "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "U10/output",
+              "line": 16,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          },
+          {
+            "formula": "(distinct fraggap 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "U10/output",
+              "line": 18,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          },
+          {
+            "formula": "(distinct skb 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "U10/output",
+              "line": 19,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          }
+        ],
+        "bindings": [
+          {
+            "python_name": "fraggap",
+            "symbol": "fraggap",
+            "sort": "Int",
+            "origin": {
+              "reference": "U10/output",
+              "line": 6,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          },
+          {
+            "python_name": "skb_prev",
+            "symbol": "skb_prev",
+            "sort": "Int",
+            "origin": {
+              "reference": "U10/output",
+              "line": 7,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          },
+          {
+            "python_name": "skb",
+            "symbol": "skb",
+            "sort": "Int",
+            "origin": {
+              "reference": "U10/output",
+              "line": 8,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          },
+          {
+            "python_name": "maxfraglen",
+            "symbol": "maxfraglen",
+            "sort": "Int",
+            "origin": {
+              "reference": "U10/output",
+              "line": 9,
+              "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+            }
+          }
+        ],
+        "issues": [],
+        "snapshots": [
+          {
+            "solver": "solver/1",
+            "line": 21,
+            "assertion_indices": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "declaration_count": 4,
+            "binding_count": 4
+          },
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(or (= fraggap 0) (distinct fraggap 0))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "U10/output",
+                  "line": 12,
+                  "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+                }
+              },
+              {
+                "formula": "(= skb_prev 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "U10/output",
+                  "line": 13,
+                  "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+                }
+              },
+              {
+                "formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "U10/output",
+                  "line": 16,
+                  "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+                }
+              },
+              {
+                "formula": "(distinct fraggap 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "U10/output",
+                  "line": 18,
+                  "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+                }
+              },
+              {
+                "formula": "(distinct skb 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "U10/output",
+                  "line": 19,
+                  "source_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23"
+                }
+              }
+            ],
+            "selected_query_solver": "solver/1"
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "U10/output",
+          "sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23",
+          "format": "python_ast"
+        }
+      }
+    },
+    "missing_base_assertions": [],
+    "missing_delta_assertions": [],
+    "missing_declarations": [],
+    "type_conflicts": {},
+    "identity_conflicts": [],
+    "unexpected_final_assertions": [],
+    "duplicate_assertions_by_role": {
+      "B": 0,
+      "delta": 0,
+      "Final": 0
+    },
+    "duplicate_declarations_by_role": {
+      "B": 0,
+      "delta": 0,
+      "Final": 0
+    },
+    "expected_declarations": [
+      [
+        "fraggap",
+        "Int"
+      ],
+      [
+        "maxfraglen",
+        "Int"
+      ],
+      [
+        "skb",
+        "Int"
+      ],
+      [
+        "skb_prev",
+        "Int"
+      ]
+    ],
+    "observed_declarations": [
+      [
+        "fraggap",
+        "Int"
+      ],
+      [
+        "maxfraglen",
+        "Int"
+      ],
+      [
+        "skb",
+        "Int"
+      ],
+      [
+        "skb_prev",
+        "Int"
+      ]
+    ],
+    "unexpected_final_declarations": [],
+    "seconds": 0.0010925000005954644
+  },
+  "semantic_correctness": "NOT_ASSESSED",
+  "polarity_correctness": "NOT_ASSESSED",
+  "alert_safety_decision": null,
+  "solver_executed": false,
+  "sources": {
+    "base": {
+      "stage": "U02",
+      "reference": "position/23/frame/0/U02/raw_response",
+      "raw_text": "```python\nfraggap=Int('fraggap')\nskb_prev=Int('skb_prev')\ns.add(Or(fraggap == 0, fraggap != 0))\ns.add(skb_prev == 0)\n```",
+      "raw_sha256": "beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    },
+    "delta": {
+      "stage": "U06",
+      "reference": "position/23/frame/0/U06/raw_response",
+      "raw_text": "```python\n# Additional constraints based on line-by-line simulation\n\n# fraggap is computed as: if (skb) fraggap = skb->len - maxfraglen; else fraggap = 0\n# Since skb_prev == 0, we are in the alloc_new_skb path.\n# Model both branches: skb NULL => fraggap == 0; skb non-NULL => fraggap == skb->len - maxfraglen\nskb=Int('skb')\nmaxfraglen=Int('maxfraglen')\ns.add(Or(And(skb == 0, fraggap == 0),\n         And(skb != 0, fraggap == skb - maxfraglen)))\n\n# Condition at line 270: if (fraggap) — the branch is taken, so fraggap != 0\ns.add(fraggap != 0)\n\n# Since fraggap != 0, skb must be non-NULL (from the Or above)\ns.add(skb != 0)\n```",
+      "raw_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    },
+    "final": {
+      "stage": "Final",
+      "reference": "U10/output",
+      "raw_text": "def check_constraints():\n    from z3 import Int, Solver, And, Or, sat\n\n    s = Solver()\n\n    fraggap = Int('fraggap')\n    skb_prev = Int('skb_prev')\n    skb = Int('skb')\n    maxfraglen = Int('maxfraglen')\n\n    # BASE constraints\n    s.add(Or(fraggap == 0, fraggap != 0))\n    s.add(skb_prev == 0)\n\n    # DELTA constraints\n    s.add(Or(And(skb == 0, fraggap == 0),\n             And(skb != 0, fraggap == skb - maxfraglen)))\n    s.add(fraggap != 0)\n    s.add(skb != 0)\n\n    return s.check() == sat",
+      "raw_sha256": "e360770424493529a8de048b7bb2241ec475cbd703a429e9c04fab01dab14b23",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    }
+  },
+  "stage": "after_U10_before_solver",
+  "attempt": 1,
+  "merged_sha256": "f24166bace83c56c44b6d0a4e2285a49ab78e5443dbbefa812709c146e13adcb",
+  "event_id": 2,
+  "sample_position": 23,
+  "frame_level": 0,
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "sample_id": "NPD/codeql/kernel69:row=23:index=42"
+}

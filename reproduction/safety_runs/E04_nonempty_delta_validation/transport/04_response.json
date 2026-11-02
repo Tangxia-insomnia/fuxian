@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-11-02T11:53:30.978795+08:00",
+  "ordinal": 4,
+  "http_status": 200,
+  "response_body_sha256": "32a08ec7d4aa793721bd50dd4924bc71eb494864de8d0a1aafed6e195406c10b",
+  "payload": {
+    "id": "b4f8763d-a1c1-48f2-a79e-22b4881520e4",
+    "object": "chat.completion",
+    "created": 1793591609,
+    "model": "deepseek-flash",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "```python\n# Additional constraints based on line-by-line simulation\n\n# fraggap is computed as: if (skb) fraggap = skb->len - maxfraglen; else fraggap = 0\n# Since skb_prev == 0, we are in the alloc_new_skb path.\n# Model both branches: skb NULL => fraggap == 0; skb non-NULL => fraggap == skb->len - maxfraglen\nskb=Int('skb')\nmaxfraglen=Int('maxfraglen')\ns.add(Or(And(skb == 0, fraggap == 0),\n         And(skb != 0, fraggap == skb - maxfraglen)))\n\n# Condition at line 270: if (fraggap) — the branch is taken, so fraggap != 0\ns.add(fraggap != 0)\n\n# Since fraggap != 0, skb must be non-NULL (from the Or above)\ns.add(skb != 0)\n```"
+        },
+        "logprobs": null,
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4959,
+      "completion_tokens": 232,
+      "total_tokens": 5191,
+      "prompt_tokens_details": {
+        "cached_tokens": 4480
+      },
+      "prompt_cache_hit_tokens": 4480,
+      "prompt_cache_miss_tokens": 479
+    },
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+  }
+}

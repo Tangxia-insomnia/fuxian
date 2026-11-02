@@ -1,0 +1,326 @@
+{
+  "labels_used": false,
+  "model_calls": 0,
+  "candidates": [
+    {
+      "position": 16,
+      "index": 34,
+      "origin": "official_historical_baseline",
+      "frames": [
+        {
+          "level": 0,
+          "function": "inet6_validate_link_af",
+          "var_name": "idev",
+          "target": "\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)",
+          "code": "static int inet6_validate_link_af(const struct net_device *dev,\n\t\t\t\t  const struct nlattr *nla,\n\t\t\t\t  struct netlink_ext_ack *extack)\n{\n\tstruct nlattr *tb[IFLA_INET6_MAX + 1];\n\tstruct inet6_dev *idev = NULL;\n\tint err;\n\n\tif (dev) {\n\t\tidev = __in6_dev_get(dev);\n\t\tif (!idev)\n\t\t\treturn -EAFNOSUPPORT;\n\t}\n\n\terr = nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla,\n\t\t\t\t\t  inet6_af_policy, extack);\n\tif (err)\n\t\treturn err;\n\n\tif (!tb[IFLA_INET6_TOKEN] && !tb[IFLA_INET6_ADDR_GEN_MODE])\n\t\treturn -EINVAL;\n\n\tif (tb[IFLA_INET6_ADDR_GEN_MODE]) {\n\t\tu8 mode = nla_get_u8(tb[IFLA_INET6_ADDR_GEN_MODE]);\n\n\t\tif (check_addr_gen_mode(mode) < 0)\n\t\t\treturn -EINVAL;\n\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)\n\t\t\treturn -EINVAL;\n\t}\n\n\treturn 0;\n}",
+          "body_sha256": "2c336688df01cb1bb2d664c21cc6e2b6d0e5dc693992a1b14157d8d52d8e28f1",
+          "sink_kind": "author_historical_macro_or_call_sink",
+          "extracted": {
+            "bug_line_constraints": [
+              {
+                "text": "\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)",
+                "condition": [
+                  {
+                    "condition": "if (tb[IFLA_INET6_ADDR_GEN_MODE])",
+                    "line_number": 22
+                  },
+                  {
+                    "condition": "if (dev)",
+                    "line_number": 27
+                  }
+                ]
+              }
+            ],
+            "target_conditions": [
+              {
+                "condition": "if (tb[IFLA_INET6_ADDR_GEN_MODE])",
+                "line_number": 22
+              },
+              {
+                "condition": "if (dev)",
+                "line_number": 27
+              }
+            ],
+            "variable_assignments": {
+              "text": "static int inet6_validate_link_af(const struct net_device *dev,",
+              "condition": []
+            },
+            "variable_non_empty": [],
+            "early_jump_constraints": [
+              {
+                "text": "return",
+                "condition": [
+                  "tb[IFLA_INET6_ADDR_GEN_MODE]",
+                  "check_addr_gen_mode(mode) < 0"
+                ]
+              },
+              {
+                "text": "return",
+                "condition": [
+                  "!tb[IFLA_INET6_TOKEN] && !tb[IFLA_INET6_ADDR_GEN_MODE]"
+                ]
+              },
+              {
+                "text": "return",
+                "condition": [
+                  "err"
+                ]
+              },
+              {
+                "text": "return",
+                "condition": [
+                  "dev",
+                  "!idev"
+                ]
+              }
+            ],
+            "filter_function_code": "static int inet6_validate_link_af(const struct net_device *dev,\n\t\t\t\t  const struct nlattr *nla,\n\t\t\t\t  struct netlink_ext_ack *extack)\n{\n\tstruct nlattr *tb[IFLA_INET6_MAX + 1];\n\tstruct inet6_dev *idev = NULL;\n\tint err;\n\n\tif (dev) {\n\t\tidev = __in6_dev_get(dev);\n\t\tif (!idev)\n\t\t\treturn -EAFNOSUPPORT;\n\t}\n\n\terr = nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla,\n\t\t\t\t\t  inet6_af_policy, extack);\n\tif (err)\n\t\treturn err;\n\n\tif (!tb[IFLA_INET6_TOKEN] && !tb[IFLA_INET6_ADDR_GEN_MODE])\n\t\treturn -EINVAL;\n\n\tif (tb[IFLA_INET6_ADDR_GEN_MODE]) {\n\t\tu8 mode = nla_get_u8(tb[IFLA_INET6_ADDR_GEN_MODE]);\n\n\t\tif (check_addr_gen_mode(mode) < 0)\n\t\t\treturn -EINVAL;\n\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)\n\t\t\treturn -EINVAL;\n\t}\n\n\treturn 0;\n}"
+          }
+        }
+      ]
+    },
+    {
+      "position": 23,
+      "index": 42,
+      "origin": "official_historical_baseline",
+      "frames": [
+        {
+          "level": 0,
+          "function": "__ip6_append_data",
+          "var_name": "skb_prev",
+          "target": "\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,",
+          "code": "static int __ip6_append_data(struct sock *sk,\n\t\t\t     struct sk_buff_head *queue,\n\t\t\t     struct inet_cork_full *cork_full,\n\t\t\t     struct inet6_cork *v6_cork,\n\t\t\t     struct page_frag *pfrag,\n\t\t\t     int getfrag(void *from, char *to, int offset,\n\t\t\t\t\t int len, int odd, struct sk_buff *skb),\n\t\t\t     void *from, size_t length, int transhdrlen,\n\t\t\t     unsigned int flags, struct ipcm6_cookie *ipc6)\n{\n\tstruct sk_buff *skb, *skb_prev = NULL;\n\tstruct inet_cork *cork = &cork_full->base;\n\tstruct flowi6 *fl6 = &cork_full->fl.u.ip6;\n\tunsigned int maxfraglen, fragheaderlen, mtu, orig_mtu, pmtu;\n\tstruct ubuf_info *uarg = NULL;\n\tint exthdrlen = 0;\n\tint dst_exthdrlen = 0;\n\tint hh_len;\n\tint copy;\n\tint err;\n\tint offset = 0;\n\tbool zc = false;\n\tu32 tskey = 0;\n\tstruct rt6_info *rt = dst_rt6_info(cork->dst);\n\tbool paged, hold_tskey, extra_uref = false;\n\tstruct ipv6_txoptions *opt = v6_cork->opt;\n\tint csummode = CHECKSUM_NONE;\n\tunsigned int maxnonfragsize, headersize;\n\tunsigned int wmem_alloc_delta = 0;\n\n\tskb = skb_peek_tail(queue);\n\tif (!skb) {\n\t\texthdrlen = opt ? opt->opt_flen : 0;\n\t\tdst_exthdrlen = rt->dst.header_len - rt->rt6i_nfheader_len;\n\t}\n\n\tpaged = !!cork->gso_size;\n\tmtu = cork->gso_size ? IP6_MAX_MTU : cork->fragsize;\n\torig_mtu = mtu;\n\n\thh_len = LL_RESERVED_SPACE(rt->dst.dev);\n\n\tfragheaderlen = sizeof(struct ipv6hdr) + rt->rt6i_nfheader_len +\n\t\t\t(opt ? opt->opt_nflen : 0);\n\n\theadersize = sizeof(struct ipv6hdr) +\n\t\t     (opt ? opt->opt_flen + opt->opt_nflen : 0) +\n\t\t     rt->rt6i_nfheader_len;\n\n\tif (mtu <= fragheaderlen ||\n\t    ((mtu - fragheaderlen) & ~7) + fragheaderlen <= sizeof(struct frag_hdr))\n\t\tgoto emsgsize;\n\n\tmaxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -\n\t\t     sizeof(struct frag_hdr);\n\n\t/* as per RFC 7112 section 5, the entire IPv6 Header Chain must fit\n\t * the first fragment\n\t */\n\tif (headersize + transhdrlen > mtu)\n\t\tgoto emsgsize;\n\n\tif (cork->length + length > mtu - headersize && ipc6->dontfrag &&\n\t    (sk->sk_protocol == IPPROTO_UDP ||\n\t     sk->sk_protocol == IPPROTO_ICMPV6 ||\n\t     sk->sk_protocol == IPPROTO_RAW)) {\n\t\tipv6_local_rxpmtu(sk, fl6, mtu - headersize +\n\t\t\t\tsizeof(struct ipv6hdr));\n\t\tgoto emsgsize;\n\t}\n\n\tif (ip6_sk_ignore_df(sk))\n\t\tmaxnonfragsize = sizeof(struct ipv6hdr) + IPV6_MAXPLEN;\n\telse\n\t\tmaxnonfragsize = mtu;\n\n\tif (cork->length + length > maxnonfragsize - headersize) {\nemsgsize:\n\t\tpmtu = max_t(int, mtu - headersize + sizeof(struct ipv6hdr), 0);\n\t\tipv6_local_error(sk, EMSGSIZE, fl6, pmtu);\n\t\treturn -EMSGSIZE;\n\t}\n\n\t/* CHECKSUM_PARTIAL only with no extension headers and when\n\t * we are not going to fragment\n\t */\n\tif (transhdrlen && sk->sk_protocol == IPPROTO_UDP &&\n\t    headersize == sizeof(struct ipv6hdr) &&\n\t    length <= mtu - headersize &&\n\t    (!(flags & MSG_MORE) || cork->gso_size) &&\n\t    rt->dst.dev->features & (NETIF_F_IPV6_CSUM | NETIF_F_HW_CSUM))\n\t\tcsummode = CHECKSUM_PARTIAL;\n\n\tif ((flags & MSG_ZEROCOPY) && length) {\n\t\tstruct msghdr *msg = from;\n\n\t\tif (getfrag == ip_generic_getfrag && msg->msg_ubuf) {\n\t\t\tif (skb_zcopy(skb) && msg->msg_ubuf != skb_zcopy(skb))\n\t\t\t\treturn -EINVAL;\n\n\t\t\t/* Leave uarg NULL if can't zerocopy, callers should\n\t\t\t * be able to handle it.\n\t\t\t */\n\t\t\tif ((rt->dst.dev->features & NETIF_F_SG) &&\n\t\t\t    csummode == CHECKSUM_PARTIAL) {\n\t\t\t\tpaged = true;\n\t\t\t\tzc = true;\n\t\t\t\tuarg = msg->msg_ubuf;\n\t\t\t}\n\t\t} else if (sock_flag(sk, SOCK_ZEROCOPY)) {\n\t\t\tuarg = msg_zerocopy_realloc(sk, length, skb_zcopy(skb));\n\t\t\tif (!uarg)\n\t\t\t\treturn -ENOBUFS;\n\t\t\textra_uref = !skb_zcopy(skb);\t/* only ref on new uarg */\n\t\t\tif (rt->dst.dev->features & NETIF_F_SG &&\n\t\t\t    csummode == CHECKSUM_PARTIAL) {\n\t\t\t\tpaged = true;\n\t\t\t\tzc = true;\n\t\t\t} else {\n\t\t\t\tuarg_to_msgzc(uarg)->zerocopy = 0;\n\t\t\t\tskb_zcopy_set(skb, uarg, &extra_uref);\n\t\t\t}\n\t\t}\n\t} else if ((flags & MSG_SPLICE_PAGES) && length) {\n\t\tif (inet_test_bit(HDRINCL, sk))\n\t\t\treturn -EPERM;\n\t\tif (rt->dst.dev->features & NETIF_F_SG &&\n\t\t    getfrag == ip_generic_getfrag)\n\t\t\t/* We need an empty buffer to attach stuff to */\n\t\t\tpaged = true;\n\t\telse\n\t\t\tflags &= ~MSG_SPLICE_PAGES;\n\t}\n\n\thold_tskey = cork->tx_flags & SKBTX_ANY_TSTAMP &&\n\t\t     READ_ONCE(sk->sk_tsflags) & SOF_TIMESTAMPING_OPT_ID;\n\tif (hold_tskey)\n\t\ttskey = atomic_inc_return(&sk->sk_tskey) - 1;\n\n\t/*\n\t * Let's try using as much space as possible.\n\t * Use MTU if total length of the message fits into the MTU.\n\t * Otherwise, we need to reserve fragment header and\n\t * fragment alignment (= 8-15 octects, in total).\n\t *\n\t * Note that we may need to \"move\" the data from the tail\n\t * of the buffer to the new fragment when we split\n\t * the message.\n\t *\n\t * FIXME: It may be fragmented into multiple chunks\n\t *        at once if non-fragmentable extension headers\n\t *        are too large.\n\t * --yoshfuji\n\t */\n\n\tcork->length += length;\n\tif (!skb)\n\t\tgoto alloc_new_skb;\n\n\twhile (length > 0) {\n\t\t/* Check if the remaining data fits into current packet. */\n\t\tcopy = (cork->length <= mtu ? mtu : maxfraglen) - skb->len;\n\t\tif (copy < length)\n\t\t\tcopy = maxfraglen - skb->len;\n\n\t\tif (copy <= 0) {\n\t\t\tchar *data;\n\t\t\tunsigned int datalen;\n\t\t\tunsigned int fraglen;\n\t\t\tunsigned int fraggap;\n\t\t\tunsigned int alloclen, alloc_extra;\n\t\t\tunsigned int pagedlen;\nalloc_new_skb:\n\t\t\t/* There's no room in the current skb */\n\t\t\tif (skb)\n\t\t\t\tfraggap = skb->len - maxfraglen;\n\t\t\telse\n\t\t\t\tfraggap = 0;\n\t\t\t/* update mtu and maxfraglen if necessary */\n\t\t\tif (!skb || !skb_prev)\n\t\t\t\tip6_append_data_mtu(&mtu, &maxfraglen,\n\t\t\t\t\t\t    fragheaderlen, skb, rt,\n\t\t\t\t\t\t    orig_mtu);\n\n\t\t\tskb_prev = skb;\n\n\t\t\t/*\n\t\t\t * If remaining data exceeds the mtu,\n\t\t\t * we know we need more fragment(s).\n\t\t\t */\n\t\t\tdatalen = length + fraggap;\n\n\t\t\tif (datalen > (cork->length <= mtu ? mtu : maxfraglen) - fragheaderlen)\n\t\t\t\tdatalen = maxfraglen - fragheaderlen - rt->dst.trailer_len;\n\t\t\tfraglen = datalen + fragheaderlen;\n\t\t\tpagedlen = 0;\n\n\t\t\talloc_extra = hh_len;\n\t\t\talloc_extra += dst_exthdrlen;\n\t\t\talloc_extra += rt->dst.trailer_len;\n\n\t\t\t/* We just reserve space for fragment header.\n\t\t\t * Note: this may be overallocation if the message\n\t\t\t * (without MSG_MORE) fits into the MTU.\n\t\t\t */\n\t\t\talloc_extra += sizeof(struct frag_hdr);\n\n\t\t\tif ((flags & MSG_MORE) &&\n\t\t\t    !(rt->dst.dev->features&NETIF_F_SG))\n\t\t\t\talloclen = mtu;\n\t\t\telse if (!paged &&\n\t\t\t\t (fraglen + alloc_extra < SKB_MAX_ALLOC ||\n\t\t\t\t  !(rt->dst.dev->features & NETIF_F_SG)))\n\t\t\t\talloclen = fraglen;\n\t\t\telse {\n\t\t\t\talloclen = fragheaderlen + transhdrlen;\n\t\t\t\tpagedlen = datalen - transhdrlen;\n\t\t\t}\n\t\t\talloclen += alloc_extra;\n\n\t\t\tif (datalen != length + fraggap) {\n\t\t\t\t/*\n\t\t\t\t * this is not the last fragment, the trailer\n\t\t\t\t * space is regarded as data space.\n\t\t\t\t */\n\t\t\t\tdatalen += rt->dst.trailer_len;\n\t\t\t}\n\n\t\t\tfraglen = datalen + fragheaderlen;\n\n\t\t\tcopy = datalen - transhdrlen - fraggap - pagedlen;\n\t\t\t/* [!] NOTE: copy may be negative if pagedlen>0\n\t\t\t * because then the equation may reduces to -fraggap.\n\t\t\t */\n\t\t\tif (copy < 0 && !(flags & MSG_SPLICE_PAGES)) {\n\t\t\t\terr = -EINVAL;\n\t\t\t\tgoto error;\n\t\t\t}\n\t\t\tif (transhdrlen) {\n\t\t\t\tskb = sock_alloc_send_skb(sk, alloclen,\n\t\t\t\t\t\t(flags & MSG_DONTWAIT), &err);\n\t\t\t} else {\n\t\t\t\tskb = NULL;\n\t\t\t\tif (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=\n\t\t\t\t    2 * sk->sk_sndbuf)\n\t\t\t\t\tskb = alloc_skb(alloclen,\n\t\t\t\t\t\t\tsk->sk_allocation);\n\t\t\t\tif (unlikely(!skb))\n\t\t\t\t\terr = -ENOBUFS;\n\t\t\t}\n\t\t\tif (!skb)\n\t\t\t\tgoto error;\n\t\t\t/*\n\t\t\t *\tFill in the control structures\n\t\t\t */\n\t\t\tskb->protocol = htons(ETH_P_IPV6);\n\t\t\tskb->ip_summed = csummode;\n\t\t\tskb->csum = 0;\n\t\t\t/* reserve for fragmentation and ipsec header */\n\t\t\tskb_reserve(skb, hh_len + sizeof(struct frag_hdr) +\n\t\t\t\t    dst_exthdrlen);\n\n\t\t\t/*\n\t\t\t *\tFind where to start putting bytes\n\t\t\t */\n\t\t\tdata = skb_put(skb, fraglen - pagedlen);\n\t\t\tskb_set_network_header(skb, exthdrlen);\n\t\t\tdata += fragheaderlen;\n\t\t\tskb->transport_header = (skb->network_header +\n\t\t\t\t\t\t fragheaderlen);\n\t\t\tif (fraggap) {\n\t\t\t\tskb->csum = skb_copy_and_csum_bits(\n\t\t\t\t\tskb_prev, maxfraglen,\n\t\t\t\t\tdata + transhdrlen, fraggap);\n\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,\n\t\t\t\t\t\t\t  skb->csum);\n\t\t\t\tdata += fraggap;\n\t\t\t\tpskb_trim_unique(skb_prev, maxfraglen);\n\t\t\t}\n\t\t\tif (copy > 0 &&\n\t\t\t    getfrag(from, data + transhdrlen, offset,\n\t\t\t\t    copy, fraggap, skb) < 0) {\n\t\t\t\terr = -EFAULT;\n\t\t\t\tkfree_skb(skb);\n\t\t\t\tgoto error;\n\t\t\t} else if (flags & MSG_SPLICE_PAGES) {\n\t\t\t\tcopy = 0;\n\t\t\t}\n\n\t\t\toffset += copy;\n\t\t\tlength -= copy + transhdrlen;\n\t\t\ttranshdrlen = 0;\n\t\t\texthdrlen = 0;\n\t\t\tdst_exthdrlen = 0;\n\n\t\t\t/* Only the initial fragment is time stamped */\n\t\t\tskb_shinfo(skb)->tx_flags = cork->tx_flags;\n\t\t\tcork->tx_flags = 0;\n\t\t\tskb_shinfo(skb)->tskey = tskey;\n\t\t\ttskey = 0;\n\t\t\tskb_zcopy_set(skb, uarg, &extra_uref);\n\n\t\t\tif ((flags & MSG_CONFIRM) && !skb_prev)\n\t\t\t\tskb_set_dst_pending_confirm(skb, 1);\n\n\t\t\t/*\n\t\t\t * Put the packet on the pending queue\n\t\t\t */\n\t\t\tif (!skb->destructor) {\n\t\t\t\tskb->destructor = sock_wfree;\n\t\t\t\tskb->sk = sk;\n\t\t\t\twmem_alloc_delta += skb->truesize;\n\t\t\t}\n\t\t\t__skb_queue_tail(queue, skb);\n\t\t\tcontinue;\n\t\t}\n\n\t\tif (copy > length)\n\t\t\tcopy = length;\n\n\t\tif (!(rt->dst.dev->features&NETIF_F_SG) &&\n\t\t    skb_tailroom(skb) >= copy) {\n\t\t\tunsigned int off;\n\n\t\t\toff = skb->len;\n\t\t\tif (getfrag(from, skb_put(skb, copy),\n\t\t\t\t\t\toffset, copy, off, skb) < 0) {\n\t\t\t\t__skb_trim(skb, off);\n\t\t\t\terr = -EFAULT;\n\t\t\t\tgoto error;\n\t\t\t}\n\t\t} else if (flags & MSG_SPLICE_PAGES) {\n\t\t\tstruct msghdr *msg = from;\n\n\t\t\terr = -EIO;\n\t\t\tif (WARN_ON_ONCE(copy > msg->msg_iter.count))\n\t\t\t\tgoto error;\n\n\t\t\terr = skb_splice_from_iter(skb, &msg->msg_iter, copy,\n\t\t\t\t\t\t   sk->sk_allocation);\n\t\t\tif (err < 0)\n\t\t\t\tgoto error;\n\t\t\tcopy = err;\n\t\t\twmem_alloc_delta += copy;\n\t\t} else if (!zc) {\n\t\t\tint i = skb_shinfo(skb)->nr_frags;\n\n\t\t\terr = -ENOMEM;\n\t\t\tif (!sk_page_frag_refill(sk, pfrag))\n\t\t\t\tgoto error;\n\n\t\t\tskb_zcopy_downgrade_managed(skb);\n\t\t\tif (!skb_can_coalesce(skb, i, pfrag->page,\n\t\t\t\t\t      pfrag->offset)) {\n\t\t\t\terr = -EMSGSIZE;\n\t\t\t\tif (i == MAX_SKB_FRAGS)\n\t\t\t\t\tgoto error;\n\n\t\t\t\t__skb_fill_page_desc(skb, i, pfrag->page,\n\t\t\t\t\t\t     pfrag->offset, 0);\n\t\t\t\tskb_shinfo(skb)->nr_frags = ++i;\n\t\t\t\tget_page(pfrag->page);\n\t\t\t}\n\t\t\tcopy = min_t(int, copy, pfrag->size - pfrag->offset);\n\t\t\tif (getfrag(from,\n\t\t\t\t    page_address(pfrag->page) + pfrag->offset,\n\t\t\t\t    offset, copy, skb->len, skb) < 0)\n\t\t\t\tgoto error_efault;\n\n\t\t\tpfrag->offset += copy;\n\t\t\tskb_frag_size_add(&skb_shinfo(skb)->frags[i - 1], copy);\n\t\t\tskb->len += copy;\n\t\t\tskb->data_len += copy;\n\t\t\tskb->truesize += copy;\n\t\t\twmem_alloc_delta += copy;\n\t\t} else {\n\t\t\terr = skb_zerocopy_iter_dgram(skb, from, copy);\n\t\t\tif (err < 0)\n\t\t\t\tgoto error;\n\t\t}\n\t\toffset += copy;\n\t\tlength -= copy;\n\t}\n\n\tif (wmem_alloc_delta)\n\t\trefcount_add(wmem_alloc_delta, &sk->sk_wmem_alloc);\n\treturn 0;\n\nerror_efault:\n\terr = -EFAULT;\nerror:\n\tnet_zcopy_put_abort(uarg, extra_uref);\n\tcork->length -= length;\n\tIP6_INC_STATS(sock_net(sk), rt->rt6i_idev, IPSTATS_MIB_OUTDISCARDS);\n\trefcount_add(wmem_alloc_delta, &sk->sk_wmem_alloc);\n\tif (hold_tskey)\n\t\tatomic_dec(&sk->sk_tskey);\n\treturn err;\n}",
+          "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+          "sink_kind": "direct_dereference",
+          "extracted": {
+            "bug_line_constraints": [
+              {
+                "text": "\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,",
+                "condition": [
+                  {
+                    "condition": "goto alloc_new_skb",
+                    "line_number": 172
+                  },
+                  {
+                    "condition": "if (fraggap)",
+                    "line_number": 270
+                  }
+                ]
+              }
+            ],
+            "target_conditions": [
+              {
+                "condition": "goto alloc_new_skb",
+                "line_number": 172
+              },
+              {
+                "condition": "if (fraggap)",
+                "line_number": 270
+              }
+            ],
+            "variable_assignments": {
+              "text": "static int __ip6_append_data(struct sock *sk,",
+              "condition": []
+            },
+            "variable_non_empty": [],
+            "early_jump_constraints": [
+              {
+                "text": "error",
+                "condition": [
+                  "!skb"
+                ]
+              },
+              {
+                "text": "error",
+                "condition": [
+                  "copy < 0 && !(flags & MSG_SPLICE_PAGES)"
+                ]
+              },
+              {
+                "text": "alloc_new_skb",
+                "condition": [
+                  "!skb"
+                ]
+              },
+              {
+                "text": "return",
+                "condition": [
+                  "(flags & MSG_SPLICE_PAGES) && length",
+                  "inet_test_bit(HDRINCL, sk)"
+                ]
+              },
+              {
+                "text": "return",
+                "condition": [
+                  "(flags & MSG_ZEROCOPY) && length",
+                  "sock_flag(sk, SOCK_ZEROCOPY)",
+                  "!uarg"
+                ]
+              },
+              {
+                "text": "return",
+                "condition": [
+                  "(flags & MSG_ZEROCOPY) && length",
+                  "getfrag == ip_generic_getfrag && msg->msg_ubuf",
+                  "skb_zcopy(skb) && msg->msg_ubuf != skb_zcopy(skb)"
+                ]
+              },
+              {
+                "text": "return",
+                "condition": []
+              },
+              {
+                "text": "emsgsize",
+                "condition": [
+                  "cork->length + length > mtu - headersize && ipc6->dontfrag && (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_ICMPV6 || sk->sk_protocol == IPPROTO_RAW)"
+                ]
+              },
+              {
+                "text": "emsgsize",
+                "condition": [
+                  "headersize + transhdrlen > mtu"
+                ]
+              },
+              {
+                "text": "emsgsize",
+                "condition": [
+                  "mtu <= fragheaderlen || ((mtu - fragheaderlen) & ~7) + fragheaderlen <= sizeof(struct frag_hdr)"
+                ]
+              }
+            ],
+            "filter_function_code": "static int __ip6_append_data(struct sock *sk,\n\t\t\t     struct sk_buff_head *queue,\n\t\t\t     struct inet_cork_full *cork_full,\n\t\t\t     struct inet6_cork *v6_cork,\n\t\t\t     struct page_frag *pfrag,\n\t\t\t     int getfrag(void *from, char *to, int offset,\n\t\t\t\t\t int len, int odd, struct sk_buff *skb),\n\t\t\t     void *from, size_t length, int transhdrlen,\n\t\t\t     unsigned int flags, struct ipcm6_cookie *ipc6)\n{\n\tstruct sk_buff *skb, *skb_prev = NULL;\n\tstruct inet_cork *cork = &cork_full->base;\n\tstruct flowi6 *fl6 = &cork_full->fl.u.ip6;\n\tunsigned int maxfraglen, fragheaderlen, mtu, orig_mtu, pmtu;\n\tstruct ubuf_info *uarg = NULL;\n\tint exthdrlen = 0;\n\tint dst_exthdrlen = 0;\n\tint hh_len;\n\tint copy;\n\tint err;\n\tint offset = 0;\n\tbool zc = false;\n\tu32 tskey = 0;\n\tstruct rt6_info *rt = dst_rt6_info(cork->dst);\n\tbool paged, hold_tskey, extra_uref = false;\n\tstruct ipv6_txoptions *opt = v6_cork->opt;\n\tint csummode = CHECKSUM_NONE;\n\tunsigned int maxnonfragsize, headersize;\n\tunsigned int wmem_alloc_delta = 0;\n\n\tskb = skb_peek_tail(queue);\n\tif (!skb) {\n\t\texthdrlen = opt ? opt->opt_flen : 0;\n\t\tdst_exthdrlen = rt->dst.header_len - rt->rt6i_nfheader_len;\n\t}\n\n\tpaged = !!cork->gso_size;\n\tmtu = cork->gso_size ? IP6_MAX_MTU : cork->fragsize;\n\torig_mtu = mtu;\n\n\thh_len = LL_RESERVED_SPACE(rt->dst.dev);\n\n\tfragheaderlen = sizeof(struct ipv6hdr) + rt->rt6i_nfheader_len +\n\t\t\t(opt ? opt->opt_nflen : 0);\n\n\theadersize = sizeof(struct ipv6hdr) +\n\t\t     (opt ? opt->opt_flen + opt->opt_nflen : 0) +\n\t\t     rt->rt6i_nfheader_len;\n\n\tif (mtu <= fragheaderlen ||\n\t    ((mtu - fragheaderlen) & ~7) + fragheaderlen <= sizeof(struct frag_hdr))\n\t\tgoto emsgsize;\n\n\tmaxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -\n\t\t     sizeof(struct frag_hdr);\n\n\t/* as per RFC 7112 section 5, the entire IPv6 Header Chain must fit\n\t * the first fragment\n\t */\n\tif (headersize + transhdrlen > mtu)\n\t\tgoto emsgsize;\n\n\tif (cork->length + length > mtu - headersize && ipc6->dontfrag &&\n\t    (sk->sk_protocol == IPPROTO_UDP ||\n\t     sk->sk_protocol == IPPROTO_ICMPV6 ||\n\t     sk->sk_protocol == IPPROTO_RAW)) {\n\t\tipv6_local_rxpmtu(sk, fl6, mtu - headersize +\n\t\t\t\tsizeof(struct ipv6hdr));\n\t\tgoto emsgsize;\n\t}\n\n\tif (ip6_sk_ignore_df(sk))\n\t\tmaxnonfragsize = sizeof(struct ipv6hdr) + IPV6_MAXPLEN;\n\telse\n\t\tmaxnonfragsize = mtu;\n\n\tif (cork->length + length > maxnonfragsize - headersize) {\nemsgsize:\n\t\tpmtu = max_t(int, mtu - headersize + sizeof(struct ipv6hdr), 0);\n\t\tipv6_local_error(sk, EMSGSIZE, fl6, pmtu);\n\t\treturn -EMSGSIZE;\n\t}\n\n\t/* CHECKSUM_PARTIAL only with no extension headers and when\n\t * we are not going to fragment\n\t */\n\tif (transhdrlen && sk->sk_protocol == IPPROTO_UDP &&\n\t    headersize == sizeof(struct ipv6hdr) &&\n\t    length <= mtu - headersize &&\n\t    (!(flags & MSG_MORE) || cork->gso_size) &&\n\t    rt->dst.dev->features & (NETIF_F_IPV6_CSUM | NETIF_F_HW_CSUM))\n\t\tcsummode = CHECKSUM_PARTIAL;\n\n\tif ((flags & MSG_ZEROCOPY) && length) {\n\t\tstruct msghdr *msg = from;\n\n\t\tif (getfrag == ip_generic_getfrag && msg->msg_ubuf) {\n\t\t\tif (skb_zcopy(skb) && msg->msg_ubuf != skb_zcopy(skb))\n\t\t\t\treturn -EINVAL;\n\n\t\t\t/* Leave uarg NULL if can't zerocopy, callers should\n\t\t\t * be able to handle it.\n\t\t\t */\n\t\t\tif ((rt->dst.dev->features & NETIF_F_SG) &&\n\t\t\t    csummode == CHECKSUM_PARTIAL) {\n\t\t\t\tpaged = true;\n\t\t\t\tzc = true;\n\t\t\t\tuarg = msg->msg_ubuf;\n\t\t\t}\n\t\t} else if (sock_flag(sk, SOCK_ZEROCOPY)) {\n\t\t\tuarg = msg_zerocopy_realloc(sk, length, skb_zcopy(skb));\n\t\t\tif (!uarg)\n\t\t\t\treturn -ENOBUFS;\n\t\t\textra_uref = !skb_zcopy(skb);\t/* only ref on new uarg */\n\t\t\tif (rt->dst.dev->features & NETIF_F_SG &&\n\t\t\t    csummode == CHECKSUM_PARTIAL) {\n\t\t\t\tpaged = true;\n\t\t\t\tzc = true;\n\t\t\t} else {\n\t\t\t\tuarg_to_msgzc(uarg)->zerocopy = 0;\n\t\t\t\tskb_zcopy_set(skb, uarg, &extra_uref);\n\t\t\t}\n\t\t}\n\t} else if ((flags & MSG_SPLICE_PAGES) && length) {\n\t\tif (inet_test_bit(HDRINCL, sk))\n\t\t\treturn -EPERM;\n\t\tif (rt->dst.dev->features & NETIF_F_SG &&\n\t\t    getfrag == ip_generic_getfrag)\n\t\t\t/* We need an empty buffer to attach stuff to */\n\t\t\tpaged = true;\n\t\telse\n\t\t\tflags &= ~MSG_SPLICE_PAGES;\n\t}\n\n\thold_tskey = cork->tx_flags & SKBTX_ANY_TSTAMP &&\n\t\t     READ_ONCE(sk->sk_tsflags) & SOF_TIMESTAMPING_OPT_ID;\n\tif (hold_tskey)\n\t\ttskey = atomic_inc_return(&sk->sk_tskey) - 1;\n\n\t/*\n\t * Let's try using as much space as possible.\n\t * Use MTU if total length of the message fits into the MTU.\n\t * Otherwise, we need to reserve fragment header and\n\t * fragment alignment (= 8-15 octects, in total).\n\t *\n\t * Note that we may need to \"move\" the data from the tail\n\t * of the buffer to the new fragment when we split\n\t * the message.\n\t *\n\t * FIXME: It may be fragmented into multiple chunks\n\t *        at once if non-fragmentable extension headers\n\t *        are too large.\n\t * --yoshfuji\n\t */\n\n\tcork->length += length;\n\tif (!skb)\n\t\tgoto alloc_new_skb;\n\n\twhile (length > 0) {\n\t\t/* Check if the remaining data fits into current packet. */\n\t\tcopy = (cork->length <= mtu ? mtu : maxfraglen) - skb->len;\n\t\tif (copy < length)\n\t\t\tcopy = maxfraglen - skb->len;\n\n\t\tif (copy <= 0) {\n\t\t\tchar *data;\n\t\t\tunsigned int datalen;\n\t\t\tunsigned int fraglen;\n\t\t\tunsigned int fraggap;\n\t\t\tunsigned int alloclen, alloc_extra;\n\t\t\tunsigned int pagedlen;\nalloc_new_skb:\n\t\t\t/* There's no room in the current skb */\n\t\t\tif (skb)\n\t\t\t\tfraggap = skb->len - maxfraglen;\n\t\t\telse\n\t\t\t\tfraggap = 0;\n\t\t\t/* update mtu and maxfraglen if necessary */\n\t\t\tif (!skb || !skb_prev)\n\t\t\t\tip6_append_data_mtu(&mtu, &maxfraglen,\n\t\t\t\t\t\t    fragheaderlen, skb, rt,\n\t\t\t\t\t\t    orig_mtu);\n\n\t\t\tskb_prev = skb;\n\n\t\t\t/*\n\t\t\t * If remaining data exceeds the mtu,\n\t\t\t * we know we need more fragment(s).\n\t\t\t */\n\t\t\tdatalen = length + fraggap;\n\n\t\t\tif (datalen > (cork->length <= mtu ? mtu : maxfraglen) - fragheaderlen)\n\t\t\t\tdatalen = maxfraglen - fragheaderlen - rt->dst.trailer_len;\n\t\t\tfraglen = datalen + fragheaderlen;\n\t\t\tpagedlen = 0;\n\n\t\t\talloc_extra = hh_len;\n\t\t\talloc_extra += dst_exthdrlen;\n\t\t\talloc_extra += rt->dst.trailer_len;\n\n\t\t\t/* We just reserve space for fragment header.\n\t\t\t * Note: this may be overallocation if the message\n\t\t\t * (without MSG_MORE) fits into the MTU.\n\t\t\t */\n\t\t\talloc_extra += sizeof(struct frag_hdr);\n\n\t\t\tif ((flags & MSG_MORE) &&\n\t\t\t    !(rt->dst.dev->features&NETIF_F_SG))\n\t\t\t\talloclen = mtu;\n\t\t\telse if (!paged &&\n\t\t\t\t (fraglen + alloc_extra < SKB_MAX_ALLOC ||\n\t\t\t\t  !(rt->dst.dev->features & NETIF_F_SG)))\n\t\t\t\talloclen = fraglen;\n\t\t\telse {\n\t\t\t\talloclen = fragheaderlen + transhdrlen;\n\t\t\t\tpagedlen = datalen - transhdrlen;\n\t\t\t}\n\t\t\talloclen += alloc_extra;\n\n\t\t\tif (datalen != length + fraggap) {\n\t\t\t\t/*\n\t\t\t\t * this is not the last fragment, the trailer\n\t\t\t\t * space is regarded as data space.\n\t\t\t\t */\n\t\t\t\tdatalen += rt->dst.trailer_len;\n\t\t\t}\n\n\t\t\tfraglen = datalen + fragheaderlen;\n\n\t\t\tcopy = datalen - transhdrlen - fraggap - pagedlen;\n\t\t\t/* [!] NOTE: copy may be negative if pagedlen>0\n\t\t\t * because then the equation may reduces to -fraggap.\n\t\t\t */\n\t\t\tif (copy < 0 && !(flags & MSG_SPLICE_PAGES)) {\n\t\t\t\terr = -EINVAL;\n\t\t\t\tgoto error;\n\t\t\t}\n\t\t\tif (transhdrlen) {\n\t\t\t\tskb = sock_alloc_send_skb(sk, alloclen,\n\t\t\t\t\t\t(flags & MSG_DONTWAIT), &err);\n\t\t\t} else {\n\t\t\t\tskb = NULL;\n\t\t\t\tif (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=\n\t\t\t\t    2 * sk->sk_sndbuf)\n\t\t\t\t\tskb = alloc_skb(alloclen,\n\t\t\t\t\t\t\tsk->sk_allocation);\n\t\t\t\tif (unlikely(!skb))\n\t\t\t\t\terr = -ENOBUFS;\n\t\t\t}\n\t\t\tif (!skb)\n\t\t\t\tgoto error;\n\t\t\t/*\n\t\t\t *\tFill in the control structures\n\t\t\t */\n\t\t\tskb->protocol = htons(ETH_P_IPV6);\n\t\t\tskb->ip_summed = csummode;\n\t\t\tskb->csum = 0;\n\t\t\t/* reserve for fragmentation and ipsec header */\n\t\t\tskb_reserve(skb, hh_len + sizeof(struct frag_hdr) +\n\t\t\t\t    dst_exthdrlen);\n\n\t\t\t/*\n\t\t\t *\tFind where to start putting bytes\n\t\t\t */\n\t\t\tdata = skb_put(skb, fraglen - pagedlen);\n\t\t\tskb_set_network_header(skb, exthdrlen);\n\t\t\tdata += fragheaderlen;\n\t\t\tskb->transport_header = (skb->network_header +\n\t\t\t\t\t\t fragheaderlen);\n\t\t\tif (fraggap) {\n\t\t\t\tskb->csum = skb_copy_and_csum_bits(\n\t\t\t\t\tskb_prev, maxfraglen,\n\t\t\t\t\tdata + transhdrlen, fraggap);\n\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,\n\t\t\t\t\t\t\t  skb->csum);\n\t\t\t\tdata += fraggap;\n\t\t\t\tpskb_trim_unique(skb_prev, maxfraglen);\n\t\t\t}\n\t\t\tif (copy > 0 &&\n\t\t\t    getfrag(from, data + transhdrlen, offset,\n\t\t\t\t    copy, fraggap, skb) < 0) {\n\t\t\t\terr = -EFAULT;\n\t\t\t\tkfree_skb(skb);\n\t\t\t\tgoto error;\n\t\t\t} else if (flags & MSG_SPLICE_PAGES) {\n\t\t\t\tcopy = 0;\n\t\t\t}\n\n\t\t\toffset += copy;\n\t\t\tlength -= copy + transhdrlen;\n\t\t\ttranshdrlen = 0;\n\t\t\texthdrlen = 0;\n\t\t\tdst_exthdrlen = 0;\n\n\t\t\t/* Only the initial fragment is time stamped */\n\t\t\tskb_shinfo(skb)->tx_flags = cork->tx_flags;\n\t\t\tcork->tx_flags = 0;\n\t\t\tskb_shinfo(skb)->tskey = tskey;\n\t\t\ttskey = 0;\n\t\t\tskb_zcopy_set(skb, uarg, &extra_uref);\n\n\t\t\tif ((flags & MSG_CONFIRM) && !skb_prev)\n\t\t\t\tskb_set_dst_pending_confirm(skb, 1);\n\n\t\t\t/*\n\t\t\t * Put the packet on the pending queue\n\t\t\t */\n\t\t\tif (!skb->destructor) {\n\t\t\t\tskb->destructor = sock_wfree;\n\t\t\t\tskb->sk = sk;\n\t\t\t\twmem_alloc_delta += skb->truesize;\n\t\t\t}\n\t\t\t__skb_queue_tail(queue, skb);\n\t\t\tcontinue;\n\t\t}\n\n\t\tif (copy > length)\n\t\t\tcopy = length;\n\n\t\tif (!(rt->dst.dev->features&NETIF_F_SG) &&\n\t\t    skb_tailroom(skb) >= copy) {\n\t\t\tunsigned int off;\n\n\t\t\toff = skb->len;\n\t\t\tif (getfrag(from, skb_put(skb, copy),\n\t\t\t\t\t\toffset, copy, off, skb) < 0) {\n\t\t\t\t__skb_trim(skb, off);\n\t\t\t\terr = -EFAULT;\n\t\t\t\tgoto error;\n\t\t\t}\n\t\t} else if (flags & MSG_SPLICE_PAGES) {\n\t\t\tstruct msghdr *msg = from;\n\n\t\t\terr = -EIO;\n\t\t\tif (WARN_ON_ONCE(copy > msg->msg_iter.count))\n\t\t\t\tgoto error;\n\n\t\t\terr = skb_splice_from_iter(skb, &msg->msg_iter, copy,\n\t\t\t\t\t\t   sk->sk_allocation);\n\t\t\tif (err < 0)\n\t\t\t\tgoto error;\n\t\t\tcopy = err;\n\t\t\twmem_alloc_delta += copy;\n\t\t} else if (!zc) {\n\t\t\tint i = skb_shinfo(skb)->nr_frags;\n\n\t\t\terr = -ENOMEM;\n\t\t\tif (!sk_page_frag_refill(sk, pfrag))\n\t\t\t\tgoto error;\n\n\t\t\tskb_zcopy_downgrade_managed(skb);\n\t\t\tif (!skb_can_coalesce(skb, i, pfrag->page,\n\t\t\t\t\t      pfrag->offset)) {\n\t\t\t\terr = -EMSGSIZE;\n\t\t\t\tif (i == MAX_SKB_FRAGS)\n\t\t\t\t\tgoto error;\n\n\t\t\t\t__skb_fill_page_desc(skb, i, pfrag->page,\n\t\t\t\t\t\t     pfrag->offset, 0);\n\t\t\t\tskb_shinfo(skb)->nr_frags = ++i;\n\t\t\t\tget_page(pfrag->page);\n\t\t\t}\n\t\t\tcopy = min_t(int, copy, pfrag->size - pfrag->offset);\n\t\t\tif (getfrag(from,\n\t\t\t\t    page_address(pfrag->page) + pfrag->offset,\n\t\t\t\t    offset, copy, skb->len, skb) < 0)\n\t\t\t\tgoto error_efault;\n\n\t\t\tpfrag->offset += copy;\n\t\t\tskb_frag_size_add(&skb_shinfo(skb)->frags[i - 1], copy);\n\t\t\tskb->len += copy;\n\t\t\tskb->data_len += copy;\n\t\t\tskb->truesize += copy;\n\t\t\twmem_alloc_delta += copy;\n\t\t} else {\n\t\t\terr = skb_zerocopy_iter_dgram(skb, from, copy);\n\t\t\tif (err < 0)\n\t\t\t\tgoto error;\n\t\t}\n\t\toffset += copy;\n\t\tlength -= copy;\n\t}\n\n\tif (wmem_alloc_delta)\n\t\trefcount_add(wmem_alloc_delta, &sk->sk_wmem_alloc);\n\treturn 0;\n\nerror_efault:\n\terr = -EFAULT;\nerror:\n\tnet_zcopy_put_abort(uarg, extra_uref);\n\tcork->length -= length;\n\tIP6_INC_STATS(sock_net(sk), rt->rt6i_idev, IPSTATS_MIB_OUTDISCARDS);\n\trefcount_add(wmem_alloc_delta, &sk->sk_wmem_alloc);\n\tif (hold_tskey)\n\t\tatomic_dec(&sk->sk_tskey);\n\treturn err;\n}"
+          }
+        }
+      ]
+    },
+    {
+      "position": 22,
+      "index": 41,
+      "origin": "official_historical_baseline",
+      "frames": [
+        {
+          "level": 0,
+          "function": "ipv6_list_rcv",
+          "var_name": "curr_net",
+          "target": "\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);",
+          "code": "void ipv6_list_rcv(struct list_head *head, struct packet_type *pt,\n\t\t   struct net_device *orig_dev)\n{\n\tstruct net_device *curr_dev = NULL;\n\tstruct net *curr_net = NULL;\n\tstruct sk_buff *skb, *next;\n\tstruct list_head sublist;\n\n\tINIT_LIST_HEAD(&sublist);\n\tlist_for_each_entry_safe(skb, next, head, list) {\n\t\tstruct net_device *dev = skb->dev;\n\t\tstruct net *net = dev_net(dev);\n\n\t\tskb_list_del_init(skb);\n\t\tskb = ip6_rcv_core(skb, dev, net);\n\t\tif (skb == NULL)\n\t\t\tcontinue;\n\n\t\tif (curr_dev != dev || curr_net != net) {\n\t\t\t/* dispatch old sublist */\n\t\t\tif (!list_empty(&sublist))\n\t\t\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n\t\t\t/* start new sublist */\n\t\t\tINIT_LIST_HEAD(&sublist);\n\t\t\tcurr_dev = dev;\n\t\t\tcurr_net = net;\n\t\t}\n\t\tlist_add_tail(&skb->list, &sublist);\n\t}\n\t/* dispatch final sublist */\n\tif (!list_empty(&sublist))\n\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n}",
+          "body_sha256": "304cf6caf8418beb2245875f8941804776c56c25f00d881474769a704882e2d7",
+          "extracted": {
+            "bug_line_constraints": [
+              {
+                "text": "\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);",
+                "condition": [
+                  {
+                    "condition": "if (!list_empty(&sublist))",
+                    "line_number": 30
+                  }
+                ]
+              }
+            ],
+            "target_conditions": [
+              {
+                "condition": "if (!list_empty(&sublist))",
+                "line_number": 30
+              }
+            ],
+            "variable_assignments": {
+              "text": "void ipv6_list_rcv(struct list_head *head, struct packet_type *pt,",
+              "condition": []
+            },
+            "variable_non_empty": [],
+            "early_jump_constraints": [],
+            "filter_function_code": "void ipv6_list_rcv(struct list_head *head, struct packet_type *pt,\n\t\t   struct net_device *orig_dev)\n{\n\tstruct net_device *curr_dev = NULL;\n\tstruct net *curr_net = NULL;\n\tstruct sk_buff *skb, *next;\n\tstruct list_head sublist;\n\n\tINIT_LIST_HEAD(&sublist);\n\tlist_for_each_entry_safe(skb, next, head, list) {\n\t\tstruct net_device *dev = skb->dev;\n\t\tstruct net *net = dev_net(dev);\n\n\t\tskb_list_del_init(skb);\n\t\tskb = ip6_rcv_core(skb, dev, net);\n\t\tif (skb == NULL)\n\t\t\tcontinue;\n\n\t\tif (curr_dev != dev || curr_net != net) {\n\t\t\t/* dispatch old sublist */\n\t\t\tif (!list_empty(&sublist))\n\t\t\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n\t\t\t/* start new sublist */\n\t\t\tINIT_LIST_HEAD(&sublist);\n\t\t\tcurr_dev = dev;\n\t\t\tcurr_net = net;\n\t\t}\n\t\tlist_add_tail(&skb->list, &sublist);\n\t}\n\t/* dispatch final sublist */\n\tif (!list_empty(&sublist))\n\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);\n}"
+          }
+        },
+        {
+          "level": 1,
+          "function": "ip6_sublist_rcv",
+          "var_name": "net",
+          "target": "\tNF_HOOK_LIST(NFPROTO_IPV6, NF_INET_PRE_ROUTING, net, NULL,",
+          "code": "static void ip6_sublist_rcv(struct list_head *head, struct net_device *dev,\n\t\t\t    struct net *net)\n{\n\tNF_HOOK_LIST(NFPROTO_IPV6, NF_INET_PRE_ROUTING, net, NULL,\n\t\t     head, dev, NULL, ip6_rcv_finish);\n\tip6_list_rcv_finish(net, NULL, head);\n}",
+          "body_sha256": "8ea33d2077a8b51e0c52d9b009b6f957c414f38508a023957fb93fb777c2777a",
+          "sink_kind": "author_historical_macro_or_call_sink",
+          "extracted": {
+            "bug_line_constraints": [
+              {
+                "text": "\tNF_HOOK_LIST(NFPROTO_IPV6, NF_INET_PRE_ROUTING, net, NULL,",
+                "condition": []
+              }
+            ],
+            "target_conditions": [],
+            "variable_assignments": {
+              "text": "static void ip6_sublist_rcv(struct list_head *head, struct net_device *dev,",
+              "condition": []
+            },
+            "variable_non_empty": [],
+            "early_jump_constraints": [],
+            "filter_function_code": "static void ip6_sublist_rcv(struct list_head *head, struct net_device *dev,\n\t\t\t    struct net *net)\n{\n\tNF_HOOK_LIST(NFPROTO_IPV6, NF_INET_PRE_ROUTING, net, NULL,\n\t\t     head, dev, NULL, ip6_rcv_finish);\n\tip6_list_rcv_finish(net, NULL, head);\n}"
+          }
+        }
+      ]
+    },
+    {
+      "position": 42,
+      "index": 67,
+      "origin": "official_historical_baseline",
+      "frames": [
+        {
+          "level": 0,
+          "function": "ieee80211_chsw_switch_vifs",
+          "var_name": "old_ctx",
+          "target": "\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;",
+          "code": "static int ieee80211_chsw_switch_vifs(struct ieee80211_local *local,\n\t\t\t\t      int n_vifs)\n{\n\tstruct ieee80211_vif_chanctx_switch *vif_chsw;\n\tstruct ieee80211_link_data *link;\n\tstruct ieee80211_chanctx *ctx, *old_ctx;\n\tint i, err;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\tvif_chsw = kcalloc(n_vifs, sizeof(vif_chsw[0]), GFP_KERNEL);\n\tif (!vif_chsw)\n\t\treturn -ENOMEM;\n\n\ti = 0;\n\tlist_for_each_entry(ctx, &local->chanctx_list, list) {\n\t\tif (ctx->replace_state != IEEE80211_CHANCTX_REPLACES_OTHER)\n\t\t\tcontinue;\n\n\t\tif (WARN_ON(!ctx->replace_ctx)) {\n\t\t\terr = -EINVAL;\n\t\t\tgoto out;\n\t\t}\n\n\t\tlist_for_each_entry(link, &ctx->reserved_links,\n\t\t\t\t    reserved_chanctx_list) {\n\t\t\tif (!ieee80211_link_has_in_place_reservation(link))\n\t\t\t\tcontinue;\n\n\t\t\told_ctx = ieee80211_link_get_chanctx(link);\n\t\t\tvif_chsw[i].vif = &link->sdata->vif;\n\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;\n\t\t\tvif_chsw[i].new_ctx = &ctx->conf;\n\t\t\tvif_chsw[i].link_conf = link->conf;\n\n\t\t\ti++;\n\t\t}\n\t}\n\n\terr = drv_switch_vif_chanctx(local, vif_chsw, n_vifs,\n\t\t\t\t     CHANCTX_SWMODE_SWAP_CONTEXTS);\n\nout:\n\tkfree(vif_chsw);\n\treturn err;\n}",
+          "body_sha256": "202c29c9d72986b8d1fae35c5355d05dcc6e3cff3b7c88e014b314c449a9476d",
+          "sink_kind": "direct_dereference",
+          "extracted": {
+            "bug_line_constraints": [
+              {
+                "text": "\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;",
+                "condition": [
+                  {
+                    "condition": "list_for_each_entry(ctx, &local->chanctx_list, list)",
+                    "line_number": 15
+                  },
+                  {
+                    "condition": "list_for_each_entry(link, &ctx->reserved_links, reserved_chanctx_list)",
+                    "line_number": 24
+                  }
+                ]
+              }
+            ],
+            "target_conditions": [
+              {
+                "condition": "list_for_each_entry(ctx, &local->chanctx_list, list)",
+                "line_number": 15
+              },
+              {
+                "condition": "list_for_each_entry(link, &ctx->reserved_links, reserved_chanctx_list)",
+                "line_number": 24
+              }
+            ],
+            "variable_assignments": {
+              "text": "static int ieee80211_chsw_switch_vifs(struct ieee80211_local *local,",
+              "condition": []
+            },
+            "variable_non_empty": [],
+            "early_jump_constraints": [
+              {
+                "text": "out",
+                "condition": [
+                  "WARN_ON(!ctx->replace_ctx)"
+                ]
+              },
+              {
+                "text": "return",
+                "condition": [
+                  "!vif_chsw"
+                ]
+              }
+            ],
+            "filter_function_code": "static int ieee80211_chsw_switch_vifs(struct ieee80211_local *local,\n\t\t\t\t      int n_vifs)\n{\n\tstruct ieee80211_vif_chanctx_switch *vif_chsw;\n\tstruct ieee80211_link_data *link;\n\tstruct ieee80211_chanctx *ctx, *old_ctx;\n\tint i, err;\n\n\tlockdep_assert_wiphy(local->hw.wiphy);\n\n\tvif_chsw = kcalloc(n_vifs, sizeof(vif_chsw[0]), GFP_KERNEL);\n\tif (!vif_chsw)\n\t\treturn -ENOMEM;\n\n\ti = 0;\n\tlist_for_each_entry(ctx, &local->chanctx_list, list) {\n\t\tif (ctx->replace_state != IEEE80211_CHANCTX_REPLACES_OTHER)\n\t\t\tcontinue;\n\n\t\tif (WARN_ON(!ctx->replace_ctx)) {\n\t\t\terr = -EINVAL;\n\t\t\tgoto out;\n\t\t}\n\n\t\tlist_for_each_entry(link, &ctx->reserved_links,\n\t\t\t\t    reserved_chanctx_list) {\n\t\t\tif (!ieee80211_link_has_in_place_reservation(link))\n\t\t\t\tcontinue;\n\n\t\t\told_ctx = ieee80211_link_get_chanctx(link);\n\t\t\tvif_chsw[i].vif = &link->sdata->vif;\n\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;\n\t\t\tvif_chsw[i].new_ctx = &ctx->conf;\n\t\t\tvif_chsw[i].link_conf = link->conf;\n\n\t\t\ti++;\n\t\t}\n\t}\n\n\terr = drv_switch_vif_chanctx(local, vif_chsw, n_vifs,\n\t\t\t\t     CHANCTX_SWMODE_SWAP_CONTEXTS);\n\nout:\n\tkfree(vif_chsw);\n\treturn err;\n}"
+          }
+        }
+      ]
+    }
+  ]
+}

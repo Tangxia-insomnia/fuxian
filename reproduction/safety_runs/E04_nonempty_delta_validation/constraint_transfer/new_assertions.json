@@ -1,0 +1,165 @@
+{
+  "method": "E02 parsed IR + original code-span copy + explicit post-run source-text review",
+  "review_is_not_independent_human_semantic_proof": true,
+  "novel_assertion_count": 3,
+  "at_least_one_nontrivial_source_anchored_assertion": true,
+  "nontriviality_note": "B allows fraggap=0 through a tautological disjunction; the new fraggap!=0 excludes zero. No solver was used for this elementary observation.",
+  "assertions": [
+    {
+      "assertion_id": "ND01",
+      "call_id": 1194,
+      "raw_U06_response_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+      "delta_code_sha256": "5988f8d77b08c3eb72b224ae9e9c4cdc5b66d72d510eb08d0df896e8c71b6b46",
+      "delta_body_lines_1based": [
+        8,
+        9
+      ],
+      "original_assertion_text": "s.add(Or(And(skb == 0, fraggap == 0),\n         And(skb != 0, fraggap == skb - maxfraglen)))",
+      "assertion_text_sha256": "b3e9ce5f206eda2300386c638787dba5c47bef2e1bc0ef6775c4f840903dcf97",
+      "E02_formula": "(or (and (= skb 0) (= fraggap 0)) (and (distinct skb 0) (= fraggap (- skb maxfraglen))))",
+      "formula_sha256": "c0665eba7e2df11c3c884ec9fce00b0215877dca1ad386fd9e3fd1ad9623e5ab",
+      "absent_from_B_exact_members": true,
+      "present_in_U10_output_exact_members": true,
+      "sources": [
+        {
+          "file": "selected_source.c",
+          "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+          "body_lines_1based": [
+            175,
+            178
+          ],
+          "snippet": "\t\t\tif (skb)\n\t\t\t\tfraggap = skb->len - maxfraglen;\n\t\t\telse\n\t\t\t\tfraggap = 0;\n",
+          "snippet_sha256": "173631c6dd4015bca08905683ada28a59268f5d51594a4a93c9a39a84f180d7a",
+          "explanation": "C branch assigns skb->len - maxfraglen or zero",
+          "scope": "published benchmark/historical function text, not independently verified original build evidence"
+        },
+        {
+          "file": "selected_source.c",
+          "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+          "body_lines_1based": [
+            180,
+            185
+          ],
+          "snippet": "\t\t\tif (!skb || !skb_prev)\n\t\t\t\tip6_append_data_mtu(&mtu, &maxfraglen,\n\t\t\t\t\t\t    fragheaderlen, skb, rt,\n\t\t\t\t\t\t    orig_mtu);\n\n\t\t\tskb_prev = skb;\n",
+          "snippet_sha256": "55e49f21d1d6995a44e6f4aa9cfcd89bfa396fd8682a42efdac15e66ad1f74b5",
+          "explanation": "maxfraglen may be modified and skb_prev is assigned old skb",
+          "scope": "published benchmark/historical function text, not independently verified original build evidence"
+        },
+        {
+          "file": "selected_source.c",
+          "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+          "body_lines_1based": [
+            239,
+            252
+          ],
+          "snippet": "\t\t\tif (transhdrlen) {\n\t\t\t\tskb = sock_alloc_send_skb(sk, alloclen,\n\t\t\t\t\t\t(flags & MSG_DONTWAIT), &err);\n\t\t\t} else {\n\t\t\t\tskb = NULL;\n\t\t\t\tif (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=\n\t\t\t\t    2 * sk->sk_sndbuf)\n\t\t\t\t\tskb = alloc_skb(alloclen,\n\t\t\t\t\t\t\tsk->sk_allocation);\n\t\t\t\tif (unlikely(!skb))\n\t\t\t\t\terr = -ENOBUFS;\n\t\t\t}\n\t\t\tif (!skb)\n\t\t\t\tgoto error;\n",
+          "snippet_sha256": "bdf6ca1150194220f792b5005c4d87ee2d9bf152fdbed131c9d9d99dea07b8e3",
+          "explanation": "skb is reassigned and checked before the target",
+          "scope": "published benchmark/historical function text, not independently verified original build evidence"
+        }
+      ],
+      "source_fidelity": "KNOWN_FIELD_AND_STATE_MODELING_DEFECT",
+      "observation": "The generated expression uses skb - maxfraglen instead of skb->len - maxfraglen. It also reuses one skb symbol across reassignment. Source association exists; faithful semantics is not established."
+    },
+    {
+      "assertion_id": "ND02",
+      "call_id": 1194,
+      "raw_U06_response_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+      "delta_code_sha256": "5988f8d77b08c3eb72b224ae9e9c4cdc5b66d72d510eb08d0df896e8c71b6b46",
+      "delta_body_lines_1based": [
+        12,
+        12
+      ],
+      "original_assertion_text": "s.add(fraggap != 0)",
+      "assertion_text_sha256": "d20cdeb4752f262230c2cb368f1bec489721bb13f587762cf10d3af67d328403",
+      "E02_formula": "(distinct fraggap 0)",
+      "formula_sha256": "64978f5be117bddb8ee231c4ffacb1a769939f86f30937e8e9fde586d0efbf7a",
+      "absent_from_B_exact_members": true,
+      "present_in_U10_output_exact_members": true,
+      "sources": [
+        {
+          "file": "selected_source.c",
+          "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+          "body_lines_1based": [
+            170,
+            170
+          ],
+          "snippet": "\t\t\tunsigned int fraggap;\n",
+          "snippet_sha256": "4b2bb8d6a7dec908101b58f56aa7bb8ee4bb790d2e5d891f10c9cf8ea87b5516",
+          "explanation": "fraggap has explicit unsigned int declaration",
+          "scope": "published benchmark/historical function text, not independently verified original build evidence"
+        },
+        {
+          "file": "selected_source.c",
+          "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+          "body_lines_1based": [
+            271,
+            275
+          ],
+          "snippet": "\t\t\tif (fraggap) {\n\t\t\t\tskb->csum = skb_copy_and_csum_bits(\n\t\t\t\t\tskb_prev, maxfraglen,\n\t\t\t\t\tdata + transhdrlen, fraggap);\n\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,\n",
+          "snippet_sha256": "eb3f31428e087d7e51cd8fa70c30b88be5b355eba93bc25e3e525aebe86eb5f5",
+          "explanation": "target lies inside the true branch of if (fraggap)",
+          "scope": "published benchmark/historical function text, not independently verified original build evidence"
+        }
+      ],
+      "source_fidelity": "DIRECT_LOCAL_TRUE_BRANCH_TEXT_SUPPORTED",
+      "observation": "fraggap != 0 matches this local true branch. This is a source-text correspondence, not complete C path or polarity certification."
+    },
+    {
+      "assertion_id": "ND03",
+      "call_id": 1194,
+      "raw_U06_response_sha256": "2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69",
+      "delta_code_sha256": "5988f8d77b08c3eb72b224ae9e9c4cdc5b66d72d510eb08d0df896e8c71b6b46",
+      "delta_body_lines_1based": [
+        15,
+        15
+      ],
+      "original_assertion_text": "s.add(skb != 0)",
+      "assertion_text_sha256": "1c15408a5f06e146b1d94e21fe24ea9e2b16bfeccf19a307f1705d7b99ca9518",
+      "E02_formula": "(distinct skb 0)",
+      "formula_sha256": "cc4946339bcc30edfba1e77167e657bba66ef54a3b780ae32848b88ad2f4f091",
+      "absent_from_B_exact_members": true,
+      "present_in_U10_output_exact_members": true,
+      "sources": [
+        {
+          "file": "selected_source.c",
+          "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+          "body_lines_1based": [
+            251,
+            252
+          ],
+          "snippet": "\t\t\tif (!skb)\n\t\t\t\tgoto error;\n",
+          "snippet_sha256": "2e20316dbd0b371e9e752ca0930c85f173b997b46e87e6e82bbd1cd7395f49ae",
+          "explanation": "if (!skb) goto error precedes target",
+          "scope": "published benchmark/historical function text, not independently verified original build evidence"
+        },
+        {
+          "file": "selected_source.c",
+          "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+          "body_lines_1based": [
+            271,
+            275
+          ],
+          "snippet": "\t\t\tif (fraggap) {\n\t\t\t\tskb->csum = skb_copy_and_csum_bits(\n\t\t\t\t\tskb_prev, maxfraglen,\n\t\t\t\t\tdata + transhdrlen, fraggap);\n\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,\n",
+          "snippet_sha256": "eb3f31428e087d7e51cd8fa70c30b88be5b355eba93bc25e3e525aebe86eb5f5",
+          "explanation": "target after the allocation/null check",
+          "scope": "published benchmark/historical function text, not independently verified original build evidence"
+        },
+        {
+          "file": "selected_source.c",
+          "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+          "body_lines_1based": [
+            175,
+            185
+          ],
+          "snippet": "\t\t\tif (skb)\n\t\t\t\tfraggap = skb->len - maxfraglen;\n\t\t\telse\n\t\t\t\tfraggap = 0;\n\t\t\t/* update mtu and maxfraglen if necessary */\n\t\t\tif (!skb || !skb_prev)\n\t\t\t\tip6_append_data_mtu(&mtu, &maxfraglen,\n\t\t\t\t\t\t    fragheaderlen, skb, rt,\n\t\t\t\t\t\t    orig_mtu);\n\n\t\t\tskb_prev = skb;\n",
+          "snippet_sha256": "7ef3443c1029c295b08612f33e6398f486e4f2711ca5837fc3acf74365adf721",
+          "explanation": "prior skb and skb_prev identities differ before reassignment",
+          "scope": "published benchmark/historical function text, not independently verified original build evidence"
+        }
+      ],
+      "source_fidelity": "LOCAL_EXIT_TEXT_SUPPORTED_WITH_UNRESOLVED_STATE_IDENTITY",
+      "observation": "The local early-exit check supports non-NULL current skb, but the model comment derives it from an earlier value. No SSA/state identity proof was performed."
+    }
+  ]
+}

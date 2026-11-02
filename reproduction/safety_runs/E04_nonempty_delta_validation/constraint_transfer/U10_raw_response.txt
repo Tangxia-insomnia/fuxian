@@ -1,0 +1,23 @@
+```python
+def check_constraints():
+    from z3 import Int, Solver, And, Or, sat
+
+    s = Solver()
+
+    fraggap = Int('fraggap')
+    skb_prev = Int('skb_prev')
+    skb = Int('skb')
+    maxfraglen = Int('maxfraglen')
+
+    # BASE constraints
+    s.add(Or(fraggap == 0, fraggap != 0))
+    s.add(skb_prev == 0)
+
+    # DELTA constraints
+    s.add(Or(And(skb == 0, fraggap == 0),
+             And(skb != 0, fraggap == skb - maxfraglen)))
+    s.add(fraggap != 0)
+    s.add(skb != 0)
+
+    return s.check() == sat
+```

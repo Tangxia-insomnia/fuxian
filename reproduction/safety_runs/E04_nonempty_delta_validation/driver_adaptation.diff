@@ -1,0 +1,67 @@
+--- E04/run_e04.py
++++ E04-ND/run_nd.py
+@@ -30,13 +30,13 @@
+ from completion.constraint_bundle import ConstraintTransferRejected
+ from completion.context import ContextRepository, called_function, parameter_name, direct_dereference
+ 
+-SAMPLE_ID = 'NPD/codeql/kernel69:row=12:index=24'
+-POSITION = 12
+-FRAME_LEVEL = 1
++SAMPLE_ID = 'NPD/codeql/kernel69:row=23:index=42'
++POSITION = 23
++FRAME_LEVEL = 0
+ DATASET = 'benchmark/NPD/codeql/codeql_kernel69_nullpointer.json'
+-MAX_HTTP_REQUESTS = 8  # includes the non-generation GET /models
++MAX_HTTP_REQUESTS = 9  # eight generation calls plus GET /models
+ MAX_GENERATION_REQUESTS = 8
+-MAX_INCREMENT_CNY = 2.0
++MAX_INCREMENT_CNY = 0.5
+ STAGES = {
+     'get_z3_by_target_conditions': 'U02',
+     'analysis_constraints_prompt_context_multi': 'U04',
+@@ -169,13 +169,13 @@
+     try:
+         repository = ContextRepository(dataset=DATASET)
+         row = repository.data[POSITION]
+-        assert row['index'] == 24
++        assert row['index'] == 42
+         context = repository.prepare(POSITION)
+         frame = context['frames'][FRAME_LEVEL]
+-        assert frame['level'] == FRAME_LEVEL and frame['function'] == 'kfree'
+-        assert frame['body_sha256'] == 'ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39'
+-        for call_id in (231, 233, 234):
+-            historical = ROOT/f'safety_runs/E03_base_delta_explicit_transfer_fix/evidence/A04/calls/{call_id:04d}.json'
++        assert frame['level'] == FRAME_LEVEL and frame['function'] == '__ip6_append_data'
++        assert frame['body_sha256'] == '4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9'
++        for call_id in (10, 11, 12, 13):
++            historical = ROOT/f'results/raw/completed/calls/{call_id:04d}.json'
+             call = json.loads(historical.read_text(encoding='utf-8'))
+             assert call['sample_id'] == SAMPLE_ID and call['call_id'] == call_id
+         # Historical response text is never supplied to any prompt or callback.
+@@ -192,7 +192,7 @@
+             'frames': context['frames'], 'target_frame': frame,
+             'target_body_line_1based': frame['code'][:frame['code'].index(frame['target'])].count('\n')+1,
+             'label_used_for_prompt_or_constraints': False,
+-            'historical_calls_used_for_identity_only': [231, 233, 234]})
++            'historical_calls_used_for_identity_only': [10, 11, 12, 13]})
+ 
+         obj = object.__new__(engine_module.CompletedEngine)  # avoid E03 default snapshot writes
+         obj.repository = repository
+@@ -211,7 +211,7 @@
+         put(HERE/'extracted_conditions.json', extracted)
+         assert not any(n == 'z3' or n.startswith('z3.') for n in sys.modules)
+         put(HERE/'experiment_config.json', {
+-            'experiment': 'E04_real_single_sample_u10_validation', 'created_at': stamp(),
++            'experiment': 'E04_nonempty_delta_validation', 'created_at': stamp(),
+             'source_config': 'configs/completed_experiment.json', 'source_config_sha256': sha(config_path.read_bytes()),
+             'original_model_config': config, 'python': sys.version, 'executable': sys.executable,
+             'platform': platform.platform(), 'dependencies': {n: importlib.metadata.version(n) for n in ('requests','python-dotenv','lizard','libclang')},
+@@ -220,7 +220,7 @@
+             'cumulative_ledger': str(ledger_path.relative_to(ROOT)),
+             'cumulative_cost_upper_before_cny': ledger_before['cost_upper_bound_cny'],
+             'cumulative_call_entries_before': len(ledger_before['calls']),
+-            'target_frame_isolated': True, 'safety_decisions_enabled': False,
++            'target_frame_isolated': True, 'nonempty_delta_acceptance': 'post-run read-only source review; no injected assertions', 'safety_decisions_enabled': False,
+             'solver_enabled': False, 'repair_enabled': False,
+             'persistence_adaptation': 'unchanged model.save behavior for cumulative ledger; new calls/service evidence redirected exclusively into E04'})
+ 

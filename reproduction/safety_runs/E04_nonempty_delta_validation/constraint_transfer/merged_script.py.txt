@@ -1,0 +1,25 @@
+# E03 BEGIN U02 BASE raw_sha256=beff74bf8da49808fb5577082e033e25a93e957dc73fa51a800253364ac99cd3
+fraggap=Int('fraggap')
+skb_prev=Int('skb_prev')
+s.add(Or(fraggap == 0, fraggap != 0))
+s.add(skb_prev == 0)
+
+# E03 END U02 BASE
+# E03 BEGIN U06 DELTA raw_sha256=2400bd4f63661a904b52a137651a0c86eb4239e95ac5432e98169aae23bc3c69
+# Additional constraints based on line-by-line simulation
+
+# fraggap is computed as: if (skb) fraggap = skb->len - maxfraglen; else fraggap = 0
+# Since skb_prev == 0, we are in the alloc_new_skb path.
+# Model both branches: skb NULL => fraggap == 0; skb non-NULL => fraggap == skb->len - maxfraglen
+skb=Int('skb')
+maxfraglen=Int('maxfraglen')
+s.add(Or(And(skb == 0, fraggap == 0),
+         And(skb != 0, fraggap == skb - maxfraglen)))
+
+# Condition at line 270: if (fraggap) — the branch is taken, so fraggap != 0
+s.add(fraggap != 0)
+
+# Since fraggap != 0, skb must be non-NULL (from the Or above)
+s.add(skb != 0)
+
+# E03 END U06 DELTA
