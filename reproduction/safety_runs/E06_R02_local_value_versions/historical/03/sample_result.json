@@ -1,0 +1,148 @@
+{
+  "sample_id": "NPD/codeql/kernel69:row=12:index=24",
+  "dataset_id": "codeql_linux",
+  "position": 12,
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/bundle.json",
+  "input_sha256": "a46c96403fc3a90c2bbdc7f85c4540d8a06f2f10bab18b1ee3a5a1db08d91143",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "frames": [
+    {
+      "frame": 0,
+      "function": "tcp_set_allowed_congestion_control",
+      "body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "trace_file": "frame_0_trace.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "function_reasons": [
+        {
+          "function": "tcp_set_allowed_congestion_control",
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval",
+            "unsupported_control_flow"
+          ]
+        }
+      ],
+      "diagnostic_count": 22,
+      "verified_versions": 0,
+      "verified_reads": 0
+    },
+    {
+      "frame": 1,
+      "function": "kfree",
+      "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/bundle.json#/context/frames/1",
+      "source_copy": "frame_1.c",
+      "trace_file": "frame_1_trace.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "function_reasons": [
+        {
+          "function": "kfree",
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval",
+            "if_or_path_budget_exceeded"
+          ]
+        }
+      ],
+      "diagnostic_count": 13,
+      "verified_versions": 0,
+      "verified_reads": 0
+    }
+  ],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R01_results_reused": false,
+  "prior_solver_results_used": false,
+  "whole_function_value_coverage": 0.0,
+  "cross_function_state_propagated": false,
+  "cached_diagnoses": [
+    {
+      "path": "safety_runs/E02_base_constraint_preservation_static/historical_replay_report.md",
+      "sha256": "097999fbd6d3dd8cd5077c88de75fce80bc696c5470b971488d76f017bd4ca86",
+      "recomputed_by_R02": false
+    },
+    {
+      "path": "safety_runs/E03_base_delta_explicit_transfer_fix/A04_replay_report.md",
+      "sha256": "d1c27d90a6ae096302980f64676fbcfbc0307c228def97a557418d36593cea5f",
+      "recomputed_by_R02": false
+    },
+    {
+      "path": "safety_runs/E05_polarity_variable_identity/E05_report.md",
+      "sha256": "2a849f122fda652251e41418c32b6087613e81781b7710e48eb28c9099aded8f",
+      "recomputed_by_R02": false
+    }
+  ],
+  "risk_locators": [
+    {
+      "frame": 0,
+      "lines_1based": [
+        7,
+        7
+      ],
+      "required_text": "saved_clone = clone = kstrdup",
+      "risk": "chained_assignment_unknown_return_is_not_supported",
+      "text": "\tsaved_clone = clone = kstrdup(val, GFP_USER);",
+      "body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+      "method": "literal_source_locator_only",
+      "reaching_definition_status": "UNKNOWN"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        13,
+        13
+      ],
+      "required_text": "strsep(&clone",
+      "risk": "address_escape_and_indirect_write",
+      "text": "\twhile ((name = strsep(&clone, \" \")) && *name) {",
+      "body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+      "method": "literal_source_locator_only",
+      "reaching_definition_status": "UNKNOWN"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        34,
+        34
+      ],
+      "required_text": "kfree(saved_clone);",
+      "risk": "caller_slot_and_callee_slot_are_distinct",
+      "text": "\tkfree(saved_clone);",
+      "body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+      "method": "literal_source_locator_only",
+      "reaching_definition_status": "UNKNOWN"
+    },
+    {
+      "frame": 1,
+      "lines_1based": [
+        1,
+        15
+      ],
+      "required_text": "ZERO_OR_NULL_PTR(object)",
+      "risk": "macro_type_and_object_symbol_identity_not_proven",
+      "text": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);",
+      "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "method": "literal_source_locator_only",
+      "reaching_definition_status": "UNKNOWN"
+    }
+  ],
+  "elapsed_seconds": 0.08038769999984652
+}

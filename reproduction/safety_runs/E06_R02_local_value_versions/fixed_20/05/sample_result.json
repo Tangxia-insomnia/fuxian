@@ -1,0 +1,54 @@
+{
+  "sample_id": "NPD/codeql/openssl:row=20:index=21",
+  "dataset_id": "codeql_openssl",
+  "position": 20,
+  "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+  "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json",
+  "input_sha256": "fea617683e27ca9b4efeea4d35c82e4558a141987932a64d1b21d443bdf41dcf",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "frames": [
+    {
+      "frame": 0,
+      "function": "engine_main",
+      "body_sha256": "7f3704779b9788908200f89b70d718036a397fff750c02cf9d593ca97fc7bab0",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "trace_file": "frame_0_trace.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "function_reasons": [
+        {
+          "function": "engine_main",
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval",
+            "unsupported_control_flow",
+            "if_or_path_budget_exceeded"
+          ]
+        }
+      ],
+      "diagnostic_count": 176,
+      "verified_versions": 0,
+      "verified_reads": 0
+    }
+  ],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R01_results_reused": false,
+  "prior_solver_results_used": false,
+  "whole_function_value_coverage": 0.0,
+  "cross_function_state_propagated": false,
+  "cached_diagnoses": [],
+  "risk_locators": [],
+  "elapsed_seconds": 0.06882519999999204
+}

@@ -1,0 +1,53 @@
+{
+  "sample_id": "NPD/codeql/libav:row=32:index=47",
+  "dataset_id": "codeql_libav",
+  "position": 32,
+  "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+  "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/14/bundle.json",
+  "input_sha256": "2ba332628dfd14d1e8443e643df544a70973fb8739c33e41e52d3989f349c119",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "frames": [
+    {
+      "frame": 0,
+      "function": "check_intra_mode",
+      "body_sha256": "02796ec824c32824e2e78e7020db687d7108fbc0e5c21e9ee84edbaa7ceca537",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/14/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "trace_file": "frame_0_trace.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "function_reasons": [
+        {
+          "function": "check_intra_mode",
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval",
+            "if_or_path_budget_exceeded"
+          ]
+        }
+      ],
+      "diagnostic_count": 45,
+      "verified_versions": 0,
+      "verified_reads": 0
+    }
+  ],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R01_results_reused": false,
+  "prior_solver_results_used": false,
+  "whole_function_value_coverage": 0.0,
+  "cross_function_state_propagated": false,
+  "cached_diagnoses": [],
+  "risk_locators": [],
+  "elapsed_seconds": 0.08193350000146893
+}

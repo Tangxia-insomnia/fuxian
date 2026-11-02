@@ -1,0 +1,130 @@
+{
+  "dataset_id": "codeql_openssl",
+  "position": 30,
+  "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R02_local_value_versions\\fixed_20\\01\\frame_2.c",
+  "source_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+  "build_evidence": {
+    "status": "saved-source-only",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": false
+  },
+  "status": "UNKNOWN",
+  "reasons": [
+    "missing_original_build_evidence",
+    "clang_diagnostics_no_recovery_approval"
+  ],
+  "diagnostics": [
+    {
+      "severity": 3,
+      "spelling": "unknown type name 'OCSP_BASICRESP'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R02_local_value_versions\\fixed_20\\01\\frame_2.c",
+        "line_1based": 1,
+        "column_1based": 28,
+        "byte_offset": 27
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "unknown type name 'X509_EXTENSION'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R02_local_value_versions\\fixed_20\\01\\frame_2.c",
+        "line_1based": 1,
+        "column_1based": 47,
+        "byte_offset": 46
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'X509v3_add_ext'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R02_local_value_versions\\fixed_20\\01\\frame_2.c",
+        "line_1based": 3,
+        "column_1based": 13,
+        "byte_offset": 89
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'NULL'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R02_local_value_versions\\fixed_20\\01\\frame_2.c",
+        "line_1based": 4,
+        "column_1based": 16,
+        "byte_offset": 170
+      },
+      "option": "",
+      "ranges": []
+    }
+  ],
+  "functions": [
+    {
+      "function": {
+        "name": "OCSP_BASICRESP_add_ext",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@OCSP_BASICRESP_add_ext",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R02_local_value_versions\\fixed_20\\01\\frame_2.c",
+          "line_1based": 1,
+          "column_1based": 5,
+          "byte_offset": 4
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R02_local_value_versions\\fixed_20\\01\\frame_2.c",
+          "line_1based": 1,
+          "column_1based": 5,
+          "byte_offset": 4
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R02_local_value_versions\\fixed_20\\01\\frame_2.c",
+            "line_1based": 1,
+            "column_1based": 1,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R02_local_value_versions\\fixed_20\\01\\frame_2.c",
+            "line_1based": 5,
+            "column_1based": 2,
+            "byte_offset": 178
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:bc0e11dd471884d00997c9d0b894ec74903cfee570e5675cc0366867c1db96b4"
+      },
+      "body_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "slots": [],
+      "versions": [],
+      "reads": [],
+      "events": [],
+      "state_snapshots": [],
+      "final_environments": [],
+      "unprocessed_ranges": [],
+      "recovery_nodes_trusted": false
+    }
+  ],
+  "expression_evidence": [],
+  "elapsed_seconds": 0.03526400000009744,
+  "scope": "intraprocedural-source-value-evidence-only",
+  "SMT_generated": false,
+  "cross_function_state_propagated": false
+}

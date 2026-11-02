@@ -1,0 +1,80 @@
+{
+  "sample_id": "NPD/codeql/libav:row=51:index=84",
+  "dataset_id": "codeql_libav",
+  "position": 51,
+  "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+  "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json",
+  "input_sha256": "3961f9297cbed26747521f3f4337bd84b84e916d20ac0da23342a46bbb7129c4",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "frames": [
+    {
+      "frame": 0,
+      "function": "mv_read_header",
+      "body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "trace_file": "frame_0_trace.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "function_reasons": [
+        {
+          "function": "mv_read_header",
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval",
+            "unsupported_control_flow",
+            "if_or_path_budget_exceeded"
+          ]
+        }
+      ],
+      "diagnostic_count": 148,
+      "verified_versions": 0,
+      "verified_reads": 0
+    },
+    {
+      "frame": 1,
+      "function": "read_index",
+      "body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/1",
+      "source_copy": "frame_1.c",
+      "trace_file": "frame_1_trace.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "function_reasons": [
+        {
+          "function": "read_index",
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval",
+            "unsupported_control_flow"
+          ]
+        }
+      ],
+      "diagnostic_count": 15,
+      "verified_versions": 0,
+      "verified_reads": 0
+    }
+  ],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R01_results_reused": false,
+  "prior_solver_results_used": false,
+  "whole_function_value_coverage": 0.0,
+  "cross_function_state_propagated": false,
+  "cached_diagnoses": [],
+  "risk_locators": [],
+  "elapsed_seconds": 0.07309370000075432
+}

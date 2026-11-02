@@ -1,0 +1,170 @@
+{
+  "dataset_id": "synthetic-r01",
+  "position": 0,
+  "status": "UNKNOWN",
+  "reasons": [
+    "clang_diagnostics_prevent_semantic_approval"
+  ],
+  "source": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+  "source_sha256": "2ffcb3f4a51c88f5e6149eef6af91dad9efb887753fea1432b3861a707d27a34",
+  "build_evidence": {
+    "status": "synthetic-self-contained",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": true
+  },
+  "diagnostics": [
+    {
+      "severity": 2,
+      "spelling": "incompatible pointer types passing 'double *' to parameter of type 'int *'",
+      "location": {
+        "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+        "line_1based": 2,
+        "column_1based": 28,
+        "byte_offset": 61
+      },
+      "option": "-Wincompatible-pointer-types",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+            "line_1based": 2,
+            "column_1based": 28,
+            "byte_offset": 61
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+            "line_1based": 2,
+            "column_1based": 29,
+            "byte_offset": 62
+          }
+        }
+      ]
+    }
+  ],
+  "macro_expansions": [],
+  "candidate_inventory": [],
+  "calls": [
+    {
+      "dataset_id": "synthetic-r01",
+      "position": 0,
+      "callsite_id": "call:c0100e369c0a724f58644af842407085f352e4b1ed72b783046670e9c9498563",
+      "caller": {
+        "name": "caller",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@caller",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+          "line_1based": 2,
+          "column_1based": 6,
+          "byte_offset": 39
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+          "line_1based": 2,
+          "column_1based": 6,
+          "byte_offset": 39
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+            "line_1based": 2,
+            "column_1based": 1,
+            "byte_offset": 34
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+            "line_1based": 2,
+            "column_1based": 33,
+            "byte_offset": 66
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:f1f892d9ed2f9d917c26a58eab0b2b16daad5c903251d5834c3a2a726c0a7798"
+      },
+      "callee": {
+        "name": "f",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@f",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+          "line_1based": 1,
+          "column_1based": 6,
+          "byte_offset": 5
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+          "line_1based": 1,
+          "column_1based": 6,
+          "byte_offset": 5
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+            "line_1based": 1,
+            "column_1based": 1,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+            "line_1based": 1,
+            "column_1based": 34,
+            "byte_offset": 33
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:a762f4eb397e392a708e1dae1571f208d0db1df4e27ce19395d67f80f328fe9b"
+      },
+      "callsite": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+          "line_1based": 2,
+          "column_1based": 26,
+          "byte_offset": 59
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R01_direct_call_argument_mapping\\fixtures\\M05_invalid.c",
+          "line_1based": 2,
+          "column_1based": 30,
+          "byte_offset": 63
+        }
+      },
+      "call_text": "f(p)",
+      "caller_body_sha256": "cd057cbe3f642eb57439d8176375c338f8e930c5fa6ca9dd5cdd9742fd6ddc06",
+      "callee_body_sha256": null,
+      "source_sha256": "2ffcb3f4a51c88f5e6149eef6af91dad9efb887753fea1432b3861a707d27a34",
+      "build_evidence": {
+        "status": "synthetic-self-contained",
+        "args": [
+          "-x",
+          "c",
+          "-std=c11",
+          "-nostdinc",
+          "-Werror=implicit-function-declaration",
+          "-ferror-limit=0"
+        ],
+        "original_project_build_verified": false,
+        "controlled_synthetic_TU": true
+      },
+      "diagnostics_ref": "#/diagnostics",
+      "status": "UNKNOWN",
+      "reasons": [
+        "clang_diagnostics_prevent_semantic_approval"
+      ],
+      "mappings": [],
+      "ast_is_trusted": false,
+      "scope": "direct-call-entry-value-only",
+      "reachability_verified": false,
+      "post_call_effects_verified": false,
+      "pointed_object_identity_verified": false
+    }
+  ],
+  "elapsed_seconds": 0.017581500000233063
+}

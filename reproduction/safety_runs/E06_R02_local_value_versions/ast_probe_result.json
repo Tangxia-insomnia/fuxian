@@ -1,0 +1,663 @@
+{
+  "source_sha256": "4c8ba4dd390c583d1b99290690a9fd7e8c84394b6bc435d66126947f59dd900d",
+  "diagnostics": [],
+  "nodes": [
+    {
+      "kind": "FUNCTION_DECL",
+      "text": "void probe(int *p, int *other, int flag) {\n    int *q = p;\n    p = 0;\n    if (flag) { p = other; } else { p = q; }\n    (void)p;\n}",
+      "type": "void (int *, int *, int)",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 1,
+          "column_1based": 1,
+          "byte_offset": 0
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 6,
+          "column_1based": 2,
+          "byte_offset": 129
+        }
+      },
+      "referenced_usr": "c:@F@probe",
+      "children": [
+        "PARM_DECL",
+        "PARM_DECL",
+        "PARM_DECL",
+        "COMPOUND_STMT"
+      ]
+    },
+    {
+      "kind": "PARM_DECL",
+      "text": "int *p",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 1,
+          "column_1based": 12,
+          "byte_offset": 11
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 1,
+          "column_1based": 18,
+          "byte_offset": 17
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@11@F@probe@p",
+      "children": []
+    },
+    {
+      "kind": "PARM_DECL",
+      "text": "int *other",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 1,
+          "column_1based": 20,
+          "byte_offset": 19
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 1,
+          "column_1based": 30,
+          "byte_offset": 29
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@19@F@probe@other",
+      "children": []
+    },
+    {
+      "kind": "PARM_DECL",
+      "text": "int flag",
+      "type": "int",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 1,
+          "column_1based": 32,
+          "byte_offset": 31
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 1,
+          "column_1based": 40,
+          "byte_offset": 39
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@31@F@probe@flag",
+      "children": []
+    },
+    {
+      "kind": "COMPOUND_STMT",
+      "text": "{\n    int *q = p;\n    p = 0;\n    if (flag) { p = other; } else { p = q; }\n    (void)p;\n}",
+      "type": "",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 1,
+          "column_1based": 42,
+          "byte_offset": 41
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 6,
+          "column_1based": 2,
+          "byte_offset": 129
+        }
+      },
+      "referenced_usr": null,
+      "children": [
+        "DECL_STMT",
+        "BINARY_OPERATOR",
+        "IF_STMT",
+        "CSTYLE_CAST_EXPR"
+      ]
+    },
+    {
+      "kind": "DECL_STMT",
+      "text": "int *q = p;",
+      "type": "",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 2,
+          "column_1based": 5,
+          "byte_offset": 47
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 2,
+          "column_1based": 16,
+          "byte_offset": 58
+        }
+      },
+      "referenced_usr": null,
+      "children": [
+        "VAR_DECL"
+      ]
+    },
+    {
+      "kind": "VAR_DECL",
+      "text": "int *q = p",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 2,
+          "column_1based": 5,
+          "byte_offset": 47
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 2,
+          "column_1based": 15,
+          "byte_offset": 57
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@47@F@probe@q",
+      "children": [
+        "UNEXPOSED_EXPR"
+      ]
+    },
+    {
+      "kind": "UNEXPOSED_EXPR",
+      "text": "p",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 2,
+          "column_1based": 14,
+          "byte_offset": 56
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 2,
+          "column_1based": 15,
+          "byte_offset": 57
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@11@F@probe@p",
+      "children": [
+        "DECL_REF_EXPR"
+      ]
+    },
+    {
+      "kind": "DECL_REF_EXPR",
+      "text": "p",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 2,
+          "column_1based": 14,
+          "byte_offset": 56
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 2,
+          "column_1based": 15,
+          "byte_offset": 57
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@11@F@probe@p",
+      "children": []
+    },
+    {
+      "kind": "BINARY_OPERATOR",
+      "text": "p = 0",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 3,
+          "column_1based": 5,
+          "byte_offset": 63
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 3,
+          "column_1based": 10,
+          "byte_offset": 68
+        }
+      },
+      "referenced_usr": null,
+      "children": [
+        "DECL_REF_EXPR",
+        "UNEXPOSED_EXPR"
+      ]
+    },
+    {
+      "kind": "DECL_REF_EXPR",
+      "text": "p",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 3,
+          "column_1based": 5,
+          "byte_offset": 63
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 3,
+          "column_1based": 6,
+          "byte_offset": 64
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@11@F@probe@p",
+      "children": []
+    },
+    {
+      "kind": "UNEXPOSED_EXPR",
+      "text": "0",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 3,
+          "column_1based": 9,
+          "byte_offset": 67
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 3,
+          "column_1based": 10,
+          "byte_offset": 68
+        }
+      },
+      "referenced_usr": null,
+      "children": [
+        "INTEGER_LITERAL"
+      ]
+    },
+    {
+      "kind": "INTEGER_LITERAL",
+      "text": "0",
+      "type": "int",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 3,
+          "column_1based": 9,
+          "byte_offset": 67
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 3,
+          "column_1based": 10,
+          "byte_offset": 68
+        }
+      },
+      "referenced_usr": null,
+      "children": []
+    },
+    {
+      "kind": "IF_STMT",
+      "text": "if (flag) { p = other; } else { p = q; }",
+      "type": "",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 5,
+          "byte_offset": 74
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 45,
+          "byte_offset": 114
+        }
+      },
+      "referenced_usr": null,
+      "children": [
+        "UNEXPOSED_EXPR",
+        "COMPOUND_STMT",
+        "COMPOUND_STMT"
+      ]
+    },
+    {
+      "kind": "UNEXPOSED_EXPR",
+      "text": "flag",
+      "type": "int",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 9,
+          "byte_offset": 78
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 13,
+          "byte_offset": 82
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@31@F@probe@flag",
+      "children": [
+        "DECL_REF_EXPR"
+      ]
+    },
+    {
+      "kind": "DECL_REF_EXPR",
+      "text": "flag",
+      "type": "int",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 9,
+          "byte_offset": 78
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 13,
+          "byte_offset": 82
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@31@F@probe@flag",
+      "children": []
+    },
+    {
+      "kind": "COMPOUND_STMT",
+      "text": "{ p = other; }",
+      "type": "",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 15,
+          "byte_offset": 84
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 29,
+          "byte_offset": 98
+        }
+      },
+      "referenced_usr": null,
+      "children": [
+        "BINARY_OPERATOR"
+      ]
+    },
+    {
+      "kind": "BINARY_OPERATOR",
+      "text": "p = other",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 17,
+          "byte_offset": 86
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 26,
+          "byte_offset": 95
+        }
+      },
+      "referenced_usr": null,
+      "children": [
+        "DECL_REF_EXPR",
+        "UNEXPOSED_EXPR"
+      ]
+    },
+    {
+      "kind": "DECL_REF_EXPR",
+      "text": "p",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 17,
+          "byte_offset": 86
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 18,
+          "byte_offset": 87
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@11@F@probe@p",
+      "children": []
+    },
+    {
+      "kind": "UNEXPOSED_EXPR",
+      "text": "other",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 21,
+          "byte_offset": 90
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 26,
+          "byte_offset": 95
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@19@F@probe@other",
+      "children": [
+        "DECL_REF_EXPR"
+      ]
+    },
+    {
+      "kind": "DECL_REF_EXPR",
+      "text": "other",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 21,
+          "byte_offset": 90
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 26,
+          "byte_offset": 95
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@19@F@probe@other",
+      "children": []
+    },
+    {
+      "kind": "COMPOUND_STMT",
+      "text": "{ p = q; }",
+      "type": "",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 35,
+          "byte_offset": 104
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 45,
+          "byte_offset": 114
+        }
+      },
+      "referenced_usr": null,
+      "children": [
+        "BINARY_OPERATOR"
+      ]
+    },
+    {
+      "kind": "BINARY_OPERATOR",
+      "text": "p = q",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 37,
+          "byte_offset": 106
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 42,
+          "byte_offset": 111
+        }
+      },
+      "referenced_usr": null,
+      "children": [
+        "DECL_REF_EXPR",
+        "UNEXPOSED_EXPR"
+      ]
+    },
+    {
+      "kind": "DECL_REF_EXPR",
+      "text": "p",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 37,
+          "byte_offset": 106
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 38,
+          "byte_offset": 107
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@11@F@probe@p",
+      "children": []
+    },
+    {
+      "kind": "UNEXPOSED_EXPR",
+      "text": "q",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 41,
+          "byte_offset": 110
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 42,
+          "byte_offset": 111
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@47@F@probe@q",
+      "children": [
+        "DECL_REF_EXPR"
+      ]
+    },
+    {
+      "kind": "DECL_REF_EXPR",
+      "text": "q",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 41,
+          "byte_offset": 110
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 4,
+          "column_1based": 42,
+          "byte_offset": 111
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@47@F@probe@q",
+      "children": []
+    },
+    {
+      "kind": "CSTYLE_CAST_EXPR",
+      "text": "(void)p",
+      "type": "void",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 5,
+          "column_1based": 5,
+          "byte_offset": 119
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 5,
+          "column_1based": 12,
+          "byte_offset": 126
+        }
+      },
+      "referenced_usr": null,
+      "children": [
+        "UNEXPOSED_EXPR"
+      ]
+    },
+    {
+      "kind": "UNEXPOSED_EXPR",
+      "text": "p",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 5,
+          "column_1based": 11,
+          "byte_offset": 125
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 5,
+          "column_1based": 12,
+          "byte_offset": 126
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@11@F@probe@p",
+      "children": [
+        "DECL_REF_EXPR"
+      ]
+    },
+    {
+      "kind": "DECL_REF_EXPR",
+      "text": "p",
+      "type": "int *",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 5,
+          "column_1based": 11,
+          "byte_offset": 125
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\ast_probe.c",
+          "line_1based": 5,
+          "column_1based": 12,
+          "byte_offset": 126
+        }
+      },
+      "referenced_usr": "c:ast_probe.c@11@F@probe@p",
+      "children": []
+    }
+  ],
+  "model_calls": 0,
+  "Z3_calls": 0,
+  "C_execution": 0
+}

@@ -1,0 +1,54 @@
+{
+  "sample_id": "NPD/cppcheck/linux:row=63:index=None",
+  "dataset_id": "cppcheck_linux",
+  "position": 63,
+  "dataset": "benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+  "dataset_sha256": "bc1fcdd59756e855c0ee7987e6b788d408a5b0815f207e9f4ef272bf1ca234b6",
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json",
+  "input_sha256": "5723c7a0334c67b6265b623f9ceb85276306687869a456571355601facde57d1",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "frames": [
+    {
+      "frame": 0,
+      "function": "dwarf_lookup_cie",
+      "body_sha256": "05ec37a3e03aa0c41998ccd3a4ccf6fa7be20d3a2cc59551bda5d02001c2f840",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "trace_file": "frame_0_trace.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "function_reasons": [
+        {
+          "function": "dwarf_lookup_cie",
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval",
+            "unsupported_control_flow",
+            "if_or_path_budget_exceeded"
+          ]
+        }
+      ],
+      "diagnostic_count": 18,
+      "verified_versions": 0,
+      "verified_reads": 0
+    }
+  ],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R01_results_reused": false,
+  "prior_solver_results_used": false,
+  "whole_function_value_coverage": 0.0,
+  "cross_function_state_propagated": false,
+  "cached_diagnoses": [],
+  "risk_locators": [],
+  "elapsed_seconds": 0.03674630000023171
+}

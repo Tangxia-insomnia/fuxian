@@ -1,0 +1,118 @@
+{
+  "sample_id": "NPD/codeql/kernel69:row=23:index=42",
+  "dataset_id": "codeql_linux",
+  "position": 23,
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+  "input_ref": "safety_runs/E04_nonempty_delta_validation/sample_manifest.json",
+  "input_sha256": "f750feec9e2ff7f2e2a2c8e58f5117f87ea4967e7130eed20cbfef859e118866",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "frames": [
+    {
+      "frame": 0,
+      "function": "__ip6_append_data",
+      "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+      "source_ref": "safety_runs/E04_nonempty_delta_validation/sample_manifest.json#/frames/0",
+      "source_copy": "frame_0.c",
+      "trace_file": "frame_0_trace.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "function_reasons": [
+        {
+          "function": "__ip6_append_data",
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval",
+            "unsupported_control_flow",
+            "if_or_path_budget_exceeded"
+          ]
+        }
+      ],
+      "diagnostic_count": 252,
+      "verified_versions": 0,
+      "verified_reads": 0
+    }
+  ],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R01_results_reused": false,
+  "prior_solver_results_used": false,
+  "whole_function_value_coverage": 0.0,
+  "cross_function_state_propagated": false,
+  "cached_diagnoses": [
+    {
+      "path": "safety_runs/E04_nonempty_delta_validation/E04_ND_report.md",
+      "sha256": "d99a38453f6b634d8af09881b873e6cc8836d21712fa7f34b3baafa59abd65e4",
+      "recomputed_by_R02": false
+    },
+    {
+      "path": "safety_runs/E05_polarity_variable_identity/E05_report.md",
+      "sha256": "2a849f122fda652251e41418c32b6087613e81781b7710e48eb28c9099aded8f",
+      "recomputed_by_R02": false
+    }
+  ],
+  "risk_locators": [
+    {
+      "frame": 0,
+      "lines_1based": [
+        175,
+        178
+      ],
+      "required_text": "fraggap = skb->len - maxfraglen;",
+      "risk": "member_value_is_not_pointer_root",
+      "text": "\t\t\tif (skb)\n\t\t\t\tfraggap = skb->len - maxfraglen;\n\t\t\telse\n\t\t\t\tfraggap = 0;",
+      "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+      "method": "literal_source_locator_only",
+      "reaching_definition_status": "UNKNOWN"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        180,
+        185
+      ],
+      "required_text": "skb_prev = skb;",
+      "risk": "copy_old_skb_value_and_possible_address_side_effects",
+      "text": "\t\t\tif (!skb || !skb_prev)\n\t\t\t\tip6_append_data_mtu(&mtu, &maxfraglen,\n\t\t\t\t\t\t    fragheaderlen, skb, rt,\n\t\t\t\t\t\t    orig_mtu);\n\n\t\t\tskb_prev = skb;",
+      "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+      "method": "literal_source_locator_only",
+      "reaching_definition_status": "UNKNOWN"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        239,
+        250
+      ],
+      "required_text": "skb = sock_alloc_send_skb",
+      "risk": "subsequent_skb_rebinding_does_not_rebind_skb_prev_slot",
+      "text": "\t\t\tif (transhdrlen) {\n\t\t\t\tskb = sock_alloc_send_skb(sk, alloclen,\n\t\t\t\t\t\t(flags & MSG_DONTWAIT), &err);\n\t\t\t} else {\n\t\t\t\tskb = NULL;\n\t\t\t\tif (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=\n\t\t\t\t    2 * sk->sk_sndbuf)\n\t\t\t\t\tskb = alloc_skb(alloclen,\n\t\t\t\t\t\t\tsk->sk_allocation);\n\t\t\t\tif (unlikely(!skb))\n\t\t\t\t\terr = -ENOBUFS;\n\t\t\t}",
+      "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+      "method": "literal_source_locator_only",
+      "reaching_definition_status": "UNKNOWN"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        275,
+        276
+      ],
+      "required_text": "skb_prev->csum",
+      "risk": "target_requires_old_copy_and_new_state_identity",
+      "text": "\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,\n\t\t\t\t\t\t\t  skb->csum);",
+      "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+      "method": "literal_source_locator_only",
+      "reaching_definition_status": "UNKNOWN"
+    }
+  ],
+  "elapsed_seconds": 0.2370322999995551
+}
