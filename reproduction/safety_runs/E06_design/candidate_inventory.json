@@ -1,0 +1,598 @@
+{
+  "created_at": "2026-11-02T04:48:47.983621+00:00",
+  "fixed_manifest": "safety_runs/20261029_v1/fixed_holdout.json",
+  "fixed_manifest_sha256": "c4ef793abe5f00437f52c27b6fe545dfa613ed661eb441362e1315f1ed98243d",
+  "seed": "20261029-safety-holdout-v1",
+  "sample_count": 20,
+  "frame_count_distribution": {
+    "3": 2,
+    "1": 15,
+    "2": 1,
+    "0": 2
+  },
+  "saved_call_edge_count": 5,
+  "fixed20_is_blind": false,
+  "rows": [
+    {
+      "fixed_manifest_ordinal_1based": 1,
+      "sample_id": "NPD/codeql/openssl:row=30:index=31",
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "row_position": 30,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json",
+      "bundle_sha256": "8c18fdbffdb74745318fe4e45481c42c4b21b64dec35900916ec0c658c9c39c3",
+      "frame_count": 3,
+      "call_edges_from_saved_chain": 2,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "make_ocsp_response",
+          "tracked_variable": "bs",
+          "signature_text": "static void make_ocsp_response(BIO *err, OCSP_RESPONSE **resp, OCSP_REQUEST *req,\n                              CA_DB *db, STACK_OF(X509) *ca, X509 *rcert,\n                              EVP_PKEY *rkey, const EVP_MD *rmd,\n                              STACK_OF(OPENSSL_STRING) *sigopts,\n                              STACK_OF(X509) *rother, unsigned long flags,\n                              int nmin, int ndays, int badsig,\n                              const EVP_MD *resp_md)",
+          "body_sha256": "0710255ad6325f07f68ca2e2b35754df6a9c26fbf063e37b6c9f66555683feca",
+          "target_text": "OCSP_copy_nonce(bs, req);",
+          "target_body_lines_1based": [
+            112
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        },
+        {
+          "frame": 1,
+          "function": "OCSP_copy_nonce",
+          "tracked_variable": "resp",
+          "signature_text": "int OCSP_copy_nonce(OCSP_BASICRESP *resp, OCSP_REQUEST *req)",
+          "body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+          "target_text": "    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);",
+          "target_body_lines_1based": [
+            11
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/1",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        },
+        {
+          "frame": 2,
+          "function": "OCSP_BASICRESP_add_ext",
+          "tracked_variable": "x",
+          "signature_text": "int OCSP_BASICRESP_add_ext(OCSP_BASICRESP *x, X509_EXTENSION *ex, int loc)",
+          "body_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+          "target_text": "    return (X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)",
+          "target_body_lines_1based": [
+            3
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/2",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 2,
+      "sample_id": "NPD/codeql/kernel69:row=33:index=53",
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_position": 33,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/02/bundle.json",
+      "bundle_sha256": "4bc18c1834c41ce117c1881fc2f395b45251454ceeac89932e0b3d14d84adec4",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ip6_route_info_create",
+          "tracked_variable": "fib6_nh",
+          "signature_text": "static struct fib6_info *ip6_route_info_create(struct fib6_config *cfg,\n\t\t\t\t\t      gfp_t gfp_flags,\n\t\t\t\t\t      struct netlink_ext_ack *extack)",
+          "body_sha256": "c59e0935767987ac1be4757ae88affcee8f1e98b5615e79e52c0fac449291f20",
+          "target_text": "\t\tstruct net_device *dev = fib6_nh->fib_nh_dev;",
+          "target_body_lines_1based": [
+            136
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/02/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 3,
+      "sample_id": "NPD/codeql/openssl:row=6:index=7",
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "row_position": 6,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/03/bundle.json",
+      "bundle_sha256": "60db3afce7affcbf2a8f8d971058bb218c7e2b1c1fed3303a4065ba0bacdf9af",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "cms_main",
+          "tracked_variable": "pctx",
+          "signature_text": "int cms_main(int argc, char **argv)",
+          "body_sha256": "069f6e246f25b6f04e7138c11606d9ec60014f7ce405d4c6b44acaeef3f2cd7b",
+          "target_text": "if (!cms_set_pkey_param(pctx, kparam->param))",
+          "target_body_lines_1based": [
+            723,
+            841
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/03/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 4,
+      "sample_id": "NPD/infer/openssl:row=11:index=None",
+      "dataset": "benchmark/NPD/infer/infer_openssl_nullpointer.json",
+      "row_position": 11,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/04/bundle.json",
+      "bundle_sha256": "4dc4c81433403be7616caff192266e8826d78f6cc1c49c8d6c2394aa99cba28a",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ossl_quic_tls_is_cert_request",
+          "tracked_variable": "sc",
+          "signature_text": "int ossl_quic_tls_is_cert_request(QUIC_TLS *qtls)",
+          "body_sha256": "541c1087c652cd957da042ca0f68876b8e8a64f7de37345ea818d18e6dad7435",
+          "target_text": "return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;",
+          "target_body_lines_1based": [
+            5
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/04/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 5,
+      "sample_id": "NPD/codeql/openssl:row=20:index=21",
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "row_position": 20,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json",
+      "bundle_sha256": "fea617683e27ca9b4efeea4d35c82e4558a141987932a64d1b21d443bdf41dcf",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "engine_main",
+          "tracked_variable": "strcmp(ENGINE_get_id(e), id)",
+          "signature_text": "int engine_main(int argc, char **argv)",
+          "body_sha256": "7f3704779b9788908200f89b70d718036a397fff750c02cf9d593ca97fc7bab0",
+          "target_text": "if (strcmp(ENGINE_get_id(e), id) != 0) {",
+          "target_body_lines_1based": [
+            96
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 6,
+      "sample_id": "NPD/codeql/kernel69:row=17:index=36",
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_position": 17,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/06/bundle.json",
+      "bundle_sha256": "94f026d01d02ac07ca3453725035f5d9e61fe065d922f42500e8c9c08f4869eb",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ipv6_route_native_seq_show",
+          "tracked_variable": "fib6_nh",
+          "signature_text": "static int ipv6_route_native_seq_show(struct seq_file *seq, void *v)",
+          "body_sha256": "93ca160d4d293117f2064e48065d5d6b75956d177744cf0a5ea2fdbd518ab120",
+          "target_text": "\tif (fib6_nh->fib_nh_gw_family) {",
+          "target_body_lines_1based": [
+            19
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/06/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 7,
+      "sample_id": "NPD/codeql/kernel69:row=15:index=31",
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_position": 15,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/07/bundle.json",
+      "bundle_sha256": "a6bfc8afd6d4025367490228c8be793f61ddd5408bb17d6319e944c5bc486091",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "udp_gro_receive_segment",
+          "tracked_variable": "uh",
+          "signature_text": "static struct sk_buff *udp_gro_receive_segment(struct list_head *head,\n\t\t\t\t\t       struct sk_buff *skb)",
+          "body_sha256": "a45084ac56e0e387de6582aa35d2a1b7f7ae70595725427b3991f4e3193330ed",
+          "target_text": "\tif (!uh->check) {",
+          "target_body_lines_1based": [
+            13
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/07/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 8,
+      "sample_id": "NPD/codeql/libav:row=50:index=83",
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "row_position": 50,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/08/bundle.json",
+      "bundle_sha256": "35522c180712d1180adcc749920b209c8747374bcb56be06db24c50ea8869244",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "mpegts_write_header",
+          "tracked_variable": "pcr_st",
+          "signature_text": "static int mpegts_write_header(AVFormatContext *s)",
+          "body_sha256": "de2853d3515c2f8809d23949a76f85b5d2b8a1e2f015ad0e7d9863b43eef46eb",
+          "target_text": "ts_st = pcr_st->priv_data;",
+          "target_body_lines_1based": [
+            149
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/08/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 9,
+      "sample_id": "NPD/cppcheck/linux:row=63:index=None",
+      "dataset": "benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+      "row_position": 63,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json",
+      "bundle_sha256": "5723c7a0334c67b6265b623f9ceb85276306687869a456571355601facde57d1",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "dwarf_lookup_cie",
+          "tracked_variable": "cie_tmp",
+          "signature_text": "static struct dwarf_cie *dwarf_lookup_cie(unsigned long cie_ptr)",
+          "body_sha256": "05ec37a3e03aa0c41998ccd3a4ccf6fa7be20d3a2cc59551bda5d02001c2f840",
+          "target_text": "if (cie_ptr == cie_tmp->cie_pointer) {",
+          "target_body_lines_1based": [
+            24
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 10,
+      "sample_id": "NPD/cppcheck/openssl:row=2:index=None",
+      "dataset": "benchmark/NPD/cppcheck/cppcheck_openssl_nullpointer.json",
+      "row_position": 2,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/10/bundle.json",
+      "bundle_sha256": "fbc3e8e54313eb8049cfb016ae10d78c93b879651ffea1e288b31f7b797706de",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "list_insert_sorted",
+          "tracked_variable": "p",
+          "signature_text": "static void list_insert_sorted(QUIC_CFQ_ITEM_LIST *l, QUIC_CFQ_ITEM_EX *n,\n                               int (*cmp)(const QUIC_CFQ_ITEM_EX *a,\n                                          const QUIC_CFQ_ITEM_EX *b))",
+          "body_sha256": "ab5c588dd223e8d495f5be6cc7b13541276eaef002b91d5e3b34a358c3d377b2",
+          "target_text": "for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);",
+          "target_body_lines_1based": [
+            13
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/10/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 11,
+      "sample_id": "NPD/codeql/openssl:row=15:index=16",
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "row_position": 15,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/11/bundle.json",
+      "bundle_sha256": "e915e542e1d85d9f730344b17336f941d9884050450ec3556a5fd58a560cb16f",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ec_main",
+          "tracked_variable": "ectx",
+          "signature_text": "int ec_main(int argc, char **argv)",
+          "body_sha256": "236f72d059109c68d50daee0bcaa02b952dd1df495342a5108387d94a6073713",
+          "target_text": "if (!OSSL_ENCODER_to_bio(ectx, out)) {",
+          "target_body_lines_1based": [
+            205
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/11/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 12,
+      "sample_id": "NPD/codeql/libav:row=51:index=84",
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "row_position": 51,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json",
+      "bundle_sha256": "3961f9297cbed26747521f3f4337bd84b84e916d20ac0da23342a46bbb7129c4",
+      "frame_count": 2,
+      "call_edges_from_saved_chain": 1,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "mv_read_header",
+          "tracked_variable": "ast",
+          "signature_text": "static int mv_read_header(AVFormatContext *avctx)",
+          "body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+          "target_text": "read_index(pb, ast);",
+          "target_body_lines_1based": [
+            119
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        },
+        {
+          "frame": 1,
+          "function": "read_index",
+          "tracked_variable": "st",
+          "signature_text": "static void read_index(AVIOContext *pb, AVStream *st)",
+          "body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+          "target_text": "    for (i = 0; i < st->nb_frames; i++) {",
+          "target_body_lines_1based": [
+            5
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/1",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 13,
+      "sample_id": "NPD/cppcheck/linux:row=13:index=None",
+      "dataset": "benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+      "row_position": 13,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/13/bundle.json",
+      "bundle_sha256": "4ec4f1c0d70e890838eee90f7f165afdfefc59303a9f1232a824022794bd8c94",
+      "frame_count": 0,
+      "call_edges_from_saved_chain": 0,
+      "frames": [],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 14,
+      "sample_id": "NPD/codeql/libav:row=32:index=47",
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "row_position": 32,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/14/bundle.json",
+      "bundle_sha256": "2ba332628dfd14d1e8443e643df544a70973fb8739c33e41e52d3989f349c119",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "check_intra_mode",
+          "tracked_variable": "top",
+          "signature_text": "static av_always_inline int check_intra_mode(VP9Context *s, int mode,\n                                             uint8_t **a,\n                                             uint8_t *dst_edge,\n                                             ptrdiff_t stride_edge,\n                                             uint8_t *dst_inner,\n                                             ptrdiff_t stride_inner,\n                                             uint8_t *l, int col, int x, int w,\n                                             int row, int y, enum TxfmMode tx,\n                                             int p)",
+          "body_sha256": "02796ec824c32824e2e78e7020db687d7108fbc0e5c21e9ee84edbaa7ceca537",
+          "target_text": "memcpy(*a, top, n_px_need);",
+          "target_body_lines_1based": [
+            95
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/14/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 15,
+      "sample_id": "NPD/infer/openssl:row=1:index=None",
+      "dataset": "benchmark/NPD/infer/infer_openssl_nullpointer.json",
+      "row_position": 1,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/15/bundle.json",
+      "bundle_sha256": "12fd9fc0e4a0929813b36c357611afb9a789c19c66b324684772c152fd886649",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "opt_provider_path",
+          "tracked_variable": "path",
+          "signature_text": "static int opt_provider_path(const char *path)",
+          "body_sha256": "bd37d701ce79113cc689d82b0ba6d20d5014a611e6ec85687171ddf8be2c80f1",
+          "target_text": "return OSSL_PROVIDER_set_default_search_path(app_get0_libctx(), path);",
+          "target_body_lines_1based": [
+            5
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/15/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 16,
+      "sample_id": "NPD/codeql/kernel69:row=26:index=45",
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_position": 26,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/16/bundle.json",
+      "bundle_sha256": "5de1aafe31c99ac54c3c638db21f407dfce75bb0075c544fa7d016e25eba06b3",
+      "frame_count": 0,
+      "call_edges_from_saved_chain": 0,
+      "frames": [],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 17,
+      "sample_id": "NPD/codeql/kernel69:row=24:index=43",
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_position": 24,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json",
+      "bundle_sha256": "4df7f7014d4eeeca31e8768db1adbfd8c58e10ffbc7551a5330e4d3a6a9729b3",
+      "frame_count": 3,
+      "call_edges_from_saved_chain": 2,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ip6_finish_output2",
+          "tracked_variable": "neigh",
+          "signature_text": "static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *skb)",
+          "body_sha256": "90b47239055d70d6940ddc13e68fc1f3e80746d0d735ccb383f25c4c6471a940",
+          "target_text": "\tsock_confirm_neigh(skb, neigh);",
+          "target_body_lines_1based": [
+            77
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        },
+        {
+          "frame": 1,
+          "function": "sock_confirm_neigh",
+          "tracked_variable": "n",
+          "signature_text": "static inline void sock_confirm_neigh(struct sk_buff *skb, struct neighbour *n)",
+          "body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+          "target_text": "\t\tneigh_confirm(n);",
+          "target_body_lines_1based": [
+            8
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/1",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        },
+        {
+          "frame": 2,
+          "function": "neigh_confirm",
+          "tracked_variable": "n",
+          "signature_text": "static inline void neigh_confirm(struct neighbour *n)",
+          "body_sha256": "468f1bceeb2bb427c7a70f1345ed27aa19925bbfcf2197e94b7f6476cc260be9",
+          "target_text": "\t\tif (READ_ONCE(n->confirmed) != now)",
+          "target_body_lines_1based": [
+            7
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/2",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 18,
+      "sample_id": "NPD/codeql/libav:row=19:index=26",
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "row_position": 19,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/18/bundle.json",
+      "bundle_sha256": "77890adfb560533976d2ae76daefe945db8c11271dfaa9cc363f89eaee2281e4",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "epic_decode_from_cache",
+          "tracked_variable": "prev",
+          "signature_text": "static int epic_decode_from_cache(ePICContext *dc, uint32_t W, uint32_t *pPix)",
+          "body_sha256": "c72e4819621cc2795adbc48005fdd7459cd8f967b3b49ac046e18f028352d1c1",
+          "target_text": "prev->next      = list->next;",
+          "target_body_lines_1based": [
+            15
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/18/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 19,
+      "sample_id": "NPD/codeql/openssl:row=16:index=17",
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "row_position": 16,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/19/bundle.json",
+      "bundle_sha256": "67c9b55383be69e2e7a5e2eff0b628f022b542c6badb34d7b5d2397e9c49d8df",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ecparam_main",
+          "tracked_variable": "ectx_params",
+          "signature_text": "int ecparam_main(int argc, char **argv)",
+          "body_sha256": "1ce79527102f8800da015facfef79f74cededdc1538687bdeb20158a9a7eb932",
+          "target_text": "if (!OSSL_ENCODER_to_bio(ectx_params, out)) {",
+          "target_body_lines_1based": [
+            216
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/19/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    },
+    {
+      "fixed_manifest_ordinal_1based": 20,
+      "sample_id": "NPD/codeql/libav:row=35:index=51",
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "row_position": 35,
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/20/bundle.json",
+      "bundle_sha256": "7d2286c39b43777fca47675477cd5a9c358abffc2430a2084d4880c24a9bb3be",
+      "frame_count": 1,
+      "call_edges_from_saved_chain": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "swap_sample_fmts_on_filter",
+          "tracked_variable": "link",
+          "signature_text": "static void swap_sample_fmts_on_filter(AVFilterContext *filter)",
+          "body_sha256": "2680e5982eaf997a0ccab4c4a0450f691328e7437b52501788f82e7fcbca8b38",
+          "target_text": "format = link->out_formats->formats[0];",
+          "target_body_lines_1based": [
+            17
+          ],
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/20/bundle.json#/context/frames/0",
+          "evidence_status": "saved body and target only; no new mapping/reachability proof"
+        }
+      ],
+      "selection_scope": "source review only, not regression execution",
+      "propagation_verification": "NOT_RUN"
+    }
+  ],
+  "new_tests_executed": 0,
+  "new_model_calls": 0,
+  "new_z3_calls": 0
+}
