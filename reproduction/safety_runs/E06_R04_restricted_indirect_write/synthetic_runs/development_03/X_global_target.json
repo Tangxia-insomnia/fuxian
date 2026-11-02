@@ -1,0 +1,509 @@
+{
+  "dataset_id": "synthetic-r04",
+  "position": 0,
+  "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+  "source_sha256": "45d068ec002705b3c58d0ed9bfefbd17681944122ddeeccf2e946d216472d606",
+  "build_evidence": {
+    "status": "synthetic-self-contained",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": true
+  },
+  "diagnostics": [],
+  "status": "UNKNOWN",
+  "reasons": [
+    "target_not_automatic_unqualified_scalar_local",
+    "unknown_effect_stop"
+  ],
+  "caller": {
+    "function": {
+      "name": "test",
+      "kind": "FUNCTION_DECL",
+      "usr": "c:@F@test",
+      "canonical_location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+        "line_1based": 1,
+        "column_1based": 41,
+        "byte_offset": 40
+      },
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+        "line_1based": 1,
+        "column_1based": 41,
+        "byte_offset": 40
+      },
+      "source_range": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+          "line_1based": 1,
+          "column_1based": 36,
+          "byte_offset": 35
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+          "line_1based": 1,
+          "column_1based": 64,
+          "byte_offset": 63
+        }
+      },
+      "linkage": "EXTERNAL",
+      "declaration_id": "decl:f79f833e70c093664183aa388d4dbf567c2eaf3ebcb5450edcb5c05949e91108"
+    },
+    "frame_role": "caller",
+    "body_sha256": "c9a4168abdd50f4f65102d46e067e24b79ff38a94011c2ec843461ca2543e9c9",
+    "status": "UNKNOWN",
+    "reasons": [
+      "target_not_automatic_unqualified_scalar_local",
+      "unknown_effect_stop"
+    ],
+    "slots": [],
+    "versions": [],
+    "reads": [],
+    "events": [
+      {
+        "event_id": "definition-event:4d9fde7eaaf0fc684b82b0b99497099c774bd0bf1972d45902ee82983aed9946",
+        "kind": "unknown_effect_barrier",
+        "path_id": "r03-path-entry:10b2738123216638cd0e7417d89adeb549b8c0e6bb1de0d6d63be46eddf95b58",
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+            "line_1based": 1,
+            "column_1based": 52,
+            "byte_offset": 51
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+            "line_1based": 1,
+            "column_1based": 62,
+            "byte_offset": 61
+          }
+        },
+        "raw_expression": "modify(&x)",
+        "reason": "target_not_automatic_unqualified_scalar_local",
+        "before": {
+          "path_id": "r03-path-entry:10b2738123216638cd0e7417d89adeb549b8c0e6bb1de0d6d63be46eddf95b58",
+          "current": {},
+          "guards": [],
+          "termination": null,
+          "invalidated_by": [],
+          "memory_current": {}
+        },
+        "after": {
+          "path_id": "r03-path-entry:10b2738123216638cd0e7417d89adeb549b8c0e6bb1de0d6d63be46eddf95b58",
+          "current": {},
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:4d9fde7eaaf0fc684b82b0b99497099c774bd0bf1972d45902ee82983aed9946"
+          ],
+          "memory_current": {}
+        }
+      }
+    ],
+    "state_snapshots": [
+      {
+        "path_id": "r03-path-entry:10b2738123216638cd0e7417d89adeb549b8c0e6bb1de0d6d63be46eddf95b58",
+        "current": {},
+        "guards": [],
+        "termination": "UNKNOWN_EFFECT_STOP",
+        "invalidated_by": [
+          "definition-event:4d9fde7eaaf0fc684b82b0b99497099c774bd0bf1972d45902ee82983aed9946"
+        ]
+      }
+    ],
+    "final_environments": [
+      {
+        "path_id": "r03-path-entry:10b2738123216638cd0e7417d89adeb549b8c0e6bb1de0d6d63be46eddf95b58",
+        "current": {},
+        "guards": [],
+        "termination": "UNKNOWN_EFFECT_STOP",
+        "invalidated_by": [
+          "definition-event:4d9fde7eaaf0fc684b82b0b99497099c774bd0bf1972d45902ee82983aed9946"
+        ]
+      }
+    ],
+    "unprocessed_ranges": [],
+    "return_values": [],
+    "path_returns": [
+      {
+        "path_id": "r03-path-entry:10b2738123216638cd0e7417d89adeb549b8c0e6bb1de0d6d63be46eddf95b58",
+        "guard": [],
+        "return_event_id": null,
+        "return_value_id": null,
+        "normal_return": false,
+        "can_continue_caller": false,
+        "status": "UNKNOWN",
+        "reasons": [
+          "unknown_effect_stop"
+        ],
+        "call_context_id": null
+      }
+    ],
+    "return_path_completeness": "UNKNOWN",
+    "call_effect_coverage": "UNKNOWN",
+    "paths_merged": false,
+    "SMT_generated": false
+  },
+  "address_evidence": [
+    {
+      "address_evidence_id": "address:3a10a5627fcaae03654cb683da492b937c803023db655090a2b3fde19058fdd5",
+      "dataset_id": "synthetic-r04",
+      "position": 0,
+      "callsite_id": "call:d88f45e71c648254baf80c10a1d7697baabcde0dc768cdfa97bbba5d5c3f70f8",
+      "caller_path_id": "r03-path-entry:10b2738123216638cd0e7417d89adeb549b8c0e6bb1de0d6d63be46eddf95b58",
+      "original_expression": "&x",
+      "source_location": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+          "line_1based": 1,
+          "column_1based": 59,
+          "byte_offset": 58
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+          "line_1based": 1,
+          "column_1based": 61,
+          "byte_offset": 60
+        }
+      },
+      "source_sha256": "45d068ec002705b3c58d0ed9bfefbd17681944122ddeeccf2e946d216472d606",
+      "caller_body_sha256": "c9a4168abdd50f4f65102d46e067e24b79ff38a94011c2ec843461ca2543e9c9",
+      "target_memory_object_id": null,
+      "caller_slot_id": null,
+      "declaration_identity": null,
+      "caller_pre_version": null,
+      "type_compatibility": null,
+      "status": "UNKNOWN",
+      "unknown_reason": "target_not_automatic_unqualified_scalar_local"
+    }
+  ],
+  "memory_objects": [],
+  "memory_versions": [],
+  "call_contexts": [],
+  "callees": [],
+  "effect_transfers": [],
+  "call_attempts": [
+    {
+      "callsite": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+          "line_1based": 1,
+          "column_1based": 52,
+          "byte_offset": 51
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+          "line_1based": 1,
+          "column_1based": 62,
+          "byte_offset": 61
+        }
+      },
+      "original_expression": "modify(&x)",
+      "caller_path_id": "r03-path-entry:10b2738123216638cd0e7417d89adeb549b8c0e6bb1de0d6d63be46eddf95b58",
+      "status": "UNKNOWN",
+      "reasons": [
+        "target_not_automatic_unqualified_scalar_local"
+      ],
+      "address_status": "UNKNOWN",
+      "pointer_entry_status": "UNKNOWN",
+      "unique_target_status": "UNKNOWN",
+      "caller_new_version_status": "UNKNOWN",
+      "direct_call_status": "PASS",
+      "R01_original_mapping_status": "UNKNOWN"
+    }
+  ],
+  "summary_cache_used": false,
+  "SMT_generated": false,
+  "safety_decisions_produced": false,
+  "R01_evidence": {
+    "dataset_id": "synthetic-r04",
+    "position": 0,
+    "status": "UNKNOWN",
+    "reasons": [],
+    "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+    "source_sha256": "45d068ec002705b3c58d0ed9bfefbd17681944122ddeeccf2e946d216472d606",
+    "build_evidence": {
+      "status": "synthetic-self-contained",
+      "args": [
+        "-x",
+        "c",
+        "-std=c11",
+        "-nostdinc",
+        "-Werror=implicit-function-declaration",
+        "-ferror-limit=0"
+      ],
+      "original_project_build_verified": false,
+      "controlled_synthetic_TU": true
+    },
+    "diagnostics": [],
+    "macro_expansions": [],
+    "candidate_inventory": [],
+    "calls": [
+      {
+        "dataset_id": "synthetic-r04",
+        "position": 0,
+        "callsite_id": "call:d88f45e71c648254baf80c10a1d7697baabcde0dc768cdfa97bbba5d5c3f70f8",
+        "caller": {
+          "name": "test",
+          "kind": "FUNCTION_DECL",
+          "usr": "c:@F@test",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+            "line_1based": 1,
+            "column_1based": 41,
+            "byte_offset": 40
+          },
+          "location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+            "line_1based": 1,
+            "column_1based": 41,
+            "byte_offset": 40
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+              "line_1based": 1,
+              "column_1based": 36,
+              "byte_offset": 35
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+              "line_1based": 1,
+              "column_1based": 64,
+              "byte_offset": 63
+            }
+          },
+          "linkage": "EXTERNAL",
+          "declaration_id": "decl:f79f833e70c093664183aa388d4dbf567c2eaf3ebcb5450edcb5c05949e91108"
+        },
+        "callee": {
+          "name": "modify",
+          "kind": "FUNCTION_DECL",
+          "usr": "c:@F@modify",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+            "line_1based": 1,
+            "column_1based": 14,
+            "byte_offset": 13
+          },
+          "location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+            "line_1based": 1,
+            "column_1based": 14,
+            "byte_offset": 13
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+              "line_1based": 1,
+              "column_1based": 9,
+              "byte_offset": 8
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+              "line_1based": 1,
+              "column_1based": 36,
+              "byte_offset": 35
+            }
+          },
+          "linkage": "EXTERNAL",
+          "declaration_id": "decl:834b8571ed586a6128da9b18d03e168d49362a00279c97f3369ff8440c0b0203"
+        },
+        "callsite": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+            "line_1based": 1,
+            "column_1based": 52,
+            "byte_offset": 51
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+            "line_1based": 1,
+            "column_1based": 62,
+            "byte_offset": 61
+          }
+        },
+        "call_text": "modify(&x)",
+        "caller_body_sha256": "c9a4168abdd50f4f65102d46e067e24b79ff38a94011c2ec843461ca2543e9c9",
+        "callee_body_sha256": "5a1eabfa2be420d57a56e884ed3e2026090c6ae7c11cb418c28332452903e07f",
+        "source_sha256": "45d068ec002705b3c58d0ed9bfefbd17681944122ddeeccf2e946d216472d606",
+        "build_evidence": {
+          "status": "synthetic-self-contained",
+          "args": [
+            "-x",
+            "c",
+            "-std=c11",
+            "-nostdinc",
+            "-Werror=implicit-function-declaration",
+            "-ferror-limit=0"
+          ],
+          "original_project_build_verified": false,
+          "controlled_synthetic_TU": true
+        },
+        "diagnostics_ref": "#/diagnostics",
+        "status": "UNKNOWN",
+        "reasons": [
+          "actual_expression_outside_identifier_subset"
+        ],
+        "mappings": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_expression": "&x",
+            "actual_source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+                "line_1based": 1,
+                "column_1based": 59,
+                "byte_offset": 58
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+                "line_1based": 1,
+                "column_1based": 61,
+                "byte_offset": 60
+              }
+            },
+            "actual_declaration": null,
+            "formal_declaration": {
+              "name": "p",
+              "kind": "PARM_DECL",
+              "usr": "c:X_global_target.c@20@F@modify@p",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+                "line_1based": 1,
+                "column_1based": 26,
+                "byte_offset": 25
+              },
+              "location": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+                "line_1based": 1,
+                "column_1based": 26,
+                "byte_offset": 25
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+                  "line_1based": 1,
+                  "column_1based": 21,
+                  "byte_offset": 20
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_global_target.c",
+                  "line_1based": 1,
+                  "column_1based": 27,
+                  "byte_offset": 26
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:29d223fe887a34e2173d39131238186ddaf76113258e2a0fa41e7fe33b1bdd9b"
+            },
+            "actual_slot_id": null,
+            "formal_slot_id": "callee-slot:34a33cfecc9d4a8f157cb51d5974074a01f1d9372ac815d454d535d792d5e6ed",
+            "formal_type": {
+              "spelling": "int *",
+              "canonical": "int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "int",
+                "canonical": "int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": false,
+                "restrict": false
+              }
+            },
+            "actual_type": null,
+            "conversion": null,
+            "status": "UNKNOWN",
+            "reasons": [
+              "actual_expression_outside_identifier_subset"
+            ],
+            "relation": "converted_callsite_value_equals_parameter_entry_value",
+            "slot_equivalence": false,
+            "value_version_tracking": false,
+            "transfer_id": "transfer:fea3a1504b0e47be798eb8991ef0b2ad10f5162714d8767bc3eaa5069833a025"
+          }
+        ],
+        "ast_is_trusted": true,
+        "scope": "direct-call-entry-value-only",
+        "reachability_verified": false,
+        "post_call_effects_verified": false,
+        "pointed_object_identity_verified": false
+      }
+    ],
+    "elapsed_seconds": 0.01595140000063111
+  },
+  "context_isolation": {
+    "status": "N/A"
+  },
+  "metrics": {
+    "call_attempts": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "N/A": 0
+    },
+    "address_evidence": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "N/A": 0
+    },
+    "pointer_entry": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "N/A": 0
+    },
+    "unique_target": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "N/A": 0
+    },
+    "indirect_write": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "caller_new_version": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "N/A": 0
+    },
+    "escape_coverage": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "unknown_effect_block": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "complete_call": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    }
+  },
+  "elapsed_seconds": 0.031959899999492336
+}

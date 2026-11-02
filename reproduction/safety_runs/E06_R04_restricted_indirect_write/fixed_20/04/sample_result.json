@@ -1,0 +1,76 @@
+{
+  "sample_id": "NPD/infer/openssl:row=11:index=None",
+  "dataset_id": "infer_openssl",
+  "position": 11,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/04/bundle.json",
+  "input_sha256": "4dc4c81433403be7616caff192266e8826d78f6cc1c49c8d6c2394aa99cba28a",
+  "dataset": "benchmark/NPD/infer/infer_openssl_nullpointer.json",
+  "dataset_sha256": "8d0828a40f04ede896e19f0fb993e3d5f70c23556208275d913b5a1d6a3cb0d2",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "function": "ossl_quic_tls_is_cert_request",
+      "body_sha256": "541c1087c652cd957da042ca0f68876b8e8a64f7de37345ea818d18e6dad7435",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/04/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "report_file": "frame_0_r04.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "diagnostic_count": 6,
+      "address_source_candidates": [],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:e64b052005d5f5262fc69eb422f74b408624b31be6fe755ca4d981264794cb69",
+          "return_source_range": {
+            "start": {
+              "line_1based": 5,
+              "column_1based": 5,
+              "byte_offset": 121
+            },
+            "end_exclusive": {
+              "line_1based": 5,
+              "column_1based": 67,
+              "byte_offset": 183
+            }
+          },
+          "raw_return_expression": "sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 4,
+            "text": "\n    return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_indirect_writes": 0
+    }
+  ],
+  "edges": [],
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "verified_objects": 0,
+  "verified_pointer_targets": 0,
+  "verified_indirect_writes": 0,
+  "verified_caller_new_versions": 0,
+  "old_semantic_results_reused": false,
+  "labels_used": false,
+  "safety_decisions_produced": false,
+  "elapsed_seconds": 0.039605699999810895
+}

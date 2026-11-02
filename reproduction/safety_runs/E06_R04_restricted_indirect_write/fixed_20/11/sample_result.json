@@ -1,0 +1,182 @@
+{
+  "sample_id": "NPD/codeql/openssl:row=15:index=16",
+  "dataset_id": "codeql_openssl",
+  "position": 15,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/11/bundle.json",
+  "input_sha256": "e915e542e1d85d9f730344b17336f941d9884050450ec3556a5fd58a560cb16f",
+  "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+  "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "function": "ec_main",
+      "body_sha256": "236f72d059109c68d50daee0bcaa02b952dd1df495342a5108387d94a6073713",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/11/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "report_file": "frame_0_r04.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "diagnostic_count": 195,
+      "address_source_candidates": [
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 34,
+              "column_1based": 53,
+              "byte_offset": 1128
+            },
+            "end_exclusive": {
+              "line_1based": 34,
+              "column_1based": 64,
+              "byte_offset": 1139
+            }
+          },
+          "expression_tail": "&informat))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 41,
+              "column_1based": 56,
+              "byte_offset": 1342
+            },
+            "end_exclusive": {
+              "line_1based": 41,
+              "column_1based": 68,
+              "byte_offset": 1354
+            }
+          },
+          "expression_tail": "&outformat))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 101,
+              "column_1based": 33,
+              "byte_offset": 2896
+            },
+            "end_exclusive": {
+              "line_1based": 101,
+              "column_1based": 39,
+              "byte_offset": 2902
+            }
+          },
+          "expression_tail": "&enc))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 105,
+              "column_1based": 44,
+              "byte_offset": 3028
+            },
+            "end_exclusive": {
+              "line_1based": 105,
+              "column_1based": 65,
+              "byte_offset": 3049
+            }
+          },
+          "expression_tail": "&passin, &passout)) {",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 105,
+              "column_1based": 53,
+              "byte_offset": 3037
+            },
+            "end_exclusive": {
+              "line_1based": 105,
+              "column_1based": 65,
+              "byte_offset": 3049
+            }
+          },
+          "expression_tail": "&passout)) {",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        }
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:f04d5b37ceb081ad5f1b05f959a8e550304393f511a75ae714c96732a861f74a",
+          "return_source_range": {
+            "start": {
+              "line_1based": 226,
+              "column_1based": 5,
+              "byte_offset": 7102
+            },
+            "end_exclusive": {
+              "line_1based": 226,
+              "column_1based": 16,
+              "byte_offset": 7113
+            }
+          },
+          "raw_return_expression": "ret",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 225,
+            "text": "        OPENSSL_clear_free(passout, strlen(passout));\n    return ret;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_indirect_writes": 0
+    }
+  ],
+  "edges": [],
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "verified_objects": 0,
+  "verified_pointer_targets": 0,
+  "verified_indirect_writes": 0,
+  "verified_caller_new_versions": 0,
+  "old_semantic_results_reused": false,
+  "labels_used": false,
+  "safety_decisions_produced": false,
+  "elapsed_seconds": 0.5903274000011152
+}

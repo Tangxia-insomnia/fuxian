@@ -1,0 +1,541 @@
+[
+  {
+    "case": "S01_write",
+    "source": "S01_write.c",
+    "original_C": "void modify(int *p){*p=10;} void test(void){int x=5;modify(&x);}\n",
+    "source_sha256": "988a81a36b6ce1b8d132a4e594d6aaf02ae4738bcf1664f6cf294c6737a0a4a3",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "S02_read",
+    "source": "S02_read.c",
+    "original_C": "void modify(int *p){*p=10;} void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "48062dd54b53f3bef0b975c895d4099a04c5372d6fd73b09a000fe59a104410a",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "S03_old",
+    "source": "S03_old.c",
+    "original_C": "void modify(int *p){*p=10;} void test(void){int x=5;int y=x;modify(&x);(void)y;(void)x;}\n",
+    "source_sha256": "b9e4bb6fa1471dc0cd9614241fc9ff6dfd37bdeb6856ce69c6ea61c6eacab81b",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "S04_rebind",
+    "source": "S04_rebind.c",
+    "original_C": "void modify(int *p){p=0;} void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "c1210f565e00acdf2563b2aa4d899aaf49e3f54518a393c00b2033fcff76c04b",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "S05_write_rebind",
+    "source": "S05_write_rebind.c",
+    "original_C": "void modify(int *p){*p=10;p=0;} void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "1268f00bb2a9719be45d30812e059690535699a2f329aa2684d1f4e36ae9ad14",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "S06_two_targets",
+    "source": "S06_two_targets.c",
+    "original_C": "void modify(int *p){*p=10;} void test(void){int x=1;int y=2;modify(&x);modify(&y);(void)x;(void)y;}\n",
+    "source_sha256": "906f2c532e5f7da55022561ad7cad6a780cd6fa79669305a4da723b24fa58397",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "S07_caller_paths",
+    "source": "S07_caller_paths.c",
+    "original_C": "void modify(int *p){*p=10;} void test(int c){int x=1;if(c)x=2;modify(&x);(void)x;}\n",
+    "source_sha256": "81d3af26e873223abda6673b07b99e38b3f2c5f4e848ee24dd64e6b3d750ba3e",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "S10_global_escape",
+    "source": "S10_global_escape.c",
+    "original_C": "int *g;void modify(int *p){g=p;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "b4b4632b5031b928d68f9fbe08791e9c0b6da01c9cc45ae617a38b1a37dbecd1",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S11_return_escape",
+    "source": "S11_return_escape.c",
+    "original_C": "int *modify(int *p){return p;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "5fb5a53be59f88ced745dbb6af5dee378954c0f94fd87c95a30b8add5fcc82ed",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S12_transfer_escape",
+    "source": "S12_transfer_escape.c",
+    "original_C": "void ext(int*);void modify(int *p){ext(p);}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "52c37ae3241c7165d8c92d38c16cc623a3a406d30e22df4e174c351d5ba26604",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S13_arithmetic",
+    "source": "S13_arithmetic.c",
+    "original_C": "void modify(int *p){p=p+1;*p=10;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "5300bea17d1b4f8f8f703206a19431d2f565c3cb298c19fea672d11ab755ffee",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S14_pointer_copy",
+    "source": "S14_pointer_copy.c",
+    "original_C": "void modify(int *p){int *q=p;*q=10;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "c39a0c44f45d5a1511a9093c3495f876b59119f0a1dc1743a5a9d7dd6c8acc20",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S15_multilevel",
+    "source": "S15_multilevel.c",
+    "original_C": "void modify(int **p){*p=0;}void test(int *v){int *x=v;modify(&x);(void)x;}\n",
+    "source_sha256": "ecbec9f74bceb824a6a4252f0f47ce880c98c5e4287abea122229e866adc19ee",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S16_member",
+    "source": "S16_member.c",
+    "original_C": "struct T{int v;};void modify(int *p){*p=10;}void test(void){struct T x;modify(&x.v);}\n",
+    "source_sha256": "900f5434b83bdbec863888d2e117e169120875e072ca742092c5fa9a1884a3b8",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S17_array",
+    "source": "S17_array.c",
+    "original_C": "void modify(int *p){*p=10;}void test(void){int x[2];modify(&x[0]);}\n",
+    "source_sha256": "77c6f7af0e2acce4f13c585d6bc41547d0e850ae268931d94c8fa9739d4e0a66",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S18_cast",
+    "source": "S18_cast.c",
+    "original_C": "void modify(int *p){*p=10;}void test(void){long x=5;modify((int*)&x);}\n",
+    "source_sha256": "0bc3b5e561e765c61897d0694803df1aa3cb2a06e649df7c5eec423a15404d3c",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S19_unknown_call",
+    "source": "S19_unknown_call.c",
+    "original_C": "void ext(void);void modify(int *p){*p=10;ext();}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "4060194a6a9d216d4fbec1990ed38168643693f259732d8ba16e97b75f57c6a3",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S20_global_write",
+    "source": "S20_global_write.c",
+    "original_C": "int g;void modify(int *p){*p=10;g=2;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "6143773def818dcd10005a01af9307b9dc7ca0c2e6b9b5fae463a646f5c5252e",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S21_multiple_definitions",
+    "source": "S21_multiple_definitions.c",
+    "original_C": "void modify(int *p){*p=10;}void test(void){int x=5;modify(&x);}\n",
+    "source_sha256": "5851a073297947af392c3b2bde3662693794d4dbc3ee1b4c789997c1b5e28940",
+    "expected_status": "UNKNOWN",
+    "caller": "test",
+    "candidate_source_paths": [
+      "extra_definition.c"
+    ]
+  },
+  {
+    "case": "S22_missing",
+    "source": "S22_missing.c",
+    "original_C": "void modify(int *p);void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "ab8b35c364642ac4d7e80d4b8463a21791db0d85dca1a73e7be110da961ae06d",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S23_multiple_targets",
+    "source": "S23_multiple_targets.c",
+    "original_C": "void modify(int *p,int *q){*p=10;}void test(void){int x=5;int y=6;modify(&x,&y);}\n",
+    "source_sha256": "433f3a2991bda7cdf75a1a0e7afcd04150c2cae682707fe9b3de85c74606e5aa",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S24_two_writes",
+    "source": "S24_two_writes.c",
+    "original_C": "void modify(int *p){*p=10;*p=20;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "8754e320377f5dc7aa8de5c6815b6306a2c9218c4ce33532ed705a7b90554a3f",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S25_compound",
+    "source": "S25_compound.c",
+    "original_C": "void modify(int *p){*p+=1;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "c64bbd0a912eed332fa167bf4647baa48a76eb647cb5ad926f4da2e1252beaff",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S26_increment",
+    "source": "S26_increment.c",
+    "original_C": "void modify(int *p){(*p)++;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "6360c31deee7280e34be2a440627b09a588d77e28df3de25a5439504ce985238",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S27_read_modify",
+    "source": "S27_read_modify.c",
+    "original_C": "void modify(int *p){*p=*p+1;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "7729182bc2909c2d5ddc581c38696de9fcd36702699d044726921ddd3ff54116",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S28_branch",
+    "source": "S28_branch.c",
+    "original_C": "void modify(int *p){if(p)*p=10;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "7a819b900a6472f52b764769ecb7c54861554377b94e6645a678eb4b96ae7970",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S28_loop",
+    "source": "S28_loop.c",
+    "original_C": "void modify(int *p){while(p){*p=10;break;}}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "4e83032e16619925102c2376ce65abbd4e0cecdcb81579a908f5a881f5d5c9ca",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "S29_later_assignment",
+    "source": "S29_later_assignment.c",
+    "original_C": "void modify(int *p){*p=10;}void test(void){int x=5;modify(&x);x=20;(void)x;}\n",
+    "source_sha256": "804098fca16472d8e39a0278e734d7c566c84adcab88f8a26090a226579fa71a",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "S32_narrow_write",
+    "source": "S32_narrow_write.c",
+    "original_C": "void modify(short *p){*p=10;}void test(short v){short x=v;modify(&x);}\n",
+    "source_sha256": "49dfdc8c57a7f9cc1aefb6ff972856a0de420b66d72b872622e5a34906974b0f",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_same_object_twice",
+    "source": "X_same_object_twice.c",
+    "original_C": "void modify(int *p){*p=10;}void test(void){int x=5;modify(&x);modify(&x);(void)x;}\n",
+    "source_sha256": "cc68e661ca5d9b0153b8f3dc6cc1cc684a71a328eeaa792412647f1834141c91",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "X_shadow",
+    "source": "X_shadow.c",
+    "original_C": "void modify(int *p){*p=10;}void test(void){int x=1;{int x=2;modify(&x);(void)x;}modify(&x);(void)x;}\n",
+    "source_sha256": "7e39a3407e0c5d38a18fbee2faf3e57d95e8ad7fac458146cd0aa0d9c24284bb",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "X_unsigned",
+    "source": "X_unsigned.c",
+    "original_C": "void modify(unsigned int *p){*p=10U;}void test(void){unsigned int x=5U;modify(&x);(void)x;}\n",
+    "source_sha256": "3c243e0e80529d34288c07edabd257ceebc292c3a3f6daf5a8b4d76116e86f95",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "X_double",
+    "source": "X_double.c",
+    "original_C": "void modify(double *p){*p=1.5;}void test(void){double x=5.0;modify(&x);(void)x;}\n",
+    "source_sha256": "9e0a582a68501c3d3a41855947104a175157d8c9f42f38f01a34169de12fb4f2",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "X_widen_write",
+    "source": "X_widen_write.c",
+    "original_C": "void modify(long long *p){*p=10;}void test(void){long long x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "d0de8812262c72481ad1944e4f8557115693f775a24c8bb9d2a42fcfd01c06bb",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "X_void_return",
+    "source": "X_void_return.c",
+    "original_C": "void modify(int *p){*p=10;return;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "e05ac450b515e3759b02106336d10f8c82d8294bbc62738ca6c8d77c39b26a96",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "X_parentheses",
+    "source": "X_parentheses.c",
+    "original_C": "void modify(int *p){*(p)=10;}void test(void){int x=5;modify(&(x));(void)x;}\n",
+    "source_sha256": "31fefd7ced337e27636a10161b5004115bb06dedf971f74acbde5fa657430547",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "X_no_write",
+    "source": "X_no_write.c",
+    "original_C": "void modify(int *p){(void)p;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "c8d2ac101db7e9b0212643950759feb7e0fadc6e2e184acf338d1a35e61257e6",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "X_no_call",
+    "source": "X_no_call.c",
+    "original_C": "void test(void){int x=5;(void)x;}\n",
+    "source_sha256": "a228cc1f39fb8b1dd52f45ec7cde6a6c8c41eaef576b7bbc1b564b91fac6c2a6",
+    "expected_status": "N/A",
+    "caller": "test"
+  },
+  {
+    "case": "X_rebind_before_write",
+    "source": "X_rebind_before_write.c",
+    "original_C": "void modify(int *p){p=0;*p=10;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "df3bc2116aa45b3140b69848cefb8ecb4c8e42a2f661bd8d59c73c3a34e87af1",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_call_before_write",
+    "source": "X_call_before_write.c",
+    "original_C": "void ext(void);void modify(int *p){ext();*p=10;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "f5a11d7610ac4888ed22974c5b319cf61f2cb8fad1e1985eb7e6784ea1bbcf05",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_pointer_increment",
+    "source": "X_pointer_increment.c",
+    "original_C": "void modify(int *p){p++;*p=10;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "cdc5067061777e88bfffe78879be146de27b704f8d871ba89d301701355f6906",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_pointer_integer",
+    "source": "X_pointer_integer.c",
+    "original_C": "void modify(int *p){long long a=(long long)p;(void)a;}void test(void){int x=5;modify(&x);}\n",
+    "source_sha256": "1fb9133fe60b5ca976de0c133ab3effd9be53a18d31b08a571c9d7330c5af2b2",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_local_RHS",
+    "source": "X_local_RHS.c",
+    "original_C": "void modify(int *p){int a=10;*p=a;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "dc4dac3746f5d452e2974610db3a80d4da86bfd7e8f5c869450cd5dbfbc49663",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_negative_literal",
+    "source": "X_negative_literal.c",
+    "original_C": "void modify(int *p){*p=-1;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "d2db63cdbfdea57ede5738bb4513d47af8edc777575a36ff7ad45c6e5b3f0fbd",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_arithmetic_literal",
+    "source": "X_arithmetic_literal.c",
+    "original_C": "void modify(int *p){*p=1+1;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "4b8582afb43690fc0ebe96a759ad9773f0e3600c1c1c1ce1b73848868d47beae",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_macro",
+    "source": "X_macro.c",
+    "original_C": "#define V 10\nvoid modify(int *p){*p=V;}void test(void){int x=5;modify(&x);}\n",
+    "source_sha256": "3c6e7693847430647021cbb222342b447bca6a7a1b6320c17e50dea23572c792",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_volatile",
+    "source": "X_volatile.c",
+    "original_C": "void modify(volatile int *p){*p=10;}void test(void){volatile int x=5;modify(&x);}\n",
+    "source_sha256": "fb7a8b6cee8d7b1100d35e3ca0642212c57ec3c85b397a179f7c573092b6db71",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_atomic",
+    "source": "X_atomic.c",
+    "original_C": "void modify(_Atomic int *p){*p=10;}void test(void){_Atomic int x=5;modify(&x);}\n",
+    "source_sha256": "0340dcfdfff113f99c00c588afacd2b0a7bd37fa38dc611108967e78262d05d8",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_static_target",
+    "source": "X_static_target.c",
+    "original_C": "void modify(int *p){*p=10;}void test(void){static int x=5;modify(&x);}\n",
+    "source_sha256": "bf01974b21cc1f17e9295d9933abef7a9889b40542ff19880c9f724a323eecaa",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_global_target",
+    "source": "X_global_target.c",
+    "original_C": "int x=5;void modify(int *p){*p=10;}void test(void){modify(&x);}\n",
+    "source_sha256": "45d068ec002705b3c58d0ed9bfefbd17681944122ddeeccf2e946d216472d606",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_const_target",
+    "source": "X_const_target.c",
+    "original_C": "void modify(const int *p){p=0;}void test(void){const int x=5;modify(&x);}\n",
+    "source_sha256": "9b7a2ddf8b6e2531b7537b03972bae75774bf8bb9634bd77268150fbda311634",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_uninitialized",
+    "source": "X_uninitialized.c",
+    "original_C": "void modify(int *p){*p=10;}void test(void){int x;modify(&x);(void)x;}\n",
+    "source_sha256": "80bee4a21f3d8689393d0a031d42d997269b8edda3820e28c22bc190650cf433",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_parameter_object",
+    "source": "X_parameter_object.c",
+    "original_C": "void modify(int *p){*p=10;}void test(int x){modify(&x);(void)x;}\n",
+    "source_sha256": "0595449b6b6c72062c87b2b6473da687f2f8f3e734678d35ea295a2833911ad8",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_address_alias",
+    "source": "X_address_alias.c",
+    "original_C": "void modify(int *p){*p=10;}void test(void){int x=5;int *q=&x;modify(q);}\n",
+    "source_sha256": "0706f737a8654ddbe6549b53adbbca56ca56e01fbc6086203e25690adf765687",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_function_pointer",
+    "source": "X_function_pointer.c",
+    "original_C": "void modify(int *p){*p=10;}void test(void){int x=5;void(*f)(int*)=modify;f(&x);}\n",
+    "source_sha256": "515a2d1335c0181d6ffd92f78ffd833f7e1ff17ec06e40f2651713cb2bc10783",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_unknown_caller_after",
+    "source": "X_unknown_caller_after.c",
+    "original_C": "void use(int);void modify(int *p){*p=10;}void test(void){int x=5;modify(&x);use(x);(void)x;}\n",
+    "source_sha256": "425a2bc552fbf41a80a1dc5127daeab27ea1137798ed5cd67fbcc83a821aa745",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_other_indirect",
+    "source": "X_other_indirect.c",
+    "original_C": "int *g;void modify(int *p){*p=10;*g=20;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "40bee558ebe8221ea3efa9523e6fbeceda45584d8df5710af5e8aceaca60ad25",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_static_write",
+    "source": "X_static_write.c",
+    "original_C": "void modify(int *p){static int g;g=1;*p=10;}void test(void){int x=5;modify(&x);}\n",
+    "source_sha256": "88fac9e125ddf04ba74aab6615503326e7a38e5d286dd89382efd05999c32da9",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_member_write",
+    "source": "X_member_write.c",
+    "original_C": "struct T{int v;};struct T *g;void modify(int *p){*p=10;g->v=1;}void test(void){int x=5;modify(&x);}\n",
+    "source_sha256": "a7ab011a23726a92db29fbec317cad507caaf0800c1af9487ce126673f20ddf4",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_goto",
+    "source": "X_goto.c",
+    "original_C": "void modify(int *p){goto out;out:*p=10;}void test(void){int x=5;modify(&x);}\n",
+    "source_sha256": "caf2e4af7bc7a9319888ba05ae28e642625dc05e3cce60290908e23a12303ddc",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_recursion",
+    "source": "X_recursion.c",
+    "original_C": "void modify(int *p){modify(p);}void test(void){int x=5;modify(&x);}\n",
+    "source_sha256": "824cd04a0928e3b5e7f8309302de6c1355e52cc56bb94484d741ae5d8d9333a8",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_asm",
+    "source": "X_asm.c",
+    "original_C": "void modify(int *p){__asm__(\"\");*p=10;}void test(void){int x=5;modify(&x);}\n",
+    "source_sha256": "7259cb53148d1e6a575f858a2c991645b7f82aef444e86b83ab521156287b283",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_missing_typedef",
+    "source": "X_missing_typedef.c",
+    "original_C": "void modify(missing *p){*p=10;}void test(void){int x=5;modify(&x);}\n",
+    "source_sha256": "7e9af294b21aba5b8c5a667b74dfaf0337166dfe4b990a39aef88005549f4fdf",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_unknown_named_alloc",
+    "source": "X_unknown_named_alloc.c",
+    "original_C": "void alloc(int *p);void test(void){int x=5;alloc(&x);}\n",
+    "source_sha256": "ee089249d744122b0dbe513bceb3cca7a849c95a860cef885e26fad08017de85",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  },
+  {
+    "case": "X_two_functions_same_parameter",
+    "source": "X_two_functions_same_parameter.c",
+    "original_C": "void f(int *p){*p=10;}void g(int *p){*p=20;}void test(void){int x=5;int y=6;f(&x);g(&y);(void)x;(void)y;}\n",
+    "source_sha256": "53a215335c60f597003e35e52b1f0f9257584b0e6535a9bc5fdc5c0555f581e0",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "X_early_return",
+    "source": "X_early_return.c",
+    "original_C": "void modify(int *p){return;*p=10;}void test(void){int x=5;modify(&x);(void)x;}\n",
+    "source_sha256": "0a7ecc6f26ff39ff54c2dfae7800b354bc9bdf46b3b4b35467ce880270b6ccef",
+    "expected_status": "PASS",
+    "caller": "test"
+  },
+  {
+    "case": "X_context_budget",
+    "source": "X_context_budget.c",
+    "original_C": "void modify(int *p){*p=10;}void test(void){int x=5;modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);modify(&x);(void)x;}\n",
+    "source_sha256": "e512f901c96a55108e5873172527c0fbf37530786c95b0aaa767c0d57b88413d",
+    "expected_status": "UNKNOWN",
+    "caller": "test"
+  }
+]

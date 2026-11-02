@@ -1,0 +1,162 @@
+{
+  "sample_id": "NPD/codeql/kernel69:row=17:index=36",
+  "dataset_id": "codeql_linux",
+  "position": 17,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/06/bundle.json",
+  "input_sha256": "94f026d01d02ac07ca3453725035f5d9e61fe065d922f42500e8c9c08f4869eb",
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "function": "ipv6_route_native_seq_show",
+      "body_sha256": "93ca160d4d293117f2064e48065d5d6b75956d177744cf0a5ea2fdbd518ab120",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/06/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "report_file": "frame_0_r04.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "preprocessing_not_supported",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "diagnostic_count": 21,
+      "address_source_candidates": [
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 12,
+              "column_1based": 32,
+              "byte_offset": 336
+            },
+            "end_exclusive": {
+              "line_1based": 12,
+              "column_1based": 71,
+              "byte_offset": 375
+            }
+          },
+          "expression_tail": "&rt->fib6_dst.addr, rt->fib6_dst.plen);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 15,
+              "column_1based": 32,
+              "byte_offset": 436
+            },
+            "end_exclusive": {
+              "line_1based": 15,
+              "column_1based": 71,
+              "byte_offset": 475
+            }
+          },
+          "expression_tail": "&rt->fib6_src.addr, rt->fib6_src.plen);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 21,
+              "column_1based": 27,
+              "byte_offset": 629
+            },
+            "end_exclusive": {
+              "line_1based": 21,
+              "column_1based": 49,
+              "byte_offset": 651
+            }
+          },
+          "expression_tail": "&fib6_nh->fib_nh_gw6);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 28,
+              "column_1based": 37,
+              "byte_offset": 830
+            },
+            "end_exclusive": {
+              "line_1based": 28,
+              "column_1based": 55,
+              "byte_offset": 848
+            }
+          },
+          "expression_tail": "&rt->fib6_ref), 0,",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        }
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:1b5dac6f8ebb2124dc668ccfc5183647577abd62e69e8bdeef17e73814212abf",
+          "return_source_range": {
+            "start": {
+              "line_1based": 31,
+              "column_1based": 2,
+              "byte_offset": 907
+            },
+            "end_exclusive": {
+              "line_1based": 31,
+              "column_1based": 11,
+              "byte_offset": 916
+            }
+          },
+          "raw_return_expression": "0",
+          "category_candidate": "constant",
+          "nearby_source_lines": {
+            "first_line_1based": 30,
+            "text": "\titer->w.leaf = NULL;\n\treturn 0;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_indirect_writes": 0
+    }
+  ],
+  "edges": [],
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "verified_objects": 0,
+  "verified_pointer_targets": 0,
+  "verified_indirect_writes": 0,
+  "verified_caller_new_versions": 0,
+  "old_semantic_results_reused": false,
+  "labels_used": false,
+  "safety_decisions_produced": false,
+  "elapsed_seconds": 0.035894100001314655
+}

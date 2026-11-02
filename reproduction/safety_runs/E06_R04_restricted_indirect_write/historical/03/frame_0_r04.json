@@ -1,0 +1,3544 @@
+{
+  "dataset_id": "codeql_linux",
+  "position": 10,
+  "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+  "source_sha256": "0a179a0178f81a9211efd84d9baa3efce16afafb9dd8dbe54c47eb63e5064590",
+  "build_evidence": {
+    "status": "saved-source-only",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": false
+  },
+  "diagnostics": [
+    {
+      "severity": 2,
+      "spelling": "declaration of 'struct sock' will not be visible outside of this function",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 1,
+        "column_1based": 31,
+        "byte_offset": 30
+      },
+      "option": "-Wvisibility",
+      "ranges": []
+    },
+    {
+      "severity": 2,
+      "spelling": "declaration of 'struct msghdr' will not be visible outside of this function",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 1,
+        "column_1based": 48,
+        "byte_offset": 47
+      },
+      "option": "-Wvisibility",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_sk'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 3,
+        "column_1based": 24,
+        "byte_offset": 98
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incompatible integer to pointer conversion initializing 'struct tcp_sock *' with an expression of type 'int'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 3,
+        "column_1based": 19,
+        "byte_offset": 93
+      },
+      "option": "-Wint-conversion",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 3,
+            "column_1based": 24,
+            "byte_offset": 98
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 3,
+            "column_1based": 34,
+            "byte_offset": 108
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'NULL'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 4,
+        "column_1based": 27,
+        "byte_offset": 136
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "variable has incomplete type 'struct sockcm_cookie'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 6,
+        "column_1based": 23,
+        "byte_offset": 186
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct msghdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 13,
+        "column_1based": 13,
+        "byte_offset": 332
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 13,
+            "column_1based": 10,
+            "byte_offset": 329
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 13,
+            "column_1based": 13,
+            "byte_offset": 332
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_ZEROCOPY'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 15,
+        "column_1based": 15,
+        "byte_offset": 360
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct msghdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 16,
+        "column_1based": 10,
+        "byte_offset": 394
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 16,
+            "column_1based": 7,
+            "byte_offset": 391
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 16,
+            "column_1based": 10,
+            "byte_offset": 394
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct msghdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 17,
+        "column_1based": 14,
+        "byte_offset": 421
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 17,
+            "column_1based": 11,
+            "byte_offset": 418
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 17,
+            "column_1based": 14,
+            "byte_offset": 421
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 18,
+        "column_1based": 10,
+        "byte_offset": 442
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 18,
+            "column_1based": 8,
+            "byte_offset": 440
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 18,
+            "column_1based": 10,
+            "byte_offset": 442
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'NETIF_F_SG'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 18,
+        "column_1based": 28,
+        "byte_offset": 460
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_ZEROCOPY'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 19,
+        "column_1based": 10,
+        "byte_offset": 481
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sock_flag'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 20,
+        "column_1based": 14,
+        "byte_offset": 508
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'SOCK_ZEROCOPY'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 20,
+        "column_1based": 28,
+        "byte_offset": 522
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_write_queue_tail'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 21,
+        "column_1based": 10,
+        "byte_offset": 549
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incompatible integer to pointer conversion assigning to 'struct sk_buff *' from 'int'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 21,
+        "column_1based": 8,
+        "byte_offset": 547
+      },
+      "option": "-Wint-conversion",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 21,
+            "column_1based": 10,
+            "byte_offset": 549
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 21,
+            "column_1based": 34,
+            "byte_offset": 573
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'msg_zerocopy_realloc'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 22,
+        "column_1based": 11,
+        "byte_offset": 585
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_zcopy'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 22,
+        "column_1based": 42,
+        "byte_offset": 616
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incompatible integer to pointer conversion assigning to 'struct ubuf_info *' from 'int'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 22,
+        "column_1based": 9,
+        "byte_offset": 583
+      },
+      "option": "-Wint-conversion",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 22,
+            "column_1based": 11,
+            "byte_offset": 585
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 22,
+            "column_1based": 57,
+            "byte_offset": 631
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'ENOBUFS'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 24,
+        "column_1based": 12,
+        "byte_offset": 660
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 27,
+        "column_1based": 10,
+        "byte_offset": 701
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 27,
+            "column_1based": 8,
+            "byte_offset": 699
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 27,
+            "column_1based": 10,
+            "byte_offset": 701
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'NETIF_F_SG'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 27,
+        "column_1based": 28,
+        "byte_offset": 719
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_ZEROCOPY'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 28,
+        "column_1based": 10,
+        "byte_offset": 740
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'uarg_to_msgzc'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 30,
+        "column_1based": 5,
+        "byte_offset": 766
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "member reference type 'int' is not a pointer",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 30,
+        "column_1based": 26,
+        "byte_offset": 787
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 30,
+            "column_1based": 5,
+            "byte_offset": 766
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 30,
+            "column_1based": 24,
+            "byte_offset": 785
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'unlikely'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 32,
+        "column_1based": 13,
+        "byte_offset": 817
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct msghdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 32,
+        "column_1based": 25,
+        "byte_offset": 829
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 32,
+            "column_1based": 22,
+            "byte_offset": 826
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 32,
+            "column_1based": 25,
+            "byte_offset": 829
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_SPLICE_PAGES'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 32,
+        "column_1based": 39,
+        "byte_offset": 843
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 33,
+        "column_1based": 9,
+        "byte_offset": 880
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 33,
+            "column_1based": 7,
+            "byte_offset": 878
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 33,
+            "column_1based": 9,
+            "byte_offset": 880
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'NETIF_F_SG'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 33,
+        "column_1based": 27,
+        "byte_offset": 898
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_SPLICE_PAGES'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 34,
+        "column_1based": 9,
+        "byte_offset": 918
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_FASTOPEN'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 37,
+        "column_1based": 23,
+        "byte_offset": 962
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'inet_test_bit'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 38,
+        "column_1based": 8,
+        "byte_offset": 985
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'DEFER_CONNECT'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 38,
+        "column_1based": 22,
+        "byte_offset": 999
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct tcp_sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 39,
+        "column_1based": 9,
+        "byte_offset": 1030
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 39,
+            "column_1based": 7,
+            "byte_offset": 1028
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 39,
+            "column_1based": 9,
+            "byte_offset": 1030
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_sendmsg_fastopen'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 40,
+        "column_1based": 9,
+        "byte_offset": 1050
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'EINPROGRESS'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 41,
+        "column_1based": 15,
+        "byte_offset": 1120
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sock_sndtimeo'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 47,
+        "column_1based": 10,
+        "byte_offset": 1210
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_DONTWAIT'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 47,
+        "column_1based": 36,
+        "byte_offset": 1236
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_rate_check_app_limited'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 49,
+        "column_1based": 2,
+        "byte_offset": 1253
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 55,
+        "column_1based": 15,
+        "byte_offset": 1510
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 55,
+            "column_1based": 13,
+            "byte_offset": 1508
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 55,
+            "column_1based": 15,
+            "byte_offset": 1510
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'TCPF_ESTABLISHED'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 55,
+        "column_1based": 31,
+        "byte_offset": 1526
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'TCPF_CLOSE_WAIT'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 55,
+        "column_1based": 50,
+        "byte_offset": 1545
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_passive_fastopen'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 56,
+        "column_1based": 7,
+        "byte_offset": 1572
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sk_stream_wait_connect'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 57,
+        "column_1based": 9,
+        "byte_offset": 1608
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct tcp_sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 62,
+        "column_1based": 17,
+        "byte_offset": 1698
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 62,
+            "column_1based": 15,
+            "byte_offset": 1696
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 62,
+            "column_1based": 17,
+            "byte_offset": 1698
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct tcp_sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 63,
+        "column_1based": 9,
+        "byte_offset": 1719
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 63,
+            "column_1based": 7,
+            "byte_offset": 1717
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 63,
+            "column_1based": 9,
+            "byte_offset": 1719
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'TCP_RECV_QUEUE'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 63,
+        "column_1based": 27,
+        "byte_offset": 1737
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_send_rcvq'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 64,
+        "column_1based": 13,
+        "byte_offset": 1767
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'EINVAL'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 68,
+        "column_1based": 10,
+        "byte_offset": 1831
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct tcp_sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 69,
+        "column_1based": 9,
+        "byte_offset": 1847
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 69,
+            "column_1based": 7,
+            "byte_offset": 1845
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 69,
+            "column_1based": 9,
+            "byte_offset": 1847
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'TCP_NO_QUEUE'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 69,
+        "column_1based": 27,
+        "byte_offset": 1865
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sockcm_init'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 75,
+        "column_1based": 2,
+        "byte_offset": 1936
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct msghdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 76,
+        "column_1based": 9,
+        "byte_offset": 1969
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 76,
+            "column_1based": 6,
+            "byte_offset": 1966
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 76,
+            "column_1based": 9,
+            "byte_offset": 1969
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sock_cmsg_send'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 77,
+        "column_1based": 9,
+        "byte_offset": 1997
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'EINVAL'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 79,
+        "column_1based": 11,
+        "byte_offset": 2063
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sk_clear_bit'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 85,
+        "column_1based": 2,
+        "byte_offset": 2127
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'SOCKWQ_ASYNC_NOSPACE'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 85,
+        "column_1based": 15,
+        "byte_offset": 2140
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_send_mss'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 91,
+        "column_1based": 12,
+        "byte_offset": 2230
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'EPIPE'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 93,
+        "column_1based": 9,
+        "byte_offset": 2276
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 94,
+        "column_1based": 8,
+        "byte_offset": 2290
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 94,
+            "column_1based": 6,
+            "byte_offset": 2288
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 94,
+            "column_1based": 8,
+            "byte_offset": 2290
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 94,
+        "column_1based": 23,
+        "byte_offset": 2305
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 94,
+            "column_1based": 21,
+            "byte_offset": 2303
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 94,
+            "column_1based": 23,
+            "byte_offset": 2305
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'SEND_SHUTDOWN'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 94,
+        "column_1based": 39,
+        "byte_offset": 2321
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'msg_data_left'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 97,
+        "column_1based": 9,
+        "byte_offset": 2363
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'ssize_t'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 98,
+        "column_1based": 3,
+        "byte_offset": 2387
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_write_queue_tail'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 100,
+        "column_1based": 9,
+        "byte_offset": 2414
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incompatible integer to pointer conversion assigning to 'struct sk_buff *' from 'int'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 100,
+        "column_1based": 7,
+        "byte_offset": 2412
+      },
+      "option": "-Wint-conversion",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 100,
+            "column_1based": 9,
+            "byte_offset": 2414
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 100,
+            "column_1based": 33,
+            "byte_offset": 2438
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 102,
+        "column_1based": 4,
+        "byte_offset": 2454
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sk_buff'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 102,
+        "column_1based": 26,
+        "byte_offset": 2476
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 102,
+            "column_1based": 23,
+            "byte_offset": 2473
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 102,
+            "column_1based": 26,
+            "byte_offset": 2476
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 104,
+        "column_1based": 7,
+        "byte_offset": 2490
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_skb_can_collapse_to'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 104,
+        "column_1based": 21,
+        "byte_offset": 2504
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'bool'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 105,
+        "column_1based": 4,
+        "byte_offset": 2539
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sk_stream_memory_free'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 108,
+        "column_1based": 9,
+        "byte_offset": 2577
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sk_flush_backlog'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 113,
+        "column_1based": 9,
+        "byte_offset": 2705
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'first_skb'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 116,
+        "column_1based": 4,
+        "byte_offset": 2754
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_rtx_and_write_queues_empty'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 116,
+        "column_1based": 16,
+        "byte_offset": 2766
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_stream_alloc_skb'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 117,
+        "column_1based": 10,
+        "byte_offset": 2811
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 117,
+        "column_1based": 37,
+        "byte_offset": 2838
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 117,
+            "column_1based": 35,
+            "byte_offset": 2836
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 117,
+            "column_1based": 37,
+            "byte_offset": 2838
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'first_skb'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 118,
+        "column_1based": 10,
+        "byte_offset": 2864
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_skb_entail'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 127,
+        "column_1based": 4,
+        "byte_offset": 3032
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 128,
+        "column_1based": 4,
+        "byte_offset": 3060
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct tcp_sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 134,
+        "column_1based": 10,
+        "byte_offset": 3228
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 134,
+            "column_1based": 8,
+            "byte_offset": 3226
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 134,
+            "column_1based": 10,
+            "byte_offset": 3228
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'TCP_SKB_CB'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 135,
+        "column_1based": 5,
+        "byte_offset": 3242
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "member reference type 'int' is not a pointer",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 135,
+        "column_1based": 22,
+        "byte_offset": 3259
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 135,
+            "column_1based": 5,
+            "byte_offset": 3242
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 135,
+            "column_1based": 20,
+            "byte_offset": 3257
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'TCPCB_REPAIRED'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 135,
+        "column_1based": 32,
+        "byte_offset": 3269
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 139,
+        "column_1based": 7,
+        "byte_offset": 3342
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 140,
+        "column_1based": 4,
+        "byte_offset": 3372
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'bool'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 143,
+        "column_1based": 4,
+        "byte_offset": 3420
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_shinfo'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 144,
+        "column_1based": 12,
+        "byte_offset": 3450
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "member reference type 'int' is not a pointer",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 144,
+        "column_1based": 29,
+        "byte_offset": 3467
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 144,
+            "column_1based": 12,
+            "byte_offset": 3450
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 144,
+            "column_1based": 27,
+            "byte_offset": 3465
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sk_page_frag'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 145,
+        "column_1based": 30,
+        "byte_offset": 3506
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incompatible integer to pointer conversion initializing 'struct page_frag *' with an expression of type 'int'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 145,
+        "column_1based": 22,
+        "byte_offset": 3498
+      },
+      "option": "-Wint-conversion",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 145,
+            "column_1based": 30,
+            "byte_offset": 3506
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 145,
+            "column_1based": 46,
+            "byte_offset": 3522
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sk_page_frag_refill'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 147,
+        "column_1based": 9,
+        "byte_offset": 3533
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_can_coalesce'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 150,
+        "column_1based": 9,
+        "byte_offset": 3599
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct page_frag'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 150,
+        "column_1based": 39,
+        "byte_offset": 3629
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 150,
+            "column_1based": 34,
+            "byte_offset": 3624
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 150,
+            "column_1based": 39,
+            "byte_offset": 3629
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct page_frag'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 151,
+        "column_1based": 17,
+        "byte_offset": 3653
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 151,
+            "column_1based": 12,
+            "byte_offset": 3648
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 151,
+            "column_1based": 17,
+            "byte_offset": 3653
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'READ_ONCE'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 152,
+        "column_1based": 14,
+        "byte_offset": 3679
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'sysctl_max_skb_frags'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 152,
+        "column_1based": 24,
+        "byte_offset": 3689
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_mark_push'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 153,
+        "column_1based": 6,
+        "byte_offset": 3719
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'merge'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 156,
+        "column_1based": 5,
+        "byte_offset": 3776
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'false'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 156,
+        "column_1based": 13,
+        "byte_offset": 3784
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 159,
+        "column_1based": 4,
+        "byte_offset": 3800
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'min_t'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 159,
+        "column_1based": 11,
+        "byte_offset": 3807
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "expected expression",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 159,
+        "column_1based": 17,
+        "byte_offset": 3813
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 159,
+        "column_1based": 22,
+        "byte_offset": 3818
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct page_frag'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 159,
+        "column_1based": 33,
+        "byte_offset": 3829
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 159,
+            "column_1based": 28,
+            "byte_offset": 3824
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 159,
+            "column_1based": 33,
+            "byte_offset": 3829
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct page_frag'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 159,
+        "column_1based": 47,
+        "byte_offset": 3843
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 159,
+            "column_1based": 42,
+            "byte_offset": 3838
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 159,
+            "column_1based": 47,
+            "byte_offset": 3843
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_zcopy_pure'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 161,
+        "column_1based": 17,
+        "byte_offset": 3871
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_zcopy_managed'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 161,
+        "column_1based": 40,
+        "byte_offset": 3894
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_downgrade_zcopy_pure'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 162,
+        "column_1based": 9,
+        "byte_offset": 3929
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_zcopy_downgrade_managed'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 164,
+        "column_1based": 5,
+        "byte_offset": 3994
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 167,
+        "column_1based": 4,
+        "byte_offset": 4037
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_wmem_schedule'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 167,
+        "column_1based": 11,
+        "byte_offset": 4044
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 167,
+        "column_1based": 33,
+        "byte_offset": 4066
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 168,
+        "column_1based": 9,
+        "byte_offset": 4081
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_copy_to_page_nocache'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 171,
+        "column_1based": 10,
+        "byte_offset": 4122
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct msghdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 171,
+        "column_1based": 43,
+        "byte_offset": 4155
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 171,
+            "column_1based": 40,
+            "byte_offset": 4152
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 171,
+            "column_1based": 43,
+            "byte_offset": 4155
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct page_frag'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 172,
+        "column_1based": 19,
+        "byte_offset": 4190
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 172,
+            "column_1based": 14,
+            "byte_offset": 4185
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 172,
+            "column_1based": 19,
+            "byte_offset": 4190
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct page_frag'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 173,
+        "column_1based": 19,
+        "byte_offset": 4216
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 173,
+            "column_1based": 14,
+            "byte_offset": 4211
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 173,
+            "column_1based": 19,
+            "byte_offset": 4216
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 174,
+        "column_1based": 14,
+        "byte_offset": 4239
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'merge'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 179,
+        "column_1based": 8,
+        "byte_offset": 4310
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_frag_size_add'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 180,
+        "column_1based": 5,
+        "byte_offset": 4323
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "member reference type 'int' is not a pointer",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 180,
+        "column_1based": 41,
+        "byte_offset": 4359
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 180,
+            "column_1based": 24,
+            "byte_offset": 4342
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 180,
+            "column_1based": 39,
+            "byte_offset": 4357
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 180,
+        "column_1based": 55,
+        "byte_offset": 4373
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_fill_page_desc'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 182,
+        "column_1based": 5,
+        "byte_offset": 4396
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct page_frag'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 182,
+        "column_1based": 37,
+        "byte_offset": 4428
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 182,
+            "column_1based": 32,
+            "byte_offset": 4423
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 182,
+            "column_1based": 37,
+            "byte_offset": 4428
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct page_frag'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 183,
+        "column_1based": 15,
+        "byte_offset": 4450
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 183,
+            "column_1based": 10,
+            "byte_offset": 4445
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 183,
+            "column_1based": 15,
+            "byte_offset": 4450
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 183,
+        "column_1based": 25,
+        "byte_offset": 4460
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'page_ref_inc'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 184,
+        "column_1based": 5,
+        "byte_offset": 4471
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct page_frag'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 184,
+        "column_1based": 23,
+        "byte_offset": 4489
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 184,
+            "column_1based": 18,
+            "byte_offset": 4484
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 184,
+            "column_1based": 23,
+            "byte_offset": 4489
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct page_frag'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 186,
+        "column_1based": 9,
+        "byte_offset": 4511
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 186,
+            "column_1based": 4,
+            "byte_offset": 4506
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 186,
+            "column_1based": 9,
+            "byte_offset": 4511
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 186,
+        "column_1based": 21,
+        "byte_offset": 4523
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_ZEROCOPY'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 187,
+        "column_1based": 20,
+        "byte_offset": 4548
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sk_buff'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 191,
+        "column_1based": 12,
+        "byte_offset": 4659
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 191,
+            "column_1based": 9,
+            "byte_offset": 4656
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 191,
+            "column_1based": 12,
+            "byte_offset": 4659
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_shinfo'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 192,
+        "column_1based": 5,
+        "byte_offset": 4670
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "member reference type 'int' is not a pointer",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 192,
+        "column_1based": 22,
+        "byte_offset": 4687
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 192,
+            "column_1based": 5,
+            "byte_offset": 4670
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 192,
+            "column_1based": 20,
+            "byte_offset": 4685
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'SKBFL_PURE_ZEROCOPY'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 192,
+        "column_1based": 31,
+        "byte_offset": 4696
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_zcopy_pure'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 194,
+        "column_1based": 9,
+        "byte_offset": 4726
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 195,
+        "column_1based": 5,
+        "byte_offset": 4753
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_wmem_schedule'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 195,
+        "column_1based": 12,
+        "byte_offset": 4760
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 195,
+        "column_1based": 34,
+        "byte_offset": 4782
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 196,
+        "column_1based": 10,
+        "byte_offset": 4798
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_zerocopy_iter_stream'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 200,
+        "column_1based": 10,
+        "byte_offset": 4845
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 200,
+        "column_1based": 49,
+        "byte_offset": 4884
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'EMSGSIZE'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 201,
+        "column_1based": 16,
+        "byte_offset": 4912
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'EEXIST'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 201,
+        "column_1based": 36,
+        "byte_offset": 4932
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_mark_push'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 202,
+        "column_1based": 5,
+        "byte_offset": 4946
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 207,
+        "column_1based": 4,
+        "byte_offset": 5035
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_SPLICE_PAGES'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 208,
+        "column_1based": 20,
+        "byte_offset": 5066
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_downgrade_zcopy_pure'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 210,
+        "column_1based": 8,
+        "byte_offset": 5146
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 212,
+        "column_1based": 4,
+        "byte_offset": 5209
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_wmem_schedule'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 212,
+        "column_1based": 11,
+        "byte_offset": 5216
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 212,
+        "column_1based": 33,
+        "byte_offset": 5238
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 213,
+        "column_1based": 9,
+        "byte_offset": 5253
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_splice_from_iter'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 216,
+        "column_1based": 10,
+        "byte_offset": 5294
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct msghdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 216,
+        "column_1based": 40,
+        "byte_offset": 5324
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 216,
+            "column_1based": 37,
+            "byte_offset": 5321
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 216,
+            "column_1based": 40,
+            "byte_offset": 5324
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 216,
+        "column_1based": 52,
+        "byte_offset": 5336
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 217,
+        "column_1based": 12,
+        "byte_offset": 5353
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 217,
+            "column_1based": 10,
+            "byte_offset": 5351
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 217,
+            "column_1based": 12,
+            "byte_offset": 5353
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'EMSGSIZE'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 219,
+        "column_1based": 17,
+        "byte_offset": 5405
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_mark_push'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 220,
+        "column_1based": 6,
+        "byte_offset": 5422
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 225,
+        "column_1based": 4,
+        "byte_offset": 5502
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_NO_SHARED_FRAGS'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 227,
+        "column_1based": 18,
+        "byte_offset": 5532
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_shinfo'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 228,
+        "column_1based": 5,
+        "byte_offset": 5558
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "member reference type 'int' is not a pointer",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 228,
+        "column_1based": 22,
+        "byte_offset": 5575
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 228,
+            "column_1based": 5,
+            "byte_offset": 5558
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 228,
+            "column_1based": 20,
+            "byte_offset": 5573
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'SKBFL_SHARED_FRAG'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 228,
+        "column_1based": 31,
+        "byte_offset": 5584
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sk_wmem_queued_add'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 230,
+        "column_1based": 4,
+        "byte_offset": 5607
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 230,
+        "column_1based": 27,
+        "byte_offset": 5630
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sk_mem_charge'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 231,
+        "column_1based": 4,
+        "byte_offset": 5640
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 231,
+        "column_1based": 22,
+        "byte_offset": 5658
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'TCP_SKB_CB'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 235,
+        "column_1based": 4,
+        "byte_offset": 5688
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "member reference type 'int' is not a pointer",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 235,
+        "column_1based": 21,
+        "byte_offset": 5705
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 235,
+            "column_1based": 4,
+            "byte_offset": 5688
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 235,
+            "column_1based": 19,
+            "byte_offset": 5703
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'TCPHDR_PSH'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 235,
+        "column_1based": 35,
+        "byte_offset": 5719
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'WRITE_ONCE'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 237,
+        "column_1based": 3,
+        "byte_offset": 5734
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct tcp_sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 237,
+        "column_1based": 16,
+        "byte_offset": 5747
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 237,
+            "column_1based": 14,
+            "byte_offset": 5745
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 237,
+            "column_1based": 16,
+            "byte_offset": 5747
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct tcp_sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 237,
+        "column_1based": 31,
+        "byte_offset": 5762
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 237,
+            "column_1based": 29,
+            "byte_offset": 5760
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 237,
+            "column_1based": 31,
+            "byte_offset": 5762
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 237,
+        "column_1based": 45,
+        "byte_offset": 5776
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "member reference type 'int' is not a pointer",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 238,
+        "column_1based": 20,
+        "byte_offset": 5802
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 238,
+            "column_1based": 3,
+            "byte_offset": 5785
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 238,
+            "column_1based": 18,
+            "byte_offset": 5800
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 238,
+        "column_1based": 31,
+        "byte_offset": 5813
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_skb_pcount_set'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 239,
+        "column_1based": 3,
+        "byte_offset": 5821
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'copy'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 241,
+        "column_1based": 13,
+        "byte_offset": 5862
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_EOR'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 243,
+        "column_1based": 25,
+        "byte_offset": 5921
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "member reference type 'int' is not a pointer",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 244,
+        "column_1based": 22,
+        "byte_offset": 5952
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 244,
+            "column_1based": 5,
+            "byte_offset": 5935
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 244,
+            "column_1based": 20,
+            "byte_offset": 5950
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sk_buff'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 248,
+        "column_1based": 10,
+        "byte_offset": 5988
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 248,
+            "column_1based": 7,
+            "byte_offset": 5985
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 248,
+            "column_1based": 10,
+            "byte_offset": 5988
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_OOB'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 248,
+        "column_1based": 40,
+        "byte_offset": 6018
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct tcp_sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 248,
+        "column_1based": 63,
+        "byte_offset": 6041
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 248,
+            "column_1based": 61,
+            "byte_offset": 6039
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 248,
+            "column_1based": 63,
+            "byte_offset": 6041
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'forced_push'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 251,
+        "column_1based": 7,
+        "byte_offset": 6072
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_mark_push'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 252,
+        "column_1based": 4,
+        "byte_offset": 6094
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function '__tcp_push_pending_frames'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 253,
+        "column_1based": 4,
+        "byte_offset": 6121
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'TCP_NAGLE_PUSH'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 253,
+        "column_1based": 43,
+        "byte_offset": 6160
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_send_head'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 254,
+        "column_1based": 21,
+        "byte_offset": 6197
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 2,
+      "spelling": "comparison between pointer and integer ('struct sk_buff *' and 'int')",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 254,
+        "column_1based": 18,
+        "byte_offset": 6194
+      },
+      "option": "-Wpointer-integer-compare",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 254,
+            "column_1based": 14,
+            "byte_offset": 6190
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 254,
+            "column_1based": 17,
+            "byte_offset": 6193
+          }
+        },
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 254,
+            "column_1based": 21,
+            "byte_offset": 6197
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 254,
+            "column_1based": 38,
+            "byte_offset": 6214
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_push_one'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 255,
+        "column_1based": 4,
+        "byte_offset": 6219
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'set_bit'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 259,
+        "column_1based": 3,
+        "byte_offset": 6277
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'SOCK_NOSPACE'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 259,
+        "column_1based": 11,
+        "byte_offset": 6285
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 259,
+        "column_1based": 28,
+        "byte_offset": 6302
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 259,
+            "column_1based": 26,
+            "byte_offset": 6300
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 259,
+            "column_1based": 28,
+            "byte_offset": 6302
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_remove_empty_skb'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 260,
+        "column_1based": 3,
+        "byte_offset": 6325
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_push'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 262,
+        "column_1based": 4,
+        "byte_offset": 6368
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'MSG_MORE'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 262,
+        "column_1based": 26,
+        "byte_offset": 6390
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'TCP_NAGLE_PUSH'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 263,
+        "column_1based": 6,
+        "byte_offset": 6414
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sk_stream_wait_memory'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 265,
+        "column_1based": 9,
+        "byte_offset": 6451
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_tx_timestamp'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 274,
+        "column_1based": 3,
+        "byte_offset": 6596
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_push'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 275,
+        "column_1based": 3,
+        "byte_offset": 6635
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct tcp_sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 275,
+        "column_1based": 34,
+        "byte_offset": 6666
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 275,
+            "column_1based": 32,
+            "byte_offset": 6664
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 275,
+            "column_1based": 34,
+            "byte_offset": 6666
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct msghdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 279,
+        "column_1based": 18,
+        "byte_offset": 6794
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 279,
+            "column_1based": 15,
+            "byte_offset": 6791
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 279,
+            "column_1based": 18,
+            "byte_offset": 6794
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'net_zcopy_put'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 280,
+        "column_1based": 3,
+        "byte_offset": 6808
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_remove_empty_skb'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 284,
+        "column_1based": 2,
+        "byte_offset": 6870
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct msghdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 290,
+        "column_1based": 18,
+        "byte_offset": 7034
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 290,
+            "column_1based": 15,
+            "byte_offset": 7031
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 290,
+            "column_1based": 18,
+            "byte_offset": 7034
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'net_zcopy_put_abort'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 291,
+        "column_1based": 3,
+        "byte_offset": 7048
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'true'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 291,
+        "column_1based": 29,
+        "byte_offset": 7074
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'sk_stream_error'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 292,
+        "column_1based": 8,
+        "byte_offset": 7088
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_rtx_and_write_queues_empty'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 294,
+        "column_1based": 15,
+        "byte_offset": 7190
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'EAGAIN'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 294,
+        "column_1based": 61,
+        "byte_offset": 7236
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct sock'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 295,
+        "column_1based": 5,
+        "byte_offset": 7251
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 295,
+            "column_1based": 3,
+            "byte_offset": 7249
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+            "line_1based": 295,
+            "column_1based": 5,
+            "byte_offset": 7251
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'tcp_chrono_stop'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 296,
+        "column_1based": 3,
+        "byte_offset": 7275
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'TCP_CHRONO_SNDBUF_LIMITED'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\historical\\03\\frame_0.c",
+        "line_1based": 296,
+        "column_1based": 23,
+        "byte_offset": 7295
+      },
+      "option": "",
+      "ranges": []
+    }
+  ],
+  "status": "UNKNOWN",
+  "reasons": [
+    "missing_original_build_evidence",
+    "preprocessing_not_supported",
+    "clang_diagnostics_no_recovery_approval"
+  ],
+  "caller": null,
+  "address_evidence": [],
+  "memory_objects": [],
+  "memory_versions": [],
+  "call_contexts": [],
+  "callees": [],
+  "effect_transfers": [],
+  "call_attempts": [],
+  "summary_cache_used": false,
+  "SMT_generated": false,
+  "safety_decisions_produced": false,
+  "context_isolation": {
+    "status": "N/A"
+  },
+  "metrics": {
+    "call_attempts": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "address_evidence": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "pointer_entry": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "unique_target": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "indirect_write": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "caller_new_version": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "escape_coverage": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "unknown_effect_block": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "complete_call": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    }
+  },
+  "elapsed_seconds": 0.16178709999803687
+}

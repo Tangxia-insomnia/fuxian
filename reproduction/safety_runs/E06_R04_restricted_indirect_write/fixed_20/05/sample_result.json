@@ -1,0 +1,539 @@
+{
+  "sample_id": "NPD/codeql/openssl:row=20:index=21",
+  "dataset_id": "codeql_openssl",
+  "position": 20,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json",
+  "input_sha256": "fea617683e27ca9b4efeea4d35c82e4558a141987932a64d1b21d443bdf41dcf",
+  "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+  "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "function": "engine_main",
+      "body_sha256": "7f3704779b9788908200f89b70d718036a397fff750c02cf9d593ca97fc7bab0",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "report_file": "frame_0_r04.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "diagnostic_count": 176,
+      "address_source_candidates": [
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 110,
+              "column_1based": 36,
+              "byte_offset": 3569
+            },
+            "end_exclusive": {
+              "line_1based": 110,
+              "column_1based": 64,
+              "byte_offset": 3597
+            }
+          },
+          "expression_tail": "&cap_buf, &cap_size, \"RSA\"))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 110,
+              "column_1based": 46,
+              "byte_offset": 3579
+            },
+            "end_exclusive": {
+              "line_1based": 110,
+              "column_1based": 64,
+              "byte_offset": 3597
+            }
+          },
+          "expression_tail": "&cap_size, \"RSA\"))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 113,
+              "column_1based": 36,
+              "byte_offset": 3708
+            },
+            "end_exclusive": {
+              "line_1based": 113,
+              "column_1based": 63,
+              "byte_offset": 3735
+            }
+          },
+          "expression_tail": "&cap_buf, &cap_size, \"EC\"))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 113,
+              "column_1based": 46,
+              "byte_offset": 3718
+            },
+            "end_exclusive": {
+              "line_1based": 113,
+              "column_1based": 63,
+              "byte_offset": 3735
+            }
+          },
+          "expression_tail": "&cap_size, \"EC\"))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 116,
+              "column_1based": 36,
+              "byte_offset": 3847
+            },
+            "end_exclusive": {
+              "line_1based": 116,
+              "column_1based": 64,
+              "byte_offset": 3875
+            }
+          },
+          "expression_tail": "&cap_buf, &cap_size, \"DSA\"))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 116,
+              "column_1based": 46,
+              "byte_offset": 3857
+            },
+            "end_exclusive": {
+              "line_1based": 116,
+              "column_1based": 64,
+              "byte_offset": 3875
+            }
+          },
+          "expression_tail": "&cap_size, \"DSA\"))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 119,
+              "column_1based": 36,
+              "byte_offset": 3986
+            },
+            "end_exclusive": {
+              "line_1based": 119,
+              "column_1based": 63,
+              "byte_offset": 4013
+            }
+          },
+          "expression_tail": "&cap_buf, &cap_size, \"DH\"))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 119,
+              "column_1based": 46,
+              "byte_offset": 3996
+            },
+            "end_exclusive": {
+              "line_1based": 119,
+              "column_1based": 63,
+              "byte_offset": 4013
+            }
+          },
+          "expression_tail": "&cap_size, \"DH\"))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 122,
+              "column_1based": 36,
+              "byte_offset": 4126
+            },
+            "end_exclusive": {
+              "line_1based": 122,
+              "column_1based": 65,
+              "byte_offset": 4155
+            }
+          },
+          "expression_tail": "&cap_buf, &cap_size, \"RAND\"))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 122,
+              "column_1based": 46,
+              "byte_offset": 4136
+            },
+            "end_exclusive": {
+              "line_1based": 122,
+              "column_1based": 65,
+              "byte_offset": 4155
+            }
+          },
+          "expression_tail": "&cap_size, \"RAND\"))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 128,
+              "column_1based": 35,
+              "byte_offset": 4340
+            },
+            "end_exclusive": {
+              "line_1based": 128,
+              "column_1based": 45,
+              "byte_offset": 4350
+            }
+          },
+          "expression_tail": "&nids, 0);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 130,
+              "column_1based": 37,
+              "byte_offset": 4427
+            },
+            "end_exclusive": {
+              "line_1based": 130,
+              "column_1based": 79,
+              "byte_offset": 4469
+            }
+          },
+          "expression_tail": "&cap_buf, &cap_size, OBJ_nid2sn(nids[k])))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 130,
+              "column_1based": 47,
+              "byte_offset": 4437
+            },
+            "end_exclusive": {
+              "line_1based": 130,
+              "column_1based": 79,
+              "byte_offset": 4469
+            }
+          },
+          "expression_tail": "&cap_size, OBJ_nid2sn(nids[k])))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 137,
+              "column_1based": 35,
+              "byte_offset": 4673
+            },
+            "end_exclusive": {
+              "line_1based": 137,
+              "column_1based": 45,
+              "byte_offset": 4683
+            }
+          },
+          "expression_tail": "&nids, 0);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 139,
+              "column_1based": 37,
+              "byte_offset": 4760
+            },
+            "end_exclusive": {
+              "line_1based": 139,
+              "column_1based": 79,
+              "byte_offset": 4802
+            }
+          },
+          "expression_tail": "&cap_buf, &cap_size, OBJ_nid2sn(nids[k])))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 139,
+              "column_1based": 47,
+              "byte_offset": 4770
+            },
+            "end_exclusive": {
+              "line_1based": 139,
+              "column_1based": 79,
+              "byte_offset": 4802
+            }
+          },
+          "expression_tail": "&cap_size, OBJ_nid2sn(nids[k])))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 146,
+              "column_1based": 36,
+              "byte_offset": 5011
+            },
+            "end_exclusive": {
+              "line_1based": 146,
+              "column_1based": 46,
+              "byte_offset": 5021
+            }
+          },
+          "expression_tail": "&nids, 0);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 148,
+              "column_1based": 37,
+              "byte_offset": 5098
+            },
+            "end_exclusive": {
+              "line_1based": 148,
+              "column_1based": 79,
+              "byte_offset": 5140
+            }
+          },
+          "expression_tail": "&cap_buf, &cap_size, OBJ_nid2sn(nids[k])))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 148,
+              "column_1based": 47,
+              "byte_offset": 5108
+            },
+            "end_exclusive": {
+              "line_1based": 148,
+              "column_1based": 79,
+              "byte_offset": 5140
+            }
+          },
+          "expression_tail": "&cap_size, OBJ_nid2sn(nids[k])))",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 155,
+              "column_1based": 41,
+              "byte_offset": 5348
+            },
+            "end_exclusive": {
+              "line_1based": 155,
+              "column_1based": 50,
+              "byte_offset": 5357
+            }
+          },
+          "expression_tail": "&cap_buf;",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 156,
+              "column_1based": 42,
+              "byte_offset": 5399
+            },
+            "end_exclusive": {
+              "line_1based": 156,
+              "column_1based": 52,
+              "byte_offset": 5409
+            }
+          },
+          "expression_tail": "&cap_size;",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 159,
+              "column_1based": 63,
+              "byte_offset": 5511
+            },
+            "end_exclusive": {
+              "line_1based": 159,
+              "column_1based": 75,
+              "byte_offset": 5523
+            }
+          },
+          "expression_tail": "&store_ctx);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        }
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:25bb17b0df73baf8f092bcd913ca91aead8b26fdc9513909a22761a6968d8d9d",
+          "return_source_range": {
+            "start": {
+              "line_1based": 199,
+              "column_1based": 5,
+              "byte_offset": 6816
+            },
+            "end_exclusive": {
+              "line_1based": 199,
+              "column_1based": 16,
+              "byte_offset": 6827
+            }
+          },
+          "raw_return_expression": "ret",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 198,
+            "text": "    BIO_free_all(out);\n    return ret;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_indirect_writes": 0
+    }
+  ],
+  "edges": [],
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "verified_objects": 0,
+  "verified_pointer_targets": 0,
+  "verified_indirect_writes": 0,
+  "verified_caller_new_versions": 0,
+  "old_semantic_results_reused": false,
+  "labels_used": false,
+  "safety_decisions_produced": false,
+  "elapsed_seconds": 0.0524427000018477
+}

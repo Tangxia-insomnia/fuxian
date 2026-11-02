@@ -1,0 +1,29 @@
+{
+  "phase": "pre_freeze_runner",
+  "recorded_at": "2026-11-02T07:44:39.728392+00:00",
+  "status": "FAILED_BEFORE_FREEZE",
+  "command": "python.exe -B freeze_candidate.py",
+  "exception_type": "AssertionError",
+  "failure_location": "freeze_candidate.py:19 preservation status assertion",
+  "cause": "r03_adapter prepends accepted R03 to sys.path; generic protection import selected accepted R03/protection.py and treated R04 as outside additions",
+  "observed_protected_original_changes": [],
+  "candidate_manifest_created": false,
+  "fixed20_started": false,
+  "fixed20_attempts": 0,
+  "prior_read_only_precheck_exception": {
+    "type": "KeyError",
+    "key": "native_matches_accepted_R01_hash",
+    "cause": "same generic module name collision"
+  },
+  "resolution": "Only R04 protection module renamed r04_protection.py; freeze/finalize imports made unambiguous; no core analysis or original modules changed",
+  "renamed_module_sha256": "8d94a356e5f0a27da4e630b2757dfe53c25b252d5abd7873c73d9a8d832c997e",
+  "semantic_rechecks_reused": "Previously completed R04 and R01-R03 checks; no semantic implementation changed; new import identity check before freeze",
+  "traceback": "Traceback (most recent call last):\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\freeze_candidate.py\", line 37, in <module>\n    if __name__=='__main__':main()\n  File \"E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\freeze_candidate.py\", line 19, in main\n    protected=preservation();assert protected['status']=='PASS';save(ROOT/'pre_freeze_preservation_check.json',protected)\nAssertionError\n",
+  "additional_preflight_diagnostic": {
+    "type": "AttributeError",
+    "message": "module 'finalize_results' has no attribute 'preservation'",
+    "cause": "read-only check used a generic entry point import after accepted modules prepended paths",
+    "resolution": "check entry points by explicit R04 paths, matching actual direct-script invocation",
+    "candidate_changed": false
+  }
+}

@@ -1,0 +1,444 @@
+{
+  "sample_id": "NPD/codeql/kernel69:row=24:index=43",
+  "dataset_id": "codeql_linux",
+  "position": 24,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json",
+  "input_sha256": "4df7f7014d4eeeca31e8768db1adbfd8c58e10ffbc7551a5330e4d3a6a9729b3",
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "function": "ip6_finish_output2",
+      "body_sha256": "90b47239055d70d6940ddc13e68fc1f3e80746d0d735ccb383f25c4c6471a940",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "report_file": "frame_0_r04.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "diagnostic_count": 78,
+      "address_source_candidates": [
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 22,
+              "column_1based": 10,
+              "byte_offset": 626
+            },
+            "end_exclusive": {
+              "line_1based": 22,
+              "column_1based": 22,
+              "byte_offset": 638
+            }
+          },
+          "expression_tail": "&hdr->daddr;",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 24,
+              "column_1based": 20,
+              "byte_offset": 696
+            },
+            "end_exclusive": {
+              "line_1based": 24,
+              "column_1based": 56,
+              "byte_offset": 732
+            }
+          },
+          "expression_tail": "& IFF_LOOPBACK) && sk_mc_loop(sk) &&",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 26,
+              "column_1based": 28,
+              "byte_offset": 799
+            },
+            "end_exclusive": {
+              "line_1based": 26,
+              "column_1based": 51,
+              "byte_offset": 822
+            }
+          },
+          "expression_tail": "& IP6SKB_FORWARDED)) ||",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 27,
+              "column_1based": 40,
+              "byte_offset": 862
+            },
+            "end_exclusive": {
+              "line_1based": 27,
+              "column_1based": 56,
+              "byte_offset": 878
+            }
+          },
+          "expression_tail": "&hdr->saddr))) {",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 48,
+              "column_1based": 20,
+              "byte_offset": 1450
+            },
+            "end_exclusive": {
+              "line_1based": 48,
+              "column_1based": 38,
+              "byte_offset": 1468
+            }
+          },
+          "expression_tail": "& IFF_LOOPBACK)) {",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 69,
+              "column_1based": 27,
+              "byte_offset": 1911
+            },
+            "end_exclusive": {
+              "line_1based": 69,
+              "column_1based": 57,
+              "byte_offset": 1941
+            }
+          },
+          "expression_tail": "&nd_tbl, nexthop, dev, false);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        }
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:123b8231c3e478f32655e1c9c12c99f6c813663d99319844a61b807d487a42b9",
+          "return_source_range": {
+            "start": {
+              "line_1based": 17,
+              "column_1based": 4,
+              "byte_offset": 571
+            },
+            "end_exclusive": {
+              "line_1based": 17,
+              "column_1based": 19,
+              "byte_offset": 586
+            }
+          },
+          "raw_return_expression": "-ENOMEM",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 16,
+            "text": "\t\t\tIP6_INC_STATS(net, idev, IPSTATS_MIB_OUTDISCARDS);\n\t\t\treturn -ENOMEM;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:af5be3caafb1f3ef5437ac47fbc8b05ebcb260942b4a10411193fe6f003ba5bb",
+          "return_source_range": {
+            "start": {
+              "line_1based": 42,
+              "column_1based": 5,
+              "byte_offset": 1284
+            },
+            "end_exclusive": {
+              "line_1based": 42,
+              "column_1based": 14,
+              "byte_offset": 1293
+            }
+          },
+          "raw_return_expression": "0",
+          "category_candidate": "constant",
+          "nearby_source_lines": {
+            "first_line_1based": 41,
+            "text": "\t\t\t\tkfree_skb(skb);\n\t\t\t\treturn 0;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:9e2fe668062598e313178ed781a331be4524043d3da36bf4340a12a93d8a1af7",
+          "return_source_range": {
+            "start": {
+              "line_1based": 50,
+              "column_1based": 4,
+              "byte_offset": 1491
+            },
+            "end_exclusive": {
+              "line_1based": 50,
+              "column_1based": 13,
+              "byte_offset": 1500
+            }
+          },
+          "raw_return_expression": "0",
+          "category_candidate": "constant",
+          "nearby_source_lines": {
+            "first_line_1based": 49,
+            "text": "\t\t\tkfree_skb(skb);\n\t\t\treturn 0;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:58f9d7cd07ab285fd51f0fe9a0332cb4b859baf95c76cbeccc96c1e2ee769114",
+          "return_source_range": {
+            "start": {
+              "line_1based": 58,
+              "column_1based": 4,
+              "byte_offset": 1628
+            },
+            "end_exclusive": {
+              "line_1based": 58,
+              "column_1based": 15,
+              "byte_offset": 1639
+            }
+          },
+          "raw_return_expression": "res",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 57,
+            "text": "\t\tif (res != LWTUNNEL_XMIT_CONTINUE)\n\t\t\treturn res;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:5a9d350703dc38f1a15953643b37cdb170bf06648735d7a0734531063f1d01c1",
+          "return_source_range": {
+            "start": {
+              "line_1based": 74,
+              "column_1based": 4,
+              "byte_offset": 2104
+            },
+            "end_exclusive": {
+              "line_1based": 74,
+              "column_1based": 19,
+              "byte_offset": 2119
+            }
+          },
+          "raw_return_expression": "-EINVAL",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 73,
+            "text": "\t\t\tkfree_skb_reason(skb, SKB_DROP_REASON_NEIGH_CREATEFAIL);\n\t\t\treturn -EINVAL;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:65b96ff744696713fe8789f5ef03c1b24f5c3160aeb22bdc2eb199a169a76601",
+          "return_source_range": {
+            "start": {
+              "line_1based": 80,
+              "column_1based": 2,
+              "byte_offset": 2221
+            },
+            "end_exclusive": {
+              "line_1based": 80,
+              "column_1based": 13,
+              "byte_offset": 2232
+            }
+          },
+          "raw_return_expression": "ret",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 79,
+            "text": "\trcu_read_unlock();\n\treturn ret;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_indirect_writes": 0
+    },
+    {
+      "frame": 1,
+      "function": "sock_confirm_neigh",
+      "body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/1",
+      "source_copy": "frame_1.c",
+      "report_file": "frame_1_r04.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "diagnostic_count": 9,
+      "address_source_candidates": [],
+      "return_source_candidates": [],
+      "verified_indirect_writes": 0
+    },
+    {
+      "frame": 2,
+      "function": "neigh_confirm",
+      "body_sha256": "468f1bceeb2bb427c7a70f1345ed27aa19925bbfcf2197e94b7f6476cc260be9",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/2",
+      "source_copy": "frame_2.c",
+      "report_file": "frame_2_r04.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "diagnostic_count": 6,
+      "address_source_candidates": [],
+      "return_source_candidates": [],
+      "verified_indirect_writes": 0
+    }
+  ],
+  "edges": [
+    {
+      "caller_frame": 0,
+      "callee_frame": 1,
+      "caller": "ip6_finish_output2",
+      "callee": "sock_confirm_neigh",
+      "status": "UNKNOWN",
+      "callsite_candidates": [
+        {
+          "raw_call": "sock_confirm_neigh(skb, neigh)",
+          "source_range": {
+            "start": {
+              "line_1based": 77,
+              "column_1based": 2,
+              "byte_offset": 2128
+            },
+            "end_exclusive": {
+              "line_1based": 77,
+              "column_1based": 32,
+              "byte_offset": 2158
+            }
+          },
+          "result_disposition_candidate": "ignored",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        }
+      ],
+      "pointer_target_proved": false,
+      "caller_state_updated": false,
+      "R05_composition_performed": false
+    },
+    {
+      "caller_frame": 1,
+      "callee_frame": 2,
+      "caller": "sock_confirm_neigh",
+      "callee": "neigh_confirm",
+      "status": "UNKNOWN",
+      "callsite_candidates": [
+        {
+          "raw_call": "neigh_confirm(n)",
+          "source_range": {
+            "start": {
+              "line_1based": 8,
+              "column_1based": 3,
+              "byte_offset": 252
+            },
+            "end_exclusive": {
+              "line_1based": 8,
+              "column_1based": 19,
+              "byte_offset": 268
+            }
+          },
+          "result_disposition_candidate": "ignored",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        }
+      ],
+      "pointer_target_proved": false,
+      "caller_state_updated": false,
+      "R05_composition_performed": false
+    }
+  ],
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "verified_objects": 0,
+  "verified_pointer_targets": 0,
+  "verified_indirect_writes": 0,
+  "verified_caller_new_versions": 0,
+  "old_semantic_results_reused": false,
+  "labels_used": false,
+  "safety_decisions_produced": false,
+  "elapsed_seconds": 0.6258381999978155
+}

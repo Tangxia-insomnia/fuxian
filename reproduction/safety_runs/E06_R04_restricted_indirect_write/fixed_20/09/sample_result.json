@@ -1,0 +1,182 @@
+{
+  "sample_id": "NPD/cppcheck/linux:row=63:index=None",
+  "dataset_id": "cppcheck_linux",
+  "position": 63,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json",
+  "input_sha256": "5723c7a0334c67b6265b623f9ceb85276306687869a456571355601facde57d1",
+  "dataset": "benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+  "dataset_sha256": "bc1fcdd59756e855c0ee7987e6b788d408a5b0815f207e9f4ef272bf1ca234b6",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "function": "dwarf_lookup_cie",
+      "body_sha256": "05ec37a3e03aa0c41998ccd3a4ccf6fa7be20d3a2cc59551bda5d02001c2f840",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "report_file": "frame_0_r04.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "diagnostic_count": 18,
+      "address_source_candidates": [
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 3,
+              "column_1based": 29,
+              "byte_offset": 95
+            },
+            "end_exclusive": {
+              "line_1based": 3,
+              "column_1based": 47,
+              "byte_offset": 113
+            }
+          },
+          "expression_tail": "&cie_root.rb_node;",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 7,
+              "column_1based": 20,
+              "byte_offset": 187
+            },
+            "end_exclusive": {
+              "line_1based": 7,
+              "column_1based": 44,
+              "byte_offset": 211
+            }
+          },
+          "expression_tail": "&dwarf_cie_lock, flags);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 30,
+              "column_1based": 15,
+              "byte_offset": 699
+            },
+            "end_exclusive": {
+              "line_1based": 30,
+              "column_1based": 36,
+              "byte_offset": 720
+            }
+          },
+          "expression_tail": "&(*rb_node)->rb_left;",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 32,
+              "column_1based": 15,
+              "byte_offset": 743
+            },
+            "end_exclusive": {
+              "line_1based": 32,
+              "column_1based": 37,
+              "byte_offset": 765
+            }
+          },
+          "expression_tail": "&(*rb_node)->rb_right;",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 37,
+              "column_1based": 25,
+              "byte_offset": 803
+            },
+            "end_exclusive": {
+              "line_1based": 37,
+              "column_1based": 49,
+              "byte_offset": 827
+            }
+          },
+          "expression_tail": "&dwarf_cie_lock, flags);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        }
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:72317fb96c18311d9576ad78a1b6b4ddb00f7f856d58bae29718ebe243a31137",
+          "return_source_range": {
+            "start": {
+              "line_1based": 38,
+              "column_1based": 2,
+              "byte_offset": 829
+            },
+            "end_exclusive": {
+              "line_1based": 38,
+              "column_1based": 13,
+              "byte_offset": 840
+            }
+          },
+          "raw_return_expression": "cie",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 37,
+            "text": "\tspin_unlock_irqrestore(&dwarf_cie_lock, flags);\n\treturn cie;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_indirect_writes": 0
+    }
+  ],
+  "edges": [],
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "verified_objects": 0,
+  "verified_pointer_targets": 0,
+  "verified_indirect_writes": 0,
+  "verified_caller_new_versions": 0,
+  "old_semantic_results_reused": false,
+  "labels_used": false,
+  "safety_decisions_produced": false,
+  "elapsed_seconds": 0.16396499999973457
+}

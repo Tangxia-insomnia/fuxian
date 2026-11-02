@@ -1,0 +1,404 @@
+{
+  "sample_id": "NPD/codeql/openssl:row=30:index=31",
+  "dataset_id": "codeql_openssl",
+  "position": 30,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json",
+  "input_sha256": "8c18fdbffdb74745318fe4e45481c42c4b21b64dec35900916ec0c658c9c39c3",
+  "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+  "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "function": "make_ocsp_response",
+      "body_sha256": "0710255ad6325f07f68ca2e2b35754df6a9c26fbf063e37b6c9f66555683feca",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/0",
+      "source_copy": "frame_0.c",
+      "report_file": "frame_0_r04.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "diagnostic_count": 225,
+      "address_source_candidates": [
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 43,
+              "column_1based": 33,
+              "byte_offset": 1454
+            },
+            "end_exclusive": {
+              "line_1based": 43,
+              "column_1based": 67,
+              "byte_offset": 1488
+            }
+          },
+          "expression_tail": "&cert_id_md_oid, NULL, NULL, cid);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 62,
+              "column_1based": 45,
+              "byte_offset": 2228
+            },
+            "end_exclusive": {
+              "line_1based": 62,
+              "column_1based": 59,
+              "byte_offset": 2242
+            }
+          },
+          "expression_tail": "&serial, cid);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 89,
+              "column_1based": 28,
+              "byte_offset": 3323
+            },
+            "end_exclusive": {
+              "line_1based": 89,
+              "column_1based": 78,
+              "byte_offset": 3373
+            }
+          },
+          "expression_tail": "&revtm, &reason, &inst, &invtm, inf[DB_rev_date]);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 89,
+              "column_1based": 36,
+              "byte_offset": 3331
+            },
+            "end_exclusive": {
+              "line_1based": 89,
+              "column_1based": 78,
+              "byte_offset": 3373
+            }
+          },
+          "expression_tail": "&reason, &inst, &invtm, inf[DB_rev_date]);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 89,
+              "column_1based": 45,
+              "byte_offset": 3340
+            },
+            "end_exclusive": {
+              "line_1based": 89,
+              "column_1based": 78,
+              "byte_offset": 3373
+            }
+          },
+          "expression_tail": "&inst, &invtm, inf[DB_rev_date]);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 89,
+              "column_1based": 52,
+              "byte_offset": 3347
+            },
+            "end_exclusive": {
+              "line_1based": 89,
+              "column_1based": 78,
+              "byte_offset": 3373
+            }
+          },
+          "expression_tail": "&invtm, inf[DB_rev_date]);",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        },
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 115,
+              "column_1based": 51,
+              "byte_offset": 4448
+            },
+            "end_exclusive": {
+              "line_1based": 115,
+              "column_1based": 78,
+              "byte_offset": 4475
+            }
+          },
+          "expression_tail": "&pkctx, rmd, NULL, rkey)) {",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        }
+      ],
+      "return_source_candidates": [],
+      "verified_indirect_writes": 0
+    },
+    {
+      "frame": 1,
+      "function": "OCSP_copy_nonce",
+      "body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/1",
+      "source_copy": "frame_1.c",
+      "report_file": "frame_1_r04.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "diagnostic_count": 10,
+      "address_source_candidates": [],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:ba032320fab21e43c14dad8639020306ae16aca502bba348371753cfd0d2fd59",
+          "return_source_range": {
+            "start": {
+              "line_1based": 9,
+              "column_1based": 9,
+              "byte_offset": 283
+            },
+            "end_exclusive": {
+              "line_1based": 9,
+              "column_1based": 18,
+              "byte_offset": 292
+            }
+          },
+          "raw_return_expression": "2",
+          "category_candidate": "constant",
+          "nearby_source_lines": {
+            "first_line_1based": 8,
+            "text": "    if (req_idx < 0)\n        return 2;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:d682b0e16eea76c3da128b1f89540a64d02fa2162110507d2ca459cabf2e2896",
+          "return_source_range": {
+            "start": {
+              "line_1based": 11,
+              "column_1based": 5,
+              "byte_offset": 347
+            },
+            "end_exclusive": {
+              "line_1based": 11,
+              "column_1based": 54,
+              "byte_offset": 396
+            }
+          },
+          "raw_return_expression": "OCSP_BASICRESP_add_ext(resp, req_ext, -1)",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 10,
+            "text": "    req_ext = OCSP_REQUEST_get_ext(req, req_idx);\n    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);"
+          },
+          "contains_call_candidate": true,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_indirect_writes": 0
+    },
+    {
+      "frame": 2,
+      "function": "OCSP_BASICRESP_add_ext",
+      "body_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/2",
+      "source_copy": "frame_2.c",
+      "report_file": "frame_2_r04.json",
+      "status": "UNKNOWN",
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "diagnostic_count": 4,
+      "address_source_candidates": [
+        {
+          "source_location": {
+            "start": {
+              "line_1based": 3,
+              "column_1based": 28,
+              "byte_offset": 104
+            },
+            "end_exclusive": {
+              "line_1based": 3,
+              "column_1based": 78,
+              "byte_offset": 154
+            }
+          },
+          "expression_tail": "&(x->tbsResponseData.responseExtensions), ex, loc)",
+          "status": "UNKNOWN",
+          "method": "ampersand_source_locator_not_address_or_type_proof",
+          "memory_object_id": null,
+          "pointer_target_id": null,
+          "caller_post_version": null,
+          "reason": "original_build_declaration_and_effect_evidence_not_verified"
+        }
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:a4f009417c3ab020e259c5092eeed8f150d9fdf49df99e62ce5d5ba0df5587bd",
+          "return_source_range": {
+            "start": {
+              "line_1based": 3,
+              "column_1based": 5,
+              "byte_offset": 81
+            },
+            "end_exclusive": {
+              "line_1based": 4,
+              "column_1based": 22,
+              "byte_offset": 176
+            }
+          },
+          "raw_return_expression": "(X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)\n            != NULL)",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 2,
+            "text": "{\n    return (X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)"
+          },
+          "contains_call_candidate": true,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_indirect_writes": 0
+    }
+  ],
+  "edges": [
+    {
+      "caller_frame": 0,
+      "callee_frame": 1,
+      "caller": "make_ocsp_response",
+      "callee": "OCSP_copy_nonce",
+      "status": "UNKNOWN",
+      "callsite_candidates": [
+        {
+          "raw_call": "OCSP_copy_nonce(bs, req)",
+          "source_range": {
+            "start": {
+              "line_1based": 112,
+              "column_1based": 5,
+              "byte_offset": 4342
+            },
+            "end_exclusive": {
+              "line_1based": 112,
+              "column_1based": 29,
+              "byte_offset": 4366
+            }
+          },
+          "result_disposition_candidate": "ignored",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        }
+      ],
+      "pointer_target_proved": false,
+      "caller_state_updated": false,
+      "R05_composition_performed": false
+    },
+    {
+      "caller_frame": 1,
+      "callee_frame": 2,
+      "caller": "OCSP_copy_nonce",
+      "callee": "OCSP_BASICRESP_add_ext",
+      "status": "UNKNOWN",
+      "callsite_candidates": [
+        {
+          "raw_call": "OCSP_BASICRESP_add_ext(resp, req_ext, -1)",
+          "source_range": {
+            "start": {
+              "line_1based": 11,
+              "column_1based": 12,
+              "byte_offset": 354
+            },
+            "end_exclusive": {
+              "line_1based": 11,
+              "column_1based": 53,
+              "byte_offset": 395
+            }
+          },
+          "result_disposition_candidate": "unverified_expression_use",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        }
+      ],
+      "pointer_target_proved": false,
+      "caller_state_updated": false,
+      "R05_composition_performed": false
+    }
+  ],
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "verified_objects": 0,
+  "verified_pointer_targets": 0,
+  "verified_indirect_writes": 0,
+  "verified_caller_new_versions": 0,
+  "old_semantic_results_reused": false,
+  "labels_used": false,
+  "safety_decisions_produced": false,
+  "elapsed_seconds": 0.0932874999998603
+}

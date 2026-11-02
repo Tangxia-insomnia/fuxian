@@ -1,0 +1,518 @@
+{
+  "dataset_id": "synthetic-r04",
+  "position": 0,
+  "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+  "source_sha256": "fb7a8b6cee8d7b1100d35e3ca0642212c57ec3c85b397a179f7c573092b6db71",
+  "build_evidence": {
+    "status": "synthetic-self-contained",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": true
+  },
+  "diagnostics": [],
+  "status": "UNKNOWN",
+  "reasons": [
+    "unsupported_storage_or_type",
+    "unknown_effect_stop"
+  ],
+  "caller": {
+    "function": {
+      "name": "test",
+      "kind": "FUNCTION_DECL",
+      "usr": "c:@F@test",
+      "canonical_location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+        "line_1based": 1,
+        "column_1based": 42,
+        "byte_offset": 41
+      },
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+        "line_1based": 1,
+        "column_1based": 42,
+        "byte_offset": 41
+      },
+      "source_range": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+          "line_1based": 1,
+          "column_1based": 37,
+          "byte_offset": 36
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+          "line_1based": 1,
+          "column_1based": 82,
+          "byte_offset": 81
+        }
+      },
+      "linkage": "EXTERNAL",
+      "declaration_id": "decl:0846d57def62fd3452b29092086eeefb98ec25084ddc52a86f1a6ad6c2133499"
+    },
+    "frame_role": "caller",
+    "body_sha256": "e42380f68e0281fd4d088ce9e21473f683ff2842633dbd2b0efef05cf993ceef",
+    "status": "UNKNOWN",
+    "reasons": [
+      "unsupported_storage_or_type",
+      "unknown_effect_stop"
+    ],
+    "slots": [
+      {
+        "slot_id": "local-slot:2efbc9adaa1ad1d74e46f2de02200b81ccf90ff75048b150c0eac2e6346f447f",
+        "declaration": {
+          "name": "x",
+          "kind": "VAR_DECL",
+          "usr": "c:X_volatile.c@52@F@test@x",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 66,
+            "byte_offset": 65
+          },
+          "location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 66,
+            "byte_offset": 65
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+              "line_1based": 1,
+              "column_1based": 53,
+              "byte_offset": 52
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+              "line_1based": 1,
+              "column_1based": 69,
+              "byte_offset": 68
+            }
+          },
+          "linkage": "NO_LINKAGE",
+          "declaration_id": "decl:d9ccc9c98c63485d5f01dc0b026a5ca591ba5738c7d6e3b2215ee6a1b574b5dc"
+        },
+        "type": {
+          "spelling": "volatile int",
+          "canonical": "volatile int",
+          "kind": "INT",
+          "size_bytes": 4,
+          "const": false,
+          "volatile": true,
+          "restrict": false
+        },
+        "r01_caller_slot_id": "caller-slot:2efbc9adaa1ad1d74e46f2de02200b81ccf90ff75048b150c0eac2e6346f447f",
+        "r01_callee_slot_id": null
+      }
+    ],
+    "versions": [],
+    "reads": [],
+    "events": [
+      {
+        "event_id": "definition-event:703819a2cf3ff6bcf6d5c608b4de784a3c63f34375471031a1423565e27173f0",
+        "kind": "unknown_effect_barrier",
+        "path_id": "r03-path-entry:82f9a6c710e5c162680253513d8df920b6a13b024833e38ac45c1de8a22976de",
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 53,
+            "byte_offset": 52
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 69,
+            "byte_offset": 68
+          }
+        },
+        "raw_expression": "volatile int x=5",
+        "reason": "unsupported_storage_or_type",
+        "before": {
+          "path_id": "r03-path-entry:82f9a6c710e5c162680253513d8df920b6a13b024833e38ac45c1de8a22976de",
+          "current": {},
+          "guards": [],
+          "termination": null,
+          "invalidated_by": [],
+          "memory_current": {}
+        },
+        "after": {
+          "path_id": "r03-path-entry:82f9a6c710e5c162680253513d8df920b6a13b024833e38ac45c1de8a22976de",
+          "current": {},
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:703819a2cf3ff6bcf6d5c608b4de784a3c63f34375471031a1423565e27173f0"
+          ],
+          "memory_current": {}
+        }
+      }
+    ],
+    "state_snapshots": [
+      {
+        "path_id": "r03-path-entry:82f9a6c710e5c162680253513d8df920b6a13b024833e38ac45c1de8a22976de",
+        "current": {},
+        "guards": [],
+        "termination": "UNKNOWN_EFFECT_STOP",
+        "invalidated_by": [
+          "definition-event:703819a2cf3ff6bcf6d5c608b4de784a3c63f34375471031a1423565e27173f0"
+        ]
+      },
+      {
+        "path_id": "r03-path-entry:82f9a6c710e5c162680253513d8df920b6a13b024833e38ac45c1de8a22976de",
+        "current": {},
+        "guards": [],
+        "termination": "UNKNOWN_EFFECT_STOP",
+        "invalidated_by": [
+          "definition-event:703819a2cf3ff6bcf6d5c608b4de784a3c63f34375471031a1423565e27173f0"
+        ]
+      }
+    ],
+    "final_environments": [
+      {
+        "path_id": "r03-path-entry:82f9a6c710e5c162680253513d8df920b6a13b024833e38ac45c1de8a22976de",
+        "current": {},
+        "guards": [],
+        "termination": "UNKNOWN_EFFECT_STOP",
+        "invalidated_by": [
+          "definition-event:703819a2cf3ff6bcf6d5c608b4de784a3c63f34375471031a1423565e27173f0"
+        ]
+      }
+    ],
+    "unprocessed_ranges": [
+      {
+        "path_id": "r03-path-entry:82f9a6c710e5c162680253513d8df920b6a13b024833e38ac45c1de8a22976de",
+        "range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 70,
+            "byte_offset": 69
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 80,
+            "byte_offset": 79
+          }
+        },
+        "reason": "not_analyzed_after_unknown_effect"
+      }
+    ],
+    "return_values": [],
+    "path_returns": [
+      {
+        "path_id": "r03-path-entry:82f9a6c710e5c162680253513d8df920b6a13b024833e38ac45c1de8a22976de",
+        "guard": [],
+        "return_event_id": null,
+        "return_value_id": null,
+        "normal_return": false,
+        "can_continue_caller": false,
+        "status": "UNKNOWN",
+        "reasons": [
+          "unknown_effect_stop"
+        ],
+        "call_context_id": null
+      }
+    ],
+    "return_path_completeness": "UNKNOWN",
+    "call_effect_coverage": "UNKNOWN",
+    "paths_merged": false,
+    "SMT_generated": false
+  },
+  "address_evidence": [],
+  "memory_objects": [],
+  "memory_versions": [],
+  "call_contexts": [],
+  "callees": [],
+  "effect_transfers": [],
+  "call_attempts": [],
+  "summary_cache_used": false,
+  "SMT_generated": false,
+  "safety_decisions_produced": false,
+  "R01_evidence": {
+    "dataset_id": "synthetic-r04",
+    "position": 0,
+    "status": "UNKNOWN",
+    "reasons": [],
+    "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+    "source_sha256": "fb7a8b6cee8d7b1100d35e3ca0642212c57ec3c85b397a179f7c573092b6db71",
+    "build_evidence": {
+      "status": "synthetic-self-contained",
+      "args": [
+        "-x",
+        "c",
+        "-std=c11",
+        "-nostdinc",
+        "-Werror=implicit-function-declaration",
+        "-ferror-limit=0"
+      ],
+      "original_project_build_verified": false,
+      "controlled_synthetic_TU": true
+    },
+    "diagnostics": [],
+    "macro_expansions": [],
+    "candidate_inventory": [],
+    "calls": [
+      {
+        "dataset_id": "synthetic-r04",
+        "position": 0,
+        "callsite_id": "call:9edb9e4818e23f39db4bb7f7e2b1eef58513cdd930a583296f4e9c56c9227d9b",
+        "caller": {
+          "name": "test",
+          "kind": "FUNCTION_DECL",
+          "usr": "c:@F@test",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 42,
+            "byte_offset": 41
+          },
+          "location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 42,
+            "byte_offset": 41
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+              "line_1based": 1,
+              "column_1based": 37,
+              "byte_offset": 36
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+              "line_1based": 1,
+              "column_1based": 82,
+              "byte_offset": 81
+            }
+          },
+          "linkage": "EXTERNAL",
+          "declaration_id": "decl:0846d57def62fd3452b29092086eeefb98ec25084ddc52a86f1a6ad6c2133499"
+        },
+        "callee": {
+          "name": "modify",
+          "kind": "FUNCTION_DECL",
+          "usr": "c:@F@modify",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 6,
+            "byte_offset": 5
+          },
+          "location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 6,
+            "byte_offset": 5
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+              "line_1based": 1,
+              "column_1based": 1,
+              "byte_offset": 0
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+              "line_1based": 1,
+              "column_1based": 37,
+              "byte_offset": 36
+            }
+          },
+          "linkage": "EXTERNAL",
+          "declaration_id": "decl:7e72e75b890b04ae453cf040024a3a6751bb3243054a857317c08576288a9a36"
+        },
+        "callsite": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 70,
+            "byte_offset": 69
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+            "line_1based": 1,
+            "column_1based": 80,
+            "byte_offset": 79
+          }
+        },
+        "call_text": "modify(&x)",
+        "caller_body_sha256": "e42380f68e0281fd4d088ce9e21473f683ff2842633dbd2b0efef05cf993ceef",
+        "callee_body_sha256": "7af9ee7de7aaaa5cf696fa69506e8cdc71ece74810d1c6457ff61c1de84b310e",
+        "source_sha256": "fb7a8b6cee8d7b1100d35e3ca0642212c57ec3c85b397a179f7c573092b6db71",
+        "build_evidence": {
+          "status": "synthetic-self-contained",
+          "args": [
+            "-x",
+            "c",
+            "-std=c11",
+            "-nostdinc",
+            "-Werror=implicit-function-declaration",
+            "-ferror-limit=0"
+          ],
+          "original_project_build_verified": false,
+          "controlled_synthetic_TU": true
+        },
+        "diagnostics_ref": "#/diagnostics",
+        "status": "UNKNOWN",
+        "reasons": [
+          "actual_expression_outside_identifier_subset"
+        ],
+        "mappings": [
+          {
+            "actual_index_0based": 0,
+            "formal_index_0based": 0,
+            "actual_expression": "&x",
+            "actual_source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+                "line_1based": 1,
+                "column_1based": 77,
+                "byte_offset": 76
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+                "line_1based": 1,
+                "column_1based": 79,
+                "byte_offset": 78
+              }
+            },
+            "actual_declaration": null,
+            "formal_declaration": {
+              "name": "p",
+              "kind": "PARM_DECL",
+              "usr": "c:X_volatile.c@12@F@modify@p",
+              "canonical_location": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+                "line_1based": 1,
+                "column_1based": 27,
+                "byte_offset": 26
+              },
+              "location": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+                "line_1based": 1,
+                "column_1based": 27,
+                "byte_offset": 26
+              },
+              "source_range": {
+                "start": {
+                  "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+                  "line_1based": 1,
+                  "column_1based": 13,
+                  "byte_offset": 12
+                },
+                "end_exclusive": {
+                  "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R04_restricted_indirect_write\\synthetic_fixtures\\X_volatile.c",
+                  "line_1based": 1,
+                  "column_1based": 28,
+                  "byte_offset": 27
+                }
+              },
+              "linkage": "NO_LINKAGE",
+              "declaration_id": "decl:9577ee4c97a43b79cb4002436dc563e4a2a95421db97dea59d037aaf10470faa"
+            },
+            "actual_slot_id": null,
+            "formal_slot_id": "callee-slot:54b73adcc72021c696cdeaccabb5c27338c7aa847926f1f14c41d582283ef30e",
+            "formal_type": {
+              "spelling": "volatile int *",
+              "canonical": "volatile int *",
+              "kind": "POINTER",
+              "size_bytes": 8,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "pointee": {
+                "spelling": "volatile int",
+                "canonical": "volatile int",
+                "kind": "INT",
+                "size_bytes": 4,
+                "const": false,
+                "volatile": true,
+                "restrict": false
+              }
+            },
+            "actual_type": null,
+            "conversion": null,
+            "status": "UNKNOWN",
+            "reasons": [
+              "actual_expression_outside_identifier_subset"
+            ],
+            "relation": "converted_callsite_value_equals_parameter_entry_value",
+            "slot_equivalence": false,
+            "value_version_tracking": false,
+            "transfer_id": "transfer:9716c77fe63b71fe9980fa9ff44a654353d03abed535dd36077a0726fd5127d7"
+          }
+        ],
+        "ast_is_trusted": true,
+        "scope": "direct-call-entry-value-only",
+        "reachability_verified": false,
+        "post_call_effects_verified": false,
+        "pointed_object_identity_verified": false
+      }
+    ],
+    "elapsed_seconds": 0.01787010000043665
+  },
+  "context_isolation": {
+    "status": "N/A"
+  },
+  "metrics": {
+    "address_evidence": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "pointer_entry": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "unique_target": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "indirect_write": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "caller_new_version": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "escape_coverage": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "unknown_effect_block": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "complete_call": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    }
+  },
+  "elapsed_seconds": 0.03608689999964554
+}
