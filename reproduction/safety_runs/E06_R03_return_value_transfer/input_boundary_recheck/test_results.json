@@ -1,0 +1,432 @@
+{
+  "total": 15,
+  "passed": 15,
+  "all_passed": true,
+  "tests": [
+    {
+      "test": "malformed_0",
+      "expected": "STOP",
+      "actual": "STOP",
+      "passed": true,
+      "evidence": {}
+    },
+    {
+      "test": "malformed_1",
+      "expected": "STOP",
+      "actual": "STOP",
+      "passed": true,
+      "evidence": {
+        "context": []
+      }
+    },
+    {
+      "test": "malformed_2",
+      "expected": "STOP",
+      "actual": "STOP",
+      "passed": true,
+      "evidence": {
+        "context": {}
+      }
+    },
+    {
+      "test": "malformed_3",
+      "expected": "STOP",
+      "actual": "STOP",
+      "passed": true,
+      "evidence": {
+        "context": {
+          "frames": null
+        }
+      }
+    },
+    {
+      "test": "malformed_4",
+      "expected": "STOP",
+      "actual": "STOP",
+      "passed": true,
+      "evidence": {
+        "context": {
+          "frames": [
+            null
+          ]
+        }
+      }
+    },
+    {
+      "test": "malformed_5",
+      "expected": "STOP",
+      "actual": "STOP",
+      "passed": true,
+      "evidence": {
+        "context": {
+          "frames": [
+            {}
+          ]
+        }
+      }
+    },
+    {
+      "test": "malformed_6",
+      "expected": "STOP",
+      "actual": "STOP",
+      "passed": true,
+      "evidence": {
+        "context": {
+          "frames": [
+            {
+              "function": "f",
+              "code": "int f(){}",
+              "body_sha256": "wrong"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "test": "malformed_7",
+      "expected": "STOP",
+      "actual": "STOP",
+      "passed": true,
+      "evidence": {
+        "context": null
+      }
+    },
+    {
+      "test": "empty_frames_explicit",
+      "expected": "EMPTY_FRAMES_ARRAY",
+      "actual": "EMPTY_FRAMES_ARRAY",
+      "passed": true,
+      "evidence": {
+        "frames": []
+      }
+    },
+    {
+      "test": "proven_absence_is_not_runtime_error",
+      "expected": "EXPLICIT_NULL_SAVED_CONTEXT_UNAVAILABLE",
+      "actual": "EXPLICIT_NULL_SAVED_CONTEXT_UNAVAILABLE",
+      "passed": true,
+      "evidence": {
+        "frames": null,
+        "provenance": {
+          "verified": true,
+          "context_file_absent": true,
+          "historical_status": "blocked_context",
+          "historical_error": "context not saved"
+        }
+      }
+    },
+    {
+      "test": "ignore_comment_returns",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": [
+        {
+          "return_locator_id": "source-return:5369897c446aea8eb13d5cd62d8e0616b98e1aaa54852764d5393c1ce881c7c0",
+          "return_source_range": {
+            "start": {
+              "line_1based": 3,
+              "column_1based": 2,
+              "byte_offset": 51
+            },
+            "end_exclusive": {
+              "line_1based": 3,
+              "column_1based": 11,
+              "byte_offset": 60
+            }
+          },
+          "raw_return_expression": "2",
+          "category_candidate": "constant",
+          "nearby_source_lines": {
+            "first_line_1based": 2,
+            "text": "int f(int x){/* return 88; */ if(x)\n return 2;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:14a940ee34eeb5da8d75db1f44290ddad60fb427f5dcda324cf20ff57480cf71",
+          "return_source_range": {
+            "start": {
+              "line_1based": 4,
+              "column_1based": 2,
+              "byte_offset": 62
+            },
+            "end_exclusive": {
+              "line_1based": 4,
+              "column_1based": 14,
+              "byte_offset": 74
+            }
+          },
+          "raw_return_expression": "g(x)",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 3,
+            "text": " return 2;\n return g(x);}"
+          },
+          "contains_call_candidate": true,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ]
+    },
+    {
+      "test": "locator_no_semantic_promotion",
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "passed": true,
+      "evidence": [
+        {
+          "return_locator_id": "source-return:5369897c446aea8eb13d5cd62d8e0616b98e1aaa54852764d5393c1ce881c7c0",
+          "return_source_range": {
+            "start": {
+              "line_1based": 3,
+              "column_1based": 2,
+              "byte_offset": 51
+            },
+            "end_exclusive": {
+              "line_1based": 3,
+              "column_1based": 11,
+              "byte_offset": 60
+            }
+          },
+          "raw_return_expression": "2",
+          "category_candidate": "constant",
+          "nearby_source_lines": {
+            "first_line_1based": 2,
+            "text": "int f(int x){/* return 88; */ if(x)\n return 2;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:14a940ee34eeb5da8d75db1f44290ddad60fb427f5dcda324cf20ff57480cf71",
+          "return_source_range": {
+            "start": {
+              "line_1based": 4,
+              "column_1based": 2,
+              "byte_offset": 62
+            },
+            "end_exclusive": {
+              "line_1based": 4,
+              "column_1based": 14,
+              "byte_offset": 74
+            }
+          },
+          "raw_return_expression": "g(x)",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 3,
+            "text": " return 2;\n return g(x);}"
+          },
+          "contains_call_candidate": true,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ]
+    },
+    {
+      "test": "ignored_vs_received_candidates",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": [
+        {
+          "raw_call": "f(x)",
+          "source_range": {
+            "start": {
+              "line_1based": 1,
+              "column_1based": 18,
+              "byte_offset": 17
+            },
+            "end_exclusive": {
+              "line_1based": 1,
+              "column_1based": 22,
+              "byte_offset": 21
+            }
+          },
+          "result_disposition_candidate": "ignored",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        },
+        {
+          "raw_call": "f(x)",
+          "source_range": {
+            "start": {
+              "line_1based": 1,
+              "column_1based": 29,
+              "byte_offset": 28
+            },
+            "end_exclusive": {
+              "line_1based": 1,
+              "column_1based": 33,
+              "byte_offset": 32
+            }
+          },
+          "result_disposition_candidate": "unverified_expression_use",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        },
+        {
+          "raw_call": "f(x)",
+          "source_range": {
+            "start": {
+              "line_1based": 1,
+              "column_1based": 41,
+              "byte_offset": 40
+            },
+            "end_exclusive": {
+              "line_1based": 1,
+              "column_1based": 45,
+              "byte_offset": 44
+            }
+          },
+          "result_disposition_candidate": "unverified_expression_use",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        }
+      ]
+    },
+    {
+      "test": "utf8_byte_range",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": [
+        {
+          "return_locator_id": "source-return:8dbf12ab1a2dbae46f41c2df562289d6b7ee44552dbe8da0dc3da866090df706",
+          "return_source_range": {
+            "start": {
+              "line_1based": 1,
+              "column_1based": 17,
+              "byte_offset": 18
+            },
+            "end_exclusive": {
+              "line_1based": 1,
+              "column_1based": 26,
+              "byte_offset": 27
+            }
+          },
+          "raw_return_expression": "2",
+          "category_candidate": "constant",
+          "nearby_source_lines": {
+            "first_line_1based": 1,
+            "text": "/* 中 */ int f(){return 2;}"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ]
+    },
+    {
+      "test": "literal_ignored_no_versions",
+      "expected": "PASS",
+      "actual": "PASS",
+      "passed": true,
+      "evidence": [
+        {
+          "raw_call": "f(x)",
+          "source_range": {
+            "start": {
+              "line_1based": 1,
+              "column_1based": 18,
+              "byte_offset": 17
+            },
+            "end_exclusive": {
+              "line_1based": 1,
+              "column_1based": 22,
+              "byte_offset": 21
+            }
+          },
+          "result_disposition_candidate": "ignored",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        },
+        {
+          "raw_call": "f(x)",
+          "source_range": {
+            "start": {
+              "line_1based": 1,
+              "column_1based": 29,
+              "byte_offset": 28
+            },
+            "end_exclusive": {
+              "line_1based": 1,
+              "column_1based": 33,
+              "byte_offset": 32
+            }
+          },
+          "result_disposition_candidate": "unverified_expression_use",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        },
+        {
+          "raw_call": "f(x)",
+          "source_range": {
+            "start": {
+              "line_1based": 1,
+              "column_1based": 41,
+              "byte_offset": 40
+            },
+            "end_exclusive": {
+              "line_1based": 1,
+              "column_1based": 45,
+              "byte_offset": 44
+            }
+          },
+          "result_disposition_candidate": "unverified_expression_use",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        }
+      ]
+    }
+  ],
+  "status_counts": {
+    "PASS": 4,
+    "REJECT": 0,
+    "UNKNOWN": 1,
+    "N/A": 0
+  },
+  "external_operations": []
+}

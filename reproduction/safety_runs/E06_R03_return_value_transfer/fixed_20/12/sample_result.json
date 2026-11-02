@@ -1,0 +1,403 @@
+{
+  "sample_id": "NPD/codeql/libav:row=51:index=84",
+  "dataset_id": "codeql_libav",
+  "position": 51,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json",
+  "input_sha256": "3961f9297cbed26747521f3f4337bd84b84e916d20ac0da23342a46bbb7129c4",
+  "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+  "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "frames": [
+    {
+      "frame": 0,
+      "function": "mv_read_header",
+      "body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/0",
+      "report_file": "frame_0_r03.json",
+      "status": "UNKNOWN",
+      "diagnostic_count": 148,
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:aee05801905e2b77f50d10581829f18e871ddcfdf959eeb85d52babf32f6e4d6",
+          "return_source_range": {
+            "start": {
+              "line_1based": 20,
+              "column_1based": 13,
+              "byte_offset": 552
+            },
+            "end_exclusive": {
+              "line_1based": 20,
+              "column_1based": 36,
+              "byte_offset": 575
+            }
+          },
+          "raw_return_expression": "AVERROR(ENOMEM)",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 19,
+            "text": "        if (!ast)\n            return AVERROR(ENOMEM);"
+          },
+          "contains_call_candidate": true,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:b1ddc1b85ba81d458eec1d5ca1286a49dd6fd50d2d0c5cffdf511ab80ac7979d",
+          "return_source_range": {
+            "start": {
+              "line_1based": 24,
+              "column_1based": 13,
+              "byte_offset": 655
+            },
+            "end_exclusive": {
+              "line_1based": 24,
+              "column_1based": 36,
+              "byte_offset": 678
+            }
+          },
+          "raw_return_expression": "AVERROR(ENOMEM)",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 23,
+            "text": "        if (!vst)\n            return AVERROR(ENOMEM);"
+          },
+          "contains_call_candidate": true,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:a0c500b263518666069fff41a44cf715d278c29a6e0549333d99d38dadbb04cf",
+          "return_source_range": {
+            "start": {
+              "line_1based": 52,
+              "column_1based": 13,
+              "byte_offset": 1752
+            },
+            "end_exclusive": {
+              "line_1based": 52,
+              "column_1based": 40,
+              "byte_offset": 1779
+            }
+          },
+          "raw_return_expression": "AVERROR_INVALIDDATA",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 51,
+            "text": "        if (set_channels(avctx, ast, avio_rb32(pb)) < 0)\n            return AVERROR_INVALIDDATA;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:dcc5addf84ba179049916617568fbed78a4698a1bc01c7c33015c46d899e0d34",
+          "return_source_range": {
+            "start": {
+              "line_1based": 83,
+              "column_1based": 13,
+              "byte_offset": 2896
+            },
+            "end_exclusive": {
+              "line_1based": 83,
+              "column_1based": 41,
+              "byte_offset": 2924
+            }
+          },
+          "raw_return_expression": "AVERROR_PATCHWELCOME",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 82,
+            "text": "            avpriv_request_sample(avctx, \"Multiple audio streams support\");\n            return AVERROR_PATCHWELCOME;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:7fd7430b6aa97ccde210848a61a0d59c02013c554e8ed4a20159f60781cfbe5f",
+          "return_source_range": {
+            "start": {
+              "line_1based": 87,
+              "column_1based": 17,
+              "byte_offset": 3057
+            },
+            "end_exclusive": {
+              "line_1based": 87,
+              "column_1based": 40,
+              "byte_offset": 3080
+            }
+          },
+          "raw_return_expression": "AVERROR(ENOMEM)",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 86,
+            "text": "            if (!ast)\n                return AVERROR(ENOMEM);"
+          },
+          "contains_call_candidate": true,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:1579cab5112b949e1b852de237fe1d4a4128cc6ac8d57a2390719e8050588660",
+          "return_source_range": {
+            "start": {
+              "line_1based": 103,
+              "column_1based": 17,
+              "byte_offset": 3929
+            },
+            "end_exclusive": {
+              "line_1based": 103,
+              "column_1based": 44,
+              "byte_offset": 3956
+            }
+          },
+          "raw_return_expression": "AVERROR_INVALIDDATA",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 102,
+            "text": "                av_log(avctx, AV_LOG_ERROR, \"No valid channel count found.\\n\");\n                return AVERROR_INVALIDDATA;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:5490fe62cd64e0f468a1f556b2a8dac1d707064d109ab0a613b310787565d637",
+          "return_source_range": {
+            "start": {
+              "line_1based": 109,
+              "column_1based": 13,
+              "byte_offset": 4109
+            },
+            "end_exclusive": {
+              "line_1based": 109,
+              "column_1based": 41,
+              "byte_offset": 4137
+            }
+          },
+          "raw_return_expression": "AVERROR_PATCHWELCOME",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 108,
+            "text": "            avpriv_request_sample(avctx, \"Multiple video streams support\");\n            return AVERROR_PATCHWELCOME;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:4c8995b8c3795058ccd4fb4f955dc939f93faa5d7dcbf0c77fd4515bc1b2a41f",
+          "return_source_range": {
+            "start": {
+              "line_1based": 113,
+              "column_1based": 17,
+              "byte_offset": 4270
+            },
+            "end_exclusive": {
+              "line_1based": 113,
+              "column_1based": 40,
+              "byte_offset": 4293
+            }
+          },
+          "raw_return_expression": "AVERROR(ENOMEM)",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 112,
+            "text": "            if (!vst)\n                return AVERROR(ENOMEM);"
+          },
+          "contains_call_candidate": true,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:797fcc37c721dea7db429f9ead5ffbab38b48c92d1e1f8d9e11644829e46ec52",
+          "return_source_range": {
+            "start": {
+              "line_1based": 125,
+              "column_1based": 9,
+              "byte_offset": 4633
+            },
+            "end_exclusive": {
+              "line_1based": 125,
+              "column_1based": 37,
+              "byte_offset": 4661
+            }
+          },
+          "raw_return_expression": "AVERROR_PATCHWELCOME",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 124,
+            "text": "        avpriv_request_sample(avctx, \"Version %i\", version);\n        return AVERROR_PATCHWELCOME;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:2307a9b53bc595d6ffefc773a48136a48fc36a5fa27683f09337633fa9fcb2d9",
+          "return_source_range": {
+            "start": {
+              "line_1based": 128,
+              "column_1based": 5,
+              "byte_offset": 4673
+            },
+            "end_exclusive": {
+              "line_1based": 128,
+              "column_1based": 14,
+              "byte_offset": 4682
+            }
+          },
+          "raw_return_expression": "0",
+          "category_candidate": "constant",
+          "nearby_source_lines": {
+            "first_line_1based": 127,
+            "text": "\n    return 0;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_return_records": 0,
+      "verified_caller_result_versions": 0
+    },
+    {
+      "frame": 1,
+      "function": "read_index",
+      "body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/1",
+      "report_file": "frame_1_r03.json",
+      "status": "UNKNOWN",
+      "diagnostic_count": 15,
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "return_source_candidates": [],
+      "verified_return_records": 0,
+      "verified_caller_result_versions": 0
+    }
+  ],
+  "edges": [
+    {
+      "caller_frame": 0,
+      "callee_frame": 1,
+      "caller": "mv_read_header",
+      "callee": "read_index",
+      "caller_body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+      "callee_body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+      "status": "UNKNOWN",
+      "callsite_candidates": [
+        {
+          "raw_call": "read_index(pb, ast)",
+          "source_range": {
+            "start": {
+              "line_1based": 119,
+              "column_1based": 13,
+              "byte_offset": 4463
+            },
+            "end_exclusive": {
+              "line_1based": 119,
+              "column_1based": 32,
+              "byte_offset": 4482
+            }
+          },
+          "result_disposition_candidate": "unverified_expression_use",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        },
+        {
+          "raw_call": "read_index(pb, vst)",
+          "source_range": {
+            "start": {
+              "line_1based": 122,
+              "column_1based": 13,
+              "byte_offset": 4530
+            },
+            "end_exclusive": {
+              "line_1based": 122,
+              "column_1based": 32,
+              "byte_offset": 4549
+            }
+          },
+          "result_disposition_candidate": "unverified_expression_use",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        }
+      ],
+      "caller_result_versions": [],
+      "return_guard_propagation": false,
+      "callee_return_terminates_caller": false,
+      "R05_path_composition_performed": false,
+      "call_effect_coverage": "UNKNOWN",
+      "return_path_completeness": "UNKNOWN"
+    }
+  ],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R02_results_reused": false,
+  "prior_solver_results_used": false,
+  "verified_call_context_count": 0,
+  "verified_return_bindings": 0,
+  "verified_caller_results": 0,
+  "alert_action": null,
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "elapsed_seconds": 0.3550149999973655
+}

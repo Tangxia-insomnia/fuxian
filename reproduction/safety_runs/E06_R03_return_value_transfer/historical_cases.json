@@ -1,0 +1,211 @@
+{
+  "labels_used": false,
+  "cases": [
+    {
+      "sample_id": "NPD/codeql/openssl:row=30:index=31",
+      "dataset_id": "codeql_openssl",
+      "position": 30,
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json",
+      "prior_diagnoses": [
+        "safety_runs/E06_design/E06_historical_cases.md"
+      ],
+      "locators": [
+        {
+          "frame": 0,
+          "lines_1based": [
+            112,
+            112
+          ],
+          "required_text": "OCSP_copy_nonce(bs, req);",
+          "risk": "ignored_result_no_receiver_version"
+        },
+        {
+          "frame": 1,
+          "lines_1based": [
+            8,
+            9
+          ],
+          "required_text": "return 2;",
+          "risk": "early_return_only_terminates_callee_path"
+        },
+        {
+          "frame": 1,
+          "lines_1based": [
+            11,
+            11
+          ],
+          "required_text": "return OCSP_BASICRESP_add_ext",
+          "risk": "nested_return_effect_unknown_no_name_model"
+        },
+        {
+          "frame": 2,
+          "lines_1based": [
+            3,
+            4
+          ],
+          "required_text": "&(x->tbsResponseData.responseExtensions)",
+          "risk": "member_address_potential_indirect_write_out_of_R03"
+        }
+      ]
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=23:index=42",
+      "dataset_id": "codeql_linux",
+      "position": 23,
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "manifest": "safety_runs/E04_nonempty_delta_validation/sample_manifest.json",
+      "source": "safety_runs/E04_nonempty_delta_validation/selected_source.c",
+      "prior_diagnoses": [
+        "safety_runs/E04_nonempty_delta_validation/E04_ND_report.md",
+        "safety_runs/E05_polarity_variable_identity/E05_report.md"
+      ],
+      "locators": [
+        {
+          "frame": 0,
+          "lines_1based": [
+            175,
+            178
+          ],
+          "required_text": "fraggap = skb->len - maxfraglen;",
+          "risk": "member_value_is_not_pointer_root"
+        },
+        {
+          "frame": 0,
+          "lines_1based": [
+            180,
+            185
+          ],
+          "required_text": "skb_prev = skb;",
+          "risk": "copy_old_skb_value_and_possible_address_side_effects"
+        },
+        {
+          "frame": 0,
+          "lines_1based": [
+            239,
+            250
+          ],
+          "required_text": "skb = sock_alloc_send_skb",
+          "risk": "subsequent_skb_rebinding_does_not_rebind_skb_prev_slot"
+        },
+        {
+          "frame": 0,
+          "lines_1based": [
+            275,
+            276
+          ],
+          "required_text": "skb_prev->csum",
+          "risk": "target_requires_old_copy_and_new_state_identity"
+        }
+      ]
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=10:index=22",
+      "dataset_id": "codeql_linux",
+      "position": 10,
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/01/bundle.json",
+      "prior_diagnoses": [
+        "safety_runs/E01_predicate_polarity_consistency/e01_report.md",
+        "safety_runs/E05_polarity_variable_identity/E05_report.md"
+      ],
+      "locators": [
+        {
+          "frame": 0,
+          "lines_1based": [
+            7,
+            8
+          ],
+          "required_text": "copied = 0",
+          "risk": "initialization_is_not_all_later_values"
+        },
+        {
+          "frame": 0,
+          "lines_1based": [
+            64,
+            64
+          ],
+          "required_text": "copied = tcp_send_rcvq",
+          "risk": "unknown_call_return_and_effect"
+        },
+        {
+          "frame": 0,
+          "lines_1based": [
+            88,
+            88
+          ],
+          "required_text": "copied = 0;",
+          "risk": "new_definition"
+        },
+        {
+          "frame": 0,
+          "lines_1based": [
+            234,
+            235
+          ],
+          "required_text": "if (!copied)",
+          "risk": "preserve_existing_E01_polarity_conflict"
+        },
+        {
+          "frame": 0,
+          "lines_1based": [
+            241,
+            241
+          ],
+          "required_text": "copied += copy;",
+          "risk": "compound_assignment_and_loop_are_unsupported"
+        }
+      ]
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=12:index=24",
+      "dataset_id": "codeql_linux",
+      "position": 12,
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "bundle": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/bundle.json",
+      "prior_diagnoses": [
+        "safety_runs/E02_base_constraint_preservation_static/historical_replay_report.md",
+        "safety_runs/E03_base_delta_explicit_transfer_fix/A04_replay_report.md",
+        "safety_runs/E05_polarity_variable_identity/E05_report.md"
+      ],
+      "locators": [
+        {
+          "frame": 0,
+          "lines_1based": [
+            7,
+            7
+          ],
+          "required_text": "saved_clone = clone = kstrdup",
+          "risk": "chained_assignment_unknown_return_is_not_supported"
+        },
+        {
+          "frame": 0,
+          "lines_1based": [
+            13,
+            13
+          ],
+          "required_text": "strsep(&clone",
+          "risk": "address_escape_and_indirect_write"
+        },
+        {
+          "frame": 0,
+          "lines_1based": [
+            34,
+            34
+          ],
+          "required_text": "kfree(saved_clone);",
+          "risk": "caller_slot_and_callee_slot_are_distinct"
+        },
+        {
+          "frame": 1,
+          "lines_1based": [
+            1,
+            15
+          ],
+          "required_text": "ZERO_OR_NULL_PTR(object)",
+          "risk": "macro_type_and_object_symbol_identity_not_proven"
+        }
+      ]
+    }
+  ]
+}

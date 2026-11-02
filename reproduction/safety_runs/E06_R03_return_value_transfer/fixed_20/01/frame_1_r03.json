@@ -1,0 +1,236 @@
+{
+  "dataset_id": "codeql_openssl",
+  "position": 30,
+  "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+  "source_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+  "build_evidence": {
+    "status": "saved-source-only",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": false
+  },
+  "status": "UNKNOWN",
+  "reasons": [
+    "missing_original_build_evidence",
+    "clang_diagnostics_no_recovery_approval"
+  ],
+  "diagnostics": [
+    {
+      "severity": 3,
+      "spelling": "unknown type name 'OCSP_BASICRESP'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+        "line_1based": 1,
+        "column_1based": 21,
+        "byte_offset": 20
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "unknown type name 'OCSP_REQUEST'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+        "line_1based": 1,
+        "column_1based": 43,
+        "byte_offset": 42
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'X509_EXTENSION'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+        "line_1based": 3,
+        "column_1based": 5,
+        "byte_offset": 67
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'req_ext'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+        "line_1based": 3,
+        "column_1based": 21,
+        "byte_offset": 83
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'OCSP_REQUEST_get_ext_by_NID'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+        "line_1based": 6,
+        "column_1based": 15,
+        "byte_offset": 160
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'NID_id_pkix_OCSP_Nonce'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+        "line_1based": 6,
+        "column_1based": 48,
+        "byte_offset": 193
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'req_ext'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+        "line_1based": 10,
+        "column_1based": 5,
+        "byte_offset": 297
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'OCSP_REQUEST_get_ext'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+        "line_1based": 10,
+        "column_1based": 15,
+        "byte_offset": 307
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'OCSP_BASICRESP_add_ext'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+        "line_1based": 11,
+        "column_1based": 12,
+        "byte_offset": 354
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'req_ext'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+        "line_1based": 11,
+        "column_1based": 41,
+        "byte_offset": 383
+      },
+      "option": "",
+      "ranges": []
+    }
+  ],
+  "caller": null,
+  "call_contexts": [],
+  "callees": [],
+  "return_transfers": [],
+  "call_attempts": [],
+  "source_return_inventory": [
+    {
+      "source_range": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+          "line_1based": 9,
+          "column_1based": 9,
+          "byte_offset": 283
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\01\\frame_1.c",
+          "line_1based": 9,
+          "column_1based": 17,
+          "byte_offset": 291
+        }
+      },
+      "raw": "return 2",
+      "status": "UNKNOWN",
+      "method": "source_inventory_not_approved_propagation"
+    }
+  ],
+  "summary_cache_used": false,
+  "SMT_generated": false,
+  "safety_decisions": false,
+  "context_isolation": {
+    "status": "N/A",
+    "context_count": 0
+  },
+  "metrics": {
+    "argument_entry": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "return_binding": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "caller_result": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "call_effect_coverage": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "return_path_completeness": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "complete_call": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "ignored_results": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "void_returns": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "type_compatibility": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    }
+  },
+  "elapsed_seconds": 0.03374170000097365
+}

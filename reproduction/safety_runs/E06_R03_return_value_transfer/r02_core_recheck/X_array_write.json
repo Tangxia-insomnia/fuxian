@@ -1,0 +1,489 @@
+{
+  "dataset_id": "synthetic-r02",
+  "position": 0,
+  "source": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+  "source_sha256": "fed25a7f6ab791de0c31817a3d2565369c813a1666ce769e9a87659826187052",
+  "build_evidence": {
+    "status": "synthetic-self-contained",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": true
+  },
+  "status": "UNKNOWN",
+  "reasons": [],
+  "diagnostics": [],
+  "functions": [
+    {
+      "function": {
+        "name": "test",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@test",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+          "line_1based": 1,
+          "column_1based": 6,
+          "byte_offset": 5
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+          "line_1based": 1,
+          "column_1based": 6,
+          "byte_offset": 5
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+            "line_1based": 1,
+            "column_1based": 1,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+            "line_1based": 1,
+            "column_1based": 41,
+            "byte_offset": 40
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:f3e8664fe17ead1864bcf76546928934e084e6445636537779e43d7dd431e266"
+      },
+      "body_sha256": "28443331df95bb7eb44da7ce1c6be0300344aabe9075521b6956c63b9be067b7",
+      "status": "UNKNOWN",
+      "reasons": [
+        "indirect_member_array_or_nonlocal_write"
+      ],
+      "slots": [
+        {
+          "slot_id": "local-slot:4bae058257249273aaf60e09b3b105a79bfd7884cd4aa55b3e3a860f9a284d1e",
+          "declaration": {
+            "name": "p",
+            "kind": "PARM_DECL",
+            "usr": "c:X_array_write.c@10@F@test@p",
+            "canonical_location": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 16,
+              "byte_offset": 15
+            },
+            "location": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 16,
+              "byte_offset": 15
+            },
+            "source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+                "line_1based": 1,
+                "column_1based": 11,
+                "byte_offset": 10
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+                "line_1based": 1,
+                "column_1based": 17,
+                "byte_offset": 16
+              }
+            },
+            "linkage": "NO_LINKAGE",
+            "declaration_id": "decl:e5cdb9a6fd89181113d7f8accbf4a958767b59164bd41982e2120c1efc60507b"
+          },
+          "type": {
+            "spelling": "int *",
+            "canonical": "int *",
+            "kind": "POINTER",
+            "size_bytes": 8,
+            "const": false,
+            "volatile": false,
+            "restrict": false,
+            "pointee": {
+              "spelling": "int",
+              "canonical": "int",
+              "kind": "INT",
+              "size_bytes": 4,
+              "const": false,
+              "volatile": false,
+              "restrict": false
+            }
+          },
+          "r01_caller_slot_id": "caller-slot:4bae058257249273aaf60e09b3b105a79bfd7884cd4aa55b3e3a860f9a284d1e",
+          "r01_callee_slot_id": "callee-slot:4bae058257249273aaf60e09b3b105a79bfd7884cd4aa55b3e3a860f9a284d1e"
+        }
+      ],
+      "versions": [
+        {
+          "dataset_id": "synthetic-r02",
+          "position": 0,
+          "function_identity": {
+            "name": "test",
+            "kind": "FUNCTION_DECL",
+            "usr": "c:@F@test",
+            "canonical_location": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 6,
+              "byte_offset": 5
+            },
+            "location": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 6,
+              "byte_offset": 5
+            },
+            "source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+                "line_1based": 1,
+                "column_1based": 1,
+                "byte_offset": 0
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+                "line_1based": 1,
+                "column_1based": 41,
+                "byte_offset": 40
+              }
+            },
+            "linkage": "EXTERNAL",
+            "declaration_id": "decl:f3e8664fe17ead1864bcf76546928934e084e6445636537779e43d7dd431e266"
+          },
+          "declaration_identity": {
+            "name": "p",
+            "kind": "PARM_DECL",
+            "usr": "c:X_array_write.c@10@F@test@p",
+            "canonical_location": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 16,
+              "byte_offset": 15
+            },
+            "location": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 16,
+              "byte_offset": 15
+            },
+            "source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+                "line_1based": 1,
+                "column_1based": 11,
+                "byte_offset": 10
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+                "line_1based": 1,
+                "column_1based": 17,
+                "byte_offset": 16
+              }
+            },
+            "linkage": "NO_LINKAGE",
+            "declaration_id": "decl:e5cdb9a6fd89181113d7f8accbf4a958767b59164bd41982e2120c1efc60507b"
+          },
+          "slot_id": "local-slot:4bae058257249273aaf60e09b3b105a79bfd7884cd4aa55b3e3a860f9a284d1e",
+          "value_version_id": "value-version:e571206dec6221e86a3270e956383dc2324fe4b8f9d688bb29241a43d8b895f5",
+          "version_number": 0,
+          "display_name": "p@0",
+          "previous_version_id": null,
+          "definition_event_id": "definition-event:6bf301e7758fca7476df7cc6b765728dc6037e9646512b245b2839039df5e986",
+          "definition_range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 11,
+              "byte_offset": 10
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 17,
+              "byte_offset": 16
+            }
+          },
+          "raw_assignment": "int *p",
+          "type": {
+            "spelling": "int *",
+            "canonical": "int *",
+            "kind": "POINTER",
+            "size_bytes": 8,
+            "const": false,
+            "volatile": false,
+            "restrict": false,
+            "pointee": {
+              "spelling": "int",
+              "canonical": "int",
+              "kind": "INT",
+              "size_bytes": 4,
+              "const": false,
+              "volatile": false,
+              "restrict": false
+            }
+          },
+          "assignment_kind": "parameter_entry",
+          "value": {
+            "kind": "unconstrained_entry_value"
+          },
+          "source_slot_id": null,
+          "source_value_version_id": null,
+          "path_id": "path-entry:749a4f64fefcb3e674acef473613d6bb13736f6e13a5b9a0886de40e34c07794",
+          "status": "PASS",
+          "reasons": [],
+          "reaching_definition_evidence": {
+            "method": "ordered_supported_statements_on_one_path",
+            "guard_chain": [],
+            "unknown_effects_crossed": false
+          },
+          "source_sha256": "fed25a7f6ab791de0c31817a3d2565369c813a1666ce769e9a87659826187052",
+          "body_sha256": "28443331df95bb7eb44da7ce1c6be0300344aabe9075521b6956c63b9be067b7",
+          "memory_object_identity_verified": false,
+          "call_effects_verified": false
+        }
+      ],
+      "reads": [],
+      "events": [
+        {
+          "event_id": "definition-event:6bf301e7758fca7476df7cc6b765728dc6037e9646512b245b2839039df5e986",
+          "kind": "parameter_entry",
+          "path_id": "path-entry:749a4f64fefcb3e674acef473613d6bb13736f6e13a5b9a0886de40e34c07794",
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 11,
+              "byte_offset": 10
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 17,
+              "byte_offset": 16
+            }
+          },
+          "raw_expression": "int *p"
+        },
+        {
+          "event_id": "definition-event:bb1ef0a3156b852fe73569abd3d2e3af15af5707c5cdae0a753b9cd27d9f1d11",
+          "kind": "unknown_effect_barrier",
+          "path_id": "path-entry:749a4f64fefcb3e674acef473613d6bb13736f6e13a5b9a0886de40e34c07794",
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 21,
+              "byte_offset": 20
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 29,
+              "byte_offset": 28
+            }
+          },
+          "raw_expression": "p[0] = 1",
+          "reason": "indirect_member_array_or_nonlocal_write",
+          "before": {
+            "path_id": "path-entry:749a4f64fefcb3e674acef473613d6bb13736f6e13a5b9a0886de40e34c07794",
+            "current": {
+              "local-slot:4bae058257249273aaf60e09b3b105a79bfd7884cd4aa55b3e3a860f9a284d1e": "value-version:e571206dec6221e86a3270e956383dc2324fe4b8f9d688bb29241a43d8b895f5"
+            },
+            "guards": [],
+            "termination": null,
+            "invalidated_by": []
+          },
+          "after": {
+            "path_id": "path-entry:749a4f64fefcb3e674acef473613d6bb13736f6e13a5b9a0886de40e34c07794",
+            "current": {
+              "local-slot:4bae058257249273aaf60e09b3b105a79bfd7884cd4aa55b3e3a860f9a284d1e": null
+            },
+            "guards": [],
+            "termination": "UNKNOWN_EFFECT_STOP",
+            "invalidated_by": [
+              "definition-event:bb1ef0a3156b852fe73569abd3d2e3af15af5707c5cdae0a753b9cd27d9f1d11"
+            ]
+          }
+        }
+      ],
+      "state_snapshots": [
+        {
+          "path_id": "path-entry:749a4f64fefcb3e674acef473613d6bb13736f6e13a5b9a0886de40e34c07794",
+          "current": {
+            "local-slot:4bae058257249273aaf60e09b3b105a79bfd7884cd4aa55b3e3a860f9a284d1e": null
+          },
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:bb1ef0a3156b852fe73569abd3d2e3af15af5707c5cdae0a753b9cd27d9f1d11"
+          ]
+        },
+        {
+          "path_id": "path-entry:749a4f64fefcb3e674acef473613d6bb13736f6e13a5b9a0886de40e34c07794",
+          "current": {
+            "local-slot:4bae058257249273aaf60e09b3b105a79bfd7884cd4aa55b3e3a860f9a284d1e": null
+          },
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:bb1ef0a3156b852fe73569abd3d2e3af15af5707c5cdae0a753b9cd27d9f1d11"
+          ]
+        }
+      ],
+      "final_environments": [
+        {
+          "path_id": "path-entry:749a4f64fefcb3e674acef473613d6bb13736f6e13a5b9a0886de40e34c07794",
+          "current": {
+            "local-slot:4bae058257249273aaf60e09b3b105a79bfd7884cd4aa55b3e3a860f9a284d1e": null
+          },
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:bb1ef0a3156b852fe73569abd3d2e3af15af5707c5cdae0a753b9cd27d9f1d11"
+          ]
+        }
+      ],
+      "unprocessed_ranges": [
+        {
+          "path_id": "path-entry:749a4f64fefcb3e674acef473613d6bb13736f6e13a5b9a0886de40e34c07794",
+          "range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 31,
+              "byte_offset": 30
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+              "line_1based": 1,
+              "column_1based": 38,
+              "byte_offset": 37
+            }
+          },
+          "reason": "not_analyzed_after_unknown_effect"
+        }
+      ],
+      "paths_merged": false,
+      "return_values_propagated": false,
+      "call_effects_proven": false
+    }
+  ],
+  "expression_evidence": [
+    {
+      "expression_id": "expression:0af878e8092deed5b97ca75fa65158b1b2f1df79da51f032bfb41a7d293cdc21",
+      "kind": "DECL_REF_EXPR",
+      "text": "p",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+          "line_1based": 1,
+          "column_1based": 21,
+          "byte_offset": 20
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+          "line_1based": 1,
+          "column_1based": 22,
+          "byte_offset": 21
+        }
+      },
+      "referenced_declaration": {
+        "name": "p",
+        "kind": "PARM_DECL",
+        "usr": "c:X_array_write.c@10@F@test@p",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+          "line_1based": 1,
+          "column_1based": 16,
+          "byte_offset": 15
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+          "line_1based": 1,
+          "column_1based": 16,
+          "byte_offset": 15
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+            "line_1based": 1,
+            "column_1based": 11,
+            "byte_offset": 10
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+            "line_1based": 1,
+            "column_1based": 17,
+            "byte_offset": 16
+          }
+        },
+        "linkage": "NO_LINKAGE",
+        "declaration_id": "decl:e5cdb9a6fd89181113d7f8accbf4a958767b59164bd41982e2120c1efc60507b"
+      },
+      "source_sha256": "fed25a7f6ab791de0c31817a3d2565369c813a1666ce769e9a87659826187052",
+      "status": "PASS"
+    },
+    {
+      "expression_id": "expression:a483bef72cbd8bc9eb1466ce2ce2dd34029389939e39b380c00f0fbaafcd2021",
+      "kind": "DECL_REF_EXPR",
+      "text": "p",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+          "line_1based": 1,
+          "column_1based": 37,
+          "byte_offset": 36
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+          "line_1based": 1,
+          "column_1based": 38,
+          "byte_offset": 37
+        }
+      },
+      "referenced_declaration": {
+        "name": "p",
+        "kind": "PARM_DECL",
+        "usr": "c:X_array_write.c@10@F@test@p",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+          "line_1based": 1,
+          "column_1based": 16,
+          "byte_offset": 15
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+          "line_1based": 1,
+          "column_1based": 16,
+          "byte_offset": 15
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+            "line_1based": 1,
+            "column_1based": 11,
+            "byte_offset": 10
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_array_write.c",
+            "line_1based": 1,
+            "column_1based": 17,
+            "byte_offset": 16
+          }
+        },
+        "linkage": "NO_LINKAGE",
+        "declaration_id": "decl:e5cdb9a6fd89181113d7f8accbf4a958767b59164bd41982e2120c1efc60507b"
+      },
+      "source_sha256": "fed25a7f6ab791de0c31817a3d2565369c813a1666ce769e9a87659826187052",
+      "status": "PASS"
+    }
+  ],
+  "elapsed_seconds": 0.015197599997918587,
+  "scope": "intraprocedural-source-value-evidence-only",
+  "SMT_generated": false,
+  "cross_function_state_propagated": false
+}

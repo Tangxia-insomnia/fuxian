@@ -1,0 +1,181 @@
+{
+  "sample_id": "NPD/codeql/kernel69:row=10:index=22",
+  "dataset_id": "codeql_linux",
+  "position": 10,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/01/bundle.json",
+  "input_sha256": "3145b3e2921e474339e8590c581be13a58a6266f94a831462b73a0c4491ddbe0",
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "frames": [
+    {
+      "frame": 0,
+      "function": "tcp_sendmsg_locked",
+      "body_sha256": "0a179a0178f81a9211efd84d9baa3efce16afafb9dd8dbe54c47eb63e5064590",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/01/bundle.json#/context/frames/0",
+      "report_file": "frame_0_r03.json",
+      "status": "UNKNOWN",
+      "diagnostic_count": 216,
+      "reasons": [
+        "missing_original_build_evidence",
+        "preprocessing_not_supported",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:650bb2fdf6c3bb1fed06d4b8973efca817c9c9dfba0d3a4bec828efe2b7af4ac",
+          "return_source_range": {
+            "start": {
+              "line_1based": 281,
+              "column_1based": 2,
+              "byte_offset": 6830
+            },
+            "end_exclusive": {
+              "line_1based": 281,
+              "column_1based": 29,
+              "byte_offset": 6857
+            }
+          },
+          "raw_return_expression": "copied + copied_syn",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 280,
+            "text": "\t\tnet_zcopy_put(uarg);\n\treturn copied + copied_syn;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:9acc3f0650f88e215970333db1a0e82bcea9e152fe3b14d082ea3c0a121c703c",
+          "return_source_range": {
+            "start": {
+              "line_1based": 298,
+              "column_1based": 2,
+              "byte_offset": 7327
+            },
+            "end_exclusive": {
+              "line_1based": 298,
+              "column_1based": 13,
+              "byte_offset": 7338
+            }
+          },
+          "raw_return_expression": "err",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 297,
+            "text": "\t}\n\treturn err;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_return_records": 0,
+      "verified_caller_result_versions": 0
+    }
+  ],
+  "edges": [],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R02_results_reused": false,
+  "prior_solver_results_used": false,
+  "verified_call_context_count": 0,
+  "verified_return_bindings": 0,
+  "verified_caller_results": 0,
+  "alert_action": null,
+  "risk_locators": [
+    {
+      "frame": 0,
+      "lines_1based": [
+        7,
+        8
+      ],
+      "required_text": "copied = 0",
+      "risk": "initialization_is_not_all_later_values",
+      "text": "\tint flags, err, copied = 0;\n\tint mss_now = 0, size_goal, copied_syn = 0;",
+      "body_sha256": "0a179a0178f81a9211efd84d9baa3efce16afafb9dd8dbe54c47eb63e5064590",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        64,
+        64
+      ],
+      "required_text": "copied = tcp_send_rcvq",
+      "risk": "unknown_call_return_and_effect",
+      "text": "\t\t\tcopied = tcp_send_rcvq(sk, msg, size);",
+      "body_sha256": "0a179a0178f81a9211efd84d9baa3efce16afafb9dd8dbe54c47eb63e5064590",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        88,
+        88
+      ],
+      "required_text": "copied = 0;",
+      "risk": "new_definition",
+      "text": "\tcopied = 0;",
+      "body_sha256": "0a179a0178f81a9211efd84d9baa3efce16afafb9dd8dbe54c47eb63e5064590",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        234,
+        235
+      ],
+      "required_text": "if (!copied)",
+      "risk": "preserve_existing_E01_polarity_conflict",
+      "text": "\t\tif (!copied)\n\t\t\tTCP_SKB_CB(skb)->tcp_flags &= ~TCPHDR_PSH;",
+      "body_sha256": "0a179a0178f81a9211efd84d9baa3efce16afafb9dd8dbe54c47eb63e5064590",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        241,
+        241
+      ],
+      "required_text": "copied += copy;",
+      "risk": "compound_assignment_and_loop_are_unsupported",
+      "text": "\t\tcopied += copy;",
+      "body_sha256": "0a179a0178f81a9211efd84d9baa3efce16afafb9dd8dbe54c47eb63e5064590",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    }
+  ],
+  "prior_diagnoses_preserved": [
+    {
+      "path": "safety_runs/E01_predicate_polarity_consistency/e01_report.md",
+      "sha256": "3b29284335d1dbff788974eea85986aed94640f63d06d7323d0aadc390798435",
+      "recomputed_by_R03": false
+    },
+    {
+      "path": "safety_runs/E05_polarity_variable_identity/E05_report.md",
+      "sha256": "2a849f122fda652251e41418c32b6087613e81781b7710e48eb28c9099aded8f",
+      "recomputed_by_R03": false
+    }
+  ],
+  "elapsed_seconds": 0.16761359999873093
+}

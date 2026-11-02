@@ -1,0 +1,279 @@
+{
+  "sample_id": "NPD/codeql/kernel69:row=23:index=42",
+  "dataset_id": "codeql_linux",
+  "position": 23,
+  "input_ref": "safety_runs/E04_nonempty_delta_validation/sample_manifest.json",
+  "input_sha256": "f750feec9e2ff7f2e2a2c8e58f5117f87ea4967e7130eed20cbfef859e118866",
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "frames": [
+    {
+      "frame": 0,
+      "function": "__ip6_append_data",
+      "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+      "source_ref": "safety_runs/E04_nonempty_delta_validation/sample_manifest.json#/frames/0",
+      "report_file": "frame_0_r03.json",
+      "status": "UNKNOWN",
+      "diagnostic_count": 252,
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:b49bf5452879204328d08f00cabe087eb54fca637075e9fa0961365d918700c8",
+          "return_source_range": {
+            "start": {
+              "line_1based": 81,
+              "column_1based": 3,
+              "byte_offset": 2469
+            },
+            "end_exclusive": {
+              "line_1based": 81,
+              "column_1based": 20,
+              "byte_offset": 2486
+            }
+          },
+          "raw_return_expression": "-EMSGSIZE",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 80,
+            "text": "\t\tipv6_local_error(sk, EMSGSIZE, fl6, pmtu);\n\t\treturn -EMSGSIZE;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:08f3e35dc6be41295bcb735334ff98da28f73030c24f2c7867fba72dfde38d40",
+          "return_source_range": {
+            "start": {
+              "line_1based": 99,
+              "column_1based": 5,
+              "byte_offset": 3061
+            },
+            "end_exclusive": {
+              "line_1based": 99,
+              "column_1based": 20,
+              "byte_offset": 3076
+            }
+          },
+          "raw_return_expression": "-EINVAL",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 98,
+            "text": "\t\t\tif (skb_zcopy(skb) && msg->msg_ubuf != skb_zcopy(skb))\n\t\t\t\treturn -EINVAL;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:75088b70e5a9709b4738bd8a42eae4e3812fe431608b704027fe5cb8c4444d12",
+          "return_source_range": {
+            "start": {
+              "line_1based": 113,
+              "column_1based": 5,
+              "byte_offset": 3442
+            },
+            "end_exclusive": {
+              "line_1based": 113,
+              "column_1based": 21,
+              "byte_offset": 3458
+            }
+          },
+          "raw_return_expression": "-ENOBUFS",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 112,
+            "text": "\t\t\tif (!uarg)\n\t\t\t\treturn -ENOBUFS;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:b462c82987e58cbf8c96641eea2a561c4decb34ba65bdf8aa1dccd92e8cbf898",
+          "return_source_range": {
+            "start": {
+              "line_1based": 126,
+              "column_1based": 4,
+              "byte_offset": 3828
+            },
+            "end_exclusive": {
+              "line_1based": 126,
+              "column_1based": 18,
+              "byte_offset": 3842
+            }
+          },
+          "raw_return_expression": "-EPERM",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 125,
+            "text": "\t\tif (inet_test_bit(HDRINCL, sk))\n\t\t\treturn -EPERM;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:78b636a941f5114a7d488c99dfefc12dd24ed2e78c8392212e4da30508430be5",
+          "return_source_range": {
+            "start": {
+              "line_1based": 387,
+              "column_1based": 2,
+              "byte_offset": 10601
+            },
+            "end_exclusive": {
+              "line_1based": 387,
+              "column_1based": 11,
+              "byte_offset": 10610
+            }
+          },
+          "raw_return_expression": "0",
+          "category_candidate": "constant",
+          "nearby_source_lines": {
+            "first_line_1based": 386,
+            "text": "\t\trefcount_add(wmem_alloc_delta, &sk->sk_wmem_alloc);\n\treturn 0;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:cb1726f3204ccbec3fd27d2174de53430833747b709b88fb2947a36579e45033",
+          "return_source_range": {
+            "start": {
+              "line_1based": 398,
+              "column_1based": 2,
+              "byte_offset": 10884
+            },
+            "end_exclusive": {
+              "line_1based": 398,
+              "column_1based": 13,
+              "byte_offset": 10895
+            }
+          },
+          "raw_return_expression": "err",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 397,
+            "text": "\t\tatomic_dec(&sk->sk_tskey);\n\treturn err;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_return_records": 0,
+      "verified_caller_result_versions": 0
+    }
+  ],
+  "edges": [],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R02_results_reused": false,
+  "prior_solver_results_used": false,
+  "verified_call_context_count": 0,
+  "verified_return_bindings": 0,
+  "verified_caller_results": 0,
+  "alert_action": null,
+  "risk_locators": [
+    {
+      "frame": 0,
+      "lines_1based": [
+        175,
+        178
+      ],
+      "required_text": "fraggap = skb->len - maxfraglen;",
+      "risk": "member_value_is_not_pointer_root",
+      "text": "\t\t\tif (skb)\n\t\t\t\tfraggap = skb->len - maxfraglen;\n\t\t\telse\n\t\t\t\tfraggap = 0;",
+      "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        180,
+        185
+      ],
+      "required_text": "skb_prev = skb;",
+      "risk": "copy_old_skb_value_and_possible_address_side_effects",
+      "text": "\t\t\tif (!skb || !skb_prev)\n\t\t\t\tip6_append_data_mtu(&mtu, &maxfraglen,\n\t\t\t\t\t\t    fragheaderlen, skb, rt,\n\t\t\t\t\t\t    orig_mtu);\n\n\t\t\tskb_prev = skb;",
+      "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        239,
+        250
+      ],
+      "required_text": "skb = sock_alloc_send_skb",
+      "risk": "subsequent_skb_rebinding_does_not_rebind_skb_prev_slot",
+      "text": "\t\t\tif (transhdrlen) {\n\t\t\t\tskb = sock_alloc_send_skb(sk, alloclen,\n\t\t\t\t\t\t(flags & MSG_DONTWAIT), &err);\n\t\t\t} else {\n\t\t\t\tskb = NULL;\n\t\t\t\tif (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=\n\t\t\t\t    2 * sk->sk_sndbuf)\n\t\t\t\t\tskb = alloc_skb(alloclen,\n\t\t\t\t\t\t\tsk->sk_allocation);\n\t\t\t\tif (unlikely(!skb))\n\t\t\t\t\terr = -ENOBUFS;\n\t\t\t}",
+      "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        275,
+        276
+      ],
+      "required_text": "skb_prev->csum",
+      "risk": "target_requires_old_copy_and_new_state_identity",
+      "text": "\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,\n\t\t\t\t\t\t\t  skb->csum);",
+      "body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    }
+  ],
+  "prior_diagnoses_preserved": [
+    {
+      "path": "safety_runs/E04_nonempty_delta_validation/E04_ND_report.md",
+      "sha256": "d99a38453f6b634d8af09881b873e6cc8836d21712fa7f34b3baafa59abd65e4",
+      "recomputed_by_R03": false
+    },
+    {
+      "path": "safety_runs/E05_polarity_variable_identity/E05_report.md",
+      "sha256": "2a849f122fda652251e41418c32b6087613e81781b7710e48eb28c9099aded8f",
+      "recomputed_by_R03": false
+    }
+  ],
+  "elapsed_seconds": 0.22906929999953718
+}

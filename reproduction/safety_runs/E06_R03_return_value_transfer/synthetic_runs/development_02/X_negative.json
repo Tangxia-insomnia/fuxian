@@ -1,0 +1,1135 @@
+{
+  "dataset_id": "synthetic-r03",
+  "position": 0,
+  "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+  "source_sha256": "290783ad5e012a31a855cb5caf94a166646556e6d351a7444e7c4cd07e5b1716",
+  "build_evidence": {
+    "status": "synthetic-self-contained",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": true
+  },
+  "status": "UNKNOWN",
+  "reasons": [
+    "incomplete_callee_effect_or_return_paths",
+    "unknown_effect_stop"
+  ],
+  "diagnostics": [],
+  "caller": {
+    "function": {
+      "name": "test",
+      "kind": "FUNCTION_DECL",
+      "usr": "c:@F@test",
+      "canonical_location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+        "line_1based": 1,
+        "column_1based": 30,
+        "byte_offset": 29
+      },
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+        "line_1based": 1,
+        "column_1based": 30,
+        "byte_offset": 29
+      },
+      "source_range": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 25,
+          "byte_offset": 24
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 60,
+          "byte_offset": 59
+        }
+      },
+      "linkage": "EXTERNAL",
+      "declaration_id": "decl:a58b153b7ddb3f92714122a85a3b7fba4622c7fc2849fa3f4d300b247df90b0d"
+    },
+    "frame_role": "caller",
+    "body_sha256": "5e99ca0d8dfa47aa617b41dfe23e9820638d14fddd59603490d371426214c314",
+    "status": "UNKNOWN",
+    "reasons": [
+      "incomplete_callee_effect_or_return_paths",
+      "unknown_effect_stop"
+    ],
+    "slots": [
+      {
+        "slot_id": "local-slot:9e06cff330722765e0cb490f6d456507f71ac4fec8863b90d15f9e13c10dc591",
+        "declaration": {
+          "name": "b",
+          "kind": "VAR_DECL",
+          "usr": "c:X_negative.c@40@F@test@b",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 45,
+            "byte_offset": 44
+          },
+          "location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 45,
+            "byte_offset": 44
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 41,
+              "byte_offset": 40
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 50,
+              "byte_offset": 49
+            }
+          },
+          "linkage": "NO_LINKAGE",
+          "declaration_id": "decl:33e4cafe6311590f908c16527d3e4f42dcf3ea5c59c67bf07db2a2842d7ed72f"
+        },
+        "type": {
+          "spelling": "int",
+          "canonical": "int",
+          "kind": "INT",
+          "size_bytes": 4,
+          "const": false,
+          "volatile": false,
+          "restrict": false
+        },
+        "r01_caller_slot_id": "caller-slot:9e06cff330722765e0cb490f6d456507f71ac4fec8863b90d15f9e13c10dc591",
+        "r01_callee_slot_id": null
+      }
+    ],
+    "versions": [],
+    "reads": [],
+    "events": [
+      {
+        "event_id": "definition-event:79437d5dd39ad383a6eab3260ab06262d7d6e983b6e94958b2557ca38d7c1dd3",
+        "kind": "unknown_effect_barrier",
+        "path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 47,
+            "byte_offset": 46
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 50,
+            "byte_offset": 49
+          }
+        },
+        "raw_expression": "f()",
+        "reason": "incomplete_callee_effect_or_return_paths",
+        "before": {
+          "path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+          "current": {},
+          "guards": [],
+          "termination": null,
+          "invalidated_by": []
+        },
+        "after": {
+          "path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+          "current": {},
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:79437d5dd39ad383a6eab3260ab06262d7d6e983b6e94958b2557ca38d7c1dd3"
+          ]
+        }
+      }
+    ],
+    "state_snapshots": [
+      {
+        "path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+        "current": {},
+        "guards": [],
+        "termination": "UNKNOWN_EFFECT_STOP",
+        "invalidated_by": [
+          "definition-event:79437d5dd39ad383a6eab3260ab06262d7d6e983b6e94958b2557ca38d7c1dd3"
+        ]
+      },
+      {
+        "path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+        "current": {},
+        "guards": [],
+        "termination": "UNKNOWN_EFFECT_STOP",
+        "invalidated_by": [
+          "definition-event:79437d5dd39ad383a6eab3260ab06262d7d6e983b6e94958b2557ca38d7c1dd3"
+        ]
+      }
+    ],
+    "final_environments": [
+      {
+        "path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+        "current": {},
+        "guards": [],
+        "termination": "UNKNOWN_EFFECT_STOP",
+        "invalidated_by": [
+          "definition-event:79437d5dd39ad383a6eab3260ab06262d7d6e983b6e94958b2557ca38d7c1dd3"
+        ]
+      }
+    ],
+    "unprocessed_ranges": [
+      {
+        "path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+        "range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 51,
+            "byte_offset": 50
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 58,
+            "byte_offset": 57
+          }
+        },
+        "reason": "not_analyzed_after_unknown_effect"
+      }
+    ],
+    "return_values": [],
+    "path_returns": [
+      {
+        "path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+        "guard": [],
+        "return_event_id": null,
+        "return_value_id": null,
+        "normal_return": false,
+        "can_continue_caller": false,
+        "status": "UNKNOWN",
+        "reasons": [
+          "unknown_effect_stop"
+        ],
+        "call_context_id": null
+      }
+    ],
+    "return_path_completeness": "UNKNOWN",
+    "call_effect_coverage": "UNKNOWN",
+    "paths_merged": false,
+    "SMT_generated": false
+  },
+  "call_contexts": [
+    {
+      "call_context_id": "call-context:c740a3b12af167dd93c47635f53989ec76d3a6833ac980e96d9a09fb9ea8feec",
+      "dataset_id": "synthetic-r03",
+      "position": 0,
+      "caller_function_identity": {
+        "name": "test",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@test",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 30,
+          "byte_offset": 29
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 30,
+          "byte_offset": 29
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 25,
+            "byte_offset": 24
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 60,
+            "byte_offset": 59
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:a58b153b7ddb3f92714122a85a3b7fba4622c7fc2849fa3f4d300b247df90b0d"
+      },
+      "callee_function_identity": {
+        "name": "f",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@f",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 5,
+          "byte_offset": 4
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 5,
+          "byte_offset": 4
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 1,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 24,
+            "byte_offset": 23
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:385897d92541bb91f362c1d1b4a35fe4431407eaf4283bd60d44bba0a02a4ab1"
+      },
+      "caller_body_sha256": "5e99ca0d8dfa47aa617b41dfe23e9820638d14fddd59603490d371426214c314",
+      "callee_body_sha256": "6ac77f883a01a914a5450b8a49f88cba702d1d3601aa0e415089f9f6ed7b2a56",
+      "source_sha256": "290783ad5e012a31a855cb5caf94a166646556e6d351a7444e7c4cd07e5b1716",
+      "callsite_id": "call:664b1f4cbc8ce4eebf41ef4b9ff516b875c8ce8d3ea03f961dc6350388bcdc88",
+      "callsite_range": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 47,
+          "byte_offset": 46
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 50,
+          "byte_offset": 49
+        }
+      },
+      "caller_path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+      "caller_pre_environment": {
+        "path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+        "current": {},
+        "guards": [],
+        "termination": null,
+        "invalidated_by": []
+      },
+      "parameter_mapping_records": [],
+      "summary_cache_used": false,
+      "callee_state_reused": false,
+      "callee_entry_bindings": [],
+      "status": "UNKNOWN",
+      "result_disposition": "received"
+    }
+  ],
+  "callees": [
+    {
+      "function": {
+        "name": "f",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@f",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 5,
+          "byte_offset": 4
+        },
+        "location": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 5,
+          "byte_offset": 4
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 1,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 24,
+            "byte_offset": 23
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:4cfc23d4c3c15fb0044b22092700a328355eafdf0d86c71349f0c1a0374fcf6f"
+      },
+      "frame_role": "callee",
+      "body_sha256": "6ac77f883a01a914a5450b8a49f88cba702d1d3601aa0e415089f9f6ed7b2a56",
+      "status": "UNKNOWN",
+      "reasons": [
+        "unsupported_return_expression_UNARY_OPERATOR"
+      ],
+      "slots": [],
+      "versions": [],
+      "reads": [],
+      "events": [
+        {
+          "event_id": "definition-event:939dc86a5ca917fbdb571dbaaa83f5b0e74732df0ece005fc4471791e39912a2",
+          "kind": "callee_return",
+          "path_id": "r03-path-entry:e0d8c3dca6ffe22eddebc0dc52816fb50f85b9557a2e3bbd8ed41db6a9605a6e",
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 13,
+              "byte_offset": 12
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 22,
+              "byte_offset": 21
+            }
+          },
+          "raw_expression": "return -1"
+        },
+        {
+          "event_id": "definition-event:8c1e058eeac538066e11d590a642c10384a91c9e1e27384c17e87e2ea7001224",
+          "kind": "unknown_effect_barrier",
+          "path_id": "r03-path-entry:e0d8c3dca6ffe22eddebc0dc52816fb50f85b9557a2e3bbd8ed41db6a9605a6e",
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 13,
+              "byte_offset": 12
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 22,
+              "byte_offset": 21
+            }
+          },
+          "raw_expression": "return -1",
+          "reason": "unsupported_return_expression_UNARY_OPERATOR",
+          "before": {
+            "path_id": "r03-path-entry:e0d8c3dca6ffe22eddebc0dc52816fb50f85b9557a2e3bbd8ed41db6a9605a6e",
+            "current": {},
+            "guards": [],
+            "termination": null,
+            "invalidated_by": []
+          },
+          "after": {
+            "path_id": "r03-path-entry:e0d8c3dca6ffe22eddebc0dc52816fb50f85b9557a2e3bbd8ed41db6a9605a6e",
+            "current": {},
+            "guards": [],
+            "termination": "UNKNOWN_EFFECT_STOP",
+            "invalidated_by": [
+              "definition-event:8c1e058eeac538066e11d590a642c10384a91c9e1e27384c17e87e2ea7001224"
+            ]
+          }
+        }
+      ],
+      "state_snapshots": [
+        {
+          "path_id": "r03-path-entry:e0d8c3dca6ffe22eddebc0dc52816fb50f85b9557a2e3bbd8ed41db6a9605a6e",
+          "current": {},
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:8c1e058eeac538066e11d590a642c10384a91c9e1e27384c17e87e2ea7001224"
+          ]
+        }
+      ],
+      "final_environments": [
+        {
+          "path_id": "r03-path-entry:e0d8c3dca6ffe22eddebc0dc52816fb50f85b9557a2e3bbd8ed41db6a9605a6e",
+          "current": {},
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:8c1e058eeac538066e11d590a642c10384a91c9e1e27384c17e87e2ea7001224"
+          ]
+        }
+      ],
+      "unprocessed_ranges": [],
+      "return_values": [
+        {
+          "dataset_id": "synthetic-r03",
+          "position": 0,
+          "caller_function_identity": {
+            "name": "test",
+            "kind": "FUNCTION_DECL",
+            "usr": "c:@F@test",
+            "canonical_location": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 30,
+              "byte_offset": 29
+            },
+            "location": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 30,
+              "byte_offset": 29
+            },
+            "source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+                "line_1based": 1,
+                "column_1based": 25,
+                "byte_offset": 24
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+                "line_1based": 1,
+                "column_1based": 60,
+                "byte_offset": 59
+              }
+            },
+            "linkage": "EXTERNAL",
+            "declaration_id": "decl:a58b153b7ddb3f92714122a85a3b7fba4622c7fc2849fa3f4d300b247df90b0d"
+          },
+          "callee_function_identity": {
+            "name": "f",
+            "kind": "FUNCTION_DECL",
+            "usr": "c:@F@f",
+            "canonical_location": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 5,
+              "byte_offset": 4
+            },
+            "location": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 5,
+              "byte_offset": 4
+            },
+            "source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+                "line_1based": 1,
+                "column_1based": 1,
+                "byte_offset": 0
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+                "line_1based": 1,
+                "column_1based": 24,
+                "byte_offset": 23
+              }
+            },
+            "linkage": "EXTERNAL",
+            "declaration_id": "decl:4cfc23d4c3c15fb0044b22092700a328355eafdf0d86c71349f0c1a0374fcf6f"
+          },
+          "call_context_id": "call-context:c740a3b12af167dd93c47635f53989ec76d3a6833ac980e96d9a09fb9ea8feec",
+          "callsite_id": "call:664b1f4cbc8ce4eebf41ef4b9ff516b875c8ce8d3ea03f961dc6350388bcdc88",
+          "callee_path_id": "r03-path-entry:e0d8c3dca6ffe22eddebc0dc52816fb50f85b9557a2e3bbd8ed41db6a9605a6e",
+          "frame_role": "callee",
+          "return_event_id": "definition-event:939dc86a5ca917fbdb571dbaaa83f5b0e74732df0ece005fc4471791e39912a2",
+          "return_source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 13,
+              "byte_offset": 12
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 22,
+              "byte_offset": 21
+            }
+          },
+          "raw_return_expression": "-1",
+          "return_type": {
+            "spelling": "int",
+            "canonical": "int",
+            "kind": "INT",
+            "size_bytes": 4,
+            "const": false,
+            "volatile": false,
+            "restrict": false,
+            "bit_width": 32,
+            "signedness": "signed"
+          },
+          "value_category": "unknown_expression",
+          "source_slot_id": null,
+          "source_value_version_id": null,
+          "callee_current_versions": {},
+          "return_guard": [],
+          "source_sha256": "290783ad5e012a31a855cb5caf94a166646556e6d351a7444e7c4cd07e5b1716",
+          "body_sha256": "6ac77f883a01a914a5450b8a49f88cba702d1d3601aa0e415089f9f6ed7b2a56",
+          "status": "UNKNOWN",
+          "reasons": [
+            "unsupported_return_expression_UNARY_OPERATOR"
+          ],
+          "type_compatibility": {
+            "actual_type": {
+              "spelling": "int",
+              "canonical": "int",
+              "kind": "INT",
+              "size_bytes": 4,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "bit_width": 32,
+              "signedness": "signed"
+            },
+            "formal_type": {
+              "spelling": "int",
+              "canonical": "int",
+              "kind": "INT",
+              "size_bytes": 4,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "bit_width": 32,
+              "signedness": "signed"
+            },
+            "ast_argument_type": {
+              "spelling": "int",
+              "canonical": "int",
+              "kind": "INT",
+              "size_bytes": 4,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "bit_width": 32,
+              "signedness": "signed"
+            },
+            "kind": "identity",
+            "status": "PASS",
+            "reasons": []
+          },
+          "return_value_id": "return-value:9ecd42d1cf3e1ee02b91ca7285ff1c83e6427dc82eee01531c003f5a8d43a71b"
+        }
+      ],
+      "path_returns": [
+        {
+          "path_id": "r03-path-entry:e0d8c3dca6ffe22eddebc0dc52816fb50f85b9557a2e3bbd8ed41db6a9605a6e",
+          "guard": [],
+          "return_event_id": "definition-event:939dc86a5ca917fbdb571dbaaa83f5b0e74732df0ece005fc4471791e39912a2",
+          "return_value_id": "return-value:9ecd42d1cf3e1ee02b91ca7285ff1c83e6427dc82eee01531c003f5a8d43a71b",
+          "normal_return": false,
+          "can_continue_caller": false,
+          "status": "UNKNOWN",
+          "reasons": [
+            "unsupported_return_expression_UNARY_OPERATOR"
+          ],
+          "call_context_id": "call-context:c740a3b12af167dd93c47635f53989ec76d3a6833ac980e96d9a09fb9ea8feec"
+        }
+      ],
+      "return_path_completeness": "UNKNOWN",
+      "call_effect_coverage": "UNKNOWN",
+      "paths_merged": false,
+      "SMT_generated": false,
+      "call_context_id": "call-context:c740a3b12af167dd93c47635f53989ec76d3a6833ac980e96d9a09fb9ea8feec"
+    }
+  ],
+  "return_transfers": [
+    {
+      "dataset_id": "synthetic-r03",
+      "position": 0,
+      "call_context_id": "call-context:c740a3b12af167dd93c47635f53989ec76d3a6833ac980e96d9a09fb9ea8feec",
+      "callsite_id": "call:664b1f4cbc8ce4eebf41ef4b9ff516b875c8ce8d3ea03f961dc6350388bcdc88",
+      "caller_pre_version": [],
+      "argument_transfer_id": [],
+      "callee_entry_version": [],
+      "callee_return_value_id": "return-value:9ecd42d1cf3e1ee02b91ca7285ff1c83e6427dc82eee01531c003f5a8d43a71b",
+      "callee_path_id": "r03-path-entry:e0d8c3dca6ffe22eddebc0dc52816fb50f85b9557a2e3bbd8ed41db6a9605a6e",
+      "return_event_id": "definition-event:939dc86a5ca917fbdb571dbaaa83f5b0e74732df0ece005fc4471791e39912a2",
+      "caller_result_slot_id": null,
+      "caller_result_version_id": null,
+      "caller_post_path_id": null,
+      "return_value_received": true,
+      "return_value_ignored": false,
+      "void_normal_return": false,
+      "result_disposition": "received",
+      "type_compatibility": {
+        "actual_type": {
+          "spelling": "int",
+          "canonical": "int",
+          "kind": "INT",
+          "size_bytes": 4,
+          "const": false,
+          "volatile": false,
+          "restrict": false,
+          "bit_width": 32,
+          "signedness": "signed"
+        },
+        "formal_type": {
+          "spelling": "int",
+          "canonical": "int",
+          "kind": "INT",
+          "size_bytes": 4,
+          "const": false,
+          "volatile": false,
+          "restrict": false,
+          "bit_width": 32,
+          "signedness": "signed"
+        },
+        "ast_argument_type": {
+          "spelling": "int",
+          "canonical": "int",
+          "kind": "INT",
+          "size_bytes": 4,
+          "const": false,
+          "volatile": false,
+          "restrict": false,
+          "bit_width": 32,
+          "signedness": "signed"
+        },
+        "kind": "identity",
+        "status": "PASS",
+        "reasons": []
+      },
+      "call_effect_coverage": "UNKNOWN",
+      "return_path_completeness": "UNKNOWN",
+      "argument_entry_status": "N/A",
+      "return_binding_status": "UNKNOWN",
+      "caller_result_status": "UNKNOWN",
+      "complete_call_status": "UNKNOWN",
+      "status": "UNKNOWN",
+      "reasons": [
+        "incomplete_callee_effect_or_return_paths"
+      ],
+      "source_sha256": "290783ad5e012a31a855cb5caf94a166646556e6d351a7444e7c4cd07e5b1716",
+      "caller_body_sha256": "5e99ca0d8dfa47aa617b41dfe23e9820638d14fddd59603490d371426214c314",
+      "callee_body_sha256": "6ac77f883a01a914a5450b8a49f88cba702d1d3601aa0e415089f9f6ed7b2a56",
+      "callee_return_terminates_caller": false,
+      "caller_pre_environment": {
+        "path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+        "current": {},
+        "guards": [],
+        "termination": null,
+        "invalidated_by": []
+      },
+      "caller_post_environment": null,
+      "evidence_chain": {
+        "caller_pre": [],
+        "argument_transfer": [],
+        "callee_entry": [],
+        "callee_return": {
+          "dataset_id": "synthetic-r03",
+          "position": 0,
+          "caller_function_identity": {
+            "name": "test",
+            "kind": "FUNCTION_DECL",
+            "usr": "c:@F@test",
+            "canonical_location": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 30,
+              "byte_offset": 29
+            },
+            "location": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 30,
+              "byte_offset": 29
+            },
+            "source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+                "line_1based": 1,
+                "column_1based": 25,
+                "byte_offset": 24
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+                "line_1based": 1,
+                "column_1based": 60,
+                "byte_offset": 59
+              }
+            },
+            "linkage": "EXTERNAL",
+            "declaration_id": "decl:a58b153b7ddb3f92714122a85a3b7fba4622c7fc2849fa3f4d300b247df90b0d"
+          },
+          "callee_function_identity": {
+            "name": "f",
+            "kind": "FUNCTION_DECL",
+            "usr": "c:@F@f",
+            "canonical_location": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 5,
+              "byte_offset": 4
+            },
+            "location": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 5,
+              "byte_offset": 4
+            },
+            "source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+                "line_1based": 1,
+                "column_1based": 1,
+                "byte_offset": 0
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+                "line_1based": 1,
+                "column_1based": 24,
+                "byte_offset": 23
+              }
+            },
+            "linkage": "EXTERNAL",
+            "declaration_id": "decl:4cfc23d4c3c15fb0044b22092700a328355eafdf0d86c71349f0c1a0374fcf6f"
+          },
+          "call_context_id": "call-context:c740a3b12af167dd93c47635f53989ec76d3a6833ac980e96d9a09fb9ea8feec",
+          "callsite_id": "call:664b1f4cbc8ce4eebf41ef4b9ff516b875c8ce8d3ea03f961dc6350388bcdc88",
+          "callee_path_id": "r03-path-entry:e0d8c3dca6ffe22eddebc0dc52816fb50f85b9557a2e3bbd8ed41db6a9605a6e",
+          "frame_role": "callee",
+          "return_event_id": "definition-event:939dc86a5ca917fbdb571dbaaa83f5b0e74732df0ece005fc4471791e39912a2",
+          "return_source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 13,
+              "byte_offset": 12
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 22,
+              "byte_offset": 21
+            }
+          },
+          "raw_return_expression": "-1",
+          "return_type": {
+            "spelling": "int",
+            "canonical": "int",
+            "kind": "INT",
+            "size_bytes": 4,
+            "const": false,
+            "volatile": false,
+            "restrict": false,
+            "bit_width": 32,
+            "signedness": "signed"
+          },
+          "value_category": "unknown_expression",
+          "source_slot_id": null,
+          "source_value_version_id": null,
+          "callee_current_versions": {},
+          "return_guard": [],
+          "source_sha256": "290783ad5e012a31a855cb5caf94a166646556e6d351a7444e7c4cd07e5b1716",
+          "body_sha256": "6ac77f883a01a914a5450b8a49f88cba702d1d3601aa0e415089f9f6ed7b2a56",
+          "status": "UNKNOWN",
+          "reasons": [
+            "unsupported_return_expression_UNARY_OPERATOR"
+          ],
+          "type_compatibility": {
+            "actual_type": {
+              "spelling": "int",
+              "canonical": "int",
+              "kind": "INT",
+              "size_bytes": 4,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "bit_width": 32,
+              "signedness": "signed"
+            },
+            "formal_type": {
+              "spelling": "int",
+              "canonical": "int",
+              "kind": "INT",
+              "size_bytes": 4,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "bit_width": 32,
+              "signedness": "signed"
+            },
+            "ast_argument_type": {
+              "spelling": "int",
+              "canonical": "int",
+              "kind": "INT",
+              "size_bytes": 4,
+              "const": false,
+              "volatile": false,
+              "restrict": false,
+              "bit_width": 32,
+              "signedness": "signed"
+            },
+            "kind": "identity",
+            "status": "PASS",
+            "reasons": []
+          },
+          "return_value_id": "return-value:9ecd42d1cf3e1ee02b91ca7285ff1c83e6427dc82eee01531c003f5a8d43a71b"
+        },
+        "caller_post": null
+      },
+      "guard_transferred_to_caller": false,
+      "path_satisfiability_proven": false,
+      "return_transfer_id": "return-transfer:9431b318696c9e737c4d6d02bbb39c8dff831332f1fe69b3142f050a136e08f2"
+    }
+  ],
+  "call_attempts": [
+    {
+      "callsite_range": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 47,
+          "byte_offset": 46
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 50,
+          "byte_offset": 49
+        }
+      },
+      "call_text": "f()",
+      "caller_path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+      "before": {
+        "path_id": "r03-path-entry:1ea03bafd5071dd6589377460bb042d9b0203703cbe182bea724eb52817e2c71",
+        "current": {},
+        "guards": [],
+        "termination": null,
+        "invalidated_by": []
+      },
+      "result_disposition": "received",
+      "status": "UNKNOWN",
+      "reasons": [
+        "incomplete_callee_effect_or_return_paths"
+      ],
+      "call_context_id": "call-context:c740a3b12af167dd93c47635f53989ec76d3a6833ac980e96d9a09fb9ea8feec"
+    }
+  ],
+  "source_return_inventory": [
+    {
+      "source_range": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 13,
+          "byte_offset": 12
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+          "line_1based": 1,
+          "column_1based": 22,
+          "byte_offset": 21
+        }
+      },
+      "raw": "return -1",
+      "status": "UNKNOWN",
+      "method": "source_inventory_not_approved_propagation"
+    }
+  ],
+  "summary_cache_used": false,
+  "SMT_generated": false,
+  "safety_decisions": false,
+  "R01_evidence": {
+    "dataset_id": "synthetic-r03",
+    "position": 0,
+    "status": "UNKNOWN",
+    "reasons": [],
+    "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+    "source_sha256": "290783ad5e012a31a855cb5caf94a166646556e6d351a7444e7c4cd07e5b1716",
+    "build_evidence": {
+      "status": "synthetic-self-contained",
+      "args": [
+        "-x",
+        "c",
+        "-std=c11",
+        "-nostdinc",
+        "-Werror=implicit-function-declaration",
+        "-ferror-limit=0"
+      ],
+      "original_project_build_verified": false,
+      "controlled_synthetic_TU": true
+    },
+    "diagnostics": [],
+    "macro_expansions": [],
+    "candidate_inventory": [],
+    "calls": [
+      {
+        "dataset_id": "synthetic-r03",
+        "position": 0,
+        "callsite_id": "call:664b1f4cbc8ce4eebf41ef4b9ff516b875c8ce8d3ea03f961dc6350388bcdc88",
+        "caller": {
+          "name": "test",
+          "kind": "FUNCTION_DECL",
+          "usr": "c:@F@test",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 30,
+            "byte_offset": 29
+          },
+          "location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 30,
+            "byte_offset": 29
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 25,
+              "byte_offset": 24
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 60,
+              "byte_offset": 59
+            }
+          },
+          "linkage": "EXTERNAL",
+          "declaration_id": "decl:a58b153b7ddb3f92714122a85a3b7fba4622c7fc2849fa3f4d300b247df90b0d"
+        },
+        "callee": {
+          "name": "f",
+          "kind": "FUNCTION_DECL",
+          "usr": "c:@F@f",
+          "canonical_location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 5,
+            "byte_offset": 4
+          },
+          "location": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 5,
+            "byte_offset": 4
+          },
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 1,
+              "byte_offset": 0
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+              "line_1based": 1,
+              "column_1based": 24,
+              "byte_offset": 23
+            }
+          },
+          "linkage": "EXTERNAL",
+          "declaration_id": "decl:385897d92541bb91f362c1d1b4a35fe4431407eaf4283bd60d44bba0a02a4ab1"
+        },
+        "callsite": {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 47,
+            "byte_offset": 46
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_negative.c",
+            "line_1based": 1,
+            "column_1based": 50,
+            "byte_offset": 49
+          }
+        },
+        "call_text": "f()",
+        "caller_body_sha256": "5e99ca0d8dfa47aa617b41dfe23e9820638d14fddd59603490d371426214c314",
+        "callee_body_sha256": "6ac77f883a01a914a5450b8a49f88cba702d1d3601aa0e415089f9f6ed7b2a56",
+        "source_sha256": "290783ad5e012a31a855cb5caf94a166646556e6d351a7444e7c4cd07e5b1716",
+        "build_evidence": {
+          "status": "synthetic-self-contained",
+          "args": [
+            "-x",
+            "c",
+            "-std=c11",
+            "-nostdinc",
+            "-Werror=implicit-function-declaration",
+            "-ferror-limit=0"
+          ],
+          "original_project_build_verified": false,
+          "controlled_synthetic_TU": true
+        },
+        "diagnostics_ref": "#/diagnostics",
+        "status": "UNKNOWN",
+        "reasons": [
+          "no_parameter_transfer_to_check"
+        ],
+        "mappings": [],
+        "ast_is_trusted": true,
+        "scope": "direct-call-entry-value-only",
+        "reachability_verified": false,
+        "post_call_effects_verified": false,
+        "pointed_object_identity_verified": false
+      }
+    ],
+    "elapsed_seconds": 0.016063700000813697
+  },
+  "context_isolation": {
+    "status": "PASS",
+    "context_count": 1,
+    "distinct_context_count": 1,
+    "reasons": []
+  },
+  "metrics": {
+    "argument_entry": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 1
+    },
+    "return_binding": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "N/A": 0
+    },
+    "caller_result": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "N/A": 0
+    },
+    "call_effect_coverage": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "N/A": 0
+    },
+    "return_path_completeness": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "N/A": 0
+    },
+    "complete_call": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "N/A": 0
+    },
+    "ignored_results": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "void_returns": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "type_compatibility": {
+      "PASS": 1,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    }
+  },
+  "elapsed_seconds": 0.03313749999870197
+}

@@ -1,0 +1,2588 @@
+{
+  "mode": "fixed20",
+  "rows": [
+    {
+      "sample_id": "NPD/codeql/openssl:row=30:index=31",
+      "dataset_id": "codeql_openssl",
+      "position": 30,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json",
+      "input_sha256": "8c18fdbffdb74745318fe4e45481c42c4b21b64dec35900916ec0c658c9c39c3",
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "make_ocsp_response",
+          "body_sha256": "0710255ad6325f07f68ca2e2b35754df6a9c26fbf063e37b6c9f66555683feca",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 225,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        },
+        {
+          "frame": 1,
+          "function": "OCSP_copy_nonce",
+          "body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/1",
+          "report_file": "frame_1_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 10,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:ba032320fab21e43c14dad8639020306ae16aca502bba348371753cfd0d2fd59",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 9,
+                  "column_1based": 9,
+                  "byte_offset": 283
+                },
+                "end_exclusive": {
+                  "line_1based": 9,
+                  "column_1based": 18,
+                  "byte_offset": 292
+                }
+              },
+              "raw_return_expression": "2",
+              "category_candidate": "constant",
+              "nearby_source_lines": {
+                "first_line_1based": 8,
+                "text": "    if (req_idx < 0)\n        return 2;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:d682b0e16eea76c3da128b1f89540a64d02fa2162110507d2ca459cabf2e2896",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 11,
+                  "column_1based": 5,
+                  "byte_offset": 347
+                },
+                "end_exclusive": {
+                  "line_1based": 11,
+                  "column_1based": 54,
+                  "byte_offset": 396
+                }
+              },
+              "raw_return_expression": "OCSP_BASICRESP_add_ext(resp, req_ext, -1)",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 10,
+                "text": "    req_ext = OCSP_REQUEST_get_ext(req, req_idx);\n    return OCSP_BASICRESP_add_ext(resp, req_ext, -1);"
+              },
+              "contains_call_candidate": true,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        },
+        {
+          "frame": 2,
+          "function": "OCSP_BASICRESP_add_ext",
+          "body_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/01/bundle.json#/context/frames/2",
+          "report_file": "frame_2_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 4,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:a4f009417c3ab020e259c5092eeed8f150d9fdf49df99e62ce5d5ba0df5587bd",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 3,
+                  "column_1based": 5,
+                  "byte_offset": 81
+                },
+                "end_exclusive": {
+                  "line_1based": 4,
+                  "column_1based": 22,
+                  "byte_offset": 176
+                }
+              },
+              "raw_return_expression": "(X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)\n            != NULL)",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 2,
+                "text": "{\n    return (X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)"
+              },
+              "contains_call_candidate": true,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [
+        {
+          "caller_frame": 0,
+          "callee_frame": 1,
+          "caller": "make_ocsp_response",
+          "callee": "OCSP_copy_nonce",
+          "caller_body_sha256": "0710255ad6325f07f68ca2e2b35754df6a9c26fbf063e37b6c9f66555683feca",
+          "callee_body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+          "status": "UNKNOWN",
+          "callsite_candidates": [
+            {
+              "raw_call": "OCSP_copy_nonce(bs, req)",
+              "source_range": {
+                "start": {
+                  "line_1based": 112,
+                  "column_1based": 5,
+                  "byte_offset": 4342
+                },
+                "end_exclusive": {
+                  "line_1based": 112,
+                  "column_1based": 29,
+                  "byte_offset": 4366
+                }
+              },
+              "result_disposition_candidate": "ignored",
+              "binding_status": "UNKNOWN",
+              "method": "literal_source_locator_only",
+              "caller_result_version_id": null,
+              "guard_transferred_to_caller": false,
+              "callee_return_terminates_caller": false
+            }
+          ],
+          "caller_result_versions": [],
+          "return_guard_propagation": false,
+          "callee_return_terminates_caller": false,
+          "R05_path_composition_performed": false,
+          "call_effect_coverage": "UNKNOWN",
+          "return_path_completeness": "UNKNOWN"
+        },
+        {
+          "caller_frame": 1,
+          "callee_frame": 2,
+          "caller": "OCSP_copy_nonce",
+          "callee": "OCSP_BASICRESP_add_ext",
+          "caller_body_sha256": "499cdf9bcc70527e68a41f7407467a408c1fe64c229d186e17158c1a97e28f24",
+          "callee_body_sha256": "2d430324a39502c9653fa8bc64736b541098f2452ca8d0ddb2c509464d28b924",
+          "status": "UNKNOWN",
+          "callsite_candidates": [
+            {
+              "raw_call": "OCSP_BASICRESP_add_ext(resp, req_ext, -1)",
+              "source_range": {
+                "start": {
+                  "line_1based": 11,
+                  "column_1based": 12,
+                  "byte_offset": 354
+                },
+                "end_exclusive": {
+                  "line_1based": 11,
+                  "column_1based": 53,
+                  "byte_offset": 395
+                }
+              },
+              "result_disposition_candidate": "unverified_expression_use",
+              "binding_status": "UNKNOWN",
+              "method": "literal_source_locator_only",
+              "caller_result_version_id": null,
+              "guard_transferred_to_caller": false,
+              "callee_return_terminates_caller": false
+            }
+          ],
+          "caller_result_versions": [],
+          "return_guard_propagation": false,
+          "callee_return_terminates_caller": false,
+          "R05_path_composition_performed": false,
+          "call_effect_coverage": "UNKNOWN",
+          "return_path_completeness": "UNKNOWN"
+        }
+      ],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.13405589999820222
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=33:index=53",
+      "dataset_id": "codeql_linux",
+      "position": 33,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/02/bundle.json",
+      "input_sha256": "4bc18c1834c41ce117c1881fc2f395b45251454ceeac89932e0b3d14d84adec4",
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ip6_route_info_create",
+          "body_sha256": "c59e0935767987ac1be4757ae88affcee8f1e98b5615e79e52c0fac449291f20",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/02/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 117,
+          "reasons": [
+            "missing_original_build_evidence",
+            "preprocessing_not_supported",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:dd5552d157014b9e2c18a89edfc82094827dcb4f03dbb85602b760972c26733d",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 148,
+                  "column_1based": 2,
+                  "byte_offset": 3882
+                },
+                "end_exclusive": {
+                  "line_1based": 148,
+                  "column_1based": 12,
+                  "byte_offset": 3892
+                }
+              },
+              "raw_return_expression": "rt",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 147,
+                "text": "\n\treturn rt;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:0deb712a63944e4428570c2d589db40ab6cf5616f13b8284d35a115696b815c7",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 151,
+                  "column_1based": 2,
+                  "byte_offset": 3923
+                },
+                "end_exclusive": {
+                  "line_1based": 151,
+                  "column_1based": 22,
+                  "byte_offset": 3943
+                }
+              },
+              "raw_return_expression": "ERR_PTR(err)",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 150,
+                "text": "\tfib6_info_release(rt);\n\treturn ERR_PTR(err);"
+              },
+              "contains_call_candidate": true,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:29b28ffdc6e34994a64d7573f1b055e618d6bd6929f87e059bb7b9c81db55741",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 155,
+                  "column_1based": 2,
+                  "byte_offset": 4006
+                },
+                "end_exclusive": {
+                  "line_1based": 155,
+                  "column_1based": 22,
+                  "byte_offset": 4026
+                }
+              },
+              "raw_return_expression": "ERR_PTR(err)",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 154,
+                "text": "\tkfree(rt);\n\treturn ERR_PTR(err);"
+              },
+              "contains_call_candidate": true,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.11667929999748594
+    },
+    {
+      "sample_id": "NPD/codeql/openssl:row=6:index=7",
+      "dataset_id": "codeql_openssl",
+      "position": 6,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/03/bundle.json",
+      "input_sha256": "60db3afce7affcbf2a8f8d971058bb218c7e2b1c1fed3303a4065ba0bacdf9af",
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "cms_main",
+          "body_sha256": "069f6e246f25b6f04e7138c11606d9ec60014f7ce405d4c6b44acaeef3f2cd7b",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/03/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 1065,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:3501e80d07a00458ed33ff5c052e8ef2a0432c88200f5e58479b7098484a38be",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 1029,
+                  "column_1based": 5,
+                  "byte_offset": 35461
+                },
+                "end_exclusive": {
+                  "line_1based": 1029,
+                  "column_1based": 16,
+                  "byte_offset": 35472
+                }
+              },
+              "raw_return_expression": "ret",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 1028,
+                "text": "    NCONF_free(conf);\n    return ret;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.29452390000005835
+    },
+    {
+      "sample_id": "NPD/infer/openssl:row=11:index=None",
+      "dataset_id": "infer_openssl",
+      "position": 11,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/04/bundle.json",
+      "input_sha256": "4dc4c81433403be7616caff192266e8826d78f6cc1c49c8d6c2394aa99cba28a",
+      "dataset": "benchmark/NPD/infer/infer_openssl_nullpointer.json",
+      "dataset_sha256": "8d0828a40f04ede896e19f0fb993e3d5f70c23556208275d913b5a1d6a3cb0d2",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ossl_quic_tls_is_cert_request",
+          "body_sha256": "541c1087c652cd957da042ca0f68876b8e8a64f7de37345ea818d18e6dad7435",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/04/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 6,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:e64b052005d5f5262fc69eb422f74b408624b31be6fe755ca4d981264794cb69",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 5,
+                  "column_1based": 5,
+                  "byte_offset": 121
+                },
+                "end_exclusive": {
+                  "line_1based": 5,
+                  "column_1based": 67,
+                  "byte_offset": 183
+                }
+              },
+              "raw_return_expression": "sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 4,
+                "text": "\n    return sc->s3.tmp.message_type == SSL3_MT_CERTIFICATE_REQUEST;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.03623960000186344
+    },
+    {
+      "sample_id": "NPD/codeql/openssl:row=20:index=21",
+      "dataset_id": "codeql_openssl",
+      "position": 20,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json",
+      "input_sha256": "fea617683e27ca9b4efeea4d35c82e4558a141987932a64d1b21d443bdf41dcf",
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "engine_main",
+          "body_sha256": "7f3704779b9788908200f89b70d718036a397fff750c02cf9d593ca97fc7bab0",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 176,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:25bb17b0df73baf8f092bcd913ca91aead8b26fdc9513909a22761a6968d8d9d",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 199,
+                  "column_1based": 5,
+                  "byte_offset": 6816
+                },
+                "end_exclusive": {
+                  "line_1based": 199,
+                  "column_1based": 16,
+                  "byte_offset": 6827
+                }
+              },
+              "raw_return_expression": "ret",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 198,
+                "text": "    BIO_free_all(out);\n    return ret;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.07504209999751765
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=17:index=36",
+      "dataset_id": "codeql_linux",
+      "position": 17,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/06/bundle.json",
+      "input_sha256": "94f026d01d02ac07ca3453725035f5d9e61fe065d922f42500e8c9c08f4869eb",
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ipv6_route_native_seq_show",
+          "body_sha256": "93ca160d4d293117f2064e48065d5d6b75956d177744cf0a5ea2fdbd518ab120",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/06/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 21,
+          "reasons": [
+            "missing_original_build_evidence",
+            "preprocessing_not_supported",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:1b5dac6f8ebb2124dc668ccfc5183647577abd62e69e8bdeef17e73814212abf",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 31,
+                  "column_1based": 2,
+                  "byte_offset": 907
+                },
+                "end_exclusive": {
+                  "line_1based": 31,
+                  "column_1based": 11,
+                  "byte_offset": 916
+                }
+              },
+              "raw_return_expression": "0",
+              "category_candidate": "constant",
+              "nearby_source_lines": {
+                "first_line_1based": 30,
+                "text": "\titer->w.leaf = NULL;\n\treturn 0;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.049433500000304775
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=15:index=31",
+      "dataset_id": "codeql_linux",
+      "position": 15,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/07/bundle.json",
+      "input_sha256": "a6bfc8afd6d4025367490228c8be793f61ddd5408bb17d6319e944c5bc486091",
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "udp_gro_receive_segment",
+          "body_sha256": "a45084ac56e0e387de6582aa35d2a1b7f7ae70595725427b3991f4e3193330ed",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/07/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 19,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:151e0ace5ccf60301d18b607c6f8fb67f8b3b8fdcb0f4d94316473d40b48c928",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 15,
+                  "column_1based": 3,
+                  "byte_offset": 369
+                },
+                "end_exclusive": {
+                  "line_1based": 15,
+                  "column_1based": 15,
+                  "byte_offset": 381
+                }
+              },
+              "raw_return_expression": "NULL",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 14,
+                "text": "\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:aba8d4b87a2678aac6de481bd84616db9a6168089e69486cde8b430ae8dd9893",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 22,
+                  "column_1based": 3,
+                  "byte_offset": 560
+                },
+                "end_exclusive": {
+                  "line_1based": 22,
+                  "column_1based": 15,
+                  "byte_offset": 572
+                }
+              },
+              "raw_return_expression": "NULL",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 21,
+                "text": "\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:5ed993afd3b6b00b33668216ed1fa9b169cc0531121e367ce8c727733be4d6f1",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 41,
+                  "column_1based": 4,
+                  "byte_offset": 1023
+                },
+                "end_exclusive": {
+                  "line_1based": 41,
+                  "column_1based": 13,
+                  "byte_offset": 1032
+                }
+              },
+              "raw_return_expression": "p",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 40,
+                "text": "\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\treturn p;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:de16909e2c7a8aebcca695d7db1f37331f5ef8354684c9336a4327425569bcb7",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 65,
+                  "column_1based": 6,
+                  "byte_offset": 1745
+                },
+                "end_exclusive": {
+                  "line_1based": 65,
+                  "column_1based": 18,
+                  "byte_offset": 1757
+                }
+              },
+              "raw_return_expression": "NULL",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 64,
+                "text": "\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:c992b8dd22a60afa0c4581662ee341f18a141ab467c860e6c46e8632e7d7d96a",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 70,
+                  "column_1based": 6,
+                  "byte_offset": 1893
+                },
+                "end_exclusive": {
+                  "line_1based": 70,
+                  "column_1based": 18,
+                  "byte_offset": 1905
+                }
+              },
+              "raw_return_expression": "NULL",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 69,
+                "text": "\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:2210a7952ab711aa77c5c35d07a52ad0b82a9fde90d0036a71c2b271d07f7c48",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 85,
+                  "column_1based": 3,
+                  "byte_offset": 2185
+                },
+                "end_exclusive": {
+                  "line_1based": 85,
+                  "column_1based": 13,
+                  "byte_offset": 2195
+                }
+              },
+              "raw_return_expression": "pp",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 84,
+                "text": "\n\t\treturn pp;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:cbe85e73d18ded76e5499b0f81c79f708c798c918c278b1e5cb57d7f8d7360bf",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 89,
+                  "column_1based": 2,
+                  "byte_offset": 2245
+                },
+                "end_exclusive": {
+                  "line_1based": 89,
+                  "column_1based": 14,
+                  "byte_offset": 2257
+                }
+              },
+              "raw_return_expression": "NULL",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 88,
+                "text": "\t/* mismatch, but we never need to flush */\n\treturn NULL;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.05057180000221706
+    },
+    {
+      "sample_id": "NPD/codeql/libav:row=50:index=83",
+      "dataset_id": "codeql_libav",
+      "position": 50,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/08/bundle.json",
+      "input_sha256": "35522c180712d1180adcc749920b209c8747374bcb56be06db24c50ea8869244",
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "mpegts_write_header",
+          "body_sha256": "de2853d3515c2f8809d23949a76f85b5d2b8a1e2f015ad0e7d9863b43eef46eb",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/08/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 219,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:9ecfa92b8ec31193eda63842a19e1a9755521fb8c98992a3df943050206ba3c6",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 33,
+                  "column_1based": 9,
+                  "byte_offset": 1161
+                },
+                "end_exclusive": {
+                  "line_1based": 33,
+                  "column_1based": 32,
+                  "byte_offset": 1184
+                }
+              },
+              "raw_return_expression": "AVERROR(ENOMEM)",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 32,
+                "text": "    if (!service)\n        return AVERROR(ENOMEM);"
+              },
+              "contains_call_candidate": true,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:256ea02346721d04849cebaa0bde349e0031cb7a4bf5bb15352a6e74d1b9b385",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 54,
+                  "column_1based": 9,
+                  "byte_offset": 1810
+                },
+                "end_exclusive": {
+                  "line_1based": 54,
+                  "column_1based": 32,
+                  "byte_offset": 1833
+                }
+              },
+              "raw_return_expression": "AVERROR(ENOMEM)",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 53,
+                "text": "        av_free(service);\n        return AVERROR(ENOMEM);"
+              },
+              "contains_call_candidate": true,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:51e530c2699641feab2b8fafb020749e761176b7bed25c3aa7f3e464aa416cd7",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 206,
+                  "column_1based": 5,
+                  "byte_offset": 7305
+                },
+                "end_exclusive": {
+                  "line_1based": 206,
+                  "column_1based": 14,
+                  "byte_offset": 7314
+                }
+              },
+              "raw_return_expression": "0",
+              "category_candidate": "constant",
+              "nearby_source_lines": {
+                "first_line_1based": 205,
+                "text": "\n    return 0;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:6c88467cbbe67c8e7f4d06975de6c47d675975caee937d5fbfbdf8be17c21d03",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 223,
+                  "column_1based": 5,
+                  "byte_offset": 7714
+                },
+                "end_exclusive": {
+                  "line_1based": 223,
+                  "column_1based": 16,
+                  "byte_offset": 7725
+                }
+              },
+              "raw_return_expression": "ret",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 222,
+                "text": "    }\n    return ret;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.07398029999967548
+    },
+    {
+      "sample_id": "NPD/cppcheck/linux:row=63:index=None",
+      "dataset_id": "cppcheck_linux",
+      "position": 63,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json",
+      "input_sha256": "5723c7a0334c67b6265b623f9ceb85276306687869a456571355601facde57d1",
+      "dataset": "benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+      "dataset_sha256": "bc1fcdd59756e855c0ee7987e6b788d408a5b0815f207e9f4ef272bf1ca234b6",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "dwarf_lookup_cie",
+          "body_sha256": "05ec37a3e03aa0c41998ccd3a4ccf6fa7be20d3a2cc59551bda5d02001c2f840",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 18,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:72317fb96c18311d9576ad78a1b6b4ddb00f7f856d58bae29718ebe243a31137",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 38,
+                  "column_1based": 2,
+                  "byte_offset": 829
+                },
+                "end_exclusive": {
+                  "line_1based": 38,
+                  "column_1based": 13,
+                  "byte_offset": 840
+                }
+              },
+              "raw_return_expression": "cie",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 37,
+                "text": "\tspin_unlock_irqrestore(&dwarf_cie_lock, flags);\n\treturn cie;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.17045100000177626
+    },
+    {
+      "sample_id": "NPD/cppcheck/openssl:row=2:index=None",
+      "dataset_id": "cppcheck_openssl",
+      "position": 2,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/10/bundle.json",
+      "input_sha256": "fbc3e8e54313eb8049cfb016ae10d78c93b879651ffea1e288b31f7b797706de",
+      "dataset": "benchmark/NPD/cppcheck/cppcheck_openssl_nullpointer.json",
+      "dataset_sha256": "5a7e89ffb017ece94403f862a5cc8d33f478fc92360d4e957648d66aeee12d29",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "list_insert_sorted",
+          "body_sha256": "ab5c588dd223e8d495f5be6cc7b13541276eaef002b91d5e3b34a358c3d377b2",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/10/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 26,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:3442ff6c4de3dba7be1198a0a4349a31409261e58cd3df04443de7dca1da27a3",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 10,
+                  "column_1based": 9,
+                  "byte_offset": 361
+                },
+                "end_exclusive": {
+                  "line_1based": 10,
+                  "column_1based": 16,
+                  "byte_offset": 368
+                }
+              },
+              "raw_return_expression": "",
+              "category_candidate": "void",
+              "nearby_source_lines": {
+                "first_line_1based": 9,
+                "text": "        n->prev = n->next = NULL;\n        return;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.1269892999989679
+    },
+    {
+      "sample_id": "NPD/codeql/openssl:row=15:index=16",
+      "dataset_id": "codeql_openssl",
+      "position": 15,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/11/bundle.json",
+      "input_sha256": "e915e542e1d85d9f730344b17336f941d9884050450ec3556a5fd58a560cb16f",
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ec_main",
+          "body_sha256": "236f72d059109c68d50daee0bcaa02b952dd1df495342a5108387d94a6073713",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/11/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 195,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:f04d5b37ceb081ad5f1b05f959a8e550304393f511a75ae714c96732a861f74a",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 226,
+                  "column_1based": 5,
+                  "byte_offset": 7102
+                },
+                "end_exclusive": {
+                  "line_1based": 226,
+                  "column_1based": 16,
+                  "byte_offset": 7113
+                }
+              },
+              "raw_return_expression": "ret",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 225,
+                "text": "        OPENSSL_clear_free(passout, strlen(passout));\n    return ret;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.5976894999985234
+    },
+    {
+      "sample_id": "NPD/codeql/libav:row=51:index=84",
+      "dataset_id": "codeql_libav",
+      "position": 51,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json",
+      "input_sha256": "3961f9297cbed26747521f3f4337bd84b84e916d20ac0da23342a46bbb7129c4",
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "mv_read_header",
+          "body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 148,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:aee05801905e2b77f50d10581829f18e871ddcfdf959eeb85d52babf32f6e4d6",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 20,
+                  "column_1based": 13,
+                  "byte_offset": 552
+                },
+                "end_exclusive": {
+                  "line_1based": 20,
+                  "column_1based": 36,
+                  "byte_offset": 575
+                }
+              },
+              "raw_return_expression": "AVERROR(ENOMEM)",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 19,
+                "text": "        if (!ast)\n            return AVERROR(ENOMEM);"
+              },
+              "contains_call_candidate": true,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:b1ddc1b85ba81d458eec1d5ca1286a49dd6fd50d2d0c5cffdf511ab80ac7979d",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 24,
+                  "column_1based": 13,
+                  "byte_offset": 655
+                },
+                "end_exclusive": {
+                  "line_1based": 24,
+                  "column_1based": 36,
+                  "byte_offset": 678
+                }
+              },
+              "raw_return_expression": "AVERROR(ENOMEM)",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 23,
+                "text": "        if (!vst)\n            return AVERROR(ENOMEM);"
+              },
+              "contains_call_candidate": true,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:a0c500b263518666069fff41a44cf715d278c29a6e0549333d99d38dadbb04cf",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 52,
+                  "column_1based": 13,
+                  "byte_offset": 1752
+                },
+                "end_exclusive": {
+                  "line_1based": 52,
+                  "column_1based": 40,
+                  "byte_offset": 1779
+                }
+              },
+              "raw_return_expression": "AVERROR_INVALIDDATA",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 51,
+                "text": "        if (set_channels(avctx, ast, avio_rb32(pb)) < 0)\n            return AVERROR_INVALIDDATA;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:dcc5addf84ba179049916617568fbed78a4698a1bc01c7c33015c46d899e0d34",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 83,
+                  "column_1based": 13,
+                  "byte_offset": 2896
+                },
+                "end_exclusive": {
+                  "line_1based": 83,
+                  "column_1based": 41,
+                  "byte_offset": 2924
+                }
+              },
+              "raw_return_expression": "AVERROR_PATCHWELCOME",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 82,
+                "text": "            avpriv_request_sample(avctx, \"Multiple audio streams support\");\n            return AVERROR_PATCHWELCOME;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:7fd7430b6aa97ccde210848a61a0d59c02013c554e8ed4a20159f60781cfbe5f",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 87,
+                  "column_1based": 17,
+                  "byte_offset": 3057
+                },
+                "end_exclusive": {
+                  "line_1based": 87,
+                  "column_1based": 40,
+                  "byte_offset": 3080
+                }
+              },
+              "raw_return_expression": "AVERROR(ENOMEM)",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 86,
+                "text": "            if (!ast)\n                return AVERROR(ENOMEM);"
+              },
+              "contains_call_candidate": true,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:1579cab5112b949e1b852de237fe1d4a4128cc6ac8d57a2390719e8050588660",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 103,
+                  "column_1based": 17,
+                  "byte_offset": 3929
+                },
+                "end_exclusive": {
+                  "line_1based": 103,
+                  "column_1based": 44,
+                  "byte_offset": 3956
+                }
+              },
+              "raw_return_expression": "AVERROR_INVALIDDATA",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 102,
+                "text": "                av_log(avctx, AV_LOG_ERROR, \"No valid channel count found.\\n\");\n                return AVERROR_INVALIDDATA;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:5490fe62cd64e0f468a1f556b2a8dac1d707064d109ab0a613b310787565d637",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 109,
+                  "column_1based": 13,
+                  "byte_offset": 4109
+                },
+                "end_exclusive": {
+                  "line_1based": 109,
+                  "column_1based": 41,
+                  "byte_offset": 4137
+                }
+              },
+              "raw_return_expression": "AVERROR_PATCHWELCOME",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 108,
+                "text": "            avpriv_request_sample(avctx, \"Multiple video streams support\");\n            return AVERROR_PATCHWELCOME;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:4c8995b8c3795058ccd4fb4f955dc939f93faa5d7dcbf0c77fd4515bc1b2a41f",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 113,
+                  "column_1based": 17,
+                  "byte_offset": 4270
+                },
+                "end_exclusive": {
+                  "line_1based": 113,
+                  "column_1based": 40,
+                  "byte_offset": 4293
+                }
+              },
+              "raw_return_expression": "AVERROR(ENOMEM)",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 112,
+                "text": "            if (!vst)\n                return AVERROR(ENOMEM);"
+              },
+              "contains_call_candidate": true,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:797fcc37c721dea7db429f9ead5ffbab38b48c92d1e1f8d9e11644829e46ec52",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 125,
+                  "column_1based": 9,
+                  "byte_offset": 4633
+                },
+                "end_exclusive": {
+                  "line_1based": 125,
+                  "column_1based": 37,
+                  "byte_offset": 4661
+                }
+              },
+              "raw_return_expression": "AVERROR_PATCHWELCOME",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 124,
+                "text": "        avpriv_request_sample(avctx, \"Version %i\", version);\n        return AVERROR_PATCHWELCOME;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:2307a9b53bc595d6ffefc773a48136a48fc36a5fa27683f09337633fa9fcb2d9",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 128,
+                  "column_1based": 5,
+                  "byte_offset": 4673
+                },
+                "end_exclusive": {
+                  "line_1based": 128,
+                  "column_1based": 14,
+                  "byte_offset": 4682
+                }
+              },
+              "raw_return_expression": "0",
+              "category_candidate": "constant",
+              "nearby_source_lines": {
+                "first_line_1based": 127,
+                "text": "\n    return 0;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        },
+        {
+          "frame": 1,
+          "function": "read_index",
+          "body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/12/bundle.json#/context/frames/1",
+          "report_file": "frame_1_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 15,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [
+        {
+          "caller_frame": 0,
+          "callee_frame": 1,
+          "caller": "mv_read_header",
+          "callee": "read_index",
+          "caller_body_sha256": "46dee8cc0b2c4fa52c15df0d9917878f43ccc59f3782cc6850f71eaceb32bb18",
+          "callee_body_sha256": "9724748f31ef6473e29e23af904257a18b7539cf1d1fbc32db941a8f38d8b1c3",
+          "status": "UNKNOWN",
+          "callsite_candidates": [
+            {
+              "raw_call": "read_index(pb, ast)",
+              "source_range": {
+                "start": {
+                  "line_1based": 119,
+                  "column_1based": 13,
+                  "byte_offset": 4463
+                },
+                "end_exclusive": {
+                  "line_1based": 119,
+                  "column_1based": 32,
+                  "byte_offset": 4482
+                }
+              },
+              "result_disposition_candidate": "unverified_expression_use",
+              "binding_status": "UNKNOWN",
+              "method": "literal_source_locator_only",
+              "caller_result_version_id": null,
+              "guard_transferred_to_caller": false,
+              "callee_return_terminates_caller": false
+            },
+            {
+              "raw_call": "read_index(pb, vst)",
+              "source_range": {
+                "start": {
+                  "line_1based": 122,
+                  "column_1based": 13,
+                  "byte_offset": 4530
+                },
+                "end_exclusive": {
+                  "line_1based": 122,
+                  "column_1based": 32,
+                  "byte_offset": 4549
+                }
+              },
+              "result_disposition_candidate": "unverified_expression_use",
+              "binding_status": "UNKNOWN",
+              "method": "literal_source_locator_only",
+              "caller_result_version_id": null,
+              "guard_transferred_to_caller": false,
+              "callee_return_terminates_caller": false
+            }
+          ],
+          "caller_result_versions": [],
+          "return_guard_propagation": false,
+          "callee_return_terminates_caller": false,
+          "R05_path_composition_performed": false,
+          "call_effect_coverage": "UNKNOWN",
+          "return_path_completeness": "UNKNOWN"
+        }
+      ],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.3550149999973655
+    },
+    {
+      "sample_id": "NPD/cppcheck/linux:row=13:index=None",
+      "dataset_id": "cppcheck_linux",
+      "position": 13,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/13/bundle.json",
+      "input_sha256": "4ec4f1c0d70e890838eee90f7f165afdfefc59303a9f1232a824022794bd8c94",
+      "dataset": "benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+      "dataset_sha256": "bc1fcdd59756e855c0ee7987e6b788d408a5b0815f207e9f4ef272bf1ca234b6",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "EXPLICIT_NULL_SAVED_CONTEXT_UNAVAILABLE",
+      "null_context_provenance": {
+        "verified": true,
+        "context_file_absent": true,
+        "context_file": "results/raw/completed/expanded_cppcheck_linux/row_013/context.json",
+        "historical_status": "blocked_context",
+        "historical_error": "Function kvm_for_each_vcpu: 0 distinct available definitions",
+        "raw_sample_result": "results/raw/completed/expanded_cppcheck_linux/row_013/sample_result.json",
+        "raw_sample_result_sha256": "5106bf673959254b004ab81d82fb9510b069a4fa65d1b7ac7249c3e320939590",
+        "evidence_binding": "safety_runs/20261029_v1/offline_regression/evidence_bindings.json",
+        "canonical_bundle_sha256": "b7918169bd9bf3362760ff0d07101fc274b2dfa3ca14607920222236fb9ae10b",
+        "exporter": "safety/replay.py:59",
+        "exporter_sha256": "2f33021b667ae1ad8d88f8250170fb9bc0393b3d68380ea58e533651d1865d5c"
+      },
+      "historical_context_error": "Function kvm_for_each_vcpu: 0 distinct available definitions",
+      "frames": [],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence",
+        "historical_saved_context_unavailable"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.036443299999518786
+    },
+    {
+      "sample_id": "NPD/codeql/libav:row=32:index=47",
+      "dataset_id": "codeql_libav",
+      "position": 32,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/14/bundle.json",
+      "input_sha256": "2ba332628dfd14d1e8443e643df544a70973fb8739c33e41e52d3989f349c119",
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "check_intra_mode",
+          "body_sha256": "02796ec824c32824e2e78e7020db687d7108fbc0e5c21e9ee84edbaa7ceca537",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/14/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 45,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:2c2a6069d7801102ab4e7799a2f4eb5abcf33bafdaa86c7a9a88d90ca6189859",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 141,
+                  "column_1based": 5,
+                  "byte_offset": 6817
+                },
+                "end_exclusive": {
+                  "line_1based": 141,
+                  "column_1based": 17,
+                  "byte_offset": 6829
+                }
+              },
+              "raw_return_expression": "mode",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 140,
+                "text": "\n    return mode;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.5188331999997899
+    },
+    {
+      "sample_id": "NPD/infer/openssl:row=1:index=None",
+      "dataset_id": "infer_openssl",
+      "position": 1,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/15/bundle.json",
+      "input_sha256": "12fd9fc0e4a0929813b36c357611afb9a789c19c66b324684772c152fd886649",
+      "dataset": "benchmark/NPD/infer/infer_openssl_nullpointer.json",
+      "dataset_sha256": "8d0828a40f04ede896e19f0fb993e3d5f70c23556208275d913b5a1d6a3cb0d2",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "opt_provider_path",
+          "body_sha256": "bd37d701ce79113cc689d82b0ba6d20d5014a611e6ec85687171ddf8be2c80f1",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/15/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 4,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:72d0eb0bb138f82fa10cc56cfec95420f2c9ff34aaac1365d658dc9e0d1b8399",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 5,
+                  "column_1based": 5,
+                  "byte_offset": 113
+                },
+                "end_exclusive": {
+                  "line_1based": 5,
+                  "column_1based": 75,
+                  "byte_offset": 183
+                }
+              },
+              "raw_return_expression": "OSSL_PROVIDER_set_default_search_path(app_get0_libctx(), path)",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 4,
+                "text": "        path = NULL;\n    return OSSL_PROVIDER_set_default_search_path(app_get0_libctx(), path);"
+              },
+              "contains_call_candidate": true,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.1062515000012354
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=26:index=45",
+      "dataset_id": "codeql_linux",
+      "position": 26,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/16/bundle.json",
+      "input_sha256": "5de1aafe31c99ac54c3c638db21f407dfce75bb0075c544fa7d016e25eba06b3",
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "EXPLICIT_NULL_SAVED_CONTEXT_UNAVAILABLE",
+      "null_context_provenance": {
+        "verified": true,
+        "context_file_absent": true,
+        "context_file": "results/raw/completed/expanded_codeql_linux/row_026/context.json",
+        "historical_status": "blocked_context",
+        "historical_error": "Expected one function definition, found 0",
+        "raw_sample_result": "results/raw/completed/expanded_codeql_linux/row_026/sample_result.json",
+        "raw_sample_result_sha256": "3c684db5bb99251a0ee7fd135b3e6bbc3f9e83eab564aacf6622353a13590a7d",
+        "evidence_binding": "safety_runs/20261029_v1/offline_regression/evidence_bindings.json",
+        "canonical_bundle_sha256": "6c8f74efa8ca73212891594eb1fde5046e8d5fc5c2be78377cfe4e689dd268d3",
+        "exporter": "safety/replay.py:59",
+        "exporter_sha256": "2f33021b667ae1ad8d88f8250170fb9bc0393b3d68380ea58e533651d1865d5c"
+      },
+      "historical_context_error": "Expected one function definition, found 0",
+      "frames": [],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence",
+        "historical_saved_context_unavailable"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.01773719999982859
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=24:index=43",
+      "dataset_id": "codeql_linux",
+      "position": 24,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json",
+      "input_sha256": "4df7f7014d4eeeca31e8768db1adbfd8c58e10ffbc7551a5330e4d3a6a9729b3",
+      "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ip6_finish_output2",
+          "body_sha256": "90b47239055d70d6940ddc13e68fc1f3e80746d0d735ccb383f25c4c6471a940",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 78,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:123b8231c3e478f32655e1c9c12c99f6c813663d99319844a61b807d487a42b9",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 17,
+                  "column_1based": 4,
+                  "byte_offset": 571
+                },
+                "end_exclusive": {
+                  "line_1based": 17,
+                  "column_1based": 19,
+                  "byte_offset": 586
+                }
+              },
+              "raw_return_expression": "-ENOMEM",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 16,
+                "text": "\t\t\tIP6_INC_STATS(net, idev, IPSTATS_MIB_OUTDISCARDS);\n\t\t\treturn -ENOMEM;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:af5be3caafb1f3ef5437ac47fbc8b05ebcb260942b4a10411193fe6f003ba5bb",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 42,
+                  "column_1based": 5,
+                  "byte_offset": 1284
+                },
+                "end_exclusive": {
+                  "line_1based": 42,
+                  "column_1based": 14,
+                  "byte_offset": 1293
+                }
+              },
+              "raw_return_expression": "0",
+              "category_candidate": "constant",
+              "nearby_source_lines": {
+                "first_line_1based": 41,
+                "text": "\t\t\t\tkfree_skb(skb);\n\t\t\t\treturn 0;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:9e2fe668062598e313178ed781a331be4524043d3da36bf4340a12a93d8a1af7",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 50,
+                  "column_1based": 4,
+                  "byte_offset": 1491
+                },
+                "end_exclusive": {
+                  "line_1based": 50,
+                  "column_1based": 13,
+                  "byte_offset": 1500
+                }
+              },
+              "raw_return_expression": "0",
+              "category_candidate": "constant",
+              "nearby_source_lines": {
+                "first_line_1based": 49,
+                "text": "\t\t\tkfree_skb(skb);\n\t\t\treturn 0;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:58f9d7cd07ab285fd51f0fe9a0332cb4b859baf95c76cbeccc96c1e2ee769114",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 58,
+                  "column_1based": 4,
+                  "byte_offset": 1628
+                },
+                "end_exclusive": {
+                  "line_1based": 58,
+                  "column_1based": 15,
+                  "byte_offset": 1639
+                }
+              },
+              "raw_return_expression": "res",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 57,
+                "text": "\t\tif (res != LWTUNNEL_XMIT_CONTINUE)\n\t\t\treturn res;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:5a9d350703dc38f1a15953643b37cdb170bf06648735d7a0734531063f1d01c1",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 74,
+                  "column_1based": 4,
+                  "byte_offset": 2104
+                },
+                "end_exclusive": {
+                  "line_1based": 74,
+                  "column_1based": 19,
+                  "byte_offset": 2119
+                }
+              },
+              "raw_return_expression": "-EINVAL",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 73,
+                "text": "\t\t\tkfree_skb_reason(skb, SKB_DROP_REASON_NEIGH_CREATEFAIL);\n\t\t\treturn -EINVAL;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:65b96ff744696713fe8789f5ef03c1b24f5c3160aeb22bdc2eb199a169a76601",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 80,
+                  "column_1based": 2,
+                  "byte_offset": 2221
+                },
+                "end_exclusive": {
+                  "line_1based": 80,
+                  "column_1based": 13,
+                  "byte_offset": 2232
+                }
+              },
+              "raw_return_expression": "ret",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 79,
+                "text": "\trcu_read_unlock();\n\treturn ret;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        },
+        {
+          "frame": 1,
+          "function": "sock_confirm_neigh",
+          "body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/1",
+          "report_file": "frame_1_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 9,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        },
+        {
+          "frame": 2,
+          "function": "neigh_confirm",
+          "body_sha256": "468f1bceeb2bb427c7a70f1345ed27aa19925bbfcf2197e94b7f6476cc260be9",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/17/bundle.json#/context/frames/2",
+          "report_file": "frame_2_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 6,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [
+        {
+          "caller_frame": 0,
+          "callee_frame": 1,
+          "caller": "ip6_finish_output2",
+          "callee": "sock_confirm_neigh",
+          "caller_body_sha256": "90b47239055d70d6940ddc13e68fc1f3e80746d0d735ccb383f25c4c6471a940",
+          "callee_body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+          "status": "UNKNOWN",
+          "callsite_candidates": [
+            {
+              "raw_call": "sock_confirm_neigh(skb, neigh)",
+              "source_range": {
+                "start": {
+                  "line_1based": 77,
+                  "column_1based": 2,
+                  "byte_offset": 2128
+                },
+                "end_exclusive": {
+                  "line_1based": 77,
+                  "column_1based": 32,
+                  "byte_offset": 2158
+                }
+              },
+              "result_disposition_candidate": "ignored",
+              "binding_status": "UNKNOWN",
+              "method": "literal_source_locator_only",
+              "caller_result_version_id": null,
+              "guard_transferred_to_caller": false,
+              "callee_return_terminates_caller": false
+            }
+          ],
+          "caller_result_versions": [],
+          "return_guard_propagation": false,
+          "callee_return_terminates_caller": false,
+          "R05_path_composition_performed": false,
+          "call_effect_coverage": "UNKNOWN",
+          "return_path_completeness": "UNKNOWN"
+        },
+        {
+          "caller_frame": 1,
+          "callee_frame": 2,
+          "caller": "sock_confirm_neigh",
+          "callee": "neigh_confirm",
+          "caller_body_sha256": "f1da49e2aae11fd06c3bb6761f4ce114038e33b2972c382a709fbc3694b12c55",
+          "callee_body_sha256": "468f1bceeb2bb427c7a70f1345ed27aa19925bbfcf2197e94b7f6476cc260be9",
+          "status": "UNKNOWN",
+          "callsite_candidates": [
+            {
+              "raw_call": "neigh_confirm(n)",
+              "source_range": {
+                "start": {
+                  "line_1based": 8,
+                  "column_1based": 3,
+                  "byte_offset": 252
+                },
+                "end_exclusive": {
+                  "line_1based": 8,
+                  "column_1based": 19,
+                  "byte_offset": 268
+                }
+              },
+              "result_disposition_candidate": "ignored",
+              "binding_status": "UNKNOWN",
+              "method": "literal_source_locator_only",
+              "caller_result_version_id": null,
+              "guard_transferred_to_caller": false,
+              "callee_return_terminates_caller": false
+            }
+          ],
+          "caller_result_versions": [],
+          "return_guard_propagation": false,
+          "callee_return_terminates_caller": false,
+          "R05_path_composition_performed": false,
+          "call_effect_coverage": "UNKNOWN",
+          "return_path_completeness": "UNKNOWN"
+        }
+      ],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.6430622000007133
+    },
+    {
+      "sample_id": "NPD/codeql/libav:row=19:index=26",
+      "dataset_id": "codeql_libav",
+      "position": 19,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/18/bundle.json",
+      "input_sha256": "77890adfb560533976d2ae76daefe945db8c11271dfaa9cc363f89eaee2281e4",
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "epic_decode_from_cache",
+          "body_sha256": "c72e4819621cc2795adbc48005fdd7459cd8f967b3b49ac046e18f028352d1c1",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/18/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 34,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:cebb073d12fd755734e66acd02b55562ef2165ecd422acfec49908c943d6efad",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 7,
+                  "column_1based": 9,
+                  "byte_offset": 234
+                },
+                "end_exclusive": {
+                  "line_1based": 7,
+                  "column_1based": 18,
+                  "byte_offset": 243
+                }
+              },
+              "raw_return_expression": "0",
+              "category_candidate": "constant",
+              "nearby_source_lines": {
+                "first_line_1based": 6,
+                "text": "    if (!hash_elem || !hash_elem->list)\n        return 0;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:0cd29e8ab33e6befd3d84440a52d8fb58963cd05f773fa29443ea4178838d74f",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 19,
+                  "column_1based": 17,
+                  "byte_offset": 674
+                },
+                "end_exclusive": {
+                  "line_1based": 19,
+                  "column_1based": 26,
+                  "byte_offset": 683
+                }
+              },
+              "raw_return_expression": "1",
+              "category_candidate": "constant",
+              "nearby_source_lines": {
+                "first_line_1based": 18,
+                "text": "                }\n                return 1;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            },
+            {
+              "return_locator_id": "source-return:5843f753ccfe94efa89a80e5b8740f91f8df79d85dfe09b9fc0bc1c41d98838e",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 27,
+                  "column_1based": 5,
+                  "byte_offset": 842
+                },
+                "end_exclusive": {
+                  "line_1based": 27,
+                  "column_1based": 14,
+                  "byte_offset": 851
+                }
+              },
+              "raw_return_expression": "0",
+              "category_candidate": "constant",
+              "nearby_source_lines": {
+                "first_line_1based": 26,
+                "text": "\n    return 0;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.1406064000002516
+    },
+    {
+      "sample_id": "NPD/codeql/openssl:row=16:index=17",
+      "dataset_id": "codeql_openssl",
+      "position": 16,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/19/bundle.json",
+      "input_sha256": "67c9b55383be69e2e7a5e2eff0b628f022b542c6badb34d7b5d2397e9c49d8df",
+      "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "ecparam_main",
+          "body_sha256": "1ce79527102f8800da015facfef79f74cededdc1538687bdeb20158a9a7eb932",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/19/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 237,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:2f837595e180d7c1ebd222e310ffdff24a7d91afa039224e5df9e43ce5a7c5c8",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 263,
+                  "column_1based": 5,
+                  "byte_offset": 9017
+                },
+                "end_exclusive": {
+                  "line_1based": 263,
+                  "column_1based": 16,
+                  "byte_offset": 9028
+                }
+              },
+              "raw_return_expression": "ret",
+              "category_candidate": "unsupported_or_unverified_expression",
+              "nearby_source_lines": {
+                "first_line_1based": 262,
+                "text": "    BIO_free_all(out);\n    return ret;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.48734590000094613
+    },
+    {
+      "sample_id": "NPD/codeql/libav:row=35:index=51",
+      "dataset_id": "codeql_libav",
+      "position": 35,
+      "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/20/bundle.json",
+      "input_sha256": "7d2286c39b43777fca47675477cd5a9c358abffc2430a2084d4880c24a9bb3be",
+      "dataset": "benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "dataset_sha256": "a5683aa98e8a50efbb430913b25b65528076dfc6e81de6c4bb1fac6bb6a86ed2",
+      "status": "UNKNOWN",
+      "execution_status": "COMPLETED",
+      "context_state": "FRAMES_PRESENT",
+      "null_context_provenance": null,
+      "historical_context_error": null,
+      "frames": [
+        {
+          "frame": 0,
+          "function": "swap_sample_fmts_on_filter",
+          "body_sha256": "2680e5982eaf997a0ccab4c4a0450f691328e7437b52501788f82e7fcbca8b38",
+          "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/20/bundle.json#/context/frames/0",
+          "report_file": "frame_0_r03.json",
+          "status": "UNKNOWN",
+          "diagnostic_count": 27,
+          "reasons": [
+            "missing_original_build_evidence",
+            "clang_diagnostics_no_recovery_approval"
+          ],
+          "return_source_candidates": [
+            {
+              "return_locator_id": "source-return:93981064f8bc39fa9853c482cbe945d61b71682929bb9427f5e985b725e1f0a1",
+              "return_source_range": {
+                "start": {
+                  "line_1based": 15,
+                  "column_1based": 9,
+                  "byte_offset": 375
+                },
+                "end_exclusive": {
+                  "line_1based": 15,
+                  "column_1based": 16,
+                  "byte_offset": 382
+                }
+              },
+              "raw_return_expression": "",
+              "category_candidate": "void",
+              "nearby_source_lines": {
+                "first_line_1based": 14,
+                "text": "    if (i == filter->nb_inputs)\n        return;"
+              },
+              "contains_call_candidate": false,
+              "status": "UNKNOWN",
+              "type": null,
+              "source_value_version_id": null,
+              "normal_return_verified": false,
+              "guard_semantics_verified": false,
+              "method": "literal_source_locator_only"
+            }
+          ],
+          "verified_return_records": 0,
+          "verified_caller_result_versions": 0
+        }
+      ],
+      "edges": [],
+      "reasons": [
+        "missing_original_build_evidence"
+      ],
+      "labels_used": false,
+      "prior_R02_results_reused": false,
+      "prior_solver_results_used": false,
+      "verified_call_context_count": 0,
+      "verified_return_bindings": 0,
+      "verified_caller_results": 0,
+      "alert_action": null,
+      "risk_locators": [],
+      "prior_diagnoses_preserved": [],
+      "elapsed_seconds": 0.17945420000251033
+    }
+  ],
+  "metrics": {
+    "requested_samples": 20,
+    "completed_samples": 20,
+    "runtime_errors": 0,
+    "status_counts": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 20,
+      "N/A": 0
+    },
+    "frame_count": 23,
+    "frame_status_counts": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 23,
+      "N/A": 0
+    },
+    "edge_count": 5,
+    "context_state_counts": {
+      "FRAMES_PRESENT": 18,
+      "EXPLICIT_NULL_SAVED_CONTEXT_UNAVAILABLE": 2
+    },
+    "verified_call_contexts": 0,
+    "verified_return_bindings": 0,
+    "verified_caller_result_versions": 0,
+    "elapsed_seconds": 6.242994799998996,
+    "LLM_calls": 0,
+    "Harness_calls": 0,
+    "Z3_calls": 0,
+    "SMT_generated": 0,
+    "tokens": 0,
+    "API_cost_CNY": 0,
+    "generated_code_execution": 0,
+    "C_runtime_execution": 0,
+    "external_operations": []
+  },
+  "complete_new_run": true,
+  "old_results_reused": 0,
+  "is_blind": false,
+  "safety_decisions_produced": false
+}

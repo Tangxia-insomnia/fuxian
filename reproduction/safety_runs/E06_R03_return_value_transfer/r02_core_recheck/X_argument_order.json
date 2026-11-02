@@ -1,0 +1,107 @@
+{
+  "dataset_id": "synthetic-r02",
+  "position": 0,
+  "source": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_argument_order.c",
+  "source_sha256": "c1673bbb5287f59be6823e385d2c28cb3f12b7883b5382b8e243a31a853d98af",
+  "build_evidence": {
+    "status": "synthetic-self-contained",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": true
+  },
+  "status": "UNKNOWN",
+  "reasons": [
+    "clang_diagnostics_no_recovery_approval"
+  ],
+  "diagnostics": [
+    {
+      "severity": 2,
+      "spelling": "unsequenced modification and access to 'x'",
+      "location": {
+        "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_argument_order.c",
+        "line_1based": 2,
+        "column_1based": 32,
+        "byte_offset": 58
+      },
+      "option": "-Wunsequenced",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_argument_order.c",
+            "line_1based": 2,
+            "column_1based": 27,
+            "byte_offset": 53
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_argument_order.c",
+            "line_1based": 2,
+            "column_1based": 28,
+            "byte_offset": 54
+          }
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "function": {
+        "name": "test",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@test",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_argument_order.c",
+          "line_1based": 2,
+          "column_1based": 6,
+          "byte_offset": 32
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_argument_order.c",
+          "line_1based": 2,
+          "column_1based": 6,
+          "byte_offset": 32
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_argument_order.c",
+            "line_1based": 2,
+            "column_1based": 1,
+            "byte_offset": 27
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_argument_order.c",
+            "line_1based": 2,
+            "column_1based": 48,
+            "byte_offset": 74
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:d7fbe85a78c0050fd25b22df579438676f64899e0a2774a1e7410f519e8a3438"
+      },
+      "body_sha256": "654ea030e818dc535d23c417754dabd5f1b85a0c9c0c3c9cfc986f06016bde03",
+      "status": "UNKNOWN",
+      "reasons": [
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "slots": [],
+      "versions": [],
+      "reads": [],
+      "events": [],
+      "state_snapshots": [],
+      "final_environments": [],
+      "unprocessed_ranges": [],
+      "recovery_nodes_trusted": false
+    }
+  ],
+  "expression_evidence": [],
+  "elapsed_seconds": 0.017270600001211278,
+  "scope": "intraprocedural-source-value-evidence-only",
+  "SMT_generated": false,
+  "cross_function_state_propagated": false
+}

@@ -1,0 +1,75 @@
+{
+  "sample_id": "NPD/cppcheck/linux:row=63:index=None",
+  "dataset_id": "cppcheck_linux",
+  "position": 63,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json",
+  "input_sha256": "5723c7a0334c67b6265b623f9ceb85276306687869a456571355601facde57d1",
+  "dataset": "benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+  "dataset_sha256": "bc1fcdd59756e855c0ee7987e6b788d408a5b0815f207e9f4ef272bf1ca234b6",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "frames": [
+    {
+      "frame": 0,
+      "function": "dwarf_lookup_cie",
+      "body_sha256": "05ec37a3e03aa0c41998ccd3a4ccf6fa7be20d3a2cc59551bda5d02001c2f840",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/09/bundle.json#/context/frames/0",
+      "report_file": "frame_0_r03.json",
+      "status": "UNKNOWN",
+      "diagnostic_count": 18,
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:72317fb96c18311d9576ad78a1b6b4ddb00f7f856d58bae29718ebe243a31137",
+          "return_source_range": {
+            "start": {
+              "line_1based": 38,
+              "column_1based": 2,
+              "byte_offset": 829
+            },
+            "end_exclusive": {
+              "line_1based": 38,
+              "column_1based": 13,
+              "byte_offset": 840
+            }
+          },
+          "raw_return_expression": "cie",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 37,
+            "text": "\tspin_unlock_irqrestore(&dwarf_cie_lock, flags);\n\treturn cie;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_return_records": 0,
+      "verified_caller_result_versions": 0
+    }
+  ],
+  "edges": [],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R02_results_reused": false,
+  "prior_solver_results_used": false,
+  "verified_call_context_count": 0,
+  "verified_return_bindings": 0,
+  "verified_caller_results": 0,
+  "alert_action": null,
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "elapsed_seconds": 0.17045100000177626
+}

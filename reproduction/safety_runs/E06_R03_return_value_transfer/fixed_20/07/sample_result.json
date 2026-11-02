@@ -1,0 +1,243 @@
+{
+  "sample_id": "NPD/codeql/kernel69:row=15:index=31",
+  "dataset_id": "codeql_linux",
+  "position": 15,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/07/bundle.json",
+  "input_sha256": "a6bfc8afd6d4025367490228c8be793f61ddd5408bb17d6319e944c5bc486091",
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "frames": [
+    {
+      "frame": 0,
+      "function": "udp_gro_receive_segment",
+      "body_sha256": "a45084ac56e0e387de6582aa35d2a1b7f7ae70595725427b3991f4e3193330ed",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/07/bundle.json#/context/frames/0",
+      "report_file": "frame_0_r03.json",
+      "status": "UNKNOWN",
+      "diagnostic_count": 19,
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:151e0ace5ccf60301d18b607c6f8fb67f8b3b8fdcb0f4d94316473d40b48c928",
+          "return_source_range": {
+            "start": {
+              "line_1based": 15,
+              "column_1based": 3,
+              "byte_offset": 369
+            },
+            "end_exclusive": {
+              "line_1based": 15,
+              "column_1based": 15,
+              "byte_offset": 381
+            }
+          },
+          "raw_return_expression": "NULL",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 14,
+            "text": "\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:aba8d4b87a2678aac6de481bd84616db9a6168089e69486cde8b430ae8dd9893",
+          "return_source_range": {
+            "start": {
+              "line_1based": 22,
+              "column_1based": 3,
+              "byte_offset": 560
+            },
+            "end_exclusive": {
+              "line_1based": 22,
+              "column_1based": 15,
+              "byte_offset": 572
+            }
+          },
+          "raw_return_expression": "NULL",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 21,
+            "text": "\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\treturn NULL;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:5ed993afd3b6b00b33668216ed1fa9b169cc0531121e367ce8c727733be4d6f1",
+          "return_source_range": {
+            "start": {
+              "line_1based": 41,
+              "column_1based": 4,
+              "byte_offset": 1023
+            },
+            "end_exclusive": {
+              "line_1based": 41,
+              "column_1based": 13,
+              "byte_offset": 1032
+            }
+          },
+          "raw_return_expression": "p",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 40,
+            "text": "\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\treturn p;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:de16909e2c7a8aebcca695d7db1f37331f5ef8354684c9336a4327425569bcb7",
+          "return_source_range": {
+            "start": {
+              "line_1based": 65,
+              "column_1based": 6,
+              "byte_offset": 1745
+            },
+            "end_exclusive": {
+              "line_1based": 65,
+              "column_1based": 18,
+              "byte_offset": 1757
+            }
+          },
+          "raw_return_expression": "NULL",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 64,
+            "text": "\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:c992b8dd22a60afa0c4581662ee341f18a141ab467c860e6c46e8632e7d7d96a",
+          "return_source_range": {
+            "start": {
+              "line_1based": 70,
+              "column_1based": 6,
+              "byte_offset": 1893
+            },
+            "end_exclusive": {
+              "line_1based": 70,
+              "column_1based": 18,
+              "byte_offset": 1905
+            }
+          },
+          "raw_return_expression": "NULL",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 69,
+            "text": "\t\t\t\t\tNAPI_GRO_CB(skb)->flush = 1;\n\t\t\t\t\treturn NULL;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:2210a7952ab711aa77c5c35d07a52ad0b82a9fde90d0036a71c2b271d07f7c48",
+          "return_source_range": {
+            "start": {
+              "line_1based": 85,
+              "column_1based": 3,
+              "byte_offset": 2185
+            },
+            "end_exclusive": {
+              "line_1based": 85,
+              "column_1based": 13,
+              "byte_offset": 2195
+            }
+          },
+          "raw_return_expression": "pp",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 84,
+            "text": "\n\t\treturn pp;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:cbe85e73d18ded76e5499b0f81c79f708c798c918c278b1e5cb57d7f8d7360bf",
+          "return_source_range": {
+            "start": {
+              "line_1based": 89,
+              "column_1based": 2,
+              "byte_offset": 2245
+            },
+            "end_exclusive": {
+              "line_1based": 89,
+              "column_1based": 14,
+              "byte_offset": 2257
+            }
+          },
+          "raw_return_expression": "NULL",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 88,
+            "text": "\t/* mismatch, but we never need to flush */\n\treturn NULL;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_return_records": 0,
+      "verified_caller_result_versions": 0
+    }
+  ],
+  "edges": [],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R02_results_reused": false,
+  "prior_solver_results_used": false,
+  "verified_call_context_count": 0,
+  "verified_return_bindings": 0,
+  "verified_caller_results": 0,
+  "alert_action": null,
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "elapsed_seconds": 0.05057180000221706
+}

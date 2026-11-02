@@ -1,0 +1,403 @@
+{
+  "dataset_id": "synthetic-r02",
+  "position": 0,
+  "source": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+  "source_sha256": "63378c213cdd60faa2aedeff0647c32f5010e30ab19124ed64a882bb738db630",
+  "build_evidence": {
+    "status": "synthetic-self-contained",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": true
+  },
+  "status": "UNKNOWN",
+  "reasons": [],
+  "diagnostics": [],
+  "functions": [
+    {
+      "function": {
+        "name": "test",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@test",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 6,
+          "byte_offset": 5
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 6,
+          "byte_offset": 5
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+            "line_1based": 1,
+            "column_1based": 1,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+            "line_1based": 1,
+            "column_1based": 54,
+            "byte_offset": 53
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:7da13348845c82b20af59fd1e60437775486d3846f286a1de0d65b06e569d76b"
+      },
+      "body_sha256": "689004a034732dfa7970a805893e27a74f5be555a50ea75c5625d78f86dc247f",
+      "status": "UNKNOWN",
+      "reasons": [
+        "unsupported_parameter_type"
+      ],
+      "slots": [
+        {
+          "slot_id": "local-slot:ba213debbfa718d03abb5ac61f5885cb3fc1e66fd73db2dd843f5f5f504f5cce",
+          "declaration": {
+            "name": "cb",
+            "kind": "PARM_DECL",
+            "usr": "c:X_indirect_call.c@10@F@test@cb",
+            "canonical_location": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+              "line_1based": 1,
+              "column_1based": 18,
+              "byte_offset": 17
+            },
+            "location": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+              "line_1based": 1,
+              "column_1based": 18,
+              "byte_offset": 17
+            },
+            "source_range": {
+              "start": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+                "line_1based": 1,
+                "column_1based": 11,
+                "byte_offset": 10
+              },
+              "end_exclusive": {
+                "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+                "line_1based": 1,
+                "column_1based": 26,
+                "byte_offset": 25
+              }
+            },
+            "linkage": "NO_LINKAGE",
+            "declaration_id": "decl:e7f6c9c07a9e191a36471d422c2f4fa751b75b3ef98b1a8bca795b057de8f139"
+          },
+          "type": {
+            "spelling": "void (*)(int)",
+            "canonical": "void (*)(int)",
+            "kind": "POINTER",
+            "size_bytes": 8,
+            "const": false,
+            "volatile": false,
+            "restrict": false,
+            "pointee": {
+              "spelling": "void (int)",
+              "canonical": "void (int)",
+              "kind": "FUNCTIONPROTO",
+              "size_bytes": 1,
+              "const": false,
+              "volatile": false,
+              "restrict": false
+            }
+          },
+          "r01_caller_slot_id": "caller-slot:ba213debbfa718d03abb5ac61f5885cb3fc1e66fd73db2dd843f5f5f504f5cce",
+          "r01_callee_slot_id": "callee-slot:ba213debbfa718d03abb5ac61f5885cb3fc1e66fd73db2dd843f5f5f504f5cce"
+        }
+      ],
+      "versions": [],
+      "reads": [],
+      "events": [
+        {
+          "event_id": "definition-event:d0543685f3576983af368007427ff8736173cbbc62995348b84dd2de4659e8a9",
+          "kind": "unknown_effect_barrier",
+          "path_id": "path-entry:745641924a4e6d4246eb4d1724723e1bdda53eb8babcf027a43665b4a3328e62",
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+              "line_1based": 1,
+              "column_1based": 11,
+              "byte_offset": 10
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+              "line_1based": 1,
+              "column_1based": 26,
+              "byte_offset": 25
+            }
+          },
+          "raw_expression": "void (*cb)(int)",
+          "reason": "unsupported_parameter_type",
+          "before": {
+            "path_id": "path-entry:745641924a4e6d4246eb4d1724723e1bdda53eb8babcf027a43665b4a3328e62",
+            "current": {},
+            "guards": [],
+            "termination": null,
+            "invalidated_by": []
+          },
+          "after": {
+            "path_id": "path-entry:745641924a4e6d4246eb4d1724723e1bdda53eb8babcf027a43665b4a3328e62",
+            "current": {},
+            "guards": [],
+            "termination": "UNKNOWN_EFFECT_STOP",
+            "invalidated_by": [
+              "definition-event:d0543685f3576983af368007427ff8736173cbbc62995348b84dd2de4659e8a9"
+            ]
+          }
+        }
+      ],
+      "state_snapshots": [
+        {
+          "path_id": "path-entry:745641924a4e6d4246eb4d1724723e1bdda53eb8babcf027a43665b4a3328e62",
+          "current": {},
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:d0543685f3576983af368007427ff8736173cbbc62995348b84dd2de4659e8a9"
+          ]
+        },
+        {
+          "path_id": "path-entry:745641924a4e6d4246eb4d1724723e1bdda53eb8babcf027a43665b4a3328e62",
+          "current": {},
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:d0543685f3576983af368007427ff8736173cbbc62995348b84dd2de4659e8a9"
+          ]
+        }
+      ],
+      "final_environments": [
+        {
+          "path_id": "path-entry:745641924a4e6d4246eb4d1724723e1bdda53eb8babcf027a43665b4a3328e62",
+          "current": {},
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:d0543685f3576983af368007427ff8736173cbbc62995348b84dd2de4659e8a9"
+          ]
+        }
+      ],
+      "unprocessed_ranges": [
+        {
+          "path_id": "path-entry:745641924a4e6d4246eb4d1724723e1bdda53eb8babcf027a43665b4a3328e62",
+          "range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+              "line_1based": 1,
+              "column_1based": 37,
+              "byte_offset": 36
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+              "line_1based": 1,
+              "column_1based": 42,
+              "byte_offset": 41
+            }
+          },
+          "reason": "not_analyzed_after_unknown_effect"
+        },
+        {
+          "path_id": "path-entry:745641924a4e6d4246eb4d1724723e1bdda53eb8babcf027a43665b4a3328e62",
+          "range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+              "line_1based": 1,
+              "column_1based": 44,
+              "byte_offset": 43
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+              "line_1based": 1,
+              "column_1based": 51,
+              "byte_offset": 50
+            }
+          },
+          "reason": "not_analyzed_after_unknown_effect"
+        }
+      ],
+      "paths_merged": false,
+      "return_values_propagated": false,
+      "call_effects_proven": false
+    }
+  ],
+  "expression_evidence": [
+    {
+      "expression_id": "expression:7da73f63f6b298b9a2e0394d575ab9ac5072fb3310540e40a1272568b416e9b4",
+      "kind": "DECL_REF_EXPR",
+      "text": "cb",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 37,
+          "byte_offset": 36
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 39,
+          "byte_offset": 38
+        }
+      },
+      "referenced_declaration": {
+        "name": "cb",
+        "kind": "PARM_DECL",
+        "usr": "c:X_indirect_call.c@10@F@test@cb",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 18,
+          "byte_offset": 17
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 18,
+          "byte_offset": 17
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+            "line_1based": 1,
+            "column_1based": 11,
+            "byte_offset": 10
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+            "line_1based": 1,
+            "column_1based": 26,
+            "byte_offset": 25
+          }
+        },
+        "linkage": "NO_LINKAGE",
+        "declaration_id": "decl:e7f6c9c07a9e191a36471d422c2f4fa751b75b3ef98b1a8bca795b057de8f139"
+      },
+      "source_sha256": "63378c213cdd60faa2aedeff0647c32f5010e30ab19124ed64a882bb738db630",
+      "status": "PASS"
+    },
+    {
+      "expression_id": "expression:c55baed16fea8475449f427ce72005a41d16047f3a6f20756b346cd8274fcd17",
+      "kind": "DECL_REF_EXPR",
+      "text": "x",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 40,
+          "byte_offset": 39
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 41,
+          "byte_offset": 40
+        }
+      },
+      "referenced_declaration": {
+        "name": "x",
+        "kind": "PARM_DECL",
+        "usr": "c:X_indirect_call.c@27@F@test@x",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 32,
+          "byte_offset": 31
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 32,
+          "byte_offset": 31
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+            "line_1based": 1,
+            "column_1based": 28,
+            "byte_offset": 27
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+            "line_1based": 1,
+            "column_1based": 33,
+            "byte_offset": 32
+          }
+        },
+        "linkage": "NO_LINKAGE",
+        "declaration_id": "decl:7c27c0fa2cd74fb09db4fe3b4b7a17c3b403fc9b20e21ff2dc0a41b6771a1dbe"
+      },
+      "source_sha256": "63378c213cdd60faa2aedeff0647c32f5010e30ab19124ed64a882bb738db630",
+      "status": "PASS"
+    },
+    {
+      "expression_id": "expression:5ccce6023743d2a1c47274cd91ab12e29f31070f34b998d0662c10207b0d86b5",
+      "kind": "DECL_REF_EXPR",
+      "text": "x",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 50,
+          "byte_offset": 49
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 51,
+          "byte_offset": 50
+        }
+      },
+      "referenced_declaration": {
+        "name": "x",
+        "kind": "PARM_DECL",
+        "usr": "c:X_indirect_call.c@27@F@test@x",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 32,
+          "byte_offset": 31
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+          "line_1based": 1,
+          "column_1based": 32,
+          "byte_offset": 31
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+            "line_1based": 1,
+            "column_1based": 28,
+            "byte_offset": 27
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_indirect_call.c",
+            "line_1based": 1,
+            "column_1based": 33,
+            "byte_offset": 32
+          }
+        },
+        "linkage": "NO_LINKAGE",
+        "declaration_id": "decl:7c27c0fa2cd74fb09db4fe3b4b7a17c3b403fc9b20e21ff2dc0a41b6771a1dbe"
+      },
+      "source_sha256": "63378c213cdd60faa2aedeff0647c32f5010e30ab19124ed64a882bb738db630",
+      "status": "PASS"
+    }
+  ],
+  "elapsed_seconds": 0.01503479999882984,
+  "scope": "intraprocedural-source-value-evidence-only",
+  "SMT_generated": false,
+  "cross_function_state_propagated": false
+}

@@ -1,0 +1,284 @@
+{
+  "sample_id": "NPD/codeql/kernel69:row=12:index=24",
+  "dataset_id": "codeql_linux",
+  "position": 12,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/bundle.json",
+  "input_sha256": "a46c96403fc3a90c2bbdc7f85c4540d8a06f2f10bab18b1ee3a5a1db08d91143",
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "frames": [
+    {
+      "frame": 0,
+      "function": "tcp_set_allowed_congestion_control",
+      "body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/bundle.json#/context/frames/0",
+      "report_file": "frame_0_r03.json",
+      "status": "UNKNOWN",
+      "diagnostic_count": 22,
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:6719611325d013cf5209b4fc435ef8ad99f3500dd9e5b65c7fcbe80aa657070d",
+          "return_source_range": {
+            "start": {
+              "line_1based": 9,
+              "column_1based": 3,
+              "byte_offset": 196
+            },
+            "end_exclusive": {
+              "line_1based": 9,
+              "column_1based": 18,
+              "byte_offset": 211
+            }
+          },
+          "raw_return_expression": "-ENOMEM",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 8,
+            "text": "\tif (!clone)\n\t\treturn -ENOMEM;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:074f20699f2fde2a2bb7fcfbf591ea8de06e7ac29e6fd510961ce51e3e578ea8",
+          "return_source_range": {
+            "start": {
+              "line_1based": 36,
+              "column_1based": 2,
+              "byte_offset": 769
+            },
+            "end_exclusive": {
+              "line_1based": 36,
+              "column_1based": 13,
+              "byte_offset": 780
+            }
+          },
+          "raw_return_expression": "ret",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 35,
+            "text": "\n\treturn ret;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_return_records": 0,
+      "verified_caller_result_versions": 0
+    },
+    {
+      "frame": 1,
+      "function": "kfree",
+      "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/bundle.json#/context/frames/1",
+      "report_file": "frame_1_r03.json",
+      "status": "UNKNOWN",
+      "diagnostic_count": 13,
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:78c97972941dfe7fe082f63ba7b5becb3a255d9419fac34e2b9c1d8a36d559a0",
+          "return_source_range": {
+            "start": {
+              "line_1based": 11,
+              "column_1based": 3,
+              "byte_offset": 202
+            },
+            "end_exclusive": {
+              "line_1based": 11,
+              "column_1based": 10,
+              "byte_offset": 209
+            }
+          },
+          "raw_return_expression": "",
+          "category_candidate": "void",
+          "nearby_source_lines": {
+            "first_line_1based": 10,
+            "text": "\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:ce60d9cf0bfdf59bf1bf55bf8cbb5c76f6675a3aa49ebb0c7d4cf3322fc74cb4",
+          "return_source_range": {
+            "start": {
+              "line_1based": 16,
+              "column_1based": 3,
+              "byte_offset": 332
+            },
+            "end_exclusive": {
+              "line_1based": 16,
+              "column_1based": 10,
+              "byte_offset": 339
+            }
+          },
+          "raw_return_expression": "",
+          "category_candidate": "void",
+          "nearby_source_lines": {
+            "first_line_1based": 15,
+            "text": "\t\tfree_large_kmalloc(folio, (void *)object);\n\t\treturn;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_return_records": 0,
+      "verified_caller_result_versions": 0
+    }
+  ],
+  "edges": [
+    {
+      "caller_frame": 0,
+      "callee_frame": 1,
+      "caller": "tcp_set_allowed_congestion_control",
+      "callee": "kfree",
+      "caller_body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+      "callee_body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "status": "UNKNOWN",
+      "callsite_candidates": [
+        {
+          "raw_call": "kfree(saved_clone)",
+          "source_range": {
+            "start": {
+              "line_1based": 34,
+              "column_1based": 2,
+              "byte_offset": 747
+            },
+            "end_exclusive": {
+              "line_1based": 34,
+              "column_1based": 20,
+              "byte_offset": 765
+            }
+          },
+          "result_disposition_candidate": "ignored",
+          "binding_status": "UNKNOWN",
+          "method": "literal_source_locator_only",
+          "caller_result_version_id": null,
+          "guard_transferred_to_caller": false,
+          "callee_return_terminates_caller": false
+        }
+      ],
+      "caller_result_versions": [],
+      "return_guard_propagation": false,
+      "callee_return_terminates_caller": false,
+      "R05_path_composition_performed": false,
+      "call_effect_coverage": "UNKNOWN",
+      "return_path_completeness": "UNKNOWN"
+    }
+  ],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R02_results_reused": false,
+  "prior_solver_results_used": false,
+  "verified_call_context_count": 0,
+  "verified_return_bindings": 0,
+  "verified_caller_results": 0,
+  "alert_action": null,
+  "risk_locators": [
+    {
+      "frame": 0,
+      "lines_1based": [
+        7,
+        7
+      ],
+      "required_text": "saved_clone = clone = kstrdup",
+      "risk": "chained_assignment_unknown_return_is_not_supported",
+      "text": "\tsaved_clone = clone = kstrdup(val, GFP_USER);",
+      "body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        13,
+        13
+      ],
+      "required_text": "strsep(&clone",
+      "risk": "address_escape_and_indirect_write",
+      "text": "\twhile ((name = strsep(&clone, \" \")) && *name) {",
+      "body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    },
+    {
+      "frame": 0,
+      "lines_1based": [
+        34,
+        34
+      ],
+      "required_text": "kfree(saved_clone);",
+      "risk": "caller_slot_and_callee_slot_are_distinct",
+      "text": "\tkfree(saved_clone);",
+      "body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    },
+    {
+      "frame": 1,
+      "lines_1based": [
+        1,
+        15
+      ],
+      "required_text": "ZERO_OR_NULL_PTR(object)",
+      "risk": "macro_type_and_object_symbol_identity_not_proven",
+      "text": "void kfree(const void *object)\n{\n\tstruct folio *folio;\n\tstruct slab *slab;\n\tstruct kmem_cache *s;\n\tvoid *x = (void *)object;\n\n\ttrace_kfree(_RET_IP_, object);\n\n\tif (unlikely(ZERO_OR_NULL_PTR(object)))\n\t\treturn;\n\n\tfolio = virt_to_folio(object);\n\tif (unlikely(!folio_test_slab(folio))) {\n\t\tfree_large_kmalloc(folio, (void *)object);",
+      "body_sha256": "ce574246eb0cddd842776be658e862604e577e5dee1c5fc3333b9b4f32dccd39",
+      "status": "UNKNOWN",
+      "method": "literal_source_locator_only"
+    }
+  ],
+  "prior_diagnoses_preserved": [
+    {
+      "path": "safety_runs/E02_base_constraint_preservation_static/historical_replay_report.md",
+      "sha256": "097999fbd6d3dd8cd5077c88de75fce80bc696c5470b971488d76f017bd4ca86",
+      "recomputed_by_R03": false
+    },
+    {
+      "path": "safety_runs/E03_base_delta_explicit_transfer_fix/A04_replay_report.md",
+      "sha256": "d1c27d90a6ae096302980f64676fbcfbc0307c228def97a557418d36593cea5f",
+      "recomputed_by_R03": false
+    },
+    {
+      "path": "safety_runs/E05_polarity_variable_identity/E05_report.md",
+      "sha256": "2a849f122fda652251e41418c32b6087613e81781b7710e48eb28c9099aded8f",
+      "recomputed_by_R03": false
+    }
+  ],
+  "elapsed_seconds": 0.09601780000230065
+}

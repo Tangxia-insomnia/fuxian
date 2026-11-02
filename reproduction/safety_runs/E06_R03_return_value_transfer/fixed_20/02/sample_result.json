@@ -1,0 +1,132 @@
+{
+  "sample_id": "NPD/codeql/kernel69:row=33:index=53",
+  "dataset_id": "codeql_linux",
+  "position": 33,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/02/bundle.json",
+  "input_sha256": "4bc18c1834c41ce117c1881fc2f395b45251454ceeac89932e0b3d14d84adec4",
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "dataset_sha256": "5385ae52f09cc927dbc5e29f17229ccaaa68467e1614cbf73d219fd1f46713a3",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "frames": [
+    {
+      "frame": 0,
+      "function": "ip6_route_info_create",
+      "body_sha256": "c59e0935767987ac1be4757ae88affcee8f1e98b5615e79e52c0fac449291f20",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/02/bundle.json#/context/frames/0",
+      "report_file": "frame_0_r03.json",
+      "status": "UNKNOWN",
+      "diagnostic_count": 117,
+      "reasons": [
+        "missing_original_build_evidence",
+        "preprocessing_not_supported",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:dd5552d157014b9e2c18a89edfc82094827dcb4f03dbb85602b760972c26733d",
+          "return_source_range": {
+            "start": {
+              "line_1based": 148,
+              "column_1based": 2,
+              "byte_offset": 3882
+            },
+            "end_exclusive": {
+              "line_1based": 148,
+              "column_1based": 12,
+              "byte_offset": 3892
+            }
+          },
+          "raw_return_expression": "rt",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 147,
+            "text": "\n\treturn rt;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:0deb712a63944e4428570c2d589db40ab6cf5616f13b8284d35a115696b815c7",
+          "return_source_range": {
+            "start": {
+              "line_1based": 151,
+              "column_1based": 2,
+              "byte_offset": 3923
+            },
+            "end_exclusive": {
+              "line_1based": 151,
+              "column_1based": 22,
+              "byte_offset": 3943
+            }
+          },
+          "raw_return_expression": "ERR_PTR(err)",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 150,
+            "text": "\tfib6_info_release(rt);\n\treturn ERR_PTR(err);"
+          },
+          "contains_call_candidate": true,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        },
+        {
+          "return_locator_id": "source-return:29b28ffdc6e34994a64d7573f1b055e618d6bd6929f87e059bb7b9c81db55741",
+          "return_source_range": {
+            "start": {
+              "line_1based": 155,
+              "column_1based": 2,
+              "byte_offset": 4006
+            },
+            "end_exclusive": {
+              "line_1based": 155,
+              "column_1based": 22,
+              "byte_offset": 4026
+            }
+          },
+          "raw_return_expression": "ERR_PTR(err)",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 154,
+            "text": "\tkfree(rt);\n\treturn ERR_PTR(err);"
+          },
+          "contains_call_candidate": true,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_return_records": 0,
+      "verified_caller_result_versions": 0
+    }
+  ],
+  "edges": [],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R02_results_reused": false,
+  "prior_solver_results_used": false,
+  "verified_call_context_count": 0,
+  "verified_return_bindings": 0,
+  "verified_caller_results": 0,
+  "alert_action": null,
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "elapsed_seconds": 0.11667929999748594
+}

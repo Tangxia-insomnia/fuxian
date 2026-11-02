@@ -1,0 +1,429 @@
+{
+  "dataset_id": "codeql_linux",
+  "position": 15,
+  "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+  "source_sha256": "a45084ac56e0e387de6582aa35d2a1b7f7ae70595725427b3991f4e3193330ed",
+  "build_evidence": {
+    "status": "saved-source-only",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": false
+  },
+  "status": "UNKNOWN",
+  "reasons": [
+    "missing_original_build_evidence",
+    "clang_diagnostics_no_recovery_approval"
+  ],
+  "diagnostics": [
+    {
+      "severity": 2,
+      "spelling": "declaration of 'struct list_head' will not be visible outside of this function",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 1,
+        "column_1based": 55,
+        "byte_offset": 54
+      },
+      "option": "-Wvisibility",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'udp_gro_udphdr'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 4,
+        "column_1based": 22,
+        "byte_offset": 127
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incompatible integer to pointer conversion initializing 'struct udphdr *' with an expression of type 'int'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 4,
+        "column_1based": 17,
+        "byte_offset": 122
+      },
+      "option": "-Wint-conversion",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 4,
+            "column_1based": 22,
+            "byte_offset": 127
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 4,
+            "column_1based": 41,
+            "byte_offset": 146
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'NULL'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 5,
+        "column_1based": 23,
+        "byte_offset": 170
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct udphdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 13,
+        "column_1based": 9,
+        "byte_offset": 325
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 13,
+            "column_1based": 7,
+            "byte_offset": 323
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 13,
+            "column_1based": 9,
+            "byte_offset": 325
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'NAPI_GRO_CB'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 14,
+        "column_1based": 3,
+        "byte_offset": 338
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "member reference type 'int' is not a pointer",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 14,
+        "column_1based": 21,
+        "byte_offset": 356
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 14,
+            "column_1based": 3,
+            "byte_offset": 338
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 14,
+            "column_1based": 19,
+            "byte_offset": 354
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'NULL'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 15,
+        "column_1based": 10,
+        "byte_offset": 376
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'ntohs'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 19,
+        "column_1based": 9,
+        "byte_offset": 455
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "incomplete definition of type 'struct udphdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 19,
+        "column_1based": 17,
+        "byte_offset": 463
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 19,
+            "column_1based": 15,
+            "byte_offset": 461
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 19,
+            "column_1based": 17,
+            "byte_offset": 463
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "invalid application of 'sizeof' to an incomplete type 'struct udphdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 20,
+        "column_1based": 20,
+        "byte_offset": 490
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 20,
+            "column_1based": 20,
+            "byte_offset": 490
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 20,
+            "column_1based": 25,
+            "byte_offset": 495
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_gro_len'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 20,
+        "column_1based": 37,
+        "byte_offset": 507
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'NAPI_GRO_CB'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 21,
+        "column_1based": 3,
+        "byte_offset": 529
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "member reference type 'int' is not a pointer",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 21,
+        "column_1based": 21,
+        "byte_offset": 547
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 21,
+            "column_1based": 3,
+            "byte_offset": 529
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 21,
+            "column_1based": 19,
+            "byte_offset": 545
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'NULL'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 22,
+        "column_1based": 10,
+        "byte_offset": 567
+      },
+      "option": "",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'skb_gro_pull'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 25,
+        "column_1based": 2,
+        "byte_offset": 614
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "invalid application of 'sizeof' to an incomplete type 'struct udphdr'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 25,
+        "column_1based": 20,
+        "byte_offset": 632
+      },
+      "option": "",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 25,
+            "column_1based": 26,
+            "byte_offset": 638
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+            "line_1based": 25,
+            "column_1based": 41,
+            "byte_offset": 653
+          }
+        }
+      ]
+    },
+    {
+      "severity": 3,
+      "spelling": "call to undeclared function 'list_for_each_entry'; ISO C99 and later do not support implicit function declarations",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 27,
+        "column_1based": 2,
+        "byte_offset": 658
+      },
+      "option": "-Wimplicit-function-declaration",
+      "ranges": []
+    },
+    {
+      "severity": 3,
+      "spelling": "use of undeclared identifier 'list'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\fixed_20\\07\\frame_0.c",
+        "line_1based": 27,
+        "column_1based": 31,
+        "byte_offset": 687
+      },
+      "option": "",
+      "ranges": []
+    }
+  ],
+  "caller": null,
+  "call_contexts": [],
+  "callees": [],
+  "return_transfers": [],
+  "call_attempts": [],
+  "source_return_inventory": [],
+  "summary_cache_used": false,
+  "SMT_generated": false,
+  "safety_decisions": false,
+  "context_isolation": {
+    "status": "N/A",
+    "context_count": 0
+  },
+  "metrics": {
+    "argument_entry": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "return_binding": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "caller_result": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "call_effect_coverage": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "return_path_completeness": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "complete_call": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "ignored_results": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "void_returns": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "type_compatibility": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    }
+  },
+  "elapsed_seconds": 0.046242000000347616
+}

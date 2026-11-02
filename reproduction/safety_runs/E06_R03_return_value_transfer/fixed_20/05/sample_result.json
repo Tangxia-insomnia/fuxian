@@ -1,0 +1,75 @@
+{
+  "sample_id": "NPD/codeql/openssl:row=20:index=21",
+  "dataset_id": "codeql_openssl",
+  "position": 20,
+  "input_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json",
+  "input_sha256": "fea617683e27ca9b4efeea4d35c82e4558a141987932a64d1b21d443bdf41dcf",
+  "dataset": "benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+  "dataset_sha256": "4664bb6b80e8a18ab2e19b1489c4ca9ce7fb4f2c720dd0f402d1762356112882",
+  "status": "UNKNOWN",
+  "execution_status": "COMPLETED",
+  "context_state": "FRAMES_PRESENT",
+  "null_context_provenance": null,
+  "historical_context_error": null,
+  "frames": [
+    {
+      "frame": 0,
+      "function": "engine_main",
+      "body_sha256": "7f3704779b9788908200f89b70d718036a397fff750c02cf9d593ca97fc7bab0",
+      "source_ref": "safety_runs/E02_base_constraint_preservation_static/evidence/fixed_20_frozen_candidate/05/bundle.json#/context/frames/0",
+      "report_file": "frame_0_r03.json",
+      "status": "UNKNOWN",
+      "diagnostic_count": 176,
+      "reasons": [
+        "missing_original_build_evidence",
+        "clang_diagnostics_no_recovery_approval"
+      ],
+      "return_source_candidates": [
+        {
+          "return_locator_id": "source-return:25bb17b0df73baf8f092bcd913ca91aead8b26fdc9513909a22761a6968d8d9d",
+          "return_source_range": {
+            "start": {
+              "line_1based": 199,
+              "column_1based": 5,
+              "byte_offset": 6816
+            },
+            "end_exclusive": {
+              "line_1based": 199,
+              "column_1based": 16,
+              "byte_offset": 6827
+            }
+          },
+          "raw_return_expression": "ret",
+          "category_candidate": "unsupported_or_unverified_expression",
+          "nearby_source_lines": {
+            "first_line_1based": 198,
+            "text": "    BIO_free_all(out);\n    return ret;"
+          },
+          "contains_call_candidate": false,
+          "status": "UNKNOWN",
+          "type": null,
+          "source_value_version_id": null,
+          "normal_return_verified": false,
+          "guard_semantics_verified": false,
+          "method": "literal_source_locator_only"
+        }
+      ],
+      "verified_return_records": 0,
+      "verified_caller_result_versions": 0
+    }
+  ],
+  "edges": [],
+  "reasons": [
+    "missing_original_build_evidence"
+  ],
+  "labels_used": false,
+  "prior_R02_results_reused": false,
+  "prior_solver_results_used": false,
+  "verified_call_context_count": 0,
+  "verified_return_bindings": 0,
+  "verified_caller_results": 0,
+  "alert_action": null,
+  "risk_locators": [],
+  "prior_diagnoses_preserved": [],
+  "elapsed_seconds": 0.07504209999751765
+}

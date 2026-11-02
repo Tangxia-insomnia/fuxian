@@ -1,0 +1,142 @@
+{
+  "dataset_id": "synthetic-r03",
+  "position": 0,
+  "source": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_argument_write.c",
+  "source_sha256": "fb4b5eb15cac42856c12c93bf08ca7a05cd549dc81a40b1f41a2ea56358bf147",
+  "build_evidence": {
+    "status": "synthetic-self-contained",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": true
+  },
+  "status": "UNKNOWN",
+  "reasons": [
+    "clang_diagnostics_no_recovery_approval"
+  ],
+  "diagnostics": [
+    {
+      "severity": 2,
+      "spelling": "unsequenced modification and access to 'a'",
+      "location": {
+        "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_argument_write.c",
+        "line_1based": 1,
+        "column_1based": 58,
+        "byte_offset": 57
+      },
+      "option": "-Wunsequenced",
+      "ranges": [
+        {
+          "start": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_argument_write.c",
+            "line_1based": 1,
+            "column_1based": 55,
+            "byte_offset": 54
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_argument_write.c",
+            "line_1based": 1,
+            "column_1based": 56,
+            "byte_offset": 55
+          }
+        }
+      ]
+    }
+  ],
+  "caller": null,
+  "call_contexts": [],
+  "callees": [],
+  "return_transfers": [],
+  "call_attempts": [],
+  "source_return_inventory": [
+    {
+      "source_range": {
+        "start": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_argument_write.c",
+          "line_1based": 1,
+          "column_1based": 20,
+          "byte_offset": 19
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E06_R03_return_value_transfer\\synthetic_fixtures\\X_argument_write.c",
+          "line_1based": 1,
+          "column_1based": 28,
+          "byte_offset": 27
+        }
+      },
+      "raw": "return x",
+      "status": "UNKNOWN",
+      "method": "source_inventory_not_approved_propagation"
+    }
+  ],
+  "summary_cache_used": false,
+  "SMT_generated": false,
+  "safety_decisions": false,
+  "context_isolation": {
+    "status": "N/A",
+    "context_count": 0
+  },
+  "metrics": {
+    "argument_entry": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "return_binding": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "caller_result": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "call_effect_coverage": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "return_path_completeness": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "complete_call": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "ignored_results": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "void_returns": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    },
+    "type_compatibility": {
+      "PASS": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "N/A": 0
+    }
+  },
+  "elapsed_seconds": 0.018490800001018215
+}

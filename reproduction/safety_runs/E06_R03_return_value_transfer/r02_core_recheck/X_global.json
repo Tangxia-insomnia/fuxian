@@ -1,0 +1,192 @@
+{
+  "dataset_id": "synthetic-r02",
+  "position": 0,
+  "source": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+  "source_sha256": "56791b7274832735497ae8c960d180fae20e6d571cb95a3b8d5809d94d47a1a6",
+  "build_evidence": {
+    "status": "synthetic-self-contained",
+    "args": [
+      "-x",
+      "c",
+      "-std=c11",
+      "-nostdinc",
+      "-Werror=implicit-function-declaration",
+      "-ferror-limit=0"
+    ],
+    "original_project_build_verified": false,
+    "controlled_synthetic_TU": true
+  },
+  "status": "UNKNOWN",
+  "reasons": [],
+  "diagnostics": [],
+  "functions": [
+    {
+      "function": {
+        "name": "test",
+        "kind": "FUNCTION_DECL",
+        "usr": "c:@F@test",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+          "line_1based": 2,
+          "column_1based": 6,
+          "byte_offset": 18
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+          "line_1based": 2,
+          "column_1based": 6,
+          "byte_offset": 18
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+            "line_1based": 2,
+            "column_1based": 1,
+            "byte_offset": 13
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+            "line_1based": 2,
+            "column_1based": 34,
+            "byte_offset": 46
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:dc75905fd15ce2a58a8b2e3d1459ccd947a27d9c4cbc07767b5278437987d5ca"
+      },
+      "body_sha256": "03beb881859b6ec780c3d3517c34021b251654e5229cf42d228dc764ab6a4c81",
+      "status": "UNKNOWN",
+      "reasons": [
+        "nonlocal_or_unbound_read"
+      ],
+      "slots": [],
+      "versions": [],
+      "reads": [],
+      "events": [
+        {
+          "event_id": "definition-event:a26ee032d7935a63d7ad12250f25ee6f222ef9374a419a40325276b0d8227ab2",
+          "kind": "unknown_effect_barrier",
+          "path_id": "path-entry:7280d0dc2d5b14b55748a28f30c32d5eecb2ea243374872b7f49759d6a49cae7",
+          "source_range": {
+            "start": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+              "line_1based": 2,
+              "column_1based": 25,
+              "byte_offset": 37
+            },
+            "end_exclusive": {
+              "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+              "line_1based": 2,
+              "column_1based": 31,
+              "byte_offset": 43
+            }
+          },
+          "raw_expression": "global",
+          "reason": "nonlocal_or_unbound_read",
+          "before": {
+            "path_id": "path-entry:7280d0dc2d5b14b55748a28f30c32d5eecb2ea243374872b7f49759d6a49cae7",
+            "current": {},
+            "guards": [],
+            "termination": null,
+            "invalidated_by": []
+          },
+          "after": {
+            "path_id": "path-entry:7280d0dc2d5b14b55748a28f30c32d5eecb2ea243374872b7f49759d6a49cae7",
+            "current": {},
+            "guards": [],
+            "termination": "UNKNOWN_EFFECT_STOP",
+            "invalidated_by": [
+              "definition-event:a26ee032d7935a63d7ad12250f25ee6f222ef9374a419a40325276b0d8227ab2"
+            ]
+          }
+        }
+      ],
+      "state_snapshots": [
+        {
+          "path_id": "path-entry:7280d0dc2d5b14b55748a28f30c32d5eecb2ea243374872b7f49759d6a49cae7",
+          "current": {},
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:a26ee032d7935a63d7ad12250f25ee6f222ef9374a419a40325276b0d8227ab2"
+          ]
+        }
+      ],
+      "final_environments": [
+        {
+          "path_id": "path-entry:7280d0dc2d5b14b55748a28f30c32d5eecb2ea243374872b7f49759d6a49cae7",
+          "current": {},
+          "guards": [],
+          "termination": "UNKNOWN_EFFECT_STOP",
+          "invalidated_by": [
+            "definition-event:a26ee032d7935a63d7ad12250f25ee6f222ef9374a419a40325276b0d8227ab2"
+          ]
+        }
+      ],
+      "unprocessed_ranges": [],
+      "paths_merged": false,
+      "return_values_propagated": false,
+      "call_effects_proven": false
+    }
+  ],
+  "expression_evidence": [
+    {
+      "expression_id": "expression:b00fb25ce1a006abec2703284b1241745ca8cf5dbfecf1683312534340ee9bb6",
+      "kind": "DECL_REF_EXPR",
+      "text": "global",
+      "range": {
+        "start": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+          "line_1based": 2,
+          "column_1based": 25,
+          "byte_offset": 37
+        },
+        "end_exclusive": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+          "line_1based": 2,
+          "column_1based": 31,
+          "byte_offset": 43
+        }
+      },
+      "referenced_declaration": {
+        "name": "global",
+        "kind": "VAR_DECL",
+        "usr": "c:@global",
+        "canonical_location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+          "line_1based": 1,
+          "column_1based": 6,
+          "byte_offset": 5
+        },
+        "location": {
+          "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+          "line_1based": 1,
+          "column_1based": 6,
+          "byte_offset": 5
+        },
+        "source_range": {
+          "start": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+            "line_1based": 1,
+            "column_1based": 1,
+            "byte_offset": 0
+          },
+          "end_exclusive": {
+            "file": "E:\\codexconversation\\\u8bfe\u9898\u7814\u7a76\\reproduction\\safety_runs\\E06_R02_local_value_versions\\synthetic_fixtures\\X_global.c",
+            "line_1based": 1,
+            "column_1based": 12,
+            "byte_offset": 11
+          }
+        },
+        "linkage": "EXTERNAL",
+        "declaration_id": "decl:79f780f1b145c353c37ec76214923a869cea7273f24720a687719495dba63e60"
+      },
+      "source_sha256": "56791b7274832735497ae8c960d180fae20e6d571cb95a3b8d5809d94d47a1a6",
+      "status": "PASS"
+    }
+  ],
+  "elapsed_seconds": 0.013691200001630932,
+  "scope": "intraprocedural-source-value-evidence-only",
+  "SMT_generated": false,
+  "cross_function_state_propagated": false
+}
