@@ -1,0 +1,9 @@
+{
+  "test_id": "T08",
+  "scenario": "wrong_rename_in_U10",
+  "B": "```python\nx=Int('x')\ns.add(x == 0)\n```",
+  "delta": "",
+  "U10_output": "def check_constraints():\n    y=Int('y')\n    s=Solver()\n    s.add(y == 0)\n    return s.check() == sat\n",
+  "expected_assembly": true,
+  "expected_postcondition": false
+}

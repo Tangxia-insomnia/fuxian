@@ -1,0 +1,22 @@
+{
+  "scope": "development failures only; no historical file changes",
+  "attempts": [
+    {
+      "attempt": 1,
+      "command": "Anaconda python -B -m completion.test_constraint_bundle",
+      "error": "ModuleNotFoundError: No module named lizard",
+      "resolution": "use pre-existing reproduction/.venv; no dependency install",
+      "historical_code_executed": false
+    },
+    {
+      "attempt": 2,
+      "command": "reproduction/.venv python -B -m completion.test_constraint_bundle",
+      "error": "ValueError: Circular reference detected while serializing NEW rejection event",
+      "resolution": "copy audit envelope instead of creating audit→bundle→audit cycle; serialize before opening evidence output",
+      "partial_output": "synthetic_engine_traces/rejected_pre_U10/constraint_transfer_e03/001.partial.json.txt"
+    }
+  ],
+  "failed_output_preserved": true,
+  "model_calls": 0,
+  "z3_runs": 0
+}

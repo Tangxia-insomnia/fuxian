@@ -1,0 +1,86 @@
+{
+  "experiment": "E03_base_delta_explicit_transfer_fix",
+  "metric_scope": "offline structural transfer tests only; not path/bug classification accuracy",
+  "synthetic": {
+    "scenario_count": 23,
+    "expected_outcome_passed": 23,
+    "failed": 0,
+    "assembly_contract_statuses": {
+      "PASS": 15,
+      "UNKNOWN": 7,
+      "FAIL": 1
+    },
+    "assembly_admitted": 14,
+    "postcondition_checked": 14,
+    "postcondition_contract_statuses": {
+      "PASS": 8,
+      "FAIL": 4,
+      "UNKNOWN": 2
+    },
+    "postcondition_admitted": 7,
+    "rejection_reason_event_counts": {
+      "duplicate_declarations": 2,
+      "contract_not_PASS": 14,
+      "unsupported_syntax": 4,
+      "symbol_identity_conflicts": 2,
+      "missing_U02_raw_evidence": 2,
+      "missing_final_evidence": 4,
+      "cannot_decode_original_code:missing_original_evidence": 3,
+      "missing_U06_raw_evidence": 1,
+      "cannot_decode_original_code:text_outside_code_block": 1
+    },
+    "rejection_counting_note": "per assembly/postcondition event; reasons overlap; raw E02 PASS alone is insufficient if duplicate declarations exist"
+  },
+  "integration": {
+    "checks": 18,
+    "passed": 18,
+    "failed": 0,
+    "kind": "AST, exact replacement, adapter bound methods and local observation; no full pipeline"
+  },
+  "cached_cases": [
+    {
+      "case": "A04",
+      "old_input_contract": "FAIL",
+      "new_input_contract": "PASS",
+      "new_input_accepted": true,
+      "cached_U10_output_contract": "UNKNOWN",
+      "cached_U10_output_accepted": false,
+      "expected_cached_post": "UNKNOWN",
+      "acceptance_passed": true,
+      "semantic_correctness": "NOT_ASSESSED",
+      "polarity_correctness": "NOT_ASSESSED"
+    },
+    {
+      "case": "A01",
+      "old_input_contract": "FAIL",
+      "new_input_contract": "PASS",
+      "new_input_accepted": true,
+      "cached_U10_output_contract": "PASS",
+      "cached_U10_output_accepted": true,
+      "expected_cached_post": "PASS",
+      "acceptance_passed": true,
+      "semantic_correctness": "NOT_ASSESSED",
+      "polarity_correctness": "NOT_ASSESSED"
+    }
+  ],
+  "cached_case_count": 2,
+  "cached_acceptance_passed": 2,
+  "seconds": {
+    "synthetic_and_integration": 0.3516732000000502,
+    "targeted_cached_replay": 0.10337379999987206
+  },
+  "model_api_calls": 0,
+  "model_api_cost_cny": 0,
+  "harness_starts": 0,
+  "z3_runs": 0,
+  "historical_generated_python_executions": 0,
+  "full_audit_10_run": false,
+  "fixed_20_run": false,
+  "new_real_U10_outputs": 0,
+  "new_safety_decisions": 0,
+  "semantic_correctness": "NOT_ASSESSED",
+  "polarity_correctness": "NOT_ASSESSED",
+  "duplicate_assertion_counting": "E02 totals span roles B/delta/Final; final_duplicate_assertions is Final-only; no multiplicity is silently removed by assembly",
+  "alert_classification_metrics": null,
+  "classification_note": "No FILTER/KEEP/UNKNOWN safety classification produced; static UNKNOWN is a separate status."
+}

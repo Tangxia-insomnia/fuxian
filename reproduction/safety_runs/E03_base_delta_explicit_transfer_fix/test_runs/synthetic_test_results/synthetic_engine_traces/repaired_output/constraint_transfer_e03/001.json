@@ -1,0 +1,640 @@
+{
+  "adapter_version": "e03-base-delta-explicit-transfer-v1",
+  "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+  "base_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950",
+  "delta_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+  "final_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51",
+  "contract_status": "PASS",
+  "accepted": true,
+  "rejection_reasons": [],
+  "counts": {
+    "missing_declarations": 0,
+    "missing_base_assertions": 0,
+    "missing_delta_assertions": 0,
+    "type_conflicts": 0,
+    "symbol_identity_conflicts": 0,
+    "duplicate_declarations": 0,
+    "duplicate_assertions": 0,
+    "final_duplicate_assertions": 0,
+    "final_duplicate_declarations": 0
+  },
+  "check_contract": {
+    "checker_version": "e02-static-contract-v1",
+    "contract_status": "PASS",
+    "reasons": [
+      "all_required_structural_members_present"
+    ],
+    "scope": "exact structural B+delta preservation only",
+    "semantic_correctness": "NOT_ASSESSED",
+    "polarity_correctness": "NOT_ASSESSED",
+    "solver_executed": false,
+    "alert_safety_decision": null,
+    "counts": {
+      "missing_base_assertions": 0,
+      "missing_delta_assertions": 0,
+      "missing_declarations": 0,
+      "symbol_identity_conflicts": 0,
+      "type_conflicts": 0,
+      "duplicate_assertions": 0,
+      "duplicate_declarations": 0,
+      "extra_final_assertions": 0,
+      "extra_final_declarations": 0,
+      "solver_recreations": 0
+    },
+    "inputs": {
+      "B": {
+        "reference": "position/0/frame/0/U02/raw_response",
+        "sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950",
+        "format": "python"
+      },
+      "delta": {
+        "reference": "position/0/frame/0/U06/raw_response",
+        "sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+        "format": "python"
+      },
+      "Final": {
+        "reference": "deterministic_U02_code_plus_U06_code",
+        "sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51",
+        "format": "python"
+      }
+    },
+    "ir": {
+      "B": {
+        "declarations": [
+          {
+            "symbol": "x",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/0/frame/0/U02/raw_response",
+              "line": 1,
+              "source_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950"
+            }
+          }
+        ],
+        "assertions": [
+          {
+            "formula": "(= x 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/0/frame/0/U02/raw_response",
+              "line": 2,
+              "source_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950"
+            }
+          }
+        ],
+        "bindings": [
+          {
+            "python_name": "x",
+            "symbol": "x",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/0/frame/0/U02/raw_response",
+              "line": 1,
+              "source_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950"
+            }
+          }
+        ],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(= x 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/0/frame/0/U02/raw_response",
+                  "line": 2,
+                  "source_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950"
+                }
+              }
+            ],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "position/0/frame/0/U02/raw_response",
+          "sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      },
+      "delta": {
+        "declarations": [],
+        "assertions": [
+          {
+            "formula": "(>= x 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/0/frame/0/U06/raw_response",
+              "line": 1,
+              "source_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6"
+            }
+          }
+        ],
+        "bindings": [],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(>= x 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/0/frame/0/U06/raw_response",
+                  "line": 1,
+                  "source_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6"
+                }
+              }
+            ],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "position/0/frame/0/U06/raw_response",
+          "sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      },
+      "Final": {
+        "declarations": [
+          {
+            "symbol": "x",
+            "sort": "Int",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 2,
+              "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+            }
+          }
+        ],
+        "assertions": [
+          {
+            "formula": "(= x 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 3,
+              "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+            }
+          },
+          {
+            "formula": "(>= x 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 7,
+              "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+            }
+          }
+        ],
+        "bindings": [
+          {
+            "python_name": "x",
+            "symbol": "x",
+            "sort": "Int",
+            "origin": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "line": 2,
+              "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+            }
+          }
+        ],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(= x 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 3,
+                  "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+                }
+              },
+              {
+                "formula": "(>= x 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 7,
+                  "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+                }
+              }
+            ],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "deterministic_U02_code_plus_U06_code",
+          "sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      }
+    },
+    "missing_base_assertions": [],
+    "missing_delta_assertions": [],
+    "missing_declarations": [],
+    "type_conflicts": {},
+    "identity_conflicts": [],
+    "unexpected_final_assertions": [],
+    "duplicate_assertions_by_role": {
+      "B": 0,
+      "delta": 0,
+      "Final": 0
+    },
+    "duplicate_declarations_by_role": {
+      "B": 0,
+      "delta": 0,
+      "Final": 0
+    },
+    "expected_declarations": [
+      [
+        "x",
+        "Int"
+      ]
+    ],
+    "observed_declarations": [
+      [
+        "x",
+        "Int"
+      ]
+    ],
+    "unexpected_final_declarations": [],
+    "seconds": 0.0003154000000904489
+  },
+  "semantic_correctness": "NOT_ASSESSED",
+  "polarity_correctness": "NOT_ASSESSED",
+  "alert_safety_decision": null,
+  "solver_executed": false,
+  "sources": {
+    "base": {
+      "stage": "U02",
+      "reference": "position/0/frame/0/U02/raw_response",
+      "raw_text": "```python\nx=Int('x')\ns.add(x == 0)\n```",
+      "raw_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    },
+    "delta": {
+      "stage": "U06",
+      "reference": "position/0/frame/0/U06/raw_response",
+      "raw_text": "s.add(x >= 0)",
+      "raw_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    },
+    "final": {
+      "stage": "Final",
+      "reference": "deterministic_U02_code_plus_U06_code",
+      "raw_text": "# E03 BEGIN U02 BASE raw_sha256=eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950\nx=Int('x')\ns.add(x == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6\ns.add(x >= 0)\n# E03 END U06 DELTA\n",
+      "raw_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    }
+  },
+  "stage": "before_U10",
+  "merged_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51",
+  "bundle": {
+    "adapter_version": "e03-base-delta-explicit-transfer-v1",
+    "base": {
+      "stage": "U02",
+      "reference": "position/0/frame/0/U02/raw_response",
+      "raw_text": "```python\nx=Int('x')\ns.add(x == 0)\n```",
+      "raw_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation",
+      "code_text": "x=Int('x')\ns.add(x == 0)\n",
+      "code_sha256": "c861994ad1da32ae84b487b07645c0479a391a28494bd1340a8b670597bbe7be",
+      "merged_span": {
+        "start": 97,
+        "end": 122,
+        "unit": "Python character offset, half-open"
+      }
+    },
+    "delta": {
+      "stage": "U06",
+      "reference": "position/0/frame/0/U06/raw_response",
+      "raw_text": "s.add(x >= 0)",
+      "raw_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation",
+      "code_text": "s.add(x >= 0)",
+      "code_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+      "merged_span": {
+        "start": 240,
+        "end": 253,
+        "unit": "Python character offset, half-open"
+      }
+    },
+    "merged_script": "# E03 BEGIN U02 BASE raw_sha256=eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950\nx=Int('x')\ns.add(x == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6\ns.add(x >= 0)\n# E03 END U06 DELTA\n",
+    "base_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950",
+    "delta_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+    "merged_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51",
+    "assembly_audit": {
+      "adapter_version": "e03-base-delta-explicit-transfer-v1",
+      "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+      "base_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950",
+      "delta_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+      "final_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51",
+      "contract_status": "PASS",
+      "accepted": true,
+      "rejection_reasons": [],
+      "counts": {
+        "missing_declarations": 0,
+        "missing_base_assertions": 0,
+        "missing_delta_assertions": 0,
+        "type_conflicts": 0,
+        "symbol_identity_conflicts": 0,
+        "duplicate_declarations": 0,
+        "duplicate_assertions": 0,
+        "final_duplicate_assertions": 0,
+        "final_duplicate_declarations": 0
+      },
+      "check_contract": {
+        "checker_version": "e02-static-contract-v1",
+        "contract_status": "PASS",
+        "reasons": [
+          "all_required_structural_members_present"
+        ],
+        "scope": "exact structural B+delta preservation only",
+        "semantic_correctness": "NOT_ASSESSED",
+        "polarity_correctness": "NOT_ASSESSED",
+        "solver_executed": false,
+        "alert_safety_decision": null,
+        "counts": {
+          "missing_base_assertions": 0,
+          "missing_delta_assertions": 0,
+          "missing_declarations": 0,
+          "symbol_identity_conflicts": 0,
+          "type_conflicts": 0,
+          "duplicate_assertions": 0,
+          "duplicate_declarations": 0,
+          "extra_final_assertions": 0,
+          "extra_final_declarations": 0,
+          "solver_recreations": 0
+        },
+        "inputs": {
+          "B": {
+            "reference": "position/0/frame/0/U02/raw_response",
+            "sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950",
+            "format": "python"
+          },
+          "delta": {
+            "reference": "position/0/frame/0/U06/raw_response",
+            "sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+            "format": "python"
+          },
+          "Final": {
+            "reference": "deterministic_U02_code_plus_U06_code",
+            "sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51",
+            "format": "python"
+          }
+        },
+        "ir": {
+          "B": {
+            "declarations": [
+              {
+                "symbol": "x",
+                "sort": "Int",
+                "origin": {
+                  "reference": "position/0/frame/0/U02/raw_response",
+                  "line": 1,
+                  "source_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950"
+                }
+              }
+            ],
+            "assertions": [
+              {
+                "formula": "(= x 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/0/frame/0/U02/raw_response",
+                  "line": 2,
+                  "source_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950"
+                }
+              }
+            ],
+            "bindings": [
+              {
+                "python_name": "x",
+                "symbol": "x",
+                "sort": "Int",
+                "origin": {
+                  "reference": "position/0/frame/0/U02/raw_response",
+                  "line": 1,
+                  "source_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950"
+                }
+              }
+            ],
+            "issues": [],
+            "snapshots": [
+              {
+                "all_recorded_assertions": [
+                  {
+                    "formula": "(= x 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/0/frame/0/U02/raw_response",
+                      "line": 2,
+                      "source_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950"
+                    }
+                  }
+                ],
+                "selected_query_solver": null
+              }
+            ],
+            "resets": [],
+            "source": {
+              "reference": "position/0/frame/0/U02/raw_response",
+              "sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950",
+              "format": "python_ast_fragment",
+              "implicit_receiver": "s"
+            }
+          },
+          "delta": {
+            "declarations": [],
+            "assertions": [
+              {
+                "formula": "(>= x 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/0/frame/0/U06/raw_response",
+                  "line": 1,
+                  "source_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6"
+                }
+              }
+            ],
+            "bindings": [],
+            "issues": [],
+            "snapshots": [
+              {
+                "all_recorded_assertions": [
+                  {
+                    "formula": "(>= x 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/0/frame/0/U06/raw_response",
+                      "line": 1,
+                      "source_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6"
+                    }
+                  }
+                ],
+                "selected_query_solver": null
+              }
+            ],
+            "resets": [],
+            "source": {
+              "reference": "position/0/frame/0/U06/raw_response",
+              "sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+              "format": "python_ast_fragment",
+              "implicit_receiver": "s"
+            }
+          },
+          "Final": {
+            "declarations": [
+              {
+                "symbol": "x",
+                "sort": "Int",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 2,
+                  "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+                }
+              }
+            ],
+            "assertions": [
+              {
+                "formula": "(= x 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 3,
+                  "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+                }
+              },
+              {
+                "formula": "(>= x 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 7,
+                  "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+                }
+              }
+            ],
+            "bindings": [
+              {
+                "python_name": "x",
+                "symbol": "x",
+                "sort": "Int",
+                "origin": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "line": 2,
+                  "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+                }
+              }
+            ],
+            "issues": [],
+            "snapshots": [
+              {
+                "all_recorded_assertions": [
+                  {
+                    "formula": "(= x 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 3,
+                      "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+                    }
+                  },
+                  {
+                    "formula": "(>= x 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 7,
+                      "source_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+                    }
+                  }
+                ],
+                "selected_query_solver": null
+              }
+            ],
+            "resets": [],
+            "source": {
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51",
+              "format": "python_ast_fragment",
+              "implicit_receiver": "s"
+            }
+          }
+        },
+        "missing_base_assertions": [],
+        "missing_delta_assertions": [],
+        "missing_declarations": [],
+        "type_conflicts": {},
+        "identity_conflicts": [],
+        "unexpected_final_assertions": [],
+        "duplicate_assertions_by_role": {
+          "B": 0,
+          "delta": 0,
+          "Final": 0
+        },
+        "duplicate_declarations_by_role": {
+          "B": 0,
+          "delta": 0,
+          "Final": 0
+        },
+        "expected_declarations": [
+          [
+            "x",
+            "Int"
+          ]
+        ],
+        "observed_declarations": [
+          [
+            "x",
+            "Int"
+          ]
+        ],
+        "unexpected_final_declarations": [],
+        "seconds": 0.0003154000000904489
+      },
+      "semantic_correctness": "NOT_ASSESSED",
+      "polarity_correctness": "NOT_ASSESSED",
+      "alert_safety_decision": null,
+      "solver_executed": false,
+      "sources": {
+        "base": {
+          "stage": "U02",
+          "reference": "position/0/frame/0/U02/raw_response",
+          "raw_text": "```python\nx=Int('x')\ns.add(x == 0)\n```",
+          "raw_sha256": "eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950",
+          "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+        },
+        "delta": {
+          "stage": "U06",
+          "reference": "position/0/frame/0/U06/raw_response",
+          "raw_text": "s.add(x >= 0)",
+          "raw_sha256": "29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6",
+          "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+        },
+        "final": {
+          "stage": "Final",
+          "reference": "deterministic_U02_code_plus_U06_code",
+          "raw_text": "# E03 BEGIN U02 BASE raw_sha256=eb006f3315da1b77bfd38e85b48090635d814c61c4208db9e41227d4298e2950\nx=Int('x')\ns.add(x == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=29489e150c4814073618a84ea6ab80f6d2175fafd38c6fedd9596afe2852d3a6\ns.add(x >= 0)\n# E03 END U06 DELTA\n",
+          "raw_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51",
+          "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+        }
+      },
+      "stage": "before_U10",
+      "merged_sha256": "be5e7471d91accc779e51c6dbf4ffca91938e49845236da8447a71febc0afd51"
+    }
+  },
+  "event_id": 1,
+  "sample_position": 0,
+  "frame_level": 0,
+  "dataset": "synthetic_offline",
+  "sample_id": "repaired_output"
+}

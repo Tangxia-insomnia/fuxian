@@ -1,0 +1,1447 @@
+{
+  "cases": [
+    {
+      "case": "A04",
+      "sample_id": "NPD/codeql/kernel69:row=12:index=24",
+      "source_files": [
+        {
+          "source": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/calls/0231.json",
+          "sha256": "59afcdcea35c32e11acb669ccffbb03f28a674d2c0bf2ea2ef4b14420789fbb4",
+          "copy": "evidence/A04/calls/0231.json"
+        },
+        {
+          "source": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/calls/0233.json",
+          "sha256": "c2c227962bc4ab2f34614bb46a736a160991bb42bf1ab88b75a4573a12afb0ce",
+          "copy": "evidence/A04/calls/0233.json"
+        },
+        {
+          "source": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/calls/0234.json",
+          "sha256": "256fcdda8e58c08a9bdd00aa7670a3b0d30bbed2fd33c43eac0c1fdb95088800",
+          "copy": "evidence/A04/calls/0234.json"
+        },
+        {
+          "source": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/calls/0235.json",
+          "sha256": "e2a5912e2adef5cf6c43b0cc2922cdee0ce8b5a084624aff5d7f8a841e2bf7be",
+          "copy": "evidence/A04/calls/0235.json"
+        },
+        {
+          "source": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/04/calls/0238.json",
+          "sha256": "6a7de07382d5b13e385c52f27493f575fd122232792bf14857f2c18d6d8f1b3f",
+          "copy": "evidence/A04/calls/0238.json"
+        }
+      ],
+      "old_U10_input": "# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones",
+      "old_input_equals_delta": true,
+      "old_input_check": {
+        "adapter_version": "e03-base-delta-explicit-transfer-v1",
+        "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+        "base_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+        "delta_sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+        "final_sha256": "bcb7c0b720128b01af6ae46a09f9661ad30b306b93971d9ab5b7c1f5534e6eed",
+        "contract_status": "FAIL",
+        "accepted": false,
+        "rejection_reasons": [
+          "contract_not_PASS"
+        ],
+        "counts": {
+          "missing_declarations": 2,
+          "missing_base_assertions": 2,
+          "missing_delta_assertions": 0,
+          "type_conflicts": 0,
+          "symbol_identity_conflicts": 0,
+          "duplicate_declarations": 0,
+          "duplicate_assertions": 0,
+          "final_duplicate_assertions": 0,
+          "final_duplicate_declarations": 0
+        },
+        "check_contract": {
+          "checker_version": "e02-static-contract-v1",
+          "contract_status": "FAIL",
+          "reasons": [
+            "base_assertions_missing",
+            "declarations_missing"
+          ],
+          "scope": "exact structural B+delta preservation only",
+          "semantic_correctness": "NOT_ASSESSED",
+          "polarity_correctness": "NOT_ASSESSED",
+          "solver_executed": false,
+          "alert_safety_decision": null,
+          "counts": {
+            "missing_base_assertions": 2,
+            "missing_delta_assertions": 0,
+            "missing_declarations": 2,
+            "symbol_identity_conflicts": 0,
+            "type_conflicts": 0,
+            "duplicate_assertions": 0,
+            "duplicate_declarations": 0,
+            "extra_final_assertions": 0,
+            "extra_final_declarations": 0,
+            "solver_recreations": 0
+          },
+          "inputs": {
+            "B": {
+              "reference": "U02/raw",
+              "sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+              "format": "python"
+            },
+            "delta": {
+              "reference": "U06/raw",
+              "sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+              "format": "python"
+            },
+            "Final": {
+              "reference": "A04/old_U10_input",
+              "sha256": "bcb7c0b720128b01af6ae46a09f9661ad30b306b93971d9ab5b7c1f5534e6eed",
+              "format": "python"
+            }
+          },
+          "ir": {
+            "B": {
+              "declarations": [
+                {
+                  "symbol": "folio_test_slab",
+                  "sort": "Int",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 1,
+                    "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                  }
+                },
+                {
+                  "symbol": "object",
+                  "sort": "Int",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 2,
+                    "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                  }
+                }
+              ],
+              "assertions": [
+                {
+                  "formula": "(= folio_test_slab 0)",
+                  "solver": "solver/1",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 3,
+                    "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                  }
+                },
+                {
+                  "formula": "(= object 0)",
+                  "solver": "solver/1",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 4,
+                    "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                  }
+                }
+              ],
+              "bindings": [
+                {
+                  "python_name": "folio_test_slab",
+                  "symbol": "folio_test_slab",
+                  "sort": "Int",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 1,
+                    "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                  }
+                },
+                {
+                  "python_name": "object",
+                  "symbol": "object",
+                  "sort": "Int",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 2,
+                    "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                  }
+                }
+              ],
+              "issues": [],
+              "snapshots": [
+                {
+                  "all_recorded_assertions": [
+                    {
+                      "formula": "(= folio_test_slab 0)",
+                      "solver": "solver/1",
+                      "origin": {
+                        "reference": "U02/raw",
+                        "line": 3,
+                        "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                      }
+                    },
+                    {
+                      "formula": "(= object 0)",
+                      "solver": "solver/1",
+                      "origin": {
+                        "reference": "U02/raw",
+                        "line": 4,
+                        "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                      }
+                    }
+                  ],
+                  "selected_query_solver": null
+                }
+              ],
+              "resets": [],
+              "source": {
+                "reference": "U02/raw",
+                "sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+                "format": "python_ast_fragment",
+                "implicit_receiver": "s"
+              }
+            },
+            "delta": {
+              "declarations": [],
+              "assertions": [],
+              "bindings": [],
+              "issues": [],
+              "snapshots": [
+                {
+                  "all_recorded_assertions": [],
+                  "selected_query_solver": null
+                }
+              ],
+              "resets": [],
+              "source": {
+                "reference": "U06/raw",
+                "sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+                "format": "python_ast_fragment",
+                "implicit_receiver": "s"
+              }
+            },
+            "Final": {
+              "declarations": [],
+              "assertions": [],
+              "bindings": [],
+              "issues": [],
+              "snapshots": [
+                {
+                  "all_recorded_assertions": [],
+                  "selected_query_solver": null
+                }
+              ],
+              "resets": [],
+              "source": {
+                "reference": "A04/old_U10_input",
+                "sha256": "bcb7c0b720128b01af6ae46a09f9661ad30b306b93971d9ab5b7c1f5534e6eed",
+                "format": "python_ast_fragment",
+                "implicit_receiver": "s"
+              }
+            }
+          },
+          "missing_base_assertions": [
+            "(= folio_test_slab 0)",
+            "(= object 0)"
+          ],
+          "missing_delta_assertions": [],
+          "missing_declarations": [
+            [
+              "folio_test_slab",
+              "Int"
+            ],
+            [
+              "object",
+              "Int"
+            ]
+          ],
+          "type_conflicts": {},
+          "identity_conflicts": [],
+          "unexpected_final_assertions": [],
+          "duplicate_assertions_by_role": {
+            "B": 0,
+            "delta": 0,
+            "Final": 0
+          },
+          "duplicate_declarations_by_role": {
+            "B": 0,
+            "delta": 0,
+            "Final": 0
+          },
+          "expected_declarations": [
+            [
+              "folio_test_slab",
+              "Int"
+            ],
+            [
+              "object",
+              "Int"
+            ]
+          ],
+          "observed_declarations": [],
+          "unexpected_final_declarations": [],
+          "seconds": 0.0007282000001396227
+        },
+        "semantic_correctness": "NOT_ASSESSED",
+        "polarity_correctness": "NOT_ASSESSED",
+        "alert_safety_decision": null,
+        "solver_executed": false,
+        "sources": {
+          "base": {
+            "stage": "U02",
+            "reference": "caller_supplied_U02_raw_output",
+            "raw_text": "```python\nfolio_test_slab=Int('folio_test_slab')\nobject=Int('object')\ns.add(folio_test_slab == 0)\ns.add(object == 0)\n```",
+            "raw_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+            "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+          },
+          "delta": {
+            "stage": "U06",
+            "reference": "caller_supplied_U06_raw_output",
+            "raw_text": "```python\n# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones\n```",
+            "raw_sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+            "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+          },
+          "final": {
+            "stage": "Final",
+            "reference": "A04/old_U10_input",
+            "raw_text": "# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones",
+            "raw_sha256": "bcb7c0b720128b01af6ae46a09f9661ad30b306b93971d9ab5b7c1f5534e6eed",
+            "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+          }
+        }
+      },
+      "new_bundle": {
+        "adapter_version": "e03-base-delta-explicit-transfer-v1",
+        "base": {
+          "stage": "U02",
+          "reference": "position/12/frame/1/U02/raw_response",
+          "raw_text": "```python\nfolio_test_slab=Int('folio_test_slab')\nobject=Int('object')\ns.add(folio_test_slab == 0)\ns.add(object == 0)\n```",
+          "raw_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+          "provenance_scope": "caller-bound response; hash is not an independent semantic attestation",
+          "code_text": "folio_test_slab=Int('folio_test_slab')\nobject=Int('object')\ns.add(folio_test_slab == 0)\ns.add(object == 0)\n",
+          "code_sha256": "01620e4f073013239d5a65e94ea688ff19a9cc8324b160fc190d8823e490e06d",
+          "merged_span": {
+            "start": 97,
+            "end": 204,
+            "unit": "Python character offset, half-open"
+          }
+        },
+        "delta": {
+          "stage": "U06",
+          "reference": "position/12/frame/1/U06/raw_response",
+          "raw_text": "```python\n# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones\n```",
+          "raw_sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+          "provenance_scope": "caller-bound response; hash is not an independent semantic attestation",
+          "code_text": "# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones\n",
+          "code_sha256": "9706440d79bc0ee294bbb1d932c1a803f13122a6b8df1f136ad1a0afb6971727",
+          "merged_span": {
+            "start": 322,
+            "end": 517,
+            "unit": "Python character offset, half-open"
+          }
+        },
+        "merged_script": "# E03 BEGIN U02 BASE raw_sha256=7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92\nfolio_test_slab=Int('folio_test_slab')\nobject=Int('object')\ns.add(folio_test_slab == 0)\ns.add(object == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1\n# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones\n\n# E03 END U06 DELTA\n",
+        "base_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+        "delta_sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+        "merged_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120",
+        "assembly_audit": {
+          "adapter_version": "e03-base-delta-explicit-transfer-v1",
+          "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+          "base_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+          "delta_sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+          "final_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120",
+          "contract_status": "PASS",
+          "accepted": true,
+          "rejection_reasons": [],
+          "counts": {
+            "missing_declarations": 0,
+            "missing_base_assertions": 0,
+            "missing_delta_assertions": 0,
+            "type_conflicts": 0,
+            "symbol_identity_conflicts": 0,
+            "duplicate_declarations": 0,
+            "duplicate_assertions": 0,
+            "final_duplicate_assertions": 0,
+            "final_duplicate_declarations": 0
+          },
+          "check_contract": {
+            "checker_version": "e02-static-contract-v1",
+            "contract_status": "PASS",
+            "reasons": [
+              "all_required_structural_members_present"
+            ],
+            "scope": "exact structural B+delta preservation only",
+            "semantic_correctness": "NOT_ASSESSED",
+            "polarity_correctness": "NOT_ASSESSED",
+            "solver_executed": false,
+            "alert_safety_decision": null,
+            "counts": {
+              "missing_base_assertions": 0,
+              "missing_delta_assertions": 0,
+              "missing_declarations": 0,
+              "symbol_identity_conflicts": 0,
+              "type_conflicts": 0,
+              "duplicate_assertions": 0,
+              "duplicate_declarations": 0,
+              "extra_final_assertions": 0,
+              "extra_final_declarations": 0,
+              "solver_recreations": 0
+            },
+            "inputs": {
+              "B": {
+                "reference": "position/12/frame/1/U02/raw_response",
+                "sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+                "format": "python"
+              },
+              "delta": {
+                "reference": "position/12/frame/1/U06/raw_response",
+                "sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+                "format": "python"
+              },
+              "Final": {
+                "reference": "deterministic_U02_code_plus_U06_code",
+                "sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120",
+                "format": "python"
+              }
+            },
+            "ir": {
+              "B": {
+                "declarations": [
+                  {
+                    "symbol": "folio_test_slab",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "position/12/frame/1/U02/raw_response",
+                      "line": 1,
+                      "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                    }
+                  },
+                  {
+                    "symbol": "object",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "position/12/frame/1/U02/raw_response",
+                      "line": 2,
+                      "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                    }
+                  }
+                ],
+                "assertions": [
+                  {
+                    "formula": "(= folio_test_slab 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/12/frame/1/U02/raw_response",
+                      "line": 3,
+                      "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                    }
+                  },
+                  {
+                    "formula": "(= object 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/12/frame/1/U02/raw_response",
+                      "line": 4,
+                      "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                    }
+                  }
+                ],
+                "bindings": [
+                  {
+                    "python_name": "folio_test_slab",
+                    "symbol": "folio_test_slab",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "position/12/frame/1/U02/raw_response",
+                      "line": 1,
+                      "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                    }
+                  },
+                  {
+                    "python_name": "object",
+                    "symbol": "object",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "position/12/frame/1/U02/raw_response",
+                      "line": 2,
+                      "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                    }
+                  }
+                ],
+                "issues": [],
+                "snapshots": [
+                  {
+                    "all_recorded_assertions": [
+                      {
+                        "formula": "(= folio_test_slab 0)",
+                        "solver": "solver/1",
+                        "origin": {
+                          "reference": "position/12/frame/1/U02/raw_response",
+                          "line": 3,
+                          "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                        }
+                      },
+                      {
+                        "formula": "(= object 0)",
+                        "solver": "solver/1",
+                        "origin": {
+                          "reference": "position/12/frame/1/U02/raw_response",
+                          "line": 4,
+                          "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                        }
+                      }
+                    ],
+                    "selected_query_solver": null
+                  }
+                ],
+                "resets": [],
+                "source": {
+                  "reference": "position/12/frame/1/U02/raw_response",
+                  "sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+                  "format": "python_ast_fragment",
+                  "implicit_receiver": "s"
+                }
+              },
+              "delta": {
+                "declarations": [],
+                "assertions": [],
+                "bindings": [],
+                "issues": [],
+                "snapshots": [
+                  {
+                    "all_recorded_assertions": [],
+                    "selected_query_solver": null
+                  }
+                ],
+                "resets": [],
+                "source": {
+                  "reference": "position/12/frame/1/U06/raw_response",
+                  "sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+                  "format": "python_ast_fragment",
+                  "implicit_receiver": "s"
+                }
+              },
+              "Final": {
+                "declarations": [
+                  {
+                    "symbol": "folio_test_slab",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 2,
+                      "source_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120"
+                    }
+                  },
+                  {
+                    "symbol": "object",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 3,
+                      "source_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120"
+                    }
+                  }
+                ],
+                "assertions": [
+                  {
+                    "formula": "(= folio_test_slab 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 4,
+                      "source_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120"
+                    }
+                  },
+                  {
+                    "formula": "(= object 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 5,
+                      "source_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120"
+                    }
+                  }
+                ],
+                "bindings": [
+                  {
+                    "python_name": "folio_test_slab",
+                    "symbol": "folio_test_slab",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 2,
+                      "source_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120"
+                    }
+                  },
+                  {
+                    "python_name": "object",
+                    "symbol": "object",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 3,
+                      "source_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120"
+                    }
+                  }
+                ],
+                "issues": [],
+                "snapshots": [
+                  {
+                    "all_recorded_assertions": [
+                      {
+                        "formula": "(= folio_test_slab 0)",
+                        "solver": "solver/1",
+                        "origin": {
+                          "reference": "deterministic_U02_code_plus_U06_code",
+                          "line": 4,
+                          "source_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120"
+                        }
+                      },
+                      {
+                        "formula": "(= object 0)",
+                        "solver": "solver/1",
+                        "origin": {
+                          "reference": "deterministic_U02_code_plus_U06_code",
+                          "line": 5,
+                          "source_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120"
+                        }
+                      }
+                    ],
+                    "selected_query_solver": null
+                  }
+                ],
+                "resets": [],
+                "source": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120",
+                  "format": "python_ast_fragment",
+                  "implicit_receiver": "s"
+                }
+              }
+            },
+            "missing_base_assertions": [],
+            "missing_delta_assertions": [],
+            "missing_declarations": [],
+            "type_conflicts": {},
+            "identity_conflicts": [],
+            "unexpected_final_assertions": [],
+            "duplicate_assertions_by_role": {
+              "B": 0,
+              "delta": 0,
+              "Final": 0
+            },
+            "duplicate_declarations_by_role": {
+              "B": 0,
+              "delta": 0,
+              "Final": 0
+            },
+            "expected_declarations": [
+              [
+                "folio_test_slab",
+                "Int"
+              ],
+              [
+                "object",
+                "Int"
+              ]
+            ],
+            "observed_declarations": [
+              [
+                "folio_test_slab",
+                "Int"
+              ],
+              [
+                "object",
+                "Int"
+              ]
+            ],
+            "unexpected_final_declarations": [],
+            "seconds": 0.0004784999998719286
+          },
+          "semantic_correctness": "NOT_ASSESSED",
+          "polarity_correctness": "NOT_ASSESSED",
+          "alert_safety_decision": null,
+          "solver_executed": false,
+          "sources": {
+            "base": {
+              "stage": "U02",
+              "reference": "position/12/frame/1/U02/raw_response",
+              "raw_text": "```python\nfolio_test_slab=Int('folio_test_slab')\nobject=Int('object')\ns.add(folio_test_slab == 0)\ns.add(object == 0)\n```",
+              "raw_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+              "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+            },
+            "delta": {
+              "stage": "U06",
+              "reference": "position/12/frame/1/U06/raw_response",
+              "raw_text": "```python\n# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones\n```",
+              "raw_sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+              "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+            },
+            "final": {
+              "stage": "Final",
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "raw_text": "# E03 BEGIN U02 BASE raw_sha256=7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92\nfolio_test_slab=Int('folio_test_slab')\nobject=Int('object')\ns.add(folio_test_slab == 0)\ns.add(object == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1\n# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones\n\n# E03 END U06 DELTA\n",
+              "raw_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120",
+              "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+            }
+          },
+          "stage": "before_U10",
+          "merged_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120"
+        }
+      },
+      "offline_U10_observed_input": "# E03 BEGIN U02 BASE raw_sha256=7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92\nfolio_test_slab=Int('folio_test_slab')\nobject=Int('object')\ns.add(folio_test_slab == 0)\ns.add(object == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1\n# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones\n\n# E03 END U06 DELTA\n",
+      "offline_U10_observer_calls": 1,
+      "real_U10_model_calls": 0,
+      "before_after_scope": "old recorded payload vs new deterministic payload; no new model output"
+    },
+    {
+      "case": "A01",
+      "sample_id": "NPD/codeql/kernel69:row=10:index=22",
+      "source_files": [
+        {
+          "source": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/01/calls/0224.json",
+          "sha256": "409583e2d93b6053bcbad34629a43201a1b341cdf8beeb81470374c741c2b6eb",
+          "copy": "evidence/A01/calls/0224.json"
+        },
+        {
+          "source": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/01/calls/0226.json",
+          "sha256": "be6216f824a6240b3a0a34eb4a6894866674fbafe6ff81e7eca13ad711fc2f95",
+          "copy": "evidence/A01/calls/0226.json"
+        },
+        {
+          "source": "safety_runs/E02_base_constraint_preservation_static/evidence/audit_10_frozen_candidate/01/calls/0227.json",
+          "sha256": "91717f7442b0efc22004cf33d4291a0d135b55e72fb9e170abf7be00bdfd2cb7",
+          "copy": "evidence/A01/calls/0227.json"
+        }
+      ],
+      "old_U10_input": "# Additional constraints based on line 233: if (!copied)\n# The condition !copied means copied == 0, so the branch is taken when copied == 0\n# Combined with existing constraint Not(copied == 0), this creates a contradiction\n# indicating the branch is not taken (copied != 0), so skb must be valid (non-NULL)\n# Since skb == 0 is already asserted, and the branch requires copied == 0,\n# we add the constraint that copied == 0 for the branch condition\ns.add(copied == 0)",
+      "old_input_equals_delta": true,
+      "old_input_check": {
+        "adapter_version": "e03-base-delta-explicit-transfer-v1",
+        "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+        "base_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f",
+        "delta_sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182",
+        "final_sha256": "ed61d19672c6318b41d763f6e6e5345474702f4d37901df1597cfd16ed9a833f",
+        "contract_status": "FAIL",
+        "accepted": false,
+        "rejection_reasons": [
+          "contract_not_PASS"
+        ],
+        "counts": {
+          "missing_declarations": 2,
+          "missing_base_assertions": 2,
+          "missing_delta_assertions": 0,
+          "type_conflicts": 0,
+          "symbol_identity_conflicts": 0,
+          "duplicate_declarations": 0,
+          "duplicate_assertions": 0,
+          "final_duplicate_assertions": 0,
+          "final_duplicate_declarations": 0
+        },
+        "check_contract": {
+          "checker_version": "e02-static-contract-v1",
+          "contract_status": "FAIL",
+          "reasons": [
+            "base_assertions_missing",
+            "declarations_missing"
+          ],
+          "scope": "exact structural B+delta preservation only",
+          "semantic_correctness": "NOT_ASSESSED",
+          "polarity_correctness": "NOT_ASSESSED",
+          "solver_executed": false,
+          "alert_safety_decision": null,
+          "counts": {
+            "missing_base_assertions": 2,
+            "missing_delta_assertions": 0,
+            "missing_declarations": 2,
+            "symbol_identity_conflicts": 0,
+            "type_conflicts": 0,
+            "duplicate_assertions": 0,
+            "duplicate_declarations": 0,
+            "extra_final_assertions": 0,
+            "extra_final_declarations": 0,
+            "solver_recreations": 0
+          },
+          "inputs": {
+            "B": {
+              "reference": "U02/raw",
+              "sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f",
+              "format": "python"
+            },
+            "delta": {
+              "reference": "U06/raw",
+              "sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182",
+              "format": "python"
+            },
+            "Final": {
+              "reference": "A01/old_U10_input",
+              "sha256": "ed61d19672c6318b41d763f6e6e5345474702f4d37901df1597cfd16ed9a833f",
+              "format": "python"
+            }
+          },
+          "ir": {
+            "B": {
+              "declarations": [
+                {
+                  "symbol": "copied",
+                  "sort": "Int",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 1,
+                    "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                  }
+                },
+                {
+                  "symbol": "skb",
+                  "sort": "Int",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 2,
+                    "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                  }
+                }
+              ],
+              "assertions": [
+                {
+                  "formula": "(not (= copied 0))",
+                  "solver": "solver/1",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 3,
+                    "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                  }
+                },
+                {
+                  "formula": "(= skb 0)",
+                  "solver": "solver/1",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 4,
+                    "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                  }
+                }
+              ],
+              "bindings": [
+                {
+                  "python_name": "copied",
+                  "symbol": "copied",
+                  "sort": "Int",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 1,
+                    "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                  }
+                },
+                {
+                  "python_name": "skb",
+                  "symbol": "skb",
+                  "sort": "Int",
+                  "origin": {
+                    "reference": "U02/raw",
+                    "line": 2,
+                    "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                  }
+                }
+              ],
+              "issues": [],
+              "snapshots": [
+                {
+                  "all_recorded_assertions": [
+                    {
+                      "formula": "(not (= copied 0))",
+                      "solver": "solver/1",
+                      "origin": {
+                        "reference": "U02/raw",
+                        "line": 3,
+                        "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                      }
+                    },
+                    {
+                      "formula": "(= skb 0)",
+                      "solver": "solver/1",
+                      "origin": {
+                        "reference": "U02/raw",
+                        "line": 4,
+                        "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                      }
+                    }
+                  ],
+                  "selected_query_solver": null
+                }
+              ],
+              "resets": [],
+              "source": {
+                "reference": "U02/raw",
+                "sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f",
+                "format": "python_ast_fragment",
+                "implicit_receiver": "s"
+              }
+            },
+            "delta": {
+              "declarations": [],
+              "assertions": [
+                {
+                  "formula": "(= copied 0)",
+                  "solver": "solver/1",
+                  "origin": {
+                    "reference": "U06/raw",
+                    "line": 7,
+                    "source_sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182"
+                  }
+                }
+              ],
+              "bindings": [],
+              "issues": [],
+              "snapshots": [
+                {
+                  "all_recorded_assertions": [
+                    {
+                      "formula": "(= copied 0)",
+                      "solver": "solver/1",
+                      "origin": {
+                        "reference": "U06/raw",
+                        "line": 7,
+                        "source_sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182"
+                      }
+                    }
+                  ],
+                  "selected_query_solver": null
+                }
+              ],
+              "resets": [],
+              "source": {
+                "reference": "U06/raw",
+                "sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182",
+                "format": "python_ast_fragment",
+                "implicit_receiver": "s"
+              }
+            },
+            "Final": {
+              "declarations": [],
+              "assertions": [
+                {
+                  "formula": "(= copied 0)",
+                  "solver": "solver/1",
+                  "origin": {
+                    "reference": "A01/old_U10_input",
+                    "line": 7,
+                    "source_sha256": "ed61d19672c6318b41d763f6e6e5345474702f4d37901df1597cfd16ed9a833f"
+                  }
+                }
+              ],
+              "bindings": [],
+              "issues": [],
+              "snapshots": [
+                {
+                  "all_recorded_assertions": [
+                    {
+                      "formula": "(= copied 0)",
+                      "solver": "solver/1",
+                      "origin": {
+                        "reference": "A01/old_U10_input",
+                        "line": 7,
+                        "source_sha256": "ed61d19672c6318b41d763f6e6e5345474702f4d37901df1597cfd16ed9a833f"
+                      }
+                    }
+                  ],
+                  "selected_query_solver": null
+                }
+              ],
+              "resets": [],
+              "source": {
+                "reference": "A01/old_U10_input",
+                "sha256": "ed61d19672c6318b41d763f6e6e5345474702f4d37901df1597cfd16ed9a833f",
+                "format": "python_ast_fragment",
+                "implicit_receiver": "s"
+              }
+            }
+          },
+          "missing_base_assertions": [
+            "(= skb 0)",
+            "(not (= copied 0))"
+          ],
+          "missing_delta_assertions": [],
+          "missing_declarations": [
+            [
+              "copied",
+              "Int"
+            ],
+            [
+              "skb",
+              "Int"
+            ]
+          ],
+          "type_conflicts": {},
+          "identity_conflicts": [],
+          "unexpected_final_assertions": [],
+          "duplicate_assertions_by_role": {
+            "B": 0,
+            "delta": 0,
+            "Final": 0
+          },
+          "duplicate_declarations_by_role": {
+            "B": 0,
+            "delta": 0,
+            "Final": 0
+          },
+          "expected_declarations": [
+            [
+              "copied",
+              "Int"
+            ],
+            [
+              "skb",
+              "Int"
+            ]
+          ],
+          "observed_declarations": [],
+          "unexpected_final_declarations": [],
+          "seconds": 0.0003573999999844091
+        },
+        "semantic_correctness": "NOT_ASSESSED",
+        "polarity_correctness": "NOT_ASSESSED",
+        "alert_safety_decision": null,
+        "solver_executed": false,
+        "sources": {
+          "base": {
+            "stage": "U02",
+            "reference": "caller_supplied_U02_raw_output",
+            "raw_text": "```python\ncopied=Int('copied')\nskb=Int('skb')\ns.add(Not(copied == 0))\ns.add(skb == 0)\n```",
+            "raw_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f",
+            "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+          },
+          "delta": {
+            "stage": "U06",
+            "reference": "caller_supplied_U06_raw_output",
+            "raw_text": "```python\n# Additional constraints based on line 233: if (!copied)\n# The condition !copied means copied == 0, so the branch is taken when copied == 0\n# Combined with existing constraint Not(copied == 0), this creates a contradiction\n# indicating the branch is not taken (copied != 0), so skb must be valid (non-NULL)\n# Since skb == 0 is already asserted, and the branch requires copied == 0,\n# we add the constraint that copied == 0 for the branch condition\ns.add(copied == 0)\n```",
+            "raw_sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182",
+            "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+          },
+          "final": {
+            "stage": "Final",
+            "reference": "A01/old_U10_input",
+            "raw_text": "# Additional constraints based on line 233: if (!copied)\n# The condition !copied means copied == 0, so the branch is taken when copied == 0\n# Combined with existing constraint Not(copied == 0), this creates a contradiction\n# indicating the branch is not taken (copied != 0), so skb must be valid (non-NULL)\n# Since skb == 0 is already asserted, and the branch requires copied == 0,\n# we add the constraint that copied == 0 for the branch condition\ns.add(copied == 0)",
+            "raw_sha256": "ed61d19672c6318b41d763f6e6e5345474702f4d37901df1597cfd16ed9a833f",
+            "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+          }
+        }
+      },
+      "new_bundle": {
+        "adapter_version": "e03-base-delta-explicit-transfer-v1",
+        "base": {
+          "stage": "U02",
+          "reference": "position/10/frame/0/U02/raw_response",
+          "raw_text": "```python\ncopied=Int('copied')\nskb=Int('skb')\ns.add(Not(copied == 0))\ns.add(skb == 0)\n```",
+          "raw_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f",
+          "provenance_scope": "caller-bound response; hash is not an independent semantic attestation",
+          "code_text": "copied=Int('copied')\nskb=Int('skb')\ns.add(Not(copied == 0))\ns.add(skb == 0)\n",
+          "code_sha256": "89a85489b337e9bcec649b7c4fd5d5480b292b7f847ea1de9b44f75e2203ec55",
+          "merged_span": {
+            "start": 97,
+            "end": 173,
+            "unit": "Python character offset, half-open"
+          }
+        },
+        "delta": {
+          "stage": "U06",
+          "reference": "position/10/frame/0/U06/raw_response",
+          "raw_text": "```python\n# Additional constraints based on line 233: if (!copied)\n# The condition !copied means copied == 0, so the branch is taken when copied == 0\n# Combined with existing constraint Not(copied == 0), this creates a contradiction\n# indicating the branch is not taken (copied != 0), so skb must be valid (non-NULL)\n# Since skb == 0 is already asserted, and the branch requires copied == 0,\n# we add the constraint that copied == 0 for the branch condition\ns.add(copied == 0)\n```",
+          "raw_sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182",
+          "provenance_scope": "caller-bound response; hash is not an independent semantic attestation",
+          "code_text": "# Additional constraints based on line 233: if (!copied)\n# The condition !copied means copied == 0, so the branch is taken when copied == 0\n# Combined with existing constraint Not(copied == 0), this creates a contradiction\n# indicating the branch is not taken (copied != 0), so skb must be valid (non-NULL)\n# Since skb == 0 is already asserted, and the branch requires copied == 0,\n# we add the constraint that copied == 0 for the branch condition\ns.add(copied == 0)\n",
+          "code_sha256": "791e7ef8131c46095591e605e3c93cc7e96e22cddb1625503e91035304354b3b",
+          "merged_span": {
+            "start": 291,
+            "end": 758,
+            "unit": "Python character offset, half-open"
+          }
+        },
+        "merged_script": "# E03 BEGIN U02 BASE raw_sha256=40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f\ncopied=Int('copied')\nskb=Int('skb')\ns.add(Not(copied == 0))\ns.add(skb == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182\n# Additional constraints based on line 233: if (!copied)\n# The condition !copied means copied == 0, so the branch is taken when copied == 0\n# Combined with existing constraint Not(copied == 0), this creates a contradiction\n# indicating the branch is not taken (copied != 0), so skb must be valid (non-NULL)\n# Since skb == 0 is already asserted, and the branch requires copied == 0,\n# we add the constraint that copied == 0 for the branch condition\ns.add(copied == 0)\n\n# E03 END U06 DELTA\n",
+        "base_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f",
+        "delta_sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182",
+        "merged_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898",
+        "assembly_audit": {
+          "adapter_version": "e03-base-delta-explicit-transfer-v1",
+          "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+          "base_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f",
+          "delta_sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182",
+          "final_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898",
+          "contract_status": "PASS",
+          "accepted": true,
+          "rejection_reasons": [],
+          "counts": {
+            "missing_declarations": 0,
+            "missing_base_assertions": 0,
+            "missing_delta_assertions": 0,
+            "type_conflicts": 0,
+            "symbol_identity_conflicts": 0,
+            "duplicate_declarations": 0,
+            "duplicate_assertions": 0,
+            "final_duplicate_assertions": 0,
+            "final_duplicate_declarations": 0
+          },
+          "check_contract": {
+            "checker_version": "e02-static-contract-v1",
+            "contract_status": "PASS",
+            "reasons": [
+              "all_required_structural_members_present"
+            ],
+            "scope": "exact structural B+delta preservation only",
+            "semantic_correctness": "NOT_ASSESSED",
+            "polarity_correctness": "NOT_ASSESSED",
+            "solver_executed": false,
+            "alert_safety_decision": null,
+            "counts": {
+              "missing_base_assertions": 0,
+              "missing_delta_assertions": 0,
+              "missing_declarations": 0,
+              "symbol_identity_conflicts": 0,
+              "type_conflicts": 0,
+              "duplicate_assertions": 0,
+              "duplicate_declarations": 0,
+              "extra_final_assertions": 0,
+              "extra_final_declarations": 0,
+              "solver_recreations": 0
+            },
+            "inputs": {
+              "B": {
+                "reference": "position/10/frame/0/U02/raw_response",
+                "sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f",
+                "format": "python"
+              },
+              "delta": {
+                "reference": "position/10/frame/0/U06/raw_response",
+                "sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182",
+                "format": "python"
+              },
+              "Final": {
+                "reference": "deterministic_U02_code_plus_U06_code",
+                "sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898",
+                "format": "python"
+              }
+            },
+            "ir": {
+              "B": {
+                "declarations": [
+                  {
+                    "symbol": "copied",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "position/10/frame/0/U02/raw_response",
+                      "line": 1,
+                      "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                    }
+                  },
+                  {
+                    "symbol": "skb",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "position/10/frame/0/U02/raw_response",
+                      "line": 2,
+                      "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                    }
+                  }
+                ],
+                "assertions": [
+                  {
+                    "formula": "(not (= copied 0))",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/10/frame/0/U02/raw_response",
+                      "line": 3,
+                      "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                    }
+                  },
+                  {
+                    "formula": "(= skb 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/10/frame/0/U02/raw_response",
+                      "line": 4,
+                      "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                    }
+                  }
+                ],
+                "bindings": [
+                  {
+                    "python_name": "copied",
+                    "symbol": "copied",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "position/10/frame/0/U02/raw_response",
+                      "line": 1,
+                      "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                    }
+                  },
+                  {
+                    "python_name": "skb",
+                    "symbol": "skb",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "position/10/frame/0/U02/raw_response",
+                      "line": 2,
+                      "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                    }
+                  }
+                ],
+                "issues": [],
+                "snapshots": [
+                  {
+                    "all_recorded_assertions": [
+                      {
+                        "formula": "(not (= copied 0))",
+                        "solver": "solver/1",
+                        "origin": {
+                          "reference": "position/10/frame/0/U02/raw_response",
+                          "line": 3,
+                          "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                        }
+                      },
+                      {
+                        "formula": "(= skb 0)",
+                        "solver": "solver/1",
+                        "origin": {
+                          "reference": "position/10/frame/0/U02/raw_response",
+                          "line": 4,
+                          "source_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f"
+                        }
+                      }
+                    ],
+                    "selected_query_solver": null
+                  }
+                ],
+                "resets": [],
+                "source": {
+                  "reference": "position/10/frame/0/U02/raw_response",
+                  "sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f",
+                  "format": "python_ast_fragment",
+                  "implicit_receiver": "s"
+                }
+              },
+              "delta": {
+                "declarations": [],
+                "assertions": [
+                  {
+                    "formula": "(= copied 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "position/10/frame/0/U06/raw_response",
+                      "line": 7,
+                      "source_sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182"
+                    }
+                  }
+                ],
+                "bindings": [],
+                "issues": [],
+                "snapshots": [
+                  {
+                    "all_recorded_assertions": [
+                      {
+                        "formula": "(= copied 0)",
+                        "solver": "solver/1",
+                        "origin": {
+                          "reference": "position/10/frame/0/U06/raw_response",
+                          "line": 7,
+                          "source_sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182"
+                        }
+                      }
+                    ],
+                    "selected_query_solver": null
+                  }
+                ],
+                "resets": [],
+                "source": {
+                  "reference": "position/10/frame/0/U06/raw_response",
+                  "sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182",
+                  "format": "python_ast_fragment",
+                  "implicit_receiver": "s"
+                }
+              },
+              "Final": {
+                "declarations": [
+                  {
+                    "symbol": "copied",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 2,
+                      "source_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898"
+                    }
+                  },
+                  {
+                    "symbol": "skb",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 3,
+                      "source_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898"
+                    }
+                  }
+                ],
+                "assertions": [
+                  {
+                    "formula": "(not (= copied 0))",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 4,
+                      "source_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898"
+                    }
+                  },
+                  {
+                    "formula": "(= skb 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 5,
+                      "source_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898"
+                    }
+                  },
+                  {
+                    "formula": "(= copied 0)",
+                    "solver": "solver/1",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 15,
+                      "source_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898"
+                    }
+                  }
+                ],
+                "bindings": [
+                  {
+                    "python_name": "copied",
+                    "symbol": "copied",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 2,
+                      "source_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898"
+                    }
+                  },
+                  {
+                    "python_name": "skb",
+                    "symbol": "skb",
+                    "sort": "Int",
+                    "origin": {
+                      "reference": "deterministic_U02_code_plus_U06_code",
+                      "line": 3,
+                      "source_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898"
+                    }
+                  }
+                ],
+                "issues": [],
+                "snapshots": [
+                  {
+                    "all_recorded_assertions": [
+                      {
+                        "formula": "(not (= copied 0))",
+                        "solver": "solver/1",
+                        "origin": {
+                          "reference": "deterministic_U02_code_plus_U06_code",
+                          "line": 4,
+                          "source_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898"
+                        }
+                      },
+                      {
+                        "formula": "(= skb 0)",
+                        "solver": "solver/1",
+                        "origin": {
+                          "reference": "deterministic_U02_code_plus_U06_code",
+                          "line": 5,
+                          "source_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898"
+                        }
+                      },
+                      {
+                        "formula": "(= copied 0)",
+                        "solver": "solver/1",
+                        "origin": {
+                          "reference": "deterministic_U02_code_plus_U06_code",
+                          "line": 15,
+                          "source_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898"
+                        }
+                      }
+                    ],
+                    "selected_query_solver": null
+                  }
+                ],
+                "resets": [],
+                "source": {
+                  "reference": "deterministic_U02_code_plus_U06_code",
+                  "sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898",
+                  "format": "python_ast_fragment",
+                  "implicit_receiver": "s"
+                }
+              }
+            },
+            "missing_base_assertions": [],
+            "missing_delta_assertions": [],
+            "missing_declarations": [],
+            "type_conflicts": {},
+            "identity_conflicts": [],
+            "unexpected_final_assertions": [],
+            "duplicate_assertions_by_role": {
+              "B": 0,
+              "delta": 0,
+              "Final": 0
+            },
+            "duplicate_declarations_by_role": {
+              "B": 0,
+              "delta": 0,
+              "Final": 0
+            },
+            "expected_declarations": [
+              [
+                "copied",
+                "Int"
+              ],
+              [
+                "skb",
+                "Int"
+              ]
+            ],
+            "observed_declarations": [
+              [
+                "copied",
+                "Int"
+              ],
+              [
+                "skb",
+                "Int"
+              ]
+            ],
+            "unexpected_final_declarations": [],
+            "seconds": 0.00043740000000980217
+          },
+          "semantic_correctness": "NOT_ASSESSED",
+          "polarity_correctness": "NOT_ASSESSED",
+          "alert_safety_decision": null,
+          "solver_executed": false,
+          "sources": {
+            "base": {
+              "stage": "U02",
+              "reference": "position/10/frame/0/U02/raw_response",
+              "raw_text": "```python\ncopied=Int('copied')\nskb=Int('skb')\ns.add(Not(copied == 0))\ns.add(skb == 0)\n```",
+              "raw_sha256": "40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f",
+              "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+            },
+            "delta": {
+              "stage": "U06",
+              "reference": "position/10/frame/0/U06/raw_response",
+              "raw_text": "```python\n# Additional constraints based on line 233: if (!copied)\n# The condition !copied means copied == 0, so the branch is taken when copied == 0\n# Combined with existing constraint Not(copied == 0), this creates a contradiction\n# indicating the branch is not taken (copied != 0), so skb must be valid (non-NULL)\n# Since skb == 0 is already asserted, and the branch requires copied == 0,\n# we add the constraint that copied == 0 for the branch condition\ns.add(copied == 0)\n```",
+              "raw_sha256": "f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182",
+              "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+            },
+            "final": {
+              "stage": "Final",
+              "reference": "deterministic_U02_code_plus_U06_code",
+              "raw_text": "# E03 BEGIN U02 BASE raw_sha256=40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f\ncopied=Int('copied')\nskb=Int('skb')\ns.add(Not(copied == 0))\ns.add(skb == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182\n# Additional constraints based on line 233: if (!copied)\n# The condition !copied means copied == 0, so the branch is taken when copied == 0\n# Combined with existing constraint Not(copied == 0), this creates a contradiction\n# indicating the branch is not taken (copied != 0), so skb must be valid (non-NULL)\n# Since skb == 0 is already asserted, and the branch requires copied == 0,\n# we add the constraint that copied == 0 for the branch condition\ns.add(copied == 0)\n\n# E03 END U06 DELTA\n",
+              "raw_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898",
+              "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+            }
+          },
+          "stage": "before_U10",
+          "merged_sha256": "3c2ea5b0bd2a3991f822db296b4ddc8d51fd0bbc0bb3d22b72b5f64f1eec0898"
+        }
+      },
+      "offline_U10_observed_input": "# E03 BEGIN U02 BASE raw_sha256=40ac6b25a23bc603368628b14fe3a48818c278f2b2e5f8da96d19cfa8dfb8f7f\ncopied=Int('copied')\nskb=Int('skb')\ns.add(Not(copied == 0))\ns.add(skb == 0)\n\n# E03 END U02 BASE\n# E03 BEGIN U06 DELTA raw_sha256=f26bf12e1f1e4a820f65a2c2f3704ced7063d7051c223e52ebdea1fd6e9f0182\n# Additional constraints based on line 233: if (!copied)\n# The condition !copied means copied == 0, so the branch is taken when copied == 0\n# Combined with existing constraint Not(copied == 0), this creates a contradiction\n# indicating the branch is not taken (copied != 0), so skb must be valid (non-NULL)\n# Since skb == 0 is already asserted, and the branch requires copied == 0,\n# we add the constraint that copied == 0 for the branch condition\ns.add(copied == 0)\n\n# E03 END U06 DELTA\n",
+      "offline_U10_observer_calls": 1,
+      "real_U10_model_calls": 0,
+      "before_after_scope": "old recorded payload vs new deterministic payload; no new model output"
+    }
+  ],
+  "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+  "model_calls": 0,
+  "z3_runs": 0
+}

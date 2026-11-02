@@ -1,0 +1,9 @@
+{
+  "test_id": "T20",
+  "scenario": "fence_with_extraneous_text_rejected",
+  "B": "```python\nx=Int('x')\ns.add(x == 0)\n```",
+  "delta": "Here is code:\n```python\ns.add(x >= 0)\n```",
+  "U10_output": "def check_constraints():\n    x=Int('x')\n    s=Solver()\n    s.add(x == 0)\n    s.add(x >= 0)\n    return s.check() == sat\n",
+  "expected_assembly": false,
+  "expected_postcondition": null
+}

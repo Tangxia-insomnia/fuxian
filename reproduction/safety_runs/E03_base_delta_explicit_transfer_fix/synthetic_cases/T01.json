@@ -1,0 +1,9 @@
+{
+  "test_id": "T01",
+  "scenario": "empty_delta",
+  "B": "```python\nx=Int('x')\ns.add(x == 0)\n```",
+  "delta": "",
+  "U10_output": "def check_constraints():\n    x=Int('x')\n    s=Solver()\n    s.add(x == 0)\n    return s.check() == sat\n",
+  "expected_assembly": true,
+  "expected_postcondition": true
+}

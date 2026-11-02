@@ -1,0 +1,9 @@
+{
+  "test_id": "T02",
+  "scenario": "comment_only_delta",
+  "B": "```python\nx=Int('x')\ns.add(x == 0)\n```",
+  "delta": "# no new constraints\n",
+  "U10_output": "def check_constraints():\n    x=Int('x')\n    s=Solver()\n    s.add(x == 0)\n    return s.check() == sat\n",
+  "expected_assembly": true,
+  "expected_postcondition": true
+}

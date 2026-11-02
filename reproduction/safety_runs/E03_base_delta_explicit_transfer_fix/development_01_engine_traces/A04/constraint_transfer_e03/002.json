@@ -1,0 +1,214 @@
+{
+  "adapter_version": "e03-base-delta-explicit-transfer-v1",
+  "checker_sha256": "5a0d6532e73af8485113541fd3982f491ddeef0b6b44c7f856ad61d649a1916a",
+  "base_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+  "delta_sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+  "final_sha256": "988b4ac6f656074c0fcd21033beff1a539b36997ec98fbbe9f30e61185b6b9b9",
+  "contract_status": "UNKNOWN",
+  "accepted": false,
+  "rejection_reasons": [
+    "contract_not_PASS",
+    "unsupported_syntax"
+  ],
+  "counts": {
+    "missing_declarations": null,
+    "missing_base_assertions": null,
+    "missing_delta_assertions": null,
+    "type_conflicts": null,
+    "symbol_identity_conflicts": null,
+    "duplicate_declarations": null,
+    "duplicate_assertions": null,
+    "final_duplicate_assertions": null,
+    "final_duplicate_declarations": null
+  },
+  "check_contract": {
+    "checker_version": "e02-static-contract-v1",
+    "contract_status": "UNKNOWN",
+    "reasons": [
+      "UNSUPPORTED_input_or_expression"
+    ],
+    "scope": "exact structural B+delta preservation only",
+    "semantic_correctness": "NOT_ASSESSED",
+    "polarity_correctness": "NOT_ASSESSED",
+    "solver_executed": false,
+    "alert_safety_decision": null,
+    "counts": {},
+    "inputs": {
+      "B": {
+        "reference": "position/12/frame/1/U02/raw_response",
+        "sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+        "format": "python"
+      },
+      "delta": {
+        "reference": "position/12/frame/1/U06/raw_response",
+        "sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+        "format": "python"
+      },
+      "Final": {
+        "reference": "U10/output",
+        "sha256": "988b4ac6f656074c0fcd21033beff1a539b36997ec98fbbe9f30e61185b6b9b9",
+        "format": "python"
+      }
+    },
+    "ir": {
+      "B": {
+        "declarations": [
+          {
+            "symbol": "folio_test_slab",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/12/frame/1/U02/raw_response",
+              "line": 1,
+              "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+            }
+          },
+          {
+            "symbol": "object",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/12/frame/1/U02/raw_response",
+              "line": 2,
+              "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+            }
+          }
+        ],
+        "assertions": [
+          {
+            "formula": "(= folio_test_slab 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/12/frame/1/U02/raw_response",
+              "line": 3,
+              "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+            }
+          },
+          {
+            "formula": "(= object 0)",
+            "solver": "solver/1",
+            "origin": {
+              "reference": "position/12/frame/1/U02/raw_response",
+              "line": 4,
+              "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+            }
+          }
+        ],
+        "bindings": [
+          {
+            "python_name": "folio_test_slab",
+            "symbol": "folio_test_slab",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/12/frame/1/U02/raw_response",
+              "line": 1,
+              "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+            }
+          },
+          {
+            "python_name": "object",
+            "symbol": "object",
+            "sort": "Int",
+            "origin": {
+              "reference": "position/12/frame/1/U02/raw_response",
+              "line": 2,
+              "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+            }
+          }
+        ],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [
+              {
+                "formula": "(= folio_test_slab 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/12/frame/1/U02/raw_response",
+                  "line": 3,
+                  "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                }
+              },
+              {
+                "formula": "(= object 0)",
+                "solver": "solver/1",
+                "origin": {
+                  "reference": "position/12/frame/1/U02/raw_response",
+                  "line": 4,
+                  "source_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92"
+                }
+              }
+            ],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "position/12/frame/1/U02/raw_response",
+          "sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      },
+      "delta": {
+        "declarations": [],
+        "assertions": [],
+        "bindings": [],
+        "issues": [],
+        "snapshots": [
+          {
+            "all_recorded_assertions": [],
+            "selected_query_solver": null
+          }
+        ],
+        "resets": [],
+        "source": {
+          "reference": "position/12/frame/1/U06/raw_response",
+          "sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+          "format": "python_ast_fragment",
+          "implicit_receiver": "s"
+        }
+      }
+    },
+    "parse_errors": [
+      {
+        "role": "Final",
+        "error": "python_expression_outside_subset:List"
+      }
+    ],
+    "seconds": 0.00034899999991466757
+  },
+  "semantic_correctness": "NOT_ASSESSED",
+  "polarity_correctness": "NOT_ASSESSED",
+  "alert_safety_decision": null,
+  "solver_executed": false,
+  "sources": {
+    "base": {
+      "stage": "U02",
+      "reference": "position/12/frame/1/U02/raw_response",
+      "raw_text": "```python\nfolio_test_slab=Int('folio_test_slab')\nobject=Int('object')\ns.add(folio_test_slab == 0)\ns.add(object == 0)\n```",
+      "raw_sha256": "7a65b85e641f0e71c426ddf299c6035838044ca765eade808e1d6e3bdcfd8d92",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    },
+    "delta": {
+      "stage": "U06",
+      "reference": "position/12/frame/1/U06/raw_response",
+      "raw_text": "```python\n# object is NULL (ZERO_OR_NULL_PTR true), so kfree returns early\n# folio_test_slab is not evaluated in this path; keep existing constraint\n# No additional constraints needed beyond existing ones\n```",
+      "raw_sha256": "e00b45ed26f4306974524ede46cd8ad9ae95d7c03d390cec6d3175ed7c4894c1",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    },
+    "final": {
+      "stage": "Final",
+      "reference": "U10/output",
+      "raw_text": "def check_constraints():\n    # Variables\n    # object is NULL (ZERO_OR_NULL_PTR true) -> object == 0\n    # kfree returns early when object is NULL\n    # folio_test_slab is not evaluated in this path\n\n    object_ptr = 0  # object is NULL\n\n    # Constraint: object is NULL (ZERO_OR_NULL_PTR true)\n    # This means kfree returns early, so folio_test_slab is not evaluated\n    constraints = []\n\n    # ZERO_OR_NULL_PTR(object) is true -> object == 0\n    constraints.append(object_ptr == 0)\n\n    # Since object is NULL, kfree returns early.\n    # folio_test_slab is not evaluated in this path.\n    # No additional constraints needed beyond existing ones.\n\n    # Validate all constraints\n    for c in constraints:\n        if not c:\n            return False\n    return True",
+      "raw_sha256": "988b4ac6f656074c0fcd21033beff1a539b36997ec98fbbe9f30e61185b6b9b9",
+      "provenance_scope": "caller-bound response; hash is not an independent semantic attestation"
+    }
+  },
+  "stage": "after_U10_before_solver",
+  "attempt": 1,
+  "merged_sha256": "ea4a29df384dd5ca27a8a0c09466cab7fdee0509c4f5aee443141f224d042120",
+  "event_id": 2,
+  "sample_position": 12,
+  "frame_level": 1,
+  "dataset": "benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+  "sample_id": "NPD/codeql/kernel69:row=12:index=24"
+}

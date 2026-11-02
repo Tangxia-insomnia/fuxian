@@ -9,9 +9,12 @@ import re
 import runpy
 import subprocess
 import sys
+import uuid
 
 from .context import ROOT, ContextUnavailable, called_function, parameter_name, direct_dereference
 from .model import save
+from .constraint_bundle import (assemble_base_delta, validate_base_delta,
+                                ConstraintTransferRejected, replace_once)
 
 
 def load_extractor():
@@ -23,7 +26,7 @@ def load_extractor():
     return ns
 
 
-def completed_source():
+def completed_source(patch_dir=None):
     original = (ROOT / 'upstream/llm4pfa/feasibility_analysis_pipeline.py').read_text(encoding='utf-8')
     source = original[original.index('def get_context_function_body_with_tool'):original.index('def detect_pipeline():')]
     old = '''    for item_constraint in target_conditions:
@@ -63,9 +66,31 @@ def completed_source():
     # such results as failures, and never casts non-booleans into predictions.
     source = source.replace('args = extract_function_arguments(new_function_name)', 'args = extract_function_arguments(loc_text)')
     source = source.replace('if item in con1:', 'if item in con1["condition"]:')
-    save(ROOT / 'patches/completed_pipeline_changes.json', {'base_commit': '4efb4b9bf7e845e180451b43ba29a25e3edaa0e3', 'upstream_modified': False, 'loaded_range': 'author helper functions and data_flow_analysis_pipeline; original imports/config/batch entry replaced by adapter runner', 'changes': ['remove goto/return conditions without mutating iterator; pass goto label text', 'filter while in condition text instead of dict keys', 'replace exec in global namespace with bounded Z3 worker; record actual SMT queries', 'stop after solver repair exhaustion', 'execute base query when neither target nor jump constraints remain', 'use explicitly recovered chain end; never swallow missing context as True', 'extract call arguments from call text rather than bare function name', 'inspect propagated constraint text rather than dict keys', 'strict JSON/code response parsing and actual function/context helpers supplied by adapter'], 'method_changes': 'Prompts and main iterative analysis retained; error handling, data plumbing and base-solver omission repaired. This is a modified completion, not the authors exact executable.'})
-    (ROOT / 'patches/completed_pipeline.diff').write_text(''.join(difflib.unified_diff(original.splitlines(True), source.splitlines(True), fromfile='upstream/llm4pfa/feasibility_analysis_pipeline.py', tofile='completed_function_bodies.py')), encoding='utf-8')
-    (ROOT / 'patches/completed_function_bodies.py').write_text(source, encoding='utf-8')
+    # E03 only: U02/U06 raw responses are explicit evidence, not the parsed delta.
+    source = replace_once(source,
+        '        merged_prompt = prompt.get_z3_extract(bug_line_constraints_response_process)',
+        '''        e03_bundle = assemble_base_delta(response_message_target, bug_line_constraints_response)
+        merged_prompt = prompt.get_z3_extract(e03_bundle['merged_script'])''')
+    source = replace_once(source, '''        response_list.append("step 2 z3 script: " + final_response)
+
+        # solving
+        cnt = 0
+        while (cnt <= 3):
+            cnt += 1
+            try:''', '''        response_list.append("step 2 z3 script: " + final_response)
+
+        # E03 rejection is OUTSIDE the repair catch: never ask an LLM to hide it.
+        cnt = 0
+        while (cnt <= 3):
+            cnt += 1
+            validate_base_delta_output(e03_bundle, final_response, attempt=cnt)
+            try:''')
+    # Keep old completion snapshots immutable; each new rendering has its own dir.
+    patch_dir = Path(patch_dir) if patch_dir is not None else ROOT / 'safety_runs/E03_base_delta_explicit_transfer_fix/runtime_patches' / uuid.uuid4().hex
+    patch_dir.mkdir(parents=True, exist_ok=False)
+    save(patch_dir / 'completed_pipeline_changes.json', {'base_commit': '4efb4b9bf7e845e180451b43ba29a25e3edaa0e3', 'upstream_modified': False, 'loaded_range': 'author helper functions and data_flow_analysis_pipeline; original imports/config/batch entry replaced by adapter runner', 'changes': ['remove goto/return conditions without mutating iterator; pass goto label text', 'filter while in condition text instead of dict keys', 'replace exec in global namespace with bounded Z3 worker; record actual SMT queries', 'stop after solver repair exhaustion', 'execute base query when neither target nor jump constraints remain', 'use explicitly recovered chain end; never swallow missing context as True', 'extract call arguments from call text rather than bare function name', 'inspect propagated constraint text rather than dict keys', 'strict JSON/code response parsing and actual function/context helpers supplied by adapter', 'E03 exact U06-to-U10 B/delta concatenation and static admission', 'E03 output/repaired-output static admission outside solver repair catch'], 'method_changes': 'Documented completion plus E03 structural transfer adapter. Original prompts unchanged; structural admission is not semantic or polarity approval.'})
+    (patch_dir / 'completed_pipeline.diff').write_text(''.join(difflib.unified_diff(original.splitlines(True), source.splitlines(True), fromfile='upstream/llm4pfa/feasibility_analysis_pipeline.py', tofile='completed_function_bodies.py')), encoding='utf-8')
+    (patch_dir / 'completed_function_bodies.py').write_text(source, encoding='utf-8')
     return source
 
 
@@ -150,10 +175,14 @@ class CompletedEngine:
         self.context = context or self.prepare(position)
         self.frames = self.context['frames']
         self.solver_events = []
+        self.transfer_events = []
+        self.transfer_position = position
         self.sample_dir = sample_dir
         self.sample_dir.mkdir(parents=True, exist_ok=True)
         save(sample_dir / 'context.json', self.context)
         ns = {'json': json, 're': re, 'model_name': 'deepseek', 'model': self.model, 'prompt': self.prompt, 'extract_util_plus': type('Extractor', (), {'extract_conditions': staticmethod(self.extractor['extract_conditions'])}), 'function_cache': {}, 'func_body_cache_path': str(sample_dir / 'function_cache.json'), 'solve_z3': self.solve, 'solve_base_query': self.solve_base, 'extract_function_name': called_function, 'get_param_name': parameter_name, 'is_direct_dereference': direct_dereference}
+        ns['assemble_base_delta'] = self.assemble_transfer
+        ns['validate_base_delta_output'] = self.validate_transfer_output
         exec(compile(self.source, '<completed_author_pipeline>', 'exec'), ns)
         ns['process_final_response'] = self.code_response
         ns['process_array_response'] = self.array_response
@@ -181,6 +210,42 @@ class CompletedEngine:
         ns['data_flow_analysis_pipeline'] = wrapped
         first = self.frames[0]
         return wrapped(first['var_name'], first['target'], first['code'], [], [], [], 0, 'official_context_snippet', {}, [], [], 0, position, position)
+
+    def record_transfer(self, event):
+        """Exclusive evidence files. Rejection cannot overwrite or retry a record."""
+        event = dict(event, event_id=len(self.transfer_events)+1,
+                     sample_position=self.transfer_position, frame_level=self.level,
+                     dataset=getattr(self.repository, 'dataset', None),
+                     sample_id=getattr(self.model, 'sample_id', None))
+        folder = self.sample_dir / 'constraint_transfer_e03'
+        folder.mkdir(exist_ok=True)
+        payload = json.dumps(event, ensure_ascii=False, indent=2)
+        with (folder / f'{event["event_id"]:03d}.json').open('x', encoding='utf-8', newline='\n') as handle:
+            handle.write(payload)
+        self.transfer_events.append(event)
+
+    def assemble_transfer(self, base, delta):
+        reference = f'position/{self.transfer_position}/frame/{self.level}'
+        try:
+            bundle = assemble_base_delta(base, delta, base_source=reference+'/U02/raw_response',
+                                         delta_source=reference+'/U06/raw_response')
+        except ConstraintTransferRejected as exc:
+            self.record_transfer(exc.audit)
+            raise
+        self.record_transfer(dict(bundle['assembly_audit'], bundle=bundle))
+        return bundle
+
+    def validate_transfer_output(self, bundle, final, attempt=1):
+        audit = validate_base_delta(bundle['base']['raw_text'], bundle['delta']['raw_text'], final,
+                                    base_source=bundle['base']['reference'],
+                                    delta_source=bundle['delta']['reference'],
+                                    final_source='U10/output' if attempt == 1 else f'U01/repair_attempt/{attempt-1}')
+        audit.update(stage='after_U10_before_solver' if attempt == 1 else 'after_U01_before_solver',
+                     attempt=attempt, merged_sha256=bundle['merged_sha256'])
+        self.record_transfer(audit)
+        if not audit['accepted']:
+            raise ConstraintTransferRejected(audit)
+        return audit
 
 
 class BaseInfeasible(Exception):

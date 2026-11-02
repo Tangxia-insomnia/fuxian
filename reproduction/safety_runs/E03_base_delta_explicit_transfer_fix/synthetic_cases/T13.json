@@ -1,0 +1,9 @@
+{
+  "test_id": "T13",
+  "scenario": "U10_unsupported_control_flow",
+  "B": "```python\nx=Int('x')\ns.add(x == 0)\n```",
+  "delta": "",
+  "U10_output": "def check_constraints():\n    x=Int('x')\n    s=Solver()\n    if x == 0:\n        s.add(x == 0)\n    return s.check() == sat\n",
+  "expected_assembly": true,
+  "expected_postcondition": false
+}

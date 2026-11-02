@@ -1,0 +1,9 @@
+{
+  "test_id": "T14",
+  "scenario": "contradictions_preserved_not_semantics_approved",
+  "B": "```python\nx=Int('x')\ns.add(x == 0)\n```",
+  "delta": "s.add(Not(x == 0))",
+  "U10_output": "def check_constraints():\n    x=Int('x')\n    s=Solver()\n    s.add(x == 0)\n    s.add(Not(x == 0))\n    return s.check() == sat\n",
+  "expected_assembly": true,
+  "expected_postcondition": true
+}
