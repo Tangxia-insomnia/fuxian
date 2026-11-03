@@ -1,0 +1,159 @@
+{
+  "audit_date": "2026-11-03",
+  "selection_scope": "完整只读检查14个原benchmark后人工研究筛选，不执行分析器或求解器",
+  "candidate_count": 2,
+  "maximum_allowed": 10,
+  "unconditionally_ready_full_program_samples": 0,
+  "unconditionally_ready_R01_R05_SMT_chain_samples": 0,
+  "preferred_first_candidate": "benchmark/DBZ/all_cwe369.json:row=4:index=4",
+  "selection_policy": "少量局部标量候选用于界定可做的下一步；不以标签、过滤效果或凑数选样本。仅预筛，不承诺认证成功。",
+  "candidates": [
+    {
+      "priority": 1,
+      "sample_id": "benchmark/DBZ/all_cwe369.json:row=4:index=4",
+      "sample_id_origin": "本次审计来源限定定位符；原JSON没有sample_id；不得替换已有项目ID",
+      "original_index": 4,
+      "original_label": 0,
+      "label_modified": false,
+      "label_used_for_selection": false,
+      "dataset_file": "E:\\codexconversation\\课题研究\\reproduction\\upstream\\benchmark\\DBZ\\all_cwe369.json",
+      "dataset_sha256": "0275cd83a4c1cf617f0049d6dbb191dcc3d232e5545ca0139bab3aa45f747fd8",
+      "record_pointer": "/4",
+      "warning_type": "DBZ（作者分组，代码含除法告警）",
+      "analyzer": "Cppcheck（作者统计图组级声明；原记录无规范checker/rule ID）",
+      "function_body_pointer": "/4/function_call/0",
+      "function_body_sha256": "4ad8431edd6f874dcfb6b1c47d3d83607e7c3ce11f9521e45496eff794a5f9f6",
+      "source_location_original_metadata": {
+        "file_path": "linux-6.9.6/drivers/media/dvb-frontends/stb0899_algo.c",
+        "region": {
+          "startLine": 110,
+          "startColumn": 18,
+          "endColumn": 18
+        },
+        "context": {
+          "startLine": 108,
+          "endLine": 112,
+          "snippet": {
+            "text": "return (100000 / (srate / 1000));"
+          }
+        }
+      },
+      "existing_evidence": {
+        "body": "static long stb0899_calc_derot_time(long srate)\n{\n\tif (srate > 0)\n\t\treturn (100000 / (srate / 1000));\n\telse\n\t\treturn 0;\n}",
+        "source_field": [
+          "static long stb0899_calc_derot_time(long srate)"
+        ],
+        "sink": "return (100000 / (srate / 1000));",
+        "original_TU_verified": false,
+        "compile_context_verified": false,
+        "R01_R05_verified_evidence": "未找到该候选的可信值/路径/调用版本产物；不得移用其他样本合成结果",
+        "B_delta": "原benchmark没有typed B/delta，仅源码与定位文本"
+      },
+      "smt_constructibility": "CONDITIONAL_LOCAL_ONLY",
+      "full_program_semantic_status": "UNKNOWN",
+      "authorized_filtering": false,
+      "solver_run": false,
+      "smt_generated": false,
+      "next_experiment_scope": "仅在另行授权后，建立明确声明假设的片段级标量合同；不是原程序告警裁决或R05真实PASS",
+      "function": "stb0899_calc_derot_time",
+      "selection_basis": "7行、内建long类型、单if、无宏/成员/外部调用；按语义简洁性选择，不按标签或期望结果选择。",
+      "candidate_relation": "分支guard与嵌套整数除法分母的零值可达性；只列研究义务，不生成或求解公式。",
+      "missing_information": [
+        "原始源码commit/TU和原告警绑定",
+        "原ABI long宽度/编译选项",
+        "调用者对srate的范围前提与可达性",
+        "可信AST类型/极性/定义引用",
+        "确定性C整数除法及UB编码尚未实现；R02现有子集不覆盖除法"
+      ],
+      "recommendation": "首选，但仅建议进入受限片段级SMT接入开发设计；尚不可直接进行可信全程序验证。原label=0保留，局部可满足也不能重标为真缺陷。",
+      "fragment_locations": {
+        "declaration_line": 1,
+        "guard_line": 3,
+        "sink_line": 4
+      }
+    },
+    {
+      "priority": 2,
+      "sample_id": "benchmark/DBZ/all_cwe369.json:row=2:index=2",
+      "sample_id_origin": "本次审计来源限定定位符；原JSON没有sample_id；不得替换已有项目ID",
+      "original_index": 2,
+      "original_label": 0,
+      "label_modified": false,
+      "label_used_for_selection": false,
+      "dataset_file": "E:\\codexconversation\\课题研究\\reproduction\\upstream\\benchmark\\DBZ\\all_cwe369.json",
+      "dataset_sha256": "0275cd83a4c1cf617f0049d6dbb191dcc3d232e5545ca0139bab3aa45f747fd8",
+      "record_pointer": "/2",
+      "warning_type": "DBZ（作者分组，代码含除法告警）",
+      "analyzer": "Cppcheck（作者统计图组级声明；原记录无规范checker/rule ID）",
+      "function_body_pointer": "/2/function_call/0",
+      "function_body_sha256": "604a27c78dd3bd48933665f8253480eef56107e88e7e4039701dd4f397615ebb",
+      "source_location_original_metadata": {
+        "file_path": "linux-6.9.6/drivers/gpu/drm/omapdrm/dss/pll.c",
+        "region": {
+          "startLine": 189,
+          "startColumn": 33,
+          "endColumn": 33
+        },
+        "context": {
+          "startLine": 187,
+          "endLine": 191,
+          "snippet": {
+            "text": "m_stop = min((unsigned)(clkdco / out_min), hw->mX_max);"
+          }
+        }
+      },
+      "existing_evidence": {
+        "body": "bool dss_pll_hsdiv_calc_a(const struct dss_pll *pll, unsigned long clkdco,\n\t\tunsigned long out_min, unsigned long out_max,\n\t\tdss_hsdiv_calc_func func, void *data)\n{\n\tconst struct dss_pll_hw *hw = pll->hw;\n\tint m, m_start, m_stop;\n\tunsigned long out;\n\n\tout_min = out_min ? out_min : 1;\n\tout_max = out_max ? out_max : ULONG_MAX;\n\n\tm_start = max(DIV_ROUND_UP(clkdco, out_max), 1ul);\n\n\tm_stop = min((unsigned)(clkdco / out_min), hw->mX_max);\n\n\tfor (m = m_start; m <= m_stop; ++m) {\n\t\tout = clkdco / m;\n\n\t\tif (func(m, out, data))\n\t\t\treturn true;\n\t}\n\n\treturn false;\n}",
+        "source_field": [
+          "        out_min = out_min ? out_min : 1;"
+        ],
+        "sink": "m_stop = min((unsigned)(clkdco / out_min), hw->mX_max);",
+        "original_TU_verified": false,
+        "compile_context_verified": false,
+        "R01_R05_verified_evidence": "未找到该候选的可信值/路径/调用版本产物；不得移用其他样本合成结果",
+        "B_delta": "原benchmark没有typed B/delta，仅源码与定位文本"
+      },
+      "smt_constructibility": "CONDITIONAL_LOCAL_ONLY",
+      "full_program_semantic_status": "UNKNOWN",
+      "authorized_filtering": false,
+      "solver_run": false,
+      "smt_generated": false,
+      "next_experiment_scope": "仅在另行授权后，建立明确声明假设的片段级标量合同；不是原程序告警裁决或R05真实PASS",
+      "function": "dss_pll_hsdiv_calc_a",
+      "selection_basis": "目标out_min的零值归一化赋值清楚，可研究有限纯标量切片；比带调用返回/内存的样本更易控制。",
+      "candidate_relation": "out_min归一化后的非零性与目标除法分母版本；不建模整个函数。",
+      "missing_information": [
+        "原始源码commit/TU与ABI unsigned long宽度",
+        "min/max/DIV_ROUND_UP/ULONG_MAX活动宏定义和预处理来源",
+        "分母赋值到使用间的可信def-use及无写入/逃逸依据",
+        "完整函数含结构体、回调和循环，超出现有受限模型",
+        "可信C类型/版本/路径绑定"
+      ],
+      "recommendation": "备选；只可在纯赋值切片边界明确后研究；完整告警保持UNKNOWN，不能先假定宏/调用无副作用。",
+      "fragment_locations": {
+        "parameter_lines": [
+          1,
+          2,
+          3
+        ],
+        "normalization_line": 9,
+        "sink_line": 14
+      }
+    }
+  ],
+  "not_recommended_now": [
+    {
+      "sample_id": "NPD/codeql/kernel69:row=24:index=43",
+      "reason": "E07/E08已证实当前材料缺原TU/编译上下文，跨帧宏/内存版本缺失，不作为第一轮SMT正向案例。"
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=10:index=22",
+      "reason": "A01 copied多次赋值与旧极性冲突，留作已有风险案例；不能用旧公式支持过滤。"
+    },
+    {
+      "sample_id": "NPD/codeql/kernel69:row=12:index=24",
+      "reason": "A04 B/delta保留不等于object类型/身份修复，不能自动改名洗成PASS。"
+    }
+  ],
+  "warning": "候选JSON是审计报告数据，不是Adapter、ConstraintLedger、SMT脚本或新实验输入。"
+}

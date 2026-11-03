@@ -1,0 +1,629 @@
+{
+  "audit_version": "dataset-interface-audit-2026-11-03",
+  "scope": "只读研究设计，不是Adapter实现；DIRECT限明确列出的事实",
+  "upstream_commit": "4efb4b9bf7e845e180451b43ba29a25e3edaa0e3",
+  "project_head": "fb8e98e0771304ef97682a57f5fcf4969abb216b",
+  "status_definitions": {
+    "DIRECT": "原字段可按原义原样复用，不授予语义证明",
+    "ADAPTER": "可纯确定性封装/别名/来源转换，不能创造程序事实",
+    "EXTRACT": "需要新增/应用可信程序证据生产，既有模块可复用；当前不执行",
+    "MISSING": "所需数据或认证能力在已审计材料中不存在，不能凭空恢复",
+    "UNKNOWN": "目前证据不足以确认含义或逐条身份"
+  },
+  "all_semantic_ready_flags": false,
+  "mappings": [
+    {
+      "requirement": "原始样本定位",
+      "status": "ADAPTER",
+      "source_fields": [
+        "benchmark文件相对路径",
+        "数组零基row",
+        "index（部分文件）"
+      ],
+      "available_fact": "原始JSON没有sample_id；既有项目样本使用prefix:row=...:index=...。",
+      "required_work_or_boundary": "保留既有sample_id原文；未覆盖类型生成带文件SHA/row/index的来源限定别名，不改index、顺序或标签。别名不是程序声明身份。",
+      "target_consumers": [
+        "R01.dataset_id/position",
+        "R05.sample_id"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/scripts/run_completed.py",
+          "line": 80
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/benchmark/DBZ/all_cwe369.json",
+          "json_pointer": "/4/index"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "原标签原值",
+      "status": "DIRECT",
+      "source_fields": [
+        "result"
+      ],
+      "available_fact": "原值可不变复制；去UBI/UUA文件别名后424条二元标签记录、4个-1、526个缺失。",
+      "required_work_or_boundary": "标签只供评估；禁止将-1改成1/0或用方法输出补标签；BAD/GOOD不存在。",
+      "target_consumers": [
+        "evaluation metadata"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+          "json_pointer": "/48/result"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/audit/failure_audit_20261029/data_version_check.json"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "告警位置元数据",
+      "status": "DIRECT",
+      "source_fields": [
+        "location.file_path",
+        "location.region",
+        "location.context"
+      ],
+      "available_fact": "所有原记录保存路径、告警变量区间、context文本/行号。",
+      "required_work_or_boundary": "可直接作为未认证来源线索，不能作为已验证AST范围；没有region.endLine，context起点不等于函数起点。",
+      "target_consumers": [
+        "source locator only"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/benchmark/DBZ/all_cwe369.json",
+          "json_pointer": "/4/location"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "源码原文载荷",
+      "status": "DIRECT",
+      "source_fields": [
+        "function_code",
+        "func_info",
+        "function_call[*]",
+        "baseline_context[*].text[*].function_body"
+      ],
+      "available_fact": "字符串可原样只读引用并计算哈希，存在截断和显示行号文本。",
+      "required_work_or_boundary": "不能直接作为原始TU；必须区分原文哈希与规范化/去显示行号后的派生哈希。",
+      "target_consumers": [
+        "R01-R04.source candidate",
+        "provenance"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/benchmark/NPD/infer/infer_libav_nullpointer.json",
+          "json_pointer": "/0/func_info"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/benchmark/DBZ/all_cwe369.json",
+          "json_pointer": "/4/function_call/0"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "原始警告分组与逐条规则",
+      "status": "UNKNOWN",
+      "source_fields": [
+        "benchmark目录",
+        "bug_report（BOF）",
+        "统计图"
+      ],
+      "available_fact": "统计图声明类型/工具/项目分组；BOF42条有自然语言解释。",
+      "required_work_or_boundary": "组级元数据可附来源适配；所有行无规范checker/ruleId，混合UBI逐条工具不能据文件名猜测。",
+      "target_consumers": [
+        "adapter taxonomy"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/Data statistics.jpg"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/benchmark/BOF/codeql_openssl_cwe122.json",
+          "json_pointer": "/0/bug_report"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "原扫描checkout/构建/宏/头文件",
+      "status": "MISSING",
+      "source_fields": [],
+      "available_fact": "版本名称提示存在，原始源码commit、compile command、架构/生成配置与样本绑定不存在于冻结输入。",
+      "required_work_or_boundary": "需要外部原始证据；Adapter不能创建这些事实，不伪标synthetic-self-contained。",
+      "target_consumers": [
+        "all semantic admission"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/README.md",
+          "line": 13
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E08_compile_context_precheck/E08_report.md"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "function_decl_id",
+      "status": "EXTRACT",
+      "source_fields": [
+        "function_name",
+        "片段函数签名"
+      ],
+      "available_fact": "可登记名称/候选签名；不等于canonical声明。",
+      "required_work_or_boundary": "需可靠TU的Clang canonical USR、声明位置/链接、源码和build命名空间；当前缺认证输入。",
+      "target_consumers": [
+        "R01.declaration",
+        "R02.slot",
+        "R05.FrameContext"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R01_direct_call_argument_mapping/mapper.py",
+          "line": 49
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R01_direct_call_argument_mapping/mapper.py",
+          "line": 165
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "callsite_id",
+      "status": "EXTRACT",
+      "source_fields": [
+        "location.context.snippet.text",
+        "function_list",
+        "候选函数体"
+      ],
+      "available_fact": "可作调用文本/候选位置来源；E07有旧callsite_id。",
+      "required_work_or_boundary": "需CallExpr精确范围、referenced FunctionDecl、caller身份、源哈希；旧恢复AST ID仅保留引用，不能批准真实调用。",
+      "target_consumers": [
+        "R01.calls",
+        "R03.CallContext",
+        "R05.frames"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E07_real_evidence_extraction/selected_sample_sidecar.json",
+          "json_pointer": "/extraction_evidence/callsite_candidates"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R01_direct_call_argument_mapping/mapper.py",
+          "line": 165
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "实参形参按值transfer",
+      "status": "EXTRACT",
+      "source_fields": [
+        "function_call",
+        "函数签名/调用文本"
+      ],
+      "available_fact": "DBZ/UBI的function_call实际均仅一段函数体；不是transfer。",
+      "required_work_or_boundary": "需真实调用目标、参数序号、caller/callee slot、AST转换、当前入口版本；不得名称配对。",
+      "target_consumers": [
+        "R01.transfer_id",
+        "R03.ArgumentTransfer",
+        "R05.argument_transfers"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R01_direct_call_argument_mapping/mapping_contract.md"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R03_return_value_transfer/call_context.py"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "类型、符号性、位宽、范围",
+      "status": "EXTRACT",
+      "source_fields": [
+        "声明中的C类型拼写",
+        "常量后缀"
+      ],
+      "available_fact": "DBZ部分声明有long/unsigned long；typedef/ABI/宏不完整。",
+      "required_work_or_boundary": "区分可读拼写与Clang canonical类型/sizeof/符号/提升转换；ABI位宽来源MISSING时参数化局部实验，真实语义UNKNOWN。",
+      "target_consumers": [
+        "R01.conversion",
+        "SMT sorts"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R01_direct_call_argument_mapping/mapper.py",
+          "line": 60
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/benchmark/DBZ/all_cwe369.json",
+          "json_pointer": "/4/function_call/0"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "局部slot/ValueVersion/reaching definition",
+      "status": "EXTRACT",
+      "source_fields": [
+        "var_name或prt",
+        "var_assign_conditions",
+        "source"
+      ],
+      "available_fact": "原数据没有不可变值版本，名称可能为成员/间接表达式。",
+      "required_work_or_boundary": "复用R02；需可信声明、定义事件、路径和读取。未知效果后不得继续。当前历史版本覆盖0；不按变量名合并。",
+      "target_consumers": [
+        "R02",
+        "R05.values",
+        "SMT symbols"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R02_local_value_versions/value_version.py",
+          "line": 315
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R02_local_value_versions/state_environment.py"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "跨帧上下文及父帧恢复",
+      "status": "EXTRACT",
+      "source_fields": [
+        "保存的候选function_call顺序",
+        "后续context快照"
+      ],
+      "available_fact": "已有R03/R04/当前R05合同，但原benchmark没有实例帧/父路径/suspend证据。",
+      "required_work_or_boundary": "需输入已认证frame/context/path/snapshot/事件顺序，不能把列表顺序当运行栈；循环重复与递归不能按同名归并。",
+      "target_consumers": [
+        "R03",
+        "R04",
+        "R05.lifecycle"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R05_cross_frame_ledger/protocol/execution_v2_spec.md"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R05_cross_frame_ledger/src/protocol/evidence_runtime.py",
+          "line": 54
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "返回值绑定及CallerPost",
+      "status": "EXTRACT",
+      "source_fields": [
+        "函数return文本",
+        "调用赋值文本"
+      ],
+      "available_fact": "可保存return位置候选，不存在原始return_binding/caller_result关系。",
+      "required_work_or_boundary": "复用R03受限实现；须绑定调用实例、callee return path、接收slot与新值，ignored/void无result；不能推断正常返回/效果完整。",
+      "target_consumers": [
+        "R03",
+        "R05.RETURN_BINDING"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R03_return_value_transfer/return_transfer.py",
+          "line": 180
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R03_return_value_transfer/mapping_contract.md"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "AddressEvidence/PointerTarget/MemoryObject",
+      "status": "EXTRACT",
+      "source_fields": [
+        "指针声明和取址/成员文本"
+      ],
+      "available_fact": "只有源码表达式；无唯一对象与存活/逃逸依据。",
+      "required_work_or_boundary": "复用R04；需可信AST/局部对象/唯一指针目标/调用实例。不能按成员拼写匹配。",
+      "target_consumers": [
+        "R04",
+        "R05.objects"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R04_restricted_indirect_write/memory_object.py"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R04_restricted_indirect_write/indirect_write.py",
+          "line": 238
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "MemoryVersion与实际间接写入",
+      "status": "EXTRACT",
+      "source_fields": [
+        "赋值文本",
+        "WRITE_ONCE等宏拼写"
+      ],
+      "available_fact": "原数据无内存版本，宏定义/效果缺失。",
+      "required_work_or_boundary": "复用R04支持子集；需当前指针值、write event、对象/前驱/context/path/源码，重绑不等于写入。",
+      "target_consumers": [
+        "R04",
+        "R05.memories"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R04_restricted_indirect_write/mapping_contract.md"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E07_real_evidence_extraction/selected_sample_sidecar.json",
+          "json_pointer": "/extraction_evidence/memory_macro_candidates"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "内存写入到后续局部读取桥",
+      "status": "EXTRACT",
+      "source_fields": [
+        "无原始桥接字段"
+      ],
+      "available_fact": "当前R05已有MEMORY_VALUE_BRIDGE校验，原真实数据尚无可准入桥证据。",
+      "required_work_or_boundary": "生产source_memory_version_id、object、当前内存环境/定义事件与读取证明；复用现有桥校验，不再实现同一桥算法。",
+      "target_consumers": [
+        "R05.MEMORY_VALUE_BRIDGE",
+        "READS_VALUE"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R05_cross_frame_ledger/protocol/execution_v2_spec.md"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R05_cross_frame_ledger/src/protocol/evidence_runtime.py"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "原始路径条件文本",
+      "status": "DIRECT",
+      "source_fields": [
+        "bug_line_constraints[*].condition",
+        "early_jump_constraints[*].condition",
+        "pointer_null_postconditions[*].condition"
+      ],
+      "available_fact": "仅kernel CodeQL70行带这些扩展，可原样引用；其他类型需读源码。",
+      "required_work_or_boundary": "DIRECT仅指原始文本输入，不意味着可作assert。含goto/while等，不把early-return条件直接全部AND。",
+      "target_consumers": [
+        "audit ConstraintRef raw"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+          "json_pointer": "/0/bug_line_constraints"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "可信path_id/极性/分支覆盖",
+      "status": "EXTRACT",
+      "source_fields": [
+        "if/goto/return文本"
+      ],
+      "available_fact": "没有逐路径实例/已验证极性；模型条件也不补足。",
+      "required_work_or_boundary": "需确定性CFG/guard/版本/替代路径证据；R02可复用受限单if路径而不证明可满足。",
+      "target_consumers": [
+        "R02.paths",
+        "R05.branch_choices",
+        "SMT path predicates"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R02_local_value_versions/mapping_contract.md"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E01_predicate_polarity_consistency/e01_report.md"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "官方预编码可认证B/Δ",
+      "status": "MISSING",
+      "source_fields": [],
+      "available_fact": "冻结benchmark没有B/delta或typed SMT约束表。官方流水线在运行中通过模型生成B/Δ。",
+      "required_work_or_boundary": "不将C文本/自然语言告警当成已认证SMT；不执行旧Python脚本。",
+      "target_consumers": [
+        "SMT verified input"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/llm4pfa/feasibility_analysis_pipeline.py",
+          "line": 173
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/llm4pfa/feasibility_analysis_pipeline.py",
+          "line": 231
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "项目B/Δ原文与结构来源",
+      "status": "ADAPTER",
+      "source_fields": [
+        "bundle.base/delta",
+        "raw_text/raw_sha256",
+        "code_text/code_sha256",
+        "merged_span",
+        "event_id/sample_id/frame_level"
+      ],
+      "available_fact": "E03已有明确B/Δ保存、拼接与E02结构检查，可无损引用旧产物。",
+      "required_work_or_boundary": "只读Envelope/ConstraintRef适配；保留原区间单位，模型脚本Python行不是C行。结构PASS不保证语义。",
+      "target_consumers": [
+        "provenance",
+        "SMT diagnostic replay design"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/completion/constraint_bundle.py",
+          "line": 50
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/completion/constraint_bundle.py",
+          "line": 103
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E03_base_delta_explicit_transfer_fix/engine_traces/A04/constraint_transfer_e03/001.json"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "逐约束C变量/版本/上下文绑定",
+      "status": "EXTRACT",
+      "source_fields": [
+        "旧脚本symbol/sort/origin",
+        "原C条件"
+      ],
+      "available_fact": "Python名称与Z3 sort是脚本声明，不是C声明/指针身份。",
+      "required_work_or_boundary": "需要Assertion→C AST/slot/value/memory/context/path/polarity/type绑定，现有字段不足，无法纯改字段获得。",
+      "target_consumers": [
+        "SMT trusted ConstraintBinding"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E02_base_constraint_preservation_static/checker.py",
+          "line": 261
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/completion/constraint_bundle.py",
+          "line": 90
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "源码/产物哈希及原记录引用",
+      "status": "ADAPTER",
+      "source_fields": [
+        "原JSON字节",
+        "JSON Pointer",
+        "已有artifact_sha256"
+      ],
+      "available_fact": "可确定性计算文件/片段哈希并引用每个原记录，已有R模块字段可保留。",
+      "required_work_or_boundary": "不覆盖原ID或规范化原文本；源码hash≠脚本hash≠构建hash，不推断跨帧等价。",
+      "target_consumers": [
+        "all provenance"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E07_real_evidence_extraction/run_e07.py",
+          "line": 20
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R05_cross_frame_ledger/src/protocol/evidence_runtime.py",
+          "line": 74
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "真实证据准入PASS",
+      "status": "MISSING",
+      "source_fields": [
+        "当前build_status/producer_kind"
+      ],
+      "available_fact": "R01-R04只批准synthetic-self-contained范围，R05对所有非fixture固定附加语义未认证UNKNOWN。",
+      "required_work_or_boundary": "原数据/真实证据不能伪装synthetic或fixture。独立Adapter可接文件并保留UNKNOWN；若未来要求真实PASS，需单独讨论认证入口兼容扩展，不能承诺只靠Adapter完成。",
+      "target_consumers": [
+        "R01-R05 admission"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R01_direct_call_argument_mapping/mapper.py",
+          "line": 180
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R02_local_value_versions/config.json"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R03_return_value_transfer/return_transfer.py",
+          "line": 187
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R04_restricted_indirect_write/indirect_write.py",
+          "line": 243
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R05_cross_frame_ledger/src/protocol/evidence_runtime.py",
+          "line": 29
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "SMT受限标量编码",
+      "status": "EXTRACT",
+      "source_fields": [
+        "DBZ可读标量声明/赋值/guard",
+        "已认证子集关系（将来）"
+      ],
+      "available_fact": "存在适合研究的局部表达式，但没有已开发且C类型正确的确定性编码器。",
+      "required_work_or_boundary": "新增有限语法和类型/UB/版本绑定；纯片段合同与原项目结论分开。禁止直接以Z3 Int代替任意C整数，缺字段UNKNOWN。",
+      "target_consumers": [
+        "new isolated SMT adapter, not implemented"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/benchmark/DBZ/all_cwe369.json",
+          "json_pointer": "/4"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R02_local_value_versions/config.json"
+        }
+      ],
+      "semantic_ready": false
+    },
+    {
+      "requirement": "指针/数组/位运算通用SMT语义",
+      "status": "MISSING",
+      "source_fields": [
+        "相关C文本",
+        "模型生成的Int/BitVec脚本"
+      ],
+      "available_fact": "原数据没有统一地址空间、对象生命周期、数组边界或ABI类型合同。",
+      "required_work_or_boundary": "首轮不实现通用内存模型；对依赖这些关系的查询UNKNOWN，已有R04有限对象关系不等于SMT内存理论。",
+      "target_consumers": [
+        "future, out of initial scope"
+      ],
+      "evidence_refs": [
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/upstream/benchmark/BOF/codeql_openssl_cwe122.json",
+          "json_pointer": "/0"
+        },
+        {
+          "path": "E:/codexconversation/课题研究/reproduction/safety_runs/E06_R04_restricted_indirect_write/mapping_contract.md"
+        }
+      ],
+      "semantic_ready": false
+    }
+  ],
+  "baseline_reuse_policy": "不修改R01-R05或原标签；不复写旧ValueVersion/MemoryVersion；不伪造fixture生产者。",
+  "current_full_chain_ready_samples": 0
+}
