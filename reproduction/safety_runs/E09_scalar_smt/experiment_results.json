@@ -1,0 +1,404 @@
+{
+  "experiment_version": "e09-stb0899-signed-long-v1",
+  "source": {
+    "request_sample_id": "DBZ/all_cwe369.json:row=4:index=4",
+    "sample_id": "benchmark/DBZ/all_cwe369.json:row=4:index=4",
+    "sample_id_origin": "本次审计来源限定定位符；原JSON没有sample_id；不得替换已有项目ID",
+    "original_dataset_sample_id": null,
+    "row_zero_based": 4,
+    "original_index": 4,
+    "original_label": 0,
+    "dataset_file": "E:\\codexconversation\\课题研究\\reproduction\\upstream\\benchmark\\DBZ\\all_cwe369.json",
+    "dataset_sha256": "0275cd83a4c1cf617f0049d6dbb191dcc3d232e5545ca0139bab3aa45f747fd8",
+    "record_pointer": "/4",
+    "audit_file": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\SMT_dataset_audit\\candidate_samples.json",
+    "audit_sha256": "2788dff05a5f611965fb9745bb62379bc76683639a5dedacc643b00fcf02aef0",
+    "audit_record_pointer": "/candidates/0",
+    "function_body_pointer": "/4/function_call/0",
+    "function_body": "static long stb0899_calc_derot_time(long srate)\n{\n\tif (srate > 0)\n\t\treturn (100000 / (srate / 1000));\n\telse\n\t\treturn 0;\n}",
+    "function_body_sha256": "4ad8431edd6f874dcfb6b1c47d3d83607e7c3ce11f9521e45496eff794a5f9f6",
+    "source_location_original_metadata": {
+      "file_path": "linux-6.9.6/drivers/media/dvb-frontends/stb0899_algo.c",
+      "region": {
+        "startLine": 110,
+        "startColumn": 18,
+        "endColumn": 18
+      },
+      "context": {
+        "startLine": 108,
+        "endLine": 112,
+        "snippet": {
+          "text": "return (100000 / (srate / 1000));"
+        }
+      }
+    },
+    "original_record": {
+      "prt": "srate",
+      "function_call": [
+        "static long stb0899_calc_derot_time(long srate)\n{\n\tif (srate > 0)\n\t\treturn (100000 / (srate / 1000));\n\telse\n\t\treturn 0;\n}"
+      ],
+      "source": [
+        "static long stb0899_calc_derot_time(long srate)"
+      ],
+      "index": 4,
+      "location": {
+        "file_path": "linux-6.9.6/drivers/media/dvb-frontends/stb0899_algo.c",
+        "region": {
+          "startLine": 110,
+          "startColumn": 18,
+          "endColumn": 18
+        },
+        "context": {
+          "startLine": 108,
+          "endLine": 112,
+          "snippet": {
+            "text": "return (100000 / (srate / 1000));"
+          }
+        }
+      },
+      "result": 0,
+      "baseline_context": [
+        {
+          "text": [
+            {
+              "file_path": "/drivers/media/dvb-frontends/stb0899_algo.c",
+              "function_body": "107 static long stb0899_calc_derot_time(long srate)\n108 {\n109 \tif (srate > 0)\n110 \t\treturn (100000 / (srate / 1000));\n111 \telse\n112 \t\treturn 0;\n113 }"
+            },
+            {
+              "file_path": "/drivers/media/dvb-frontends/stb0899_algo.c",
+              "function_body": "489 enum stb0899_status stb0899_dvbs_algo(struct stb0899_state *state)\n490 {\n491 \tstruct stb0899_params *params\t\t= &state->params;\n492 \tstruct stb0899_internal *internal\t= &state->internal;\n493 \tstruct stb0899_config *config\t\t= state->config;\n494\n495 \tu8 bclc, reg;\n496 \tu8 cfr[2];\n497 \tu8 eq_const[10];\n498 \ts32 clnI = 3;\n499 \tu32 bandwidth = 0;\n500\n501 \t/* BETA values rated @ 99MHz\t*/\n502 \ts32 betaTab[5][4] = {\n503 \t       /*  5   10   20   30MBps */\n504 \t\t{ 37,  34,  32,  31 }, /* QPSK 1/2\t*/\n505 \t\t{ 37,  35,  33,  31 }, /* QPSK 2/3\t*/\n506 \t\t{ 37,  35,  33,  31 }, /* QPSK 3/4\t*/\n507 \t\t{ 37,  36,  33,\t 32 }, /* QPSK 5/6\t*/\n508 \t\t{ 37,  36,  33,\t 32 }  /* QPSK 7/8\t*/\n509 \t};\n510\n511 \tinternal->direction = 1;\n512\n513 \tstb0899_set_srate(state, internal->master_clk, params->srate);\n514 \t/* Carrier loop optimization versus symbol rate for acquisition*/\n515 \tif (params->srate <= 5000000) {\n516 \t\tstb0899_write_reg(state, STB0899_ACLC, 0x89);\n517 \t\tbclc = stb0899_read_reg(state, STB0899_BCLC);\n518 \t\tSTB0899_SETFIELD_VAL(BETA, bclc, 0x1c);\n519 \t\tstb0899_write_reg(state, STB0899_BCLC, bclc);\n520 \t\tclnI = 0;\n521 \t} else if (params->srate <= 15000000) {\n522 \t\tstb0899_write_reg(state, STB0899_ACLC, 0xc9);\n523 \t\tbclc = stb0899_read_reg(state, STB0899_BCLC);\n524 \t\tSTB0899_SETFIELD_VAL(BETA, bclc, 0x22);\n525 \t\tstb0899_write_reg(state, STB0899_BCLC, bclc);\n526 \t\tclnI = 1;\n527 \t} else if(params->srate <= 25000000) {\n528 \t\tstb0899_write_reg(state, STB0899_ACLC, 0x89);\n529 \t\tbclc = stb0899_read_reg(state, STB0899_BCLC);\n530 \t\tSTB0899_SETFIELD_VAL(BETA, bclc, 0x27);\n531 \t\tstb0899_write_reg(state, STB0899_BCLC, bclc);\n532 \t\tclnI = 2;\n533 \t} else {\n534 \t\tstb0899_write_reg(state, STB0899_ACLC, 0xc8);\n535 \t\tbclc = stb0899_read_reg(state, STB0899_BCLC);\n536 \t\tSTB0899_SETFIELD_VAL(BETA, bclc, 0x29);\n537 \t\tstb0899_write_reg(state, STB0899_BCLC, bclc);\n538 \t\tclnI = 3;\n539 \t}\n540\n541 \tdprintk(state->verbose, FE_DEBUG, 1, \"Set the timing loop to acquisition\");\n542 \t/* Set the timing loop to acquisition\t*/\n543 \tstb0899_write_reg(state, STB0899_RTC, 0x46);\n544 \tstb0899_write_reg(state, STB0899_CFD, 0xee);\n545\n546 \t/* !! WARNING !!\n547 \t * Do not read any status variables while acquisition,\n548 \t * If any needed, read before the acquisition starts\n549 \t * querying status while acquiring causes the\n550 \t * acquisition to go bad and hence no locks.\n551 \t */\n552 \tdprintk(state->verbose, FE_DEBUG, 1, \"Derot Percent=%d Srate=%d mclk=%d\",\n553 \t\tinternal->derot_percent, params->srate, internal->mclk);\n554\n555 \t/* Initial calculations\t*/\n556 \tinternal->derot_step = internal->derot_percent * (params->srate / 1000L) / internal->mclk; /* DerotStep/1000 * Fsymbol\t*/\n557 \tinternal->t_derot = stb0899_calc_derot_time(params->srate);\n558 \tinternal->t_data = 500;\n559\n560 \tdprintk(state->verbose, FE_DEBUG, 1, \"RESET stream merger\");\n561 \t/* RESET Stream merger\t*/\n562 \treg = stb0899_read_reg(state, STB0899_TSTRES);\n563 \tSTB0899_SETFIELD_VAL(FRESRS, reg, 1);\n564 \tstb0899_write_reg(state, STB0899_TSTRES, reg);\n565\n566 \t/*\n567 \t * Set KDIVIDER to an intermediate value between\n568 \t * 1/2 and 7/8 for acquisition\n569 \t */\n570 \treg = stb0899_read_reg(state, STB0899_DEMAPVIT);\n571 \tSTB0899_SETFIELD_VAL(DEMAPVIT_KDIVIDER, reg, 60);\n572 \tstb0899_write_reg(state, STB0899_DEMAPVIT, reg);\n573\n574 \tstb0899_write_reg(state, STB0899_EQON, 0x01); /* Equalizer OFF while acquiring */\n575 \tstb0899_write_reg(state, STB0899_VITSYNC, 0x19);\n576\n577 \tstb0899_first_subrange(state);\n578 \tdo {\n579 \t\t/* Initialisations */\n580 \t\tcfr[0] = cfr[1] = 0;\n581 \t\tstb0899_write_regs(state, STB0899_CFRM, cfr, 2); /* RESET derotator frequency\t*/\n582\n583 \t\tstb0899_write_reg(state, STB0899_RTF, 0);\n584 \t\treg = stb0899_read_reg(state, STB0899_CFD);\n585 \t\tSTB0899_SETFIELD_VAL(CFD_ON, reg, 1);\n586 \t\tstb0899_write_reg(state, STB0899_CFD, reg);\n587\n588 \t\tinternal->derot_freq = 0;\n589 \t\tinternal->status = NOAGC1;\n590\n591 \t\t/* enable tuner I/O */\n592 \t\tstb0899_i2c_gate_ctrl(&state->frontend, 1);\n593\n594 \t\t/* Move tuner to frequency */\n595 \t\tdprintk(state->verbose, FE_DEBUG, 1, \"Tuner set frequency\");\n596 \t\tif (state->config->tuner_set_frequency)\n597 \t\t\tstate->config->tuner_set_frequency(&state->frontend, internal->freq);\n598\n599 \t\tif (state->config->tuner_get_frequency)\n600 \t\t\tstate->config->tuner_get_frequency(&state->frontend, &internal->freq);\n601\n602 \t\tmsleep(internal->t_agc1 + internal->t_agc2 + internal->t_derot); /* AGC1, AGC2 and timing loop\t*/\n603 \t\tdprintk(state->verbose, FE_DEBUG, 1, \"current derot freq=%d\", internal->derot_freq);\n604 \t\tinternal->status = AGC1OK;\n605\n606 \t\t/* There is signal in the band\t*/\n607 \t\tif (config->tuner_get_bandwidth)\n608 \t\t\tconfig->tuner_get_bandwidth(&state->frontend, &bandwidth);\n609\n610 \t\t/* disable tuner I/O */\n611 \t\tstb0899_i2c_gate_ctrl(&state->frontend, 0);\n612\n613 \t\tif (params->srate <= bandwidth / 2)\n614 \t\t\tstb0899_search_tmg(state); /* For low rates (SCPC)\t*/\n615 \t\telse\n616 \t\t\tstb0899_check_tmg(state); /* For high rates (MCPC)\t*/\n617\n618 \t\tif (internal->status == TIMINGOK) {\n619 \t\t\tdprintk(state->verbose, FE_DEBUG, 1,\n620 \t\t\t\t\"TIMING OK ! Derot freq=%d, mclk=%d\",\n621 \t\t\t\tinternal->derot_freq, internal->mclk);\n622\n623 \t\t\tif (stb0899_search_carrier(state) == CARRIEROK) {\t/* Search for carrier\t*/\n624 \t\t\t\tdprintk(state->verbose, FE_DEBUG, 1,\n625 \t\t\t\t\t\"CARRIER OK ! Derot freq=%d, mclk=%d\",\n626 \t\t\t\t\tinternal->derot_freq, internal->mclk);\n627\n628 \t\t\t\tif (stb0899_search_data(state) == DATAOK) {\t/* Check for data\t*/\n629 \t\t\t\t\tdprintk(state->verbose, FE_DEBUG, 1,\n630 \t\t\t\t\t\t\"DATA OK ! Derot freq=%d, mclk=%d\",\n631 \t\t\t\t\t\tinternal->derot_freq, internal->mclk);\n632\n633 \t\t\t\t\tif (stb0899_check_range(state) == RANGEOK) {\n634 \t\t\t\t\t\tdprintk(state->verbose, FE_DEBUG, 1,\n635 \t\t\t\t\t\t\t\"RANGE OK ! derot freq=%d, mclk=%d\",\n636 \t\t\t\t\t\t\tinternal->derot_freq, internal->mclk);\n637\n638 \t\t\t\t\t\tinternal->freq = params->freq - ((internal->derot_freq * internal->mclk) / 1000);\n639 \t\t\t\t\t\treg = stb0899_read_reg(state, STB0899_PLPARM);\n640 \t\t\t\t\t\tinternal->fecrate = STB0899_GETFIELD(VITCURPUN, reg);\n641 \t\t\t\t\t\tdprintk(state->verbose, FE_DEBUG, 1,\n642 \t\t\t\t\t\t\t\"freq=%d, internal resultant freq=%d\",\n643 \t\t\t\t\t\t\tparams->freq, internal->freq);\n644\n645 \t\t\t\t\t\tdprintk(state->verbose, FE_DEBUG, 1,\n646 \t\t\t\t\t\t\t\"internal puncture rate=%d\",\n647 \t\t\t\t\t\t\tinternal->fecrate);\n648 \t\t\t\t\t}\n649 \t\t\t\t}\n650 \t\t\t}\n651 \t\t}\n652 \t\tif (internal->status != RANGEOK)\n653 \t\t\tnext_sub_range(state);\n654\n655 \t} while (internal->sub_range && internal->status != RANGEOK);\n656\n657 \t/* Set the timing loop to tracking\t*/\n658 \tstb0899_write_reg(state, STB0899_RTC, 0x33);\n659 \tstb0899_write_reg(state, STB0899_CFD, 0xf7);\n660 \t/* if locked and range ok, set Kdiv\t*/\n661 \tif (internal->status == RANGEOK) {\n662 \t\tdprintk(state->verbose, FE_DEBUG, 1, \"Locked & Range OK !\");\n663 \t\tstb0899_write_reg(state, STB0899_EQON, 0x41);\t\t/* Equalizer OFF while acquiring\t*/\n664 \t\tstb0899_write_reg(state, STB0899_VITSYNC, 0x39);\t/* SN to b'11 for acquisition\t\t*/\n665\n666 \t\t/*\n667 \t\t * Carrier loop optimization versus\n668 \t\t * symbol Rate/Puncture Rate for Tracking\n669 \t\t */\n670 \t\treg = stb0899_read_reg(state, STB0899_BCLC);\n671 \t\tswitch (internal->fecrate) {\n672 \t\tcase STB0899_FEC_1_2:\t\t/* 13\t*/\n673 \t\t\tstb0899_write_reg(state, STB0899_DEMAPVIT, 0x1a);\n674 \t\t\tSTB0899_SETFIELD_VAL(BETA, reg, betaTab[0][clnI]);\n675 \t\t\tstb0899_write_reg(state, STB0899_BCLC, reg);\n676 \t\t\tbreak;\n677 \t\tcase STB0899_FEC_2_3:\t\t/* 18\t*/\n678 \t\t\tstb0899_write_reg(state, STB0899_DEMAPVIT, 44);\n679 \t\t\tSTB0899_SETFIELD_VAL(BETA, reg, betaTab[1][clnI]);\n680 \t\t\tstb0899_write_reg(state, STB0899_BCLC, reg);\n681 \t\t\tbreak;\n682 \t\tcase STB0899_FEC_3_4:\t\t/* 21\t*/\n683 \t\t\tstb0899_write_reg(state, STB0899_DEMAPVIT, 60);\n684 \t\t\tSTB0899_SETFIELD_VAL(BETA, reg, betaTab[2][clnI]);\n685 \t\t\tstb0899_write_reg(state, STB0899_BCLC, reg);\n686 \t\t\tbreak;\n687 \t\tcase STB0899_FEC_5_6:\t\t/* 24\t*/\n688 \t\t\tstb0899_write_reg(state, STB0899_DEMAPVIT, 75);\n689 \t\t\tSTB0899_SETFIELD_VAL(BETA, reg, betaTab[3][clnI]);\n690 \t\t\tstb0899_write_reg(state, STB0899_BCLC, reg);\n691 \t\t\tbreak;\n692 \t\tcase STB0899_FEC_6_7:\t\t/* 25\t*/\n693 \t\t\tstb0899_write_reg(state, STB0899_DEMAPVIT, 88);\n694 \t\t\tstb0899_write_reg(state, STB0899_ACLC, 0x88);\n695 \t\t\tstb0899_write_reg(state, STB0899_BCLC, 0x9a);\n696 \t\t\tbreak;\n697 \t\tcase STB0899_FEC_7_8:\t\t/* 26\t*/\n698 \t\t\tstb0899_write_reg(state, STB0899_DEMAPVIT, 94);\n699 \t\t\tSTB0899_SETFIELD_VAL(BETA, reg, betaTab[4][clnI]);\n700 \t\t\tstb0899_write_reg(state, STB0899_BCLC, reg);\n701 \t\t\tbreak;\n702 \t\tdefault:\n703 \t\t\tdprintk(state->verbose, FE_DEBUG, 1, \"Unsupported Puncture Rate\");\n704 \t\t\tbreak;\n705 \t\t}\n706 \t\t/* release stream merger RESET\t*/\n707 \t\treg = stb0899_read_reg(state, STB0899_TSTRES);\n708 \t\tSTB0899_SETFIELD_VAL(FRESRS, reg, 0);\n709 \t\tstb0899_write_reg(state, STB0899_TSTRES, reg);\n710\n711 \t\t/* disable carrier detector\t*/\n712 \t\treg = stb0899_read_reg(state, STB0899_CFD);\n713 \t\tSTB0899_SETFIELD_VAL(CFD_ON, reg, 0);\n714 \t\tstb0899_write_reg(state, STB0899_CFD, reg);\n715\n716 \t\tstb0899_read_regs(state, STB0899_EQUAI1, eq_const, 10);\n717 \t}\n718\n719 \treturn internal->status;\n720 }"
+            }
+          ]
+        }
+      ],
+      "sink": "return (100000 / (srate / 1000));",
+      "final_sink": "return (100000 / (srate / 1000));"
+    },
+    "parsed_fragment": {
+      "function": "stb0899_calc_derot_time",
+      "variable": "srate",
+      "guard_constant": 0,
+      "numerator": 100000,
+      "inner_divisor": 1000,
+      "else_value": 0
+    },
+    "identity_verified_scope": "audited saved bytes only; original TU/build not certified",
+    "label_used_for_constraints": false
+  },
+  "semantic_contract": {
+    "contract_version": "e09-stb0899-signed-long-v1",
+    "scope": "One source-pinned saved C function; local scalar properties only",
+    "source_body_sha256": "4ad8431edd6f874dcfb6b1c47d3d83607e7c3ce11f9521e45496eff794a5f9f6",
+    "dataset_sha256": "0275cd83a4c1cf617f0049d6dbb191dcc3d232e5545ca0139bab3aa45f747fd8",
+    "audit_sha256": "2788dff05a5f611965fb9745bb62379bc76683639a5dedacc643b00fcf02aef0",
+    "request_sample_id": "DBZ/all_cwe369.json:row=4:index=4",
+    "audit_sample_id": "benchmark/DBZ/all_cwe369.json:row=4:index=4",
+    "original_index": 4,
+    "original_label": 0,
+    "original_dataset_contains_sample_id": false,
+    "c_type": "signed long",
+    "abi_widths": [
+      32,
+      64
+    ],
+    "abi_status": "Explicit experimental two's-complement signed-long bit-vector contracts; original ABI unknown",
+    "integer_division": "toward_zero",
+    "smt_division": "bvsdiv, always paired with C definedness",
+    "c_division_definedness": "denominator != 0 AND NOT(numerator == LONG_MIN AND denominator == -1)",
+    "branch_guard": "srate > 0 using signed comparison",
+    "inner_divisor": 1000,
+    "outer_numerator": 100000,
+    "outer_denominator": "srate / 1000",
+    "literal_conversions": "0, 1000 and 100000 are exactly representable in both modeled signed-long widths. Mixed literal/long operations use the common signed-long type under usual arithmetic conversions. No assumption about the original int width is needed for these constants and operations.",
+    "else_return": 0,
+    "outer_division_precondition": "The inner quotient must be nonzero before the outer C division is evaluated; signed-division overflow must also be excluded.",
+    "fault_query_policy": "Query branch entry and defined inner division and zero outer denominator. Do not assume the outer division is defined in this fault query. Never interpret Z3's totalized divide-by-zero value as a C result.",
+    "nonpositive_path": "srate <= 0 returns 0 without executing either C division",
+    "query_A": {
+      "constraints": [
+        "srate > 0"
+      ],
+      "fault_condition": "srate / 1000 == 0",
+      "caller_assumptions": [],
+      "expected_status_for_test_design_only": "SAT"
+    },
+    "query_B": {
+      "constraints": [
+        "srate > 0",
+        "srate >= 1000"
+      ],
+      "fault_condition": "srate / 1000 == 0",
+      "caller_assumption_origin": "human-added experimental hypothesis; neither extracted nor proven from original project",
+      "expected_status_for_test_design_only": "UNSAT"
+    },
+    "source_admission": "Hash-match original dataset, audit record and UTF-8 function string, then full-match the entire reviewed function grammar. No substring search, C execution, generic C parser, or recovery AST certification.",
+    "source_coordinates": "Saved function lines 1 declaration, 3 guard, 4 nested division. Original location metadata is separately preserved and unverified.",
+    "reference_arithmetic": "Independent Python arbitrary-precision abs(n)//abs(d) plus sign; no floats and no Z3 in the reference calculation",
+    "unsat_proof_status": "Z3 solver result only; no proof certificate requested or independently checked",
+    "unsupported": [
+      "different types or bit widths",
+      "different source/constants/grammar",
+      "casts",
+      "macros and typedefs",
+      "additional arithmetic/control flow",
+      "pointers",
+      "arrays",
+      "memory effects",
+      "cross-function paths",
+      "original caller reachability"
+    ],
+    "full_program_semantics": "UNKNOWN",
+    "filter_authority": false,
+    "original_alert_decision": null
+  },
+  "semantic_contract_sha256": "f167aac370b10a5d8debf46a0fe591edcdf421d731c7626bfa4534eded8255a3",
+  "implementation_sha256": "26abb4313e62ffa7d31049fd7330bd636d6aa2fdfd52f39e5f096888b478d105",
+  "solver": {
+    "name": "Z3",
+    "runtime_version": "Z3 4.13.4.0",
+    "package_version": "4.13.4.0",
+    "logic": "QF_BV",
+    "signed_division_operator": "bvsdiv"
+  },
+  "runs": [
+    {
+      "experiment": "A",
+      "width_bits": 32,
+      "status": "SAT",
+      "abi_is_experimental_assumption": true,
+      "assumptions": [
+        {
+          "expression": "srate > 0",
+          "origin": "saved function line 3",
+          "source_field": "/4/function_call/0",
+          "experimental": false
+        }
+      ],
+      "variable": {
+        "name": "e09_srate_signed_long_32",
+        "c_type": "signed long",
+        "width": 32,
+        "range": [
+          -2147483648,
+          2147483647
+        ],
+        "identity_scope": "one pinned local parameter"
+      },
+      "fault_query": "branch_entered AND inner_division_defined AND (srate / 1000 == 0)",
+      "formula_smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e09_srate_signed_long_32 () (_ BitVec 32))\n(assert\n (bvslt (_ bv0 32) e09_srate_signed_long_32))\n(assert\n (and (and (distinct (_ bv1000 32) (_ bv0 32)) true) (not (and (= (_ bv2147483648 32) e09_srate_signed_long_32) (= (_ bv1000 32) (_ bv4294967295 32))))))\n(assert\n (let ((?x17 (bvsdiv e09_srate_signed_long_32 (_ bv1000 32))))\n(= (_ bv0 32) ?x17)))\n(check-sat)\n",
+      "inner_expression_smt2": "(bvsdiv e09_srate_signed_long_32 #x000003e8)",
+      "outer_execution_precondition_smt2": "(let ((a!1 (not (and (= #x000186a0 #x80000000)\n                     (= #xffffffff (bvsdiv e09_srate_signed_long_32 #x000003e8))))))\n  (and (distinct #x00000000 (bvsdiv e09_srate_signed_long_32 #x000003e8)) a!1))",
+      "outer_definedness_asserted_in_fault_query": false,
+      "outer_undefined_term_used_as_result": false,
+      "timeout_ms": 30000,
+      "check_seconds": 0.008964699999523873,
+      "model": {
+        "srate_signed": 944,
+        "inner_signed": 0,
+        "smt_model": "(define-fun e09_srate_signed_long_32 () (_ BitVec 32)\n  #x000003b0)"
+      },
+      "independent_model_check": {
+        "status": "MATCH",
+        "method": "Python arbitrary-precision abs // abs and sign",
+        "z3_used_in_reference": false,
+        "all_query_conditions_checked": true,
+        "reference_execution": {
+          "srate": 944,
+          "division_branch_entered": true,
+          "inner": 0,
+          "outer_evaluated": false,
+          "outer_denominator_zero": true,
+          "status": "UNDEFINED_DIVISION_BY_ZERO",
+          "return_value": null
+        }
+      },
+      "unsat_proof": {
+        "certificate_generated": false,
+        "independently_checked_certificate": false,
+        "status": "NOT_APPLICABLE"
+      },
+      "filter_authority": false,
+      "original_alert_decision": null,
+      "full_program_semantics": "UNKNOWN"
+    },
+    {
+      "experiment": "B",
+      "width_bits": 32,
+      "status": "UNSAT",
+      "abi_is_experimental_assumption": true,
+      "assumptions": [
+        {
+          "expression": "srate > 0",
+          "origin": "saved function line 3",
+          "source_field": "/4/function_call/0",
+          "experimental": false
+        },
+        {
+          "expression": "srate >= 1000",
+          "origin": "human-added experimental caller-range assumption",
+          "experimental": true,
+          "proven_in_original_project": false
+        }
+      ],
+      "variable": {
+        "name": "e09_srate_signed_long_32",
+        "c_type": "signed long",
+        "width": 32,
+        "range": [
+          -2147483648,
+          2147483647
+        ],
+        "identity_scope": "one pinned local parameter"
+      },
+      "fault_query": "branch_entered AND inner_division_defined AND (srate / 1000 == 0)",
+      "formula_smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e09_srate_signed_long_32 () (_ BitVec 32))\n(assert\n (bvslt (_ bv0 32) e09_srate_signed_long_32))\n(assert\n (and (and (distinct (_ bv1000 32) (_ bv0 32)) true) (not (and (= (_ bv2147483648 32) e09_srate_signed_long_32) (= (_ bv1000 32) (_ bv4294967295 32))))))\n(assert\n (let ((?x16 (bvsdiv e09_srate_signed_long_32 (_ bv1000 32))))\n (= (_ bv0 32) ?x16)))\n(assert\n (bvsle (_ bv1000 32) e09_srate_signed_long_32))\n(check-sat)\n",
+      "inner_expression_smt2": "(bvsdiv e09_srate_signed_long_32 #x000003e8)",
+      "outer_execution_precondition_smt2": "(let ((a!1 (not (and (= #x000186a0 #x80000000)\n                     (= #xffffffff (bvsdiv e09_srate_signed_long_32 #x000003e8))))))\n  (and (distinct #x00000000 (bvsdiv e09_srate_signed_long_32 #x000003e8)) a!1))",
+      "outer_definedness_asserted_in_fault_query": false,
+      "outer_undefined_term_used_as_result": false,
+      "timeout_ms": 30000,
+      "check_seconds": 0.008734800000638643,
+      "model": null,
+      "independent_model_check": null,
+      "unsat_proof": {
+        "certificate_generated": false,
+        "independently_checked_certificate": false,
+        "status": "SOLVER_REPORTED_UNSAT_NO_PROOF_CERTIFICATE",
+        "explanation": "Finite QF_BV check by Z3. No proof object requested or independently verified. For B, positive signed srate >= 1000 entails trunc(srate/1000) >= 1; this is a local arithmetic argument, not a caller precondition proof."
+      },
+      "filter_authority": false,
+      "original_alert_decision": null,
+      "full_program_semantics": "UNKNOWN"
+    },
+    {
+      "experiment": "A",
+      "width_bits": 64,
+      "status": "SAT",
+      "abi_is_experimental_assumption": true,
+      "assumptions": [
+        {
+          "expression": "srate > 0",
+          "origin": "saved function line 3",
+          "source_field": "/4/function_call/0",
+          "experimental": false
+        }
+      ],
+      "variable": {
+        "name": "e09_srate_signed_long_64",
+        "c_type": "signed long",
+        "width": 64,
+        "range": [
+          -9223372036854775808,
+          9223372036854775807
+        ],
+        "identity_scope": "one pinned local parameter"
+      },
+      "fault_query": "branch_entered AND inner_division_defined AND (srate / 1000 == 0)",
+      "formula_smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e09_srate_signed_long_64 () (_ BitVec 64))\n(assert\n (bvslt (_ bv0 64) e09_srate_signed_long_64))\n(assert\n (and (and (distinct (_ bv1000 64) (_ bv0 64)) true) (not (and (= (_ bv9223372036854775808 64) e09_srate_signed_long_64) (= (_ bv1000 64) (_ bv18446744073709551615 64))))))\n(assert\n (let ((?x21 (bvsdiv e09_srate_signed_long_64 (_ bv1000 64))))\n(= (_ bv0 64) ?x21)))\n(check-sat)\n",
+      "inner_expression_smt2": "(bvsdiv e09_srate_signed_long_64 #x00000000000003e8)",
+      "outer_execution_precondition_smt2": "(let ((a!1 (not (and (= #x00000000000186a0 #x8000000000000000)\n                     (= #xffffffffffffffff\n                        (bvsdiv e09_srate_signed_long_64 #x00000000000003e8))))))\n  (and (distinct #x0000000000000000\n                 (bvsdiv e09_srate_signed_long_64 #x00000000000003e8))\n       a!1))",
+      "outer_definedness_asserted_in_fault_query": false,
+      "outer_undefined_term_used_as_result": false,
+      "timeout_ms": 30000,
+      "check_seconds": 0.029274200000145356,
+      "model": {
+        "srate_signed": 304,
+        "inner_signed": 0,
+        "smt_model": "(define-fun e09_srate_signed_long_64 () (_ BitVec 64)\n  #x0000000000000130)"
+      },
+      "independent_model_check": {
+        "status": "MATCH",
+        "method": "Python arbitrary-precision abs // abs and sign",
+        "z3_used_in_reference": false,
+        "all_query_conditions_checked": true,
+        "reference_execution": {
+          "srate": 304,
+          "division_branch_entered": true,
+          "inner": 0,
+          "outer_evaluated": false,
+          "outer_denominator_zero": true,
+          "status": "UNDEFINED_DIVISION_BY_ZERO",
+          "return_value": null
+        }
+      },
+      "unsat_proof": {
+        "certificate_generated": false,
+        "independently_checked_certificate": false,
+        "status": "NOT_APPLICABLE"
+      },
+      "filter_authority": false,
+      "original_alert_decision": null,
+      "full_program_semantics": "UNKNOWN"
+    },
+    {
+      "experiment": "B",
+      "width_bits": 64,
+      "status": "UNSAT",
+      "abi_is_experimental_assumption": true,
+      "assumptions": [
+        {
+          "expression": "srate > 0",
+          "origin": "saved function line 3",
+          "source_field": "/4/function_call/0",
+          "experimental": false
+        },
+        {
+          "expression": "srate >= 1000",
+          "origin": "human-added experimental caller-range assumption",
+          "experimental": true,
+          "proven_in_original_project": false
+        }
+      ],
+      "variable": {
+        "name": "e09_srate_signed_long_64",
+        "c_type": "signed long",
+        "width": 64,
+        "range": [
+          -9223372036854775808,
+          9223372036854775807
+        ],
+        "identity_scope": "one pinned local parameter"
+      },
+      "fault_query": "branch_entered AND inner_division_defined AND (srate / 1000 == 0)",
+      "formula_smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e09_srate_signed_long_64 () (_ BitVec 64))\n(assert\n (bvslt (_ bv0 64) e09_srate_signed_long_64))\n(assert\n (and (and (distinct (_ bv1000 64) (_ bv0 64)) true) (not (and (= (_ bv9223372036854775808 64) e09_srate_signed_long_64) (= (_ bv1000 64) (_ bv18446744073709551615 64))))))\n(assert\n (let ((?x26 (bvsdiv e09_srate_signed_long_64 (_ bv1000 64))))\n (= (_ bv0 64) ?x26)))\n(assert\n (bvsle (_ bv1000 64) e09_srate_signed_long_64))\n(check-sat)\n",
+      "inner_expression_smt2": "(bvsdiv e09_srate_signed_long_64 #x00000000000003e8)",
+      "outer_execution_precondition_smt2": "(let ((a!1 (not (and (= #x00000000000186a0 #x8000000000000000)\n                     (= #xffffffffffffffff\n                        (bvsdiv e09_srate_signed_long_64 #x00000000000003e8))))))\n  (and (distinct #x0000000000000000\n                 (bvsdiv e09_srate_signed_long_64 #x00000000000003e8))\n       a!1))",
+      "outer_definedness_asserted_in_fault_query": false,
+      "outer_undefined_term_used_as_result": false,
+      "timeout_ms": 30000,
+      "check_seconds": 0.04590290000032837,
+      "model": null,
+      "independent_model_check": null,
+      "unsat_proof": {
+        "certificate_generated": false,
+        "independently_checked_certificate": false,
+        "status": "SOLVER_REPORTED_UNSAT_NO_PROOF_CERTIFICATE",
+        "explanation": "Finite QF_BV check by Z3. No proof object requested or independently verified. For B, positive signed srate >= 1000 entails trunc(srate/1000) >= 1; this is a local arithmetic argument, not a caller precondition proof."
+      },
+      "filter_authority": false,
+      "original_alert_decision": null,
+      "full_program_semantics": "UNKNOWN"
+    }
+  ],
+  "core_solver_checks": 4,
+  "both_contracts_agree": true,
+  "expected_local_results_observed": true,
+  "research_status": "LOCAL_SCALAR_CONFIRMED",
+  "full_program_semantics": "UNKNOWN",
+  "filter_authority": false,
+  "original_alert_decision": null,
+  "original_label_preserved": true,
+  "limitations": [
+    "Original ABI/build/TU and caller reachability are not authenticated.",
+    "B caller range is an experimental assumption, not extracted evidence.",
+    "Only the exact reviewed source grammar is admitted.",
+    "No pointers, arrays, memory, interprocedural paths, or R01-R05 integration."
+  ],
+  "LLM_calls": 0,
+  "Harness_runs": 0,
+  "old_regression_runs": 0,
+  "original_analyzer_runs": 0,
+  "R05_builder_validator_runs": 0,
+  "Git_commits": 0,
+  "Git_pushes": 0
+}
