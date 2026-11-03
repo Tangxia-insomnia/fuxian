@@ -1,0 +1,3193 @@
+{
+  "stage": "E12-0",
+  "selection_basis": "source structure, variable/guard completeness, unknown effects and provenance; no labels/model outcomes used",
+  "primary_sample_id": "NPD/cppcheck/cppcheck_openssl_nullpointer.json:row=3",
+  "recommended_count": 2,
+  "recommended_candidates": [
+    {
+      "rank": 1,
+      "recommendation": "PRIMARY",
+      "sample_id": "NPD/cppcheck/cppcheck_openssl_nullpointer.json:row=3",
+      "sample_id_origin": "derived from immutable dataset path and zero-based row; original has no sample_id/index",
+      "dataset_path": "upstream/benchmark/NPD/cppcheck/cppcheck_openssl_nullpointer.json",
+      "dataset_sha256": "5a7e89ffb017ece94403f862a5cc8d33f478fc92360d4e957648d66aeee12d29",
+      "row_zero_based": 3,
+      "record_pointer": "/3",
+      "function_pointer": "/3/function_code",
+      "original_index_present": false,
+      "original_index": null,
+      "original_label_present": true,
+      "original_label": 0,
+      "original_record": {
+        "var_name": "s2",
+        "function_name": "test_str_ne",
+        "location": {
+          "file_path": "test/testutil/tests.c",
+          "region": {
+            "startLine": 296,
+            "startColumn": 34,
+            "endColumn": 36
+          },
+          "context": {
+            "startLine": 294,
+            "endLine": 298,
+            "snippet": {
+              "text": "if (s1 == NULL || strcmp(s1, s2) == 0) {"
+            }
+          }
+        },
+        "function_code": "int test_str_ne(const char *file, int line, const char *st1, const char *st2,\n                const char *s1, const char *s2)\n{\n    if ((s1 == NULL) ^ (s2 == NULL))\n      return 1;\n    if (s1 == NULL || strcmp(s1, s2) == 0) {\n        test_fail_string_message(NULL, file, line, \"string\", st1, st2, \"!=\",\n                                 s1, s1 == NULL ? 0 : strlen(s1),\n                                 s2, s2 == NULL ? 0 : strlen(s2));\n        return 0;\n    }\n    return 1;\n}",
+        "result": 0
+      },
+      "canonical_record_sha256": "6d604c0837c931afd415bc9b3d17fc9110dfd2ec36c743e939caa2ac38d9cf9a",
+      "canonical_record_hash_method": "parsed record encoded as UTF-8 JSON; sorted keys and compact separators; not a raw JSON byte slice",
+      "function_name": "test_str_ne",
+      "function_body_sha256": "8b2a929c68a079ae0d9ff1f504feffdaab1b20d23389b8f6c8527a371a81fbde",
+      "function_line_count": 13,
+      "upstream_source": {
+        "repository": "openssl/openssl",
+        "tag": "openssl-3.4.0",
+        "commit": "98acb6b02839c609ef5b837794e08d906d965335",
+        "path": "test/testutil/tests.c",
+        "full_source_sha256": "ebad1a5844d1c24dcb8fd049047064effd3e297511005961959667d5939a347c",
+        "function_span": [
+          291,
+          303
+        ],
+        "target_line": 296,
+        "target_relative_function_line": 6,
+        "exact_body_match": true,
+        "original_scanned_revision_authenticated": false
+      },
+      "dangerous_operation": {
+        "kind": "evaluation of standard string-compare call with candidate NULL argument",
+        "call": "strcmp(s1, s2)",
+        "tracked_argument": "s2",
+        "location": {
+          "file_path": "test/testutil/tests.c",
+          "region": {
+            "startLine": 296,
+            "startColumn": 34,
+            "endColumn": 36
+          },
+          "context": {
+            "startLine": 294,
+            "endLine": 298,
+            "snippet": {
+              "text": "if (s1 == NULL || strcmp(s1, s2) == 0) {"
+            }
+          }
+        },
+        "scope": "NULL actual argument at call evaluation only, not a complete model of callee memory reads",
+        "other_failure_modes_not_certified": [
+          "dangling pointers",
+          "object lifetime",
+          "valid readable string/range",
+          "memory aliasing/corruption",
+          "scanner provenance"
+        ]
+      },
+      "variables": [
+        {
+          "name": "s1",
+          "C_type": "const char *",
+          "declaration": {
+            "path": "test/testutil/tests.c",
+            "line": 292,
+            "function_parameter_ordinal_zero_based": 4
+          },
+          "version": "entry parameter; no assignments before target",
+          "identity_basis": "exact source function and named parameter, not an AST declaration ID"
+        },
+        {
+          "name": "s2",
+          "C_type": "const char *",
+          "declaration": {
+            "path": "test/testutil/tests.c",
+            "line": 292,
+            "function_parameter_ordinal_zero_based": 5
+          },
+          "version": "entry parameter; no assignments before target",
+          "identity_basis": "separate declared parameter; no matching by spelling across functions"
+        }
+      ],
+      "branch_evidence": [
+        {
+          "relative_line": 4,
+          "upstream_line": 294,
+          "C_text": "if ((s1 == NULL) ^ (s2 == NULL))",
+          "polarity_to_continue": "FALSE",
+          "terminator": {
+            "relative_line": 5,
+            "upstream_line": 295,
+            "C_text": "return 1;"
+          },
+          "relationship": "bitwise ^ applies to two int-valued 0/1 equality results; false means equal NULL statuses"
+        },
+        {
+          "relative_line": 6,
+          "upstream_line": 296,
+          "C_text": "if (s1 == NULL || strcmp(s1, s2) == 0) {",
+          "polarity_for_target_call": "preceding operands of || must evaluate FALSE; call result is not a precondition to evaluating the call",
+          "relationship": "s1 != NULL"
+        }
+      ],
+      "path_completeness": {
+        "scope": "entry through evaluation of the tracked call; not whole-function behavior",
+        "complete_for_this_prefix": true,
+        "loops_before_target": false,
+        "gotos_before_target": false,
+        "calls_before_target": [],
+        "pointer_reassignments_before_target": [],
+        "pointer_address_escape_before_target": [],
+        "path_requirements_in_words": [
+          "the exclusive-null early return is not taken",
+          "s1 is non-NULL so short-circuit OR reaches the string call"
+        ],
+        "branch_body_calls_are_after_target_evaluation": [
+          "test_fail_string_message",
+          "strlen"
+        ]
+      },
+      "finite_abstraction": {
+        "domain": "one independent Boolean NULL status per declared pointer parameter; no addresses or heap objects",
+        "C_basis": "pointer comparison with NULL, exact declared pointer parameters, scalar truth and short-circuit semantics",
+        "alias_requirement": "no assumption that s1 and s2 point to different objects; non-NULL aliasing is allowed but not analyzed",
+        "hidden_callee_effect_summary_required_for_prefix": false,
+        "strcmp_or_strncmp_return_encoded": false,
+        "macro_context": "no complex macro in the relevant prefix; NULL treated as standard null pointer constant; original preprocessing/build still UNKNOWN"
+      },
+      "manual_assessment": "exiting the XOR test with equal NULL statuses and then requiring non-NULL s1 implies non-NULL s2 at call evaluation; this is static source reasoning, not an SMT result",
+      "SMT_feasibility": "READY_FOR_RESEARCH_DESIGN_OF_LOCAL_NULLNESS_PROJECTION",
+      "planned_fault_question": "can the tracked string comparison be evaluated with s2 == NULL under every condition of this exact prefix?",
+      "solver_run": false,
+      "solver_status": "NOT_RUN",
+      "SMT_generated": false,
+      "labels_used_for_selection": false,
+      "prior_model_or_analysis_results_used_for_constraints": false,
+      "source_annotations_used_as_constraints": false,
+      "original_alert_source": {
+        "group_attribution": "author benchmark Cppcheck/OpenSSL group, cross-referenced with frozen README; not independent per-alert scanner verification",
+        "checker_name_authenticated": false,
+        "rule_id": null,
+        "rule_name": null,
+        "raw_report": null,
+        "scanner_version": null,
+        "scan_command": null,
+        "query_or_checker_implementation": null,
+        "source_record": "upstream/benchmark/NPD/cppcheck/cppcheck_openssl_nullpointer.json:/3",
+        "status": "UNKNOWN"
+      },
+      "remaining_gaps": [
+        "original TU/build/preprocessor and actual scan commit not restored",
+        "no raw tool report or per-alert rule/checker identity",
+        "non-NULL does not establish allocated/live/readable memory"
+      ],
+      "original_alert_decision": null,
+      "filter_authority": false,
+      "full_program_semantics": "UNKNOWN"
+    },
+    {
+      "rank": 2,
+      "recommendation": "BACKUP_LOCAL_NULLNESS_ONLY",
+      "sample_id": "NPD/cppcheck/cppcheck_openssl_nullpointer.json:row=4",
+      "sample_id_origin": "derived from immutable dataset path and zero-based row; original has no sample_id/index",
+      "dataset_path": "upstream/benchmark/NPD/cppcheck/cppcheck_openssl_nullpointer.json",
+      "dataset_sha256": "5a7e89ffb017ece94403f862a5cc8d33f478fc92360d4e957648d66aeee12d29",
+      "row_zero_based": 4,
+      "record_pointer": "/4",
+      "function_pointer": "/4/function_code",
+      "original_index_present": false,
+      "original_index": null,
+      "original_label_present": true,
+      "original_label": 0,
+      "original_record": {
+        "var_name": "s2",
+        "function_name": "test_strn_ne",
+        "location": {
+          "file_path": "test/testutil/tests.c",
+          "region": {
+            "startLine": 324,
+            "startColumn": 47,
+            "endColumn": 49
+          },
+          "context": {
+            "startLine": 322,
+            "endLine": 326,
+            "snippet": {
+              "text": "if (n1 != n2 || s1 == NULL || strncmp(s1, s2, n1) == 0) {"
+            }
+          }
+        },
+        "function_code": "int test_strn_ne(const char *file, int line, const char *st1, const char *st2,\n                 const char *s1, size_t n1, const char *s2, size_t n2)\n{\n    if ((s1 == NULL) ^ (s2 == NULL))\n      return 1;\n    if (n1 != n2 || s1 == NULL || strncmp(s1, s2, n1) == 0) {\n        test_fail_string_message(NULL, file, line, \"string\", st1, st2, \"!=\",\n                                 s1, s1 == NULL ? 0 : OPENSSL_strnlen(s1, n1),\n                                 s2, s2 == NULL ? 0 : OPENSSL_strnlen(s2, n2));\n        return 0;\n    }\n    return 1;\n}",
+        "result": 0
+      },
+      "canonical_record_sha256": "e61085ae613ed15c1bf9d553823973718d2f3e3ed63e93499869c8a9f2ebaf9d",
+      "canonical_record_hash_method": "parsed record encoded as UTF-8 JSON; sorted keys and compact separators; not a raw JSON byte slice",
+      "function_name": "test_strn_ne",
+      "function_body_sha256": "03ecf237266cacc843e602981702e8dbcca1f7aa08218e9991f19593b50bfa8f",
+      "function_line_count": 13,
+      "upstream_source": {
+        "repository": "openssl/openssl",
+        "tag": "openssl-3.4.0",
+        "commit": "98acb6b02839c609ef5b837794e08d906d965335",
+        "path": "test/testutil/tests.c",
+        "full_source_sha256": "ebad1a5844d1c24dcb8fd049047064effd3e297511005961959667d5939a347c",
+        "function_span": [
+          319,
+          331
+        ],
+        "target_line": 324,
+        "target_relative_function_line": 6,
+        "exact_body_match": true,
+        "original_scanned_revision_authenticated": false
+      },
+      "dangerous_operation": {
+        "kind": "evaluation of standard string-compare call with candidate NULL argument",
+        "call": "strncmp(s1, s2, n1)",
+        "tracked_argument": "s2",
+        "location": {
+          "file_path": "test/testutil/tests.c",
+          "region": {
+            "startLine": 324,
+            "startColumn": 47,
+            "endColumn": 49
+          },
+          "context": {
+            "startLine": 322,
+            "endLine": 326,
+            "snippet": {
+              "text": "if (n1 != n2 || s1 == NULL || strncmp(s1, s2, n1) == 0) {"
+            }
+          }
+        },
+        "scope": "NULL actual argument at call evaluation only, not a complete model of callee memory reads",
+        "other_failure_modes_not_certified": [
+          "dangling pointers",
+          "object lifetime",
+          "valid readable string/range",
+          "memory aliasing/corruption",
+          "scanner provenance"
+        ]
+      },
+      "variables": [
+        {
+          "name": "s1",
+          "C_type": "const char *",
+          "declaration": {
+            "path": "test/testutil/tests.c",
+            "line": 320,
+            "function_parameter_ordinal_zero_based": 4
+          },
+          "version": "entry parameter; no assignments before target",
+          "identity_basis": "exact source function and named parameter, not an AST declaration ID"
+        },
+        {
+          "name": "s2",
+          "C_type": "const char *",
+          "declaration": {
+            "path": "test/testutil/tests.c",
+            "line": 320,
+            "function_parameter_ordinal_zero_based": 6
+          },
+          "version": "entry parameter; no assignments before target",
+          "identity_basis": "separate declared parameter; no matching by spelling across functions"
+        },
+        {
+          "name": "n1",
+          "C_type": "size_t",
+          "declaration": {
+            "path": "test/testutil/tests.c",
+            "line": 320,
+            "function_parameter_ordinal_zero_based": 5
+          },
+          "version": "entry parameter; no assignments before target",
+          "width_status": "original underlying typedef/ABI UNKNOWN; only equality needed for planned nullness projection"
+        },
+        {
+          "name": "n2",
+          "C_type": "size_t",
+          "declaration": {
+            "path": "test/testutil/tests.c",
+            "line": 320,
+            "function_parameter_ordinal_zero_based": 7
+          },
+          "version": "entry parameter; no assignments before target",
+          "width_status": "same declared type as n1; no numeric range assumptions"
+        }
+      ],
+      "branch_evidence": [
+        {
+          "relative_line": 4,
+          "upstream_line": 322,
+          "C_text": "if ((s1 == NULL) ^ (s2 == NULL))",
+          "polarity_to_continue": "FALSE",
+          "terminator": {
+            "relative_line": 5,
+            "upstream_line": 323,
+            "C_text": "return 1;"
+          },
+          "relationship": "bitwise ^ applies to two int-valued 0/1 equality results; false means equal NULL statuses"
+        },
+        {
+          "relative_line": 6,
+          "upstream_line": 324,
+          "C_text": "if (n1 != n2 || s1 == NULL || strncmp(s1, s2, n1) == 0) {",
+          "polarity_for_target_call": "preceding operands of || must evaluate FALSE; call result is not a precondition to evaluating the call",
+          "relationship": "n1 == n2 AND s1 != NULL"
+        }
+      ],
+      "path_completeness": {
+        "scope": "entry through evaluation of the tracked call; not whole-function behavior",
+        "complete_for_this_prefix": true,
+        "loops_before_target": false,
+        "gotos_before_target": false,
+        "calls_before_target": [],
+        "pointer_reassignments_before_target": [],
+        "pointer_address_escape_before_target": [],
+        "path_requirements_in_words": [
+          "the exclusive-null early return is not taken",
+          "s1 is non-NULL so short-circuit OR reaches the string call",
+          "n1 and n2 are equal so the first OR operand is false"
+        ],
+        "branch_body_calls_are_after_target_evaluation": [
+          "test_fail_string_message",
+          "OPENSSL_strnlen"
+        ]
+      },
+      "finite_abstraction": {
+        "domain": "one independent Boolean NULL status per declared pointer parameter; no addresses or heap objects",
+        "C_basis": "pointer comparison with NULL, exact declared pointer parameters, scalar truth and short-circuit semantics",
+        "alias_requirement": "no assumption that s1 and s2 point to different objects; non-NULL aliasing is allowed but not analyzed",
+        "hidden_callee_effect_summary_required_for_prefix": false,
+        "strcmp_or_strncmp_return_encoded": false,
+        "macro_context": "no complex macro in the relevant prefix; NULL treated as standard null pointer constant; original preprocessing/build still UNKNOWN"
+      },
+      "manual_assessment": "exiting the XOR test with equal NULL statuses and then requiring non-NULL s1 implies non-NULL s2 at call evaluation; this is static source reasoning, not an SMT result",
+      "SMT_feasibility": "READY_FOR_RESEARCH_DESIGN_OF_LOCAL_NULLNESS_PROJECTION",
+      "planned_fault_question": "can the tracked string comparison be evaluated with s2 == NULL under every condition of this exact prefix?",
+      "solver_run": false,
+      "solver_status": "NOT_RUN",
+      "SMT_generated": false,
+      "labels_used_for_selection": false,
+      "prior_model_or_analysis_results_used_for_constraints": false,
+      "source_annotations_used_as_constraints": false,
+      "original_alert_source": {
+        "group_attribution": "author benchmark Cppcheck/OpenSSL group, cross-referenced with frozen README; not independent per-alert scanner verification",
+        "checker_name_authenticated": false,
+        "rule_id": null,
+        "rule_name": null,
+        "raw_report": null,
+        "scanner_version": null,
+        "scan_command": null,
+        "query_or_checker_implementation": null,
+        "source_record": "upstream/benchmark/NPD/cppcheck/cppcheck_openssl_nullpointer.json:/4",
+        "status": "UNKNOWN"
+      },
+      "remaining_gaps": [
+        "original TU/build/preprocessor and actual scan commit not restored",
+        "no raw tool report or per-alert rule/checker identity",
+        "non-NULL does not establish allocated/live/readable memory",
+        "size_t underlying width not recovered; only equality is proposed",
+        "n1=0 and actual callee range requirements must be explicitly scoped before any later experiment"
+      ],
+      "original_alert_decision": null,
+      "filter_authority": false,
+      "full_program_semantics": "UNKNOWN"
+    }
+  ],
+  "priority_kernel70_screening": [
+    {
+      "row_zero_based": 0,
+      "original_index": 0,
+      "function_name": "__ip_append_data",
+      "function_body_sha256": "253bb79fbd685e408b138a96f8aea52cdccd15b74e5bd4d4265bb336d35daefd",
+      "saved_function_lines": 331,
+      "var_name": "skb_prev",
+      "target_location": {
+        "file_path": "net/ipv4/ip_output.c",
+        "region": {
+          "startLine": 1156,
+          "startColumn": 31,
+          "endColumn": 39
+        },
+        "context": {
+          "startLine": 1154,
+          "endLine": 1158,
+          "snippet": {
+            "text": "\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 5
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 1,
+      "original_index": 1,
+      "function_name": "ip_tunnel_xmit",
+      "function_body_sha256": "d1feb5e62d48203b68911e16cd5cc00e8d7ee0796a2141e7f88751b8803e8e66",
+      "saved_function_lines": 188,
+      "var_name": "tun_info",
+      "target_location": {
+        "file_path": "net/ipv4/ip_tunnel.c",
+        "region": {
+          "startLine": 785,
+          "startColumn": 28,
+          "endColumn": 36
+        },
+        "context": {
+          "startLine": 783,
+          "endLine": 787,
+          "snippet": {
+            "text": "\t\t\trt = dst_cache_get_ip4(&tun_info->dst_cache,"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 5
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 2,
+      "original_index": 2,
+      "function_name": "ip_tunnel_xmit",
+      "function_body_sha256": "d1feb5e62d48203b68911e16cd5cc00e8d7ee0796a2141e7f88751b8803e8e66",
+      "saved_function_lines": 188,
+      "var_name": "tun_info",
+      "target_location": {
+        "file_path": "net/ipv4/ip_tunnel.c",
+        "region": {
+          "startLine": 800,
+          "startColumn": 23,
+          "endColumn": 31
+        },
+        "context": {
+          "startLine": 798,
+          "endLine": 802,
+          "snippet": {
+            "text": "\t\t\tdst_cache_set_ip4(&tun_info->dst_cache, &rt->dst,"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 6
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 3,
+      "original_index": 3,
+      "function_name": "ip_md_tunnel_xmit",
+      "function_body_sha256": "0da7be6efa9bd7a8f9979ca01e8f94cba96260e6021c40cc01eb91e5fa41b6dc",
+      "saved_function_lines": 96,
+      "var_name": "tun_info",
+      "target_location": {
+        "file_path": "net/ipv4/ip_tunnel.c",
+        "region": {
+          "startLine": 601,
+          "startColumn": 9,
+          "endColumn": 17
+        },
+        "context": {
+          "startLine": 599,
+          "endLine": 603,
+          "snippet": {
+            "text": "\tkey = &tun_info->key;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 4,
+      "original_index": 4,
+      "function_name": "ipmr_rtm_getroute",
+      "function_body_sha256": "10ed82bd97e4be5e751e352b8ad2842516d8005bc828e96a1fbf64eab335d97f",
+      "saved_function_lines": 56,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv4/ipmr.c",
+        "region": {
+          "startLine": 2586,
+          "startColumn": 12,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 2584,
+          "endLine": 2588,
+          "snippet": {
+            "text": "\tkfree_skb(skb);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 5,
+      "original_index": 5,
+      "function_name": "igmpmsg_netlink_event",
+      "function_body_sha256": "f2e5e6bf603fc471016c2be99c52169ba9b06f1ffb88c75c7859077ffcc80fdb",
+      "saved_function_lines": 48,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv4/ipmr.c",
+        "region": {
+          "startLine": 2474,
+          "startColumn": 12,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 2472,
+          "endLine": 2476,
+          "snippet": {
+            "text": "\tkfree_skb(skb);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 6,
+      "original_index": 6,
+      "function_name": "mroute_netlink_event",
+      "function_body_sha256": "f8455f3f39413ffcecd069ecfc0250b9064edcdb50aa4b6bd79ef21bcd362013",
+      "saved_function_lines": 25,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv4/ipmr.c",
+        "region": {
+          "startLine": 2408,
+          "startColumn": 12,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 2406,
+          "endLine": 2410,
+          "snippet": {
+            "text": "\tkfree_skb(skb);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 0
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 7,
+      "original_index": 7,
+      "function_name": "nexthop_create_group",
+      "function_body_sha256": "7450d6bb1fea524acf9a21ba566b8217e529ed13aa5976bf53a1007a7ef92f3c",
+      "saved_function_lines": 108,
+      "var_name": "nhe",
+      "target_location": {
+        "file_path": "net/ipv4/nexthop.c",
+        "region": {
+          "startLine": 2698,
+          "startColumn": 20,
+          "endColumn": 23
+        },
+        "context": {
+          "startLine": 2696,
+          "endLine": 2700,
+          "snippet": {
+            "text": "\t\tif (!nexthop_get(nhe)) {"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 4
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 8,
+      "original_index": 11,
+      "function_name": "ip_route_output_key_hash_rcu",
+      "function_body_sha256": "2239010cbcdd46d7c79a231dad00376ca53a983e13082e1e2aaf1c20b8f75f21",
+      "saved_function_lines": 169,
+      "var_name": "dev_out",
+      "target_location": {
+        "file_path": "net/ipv4/route.c",
+        "region": {
+          "startLine": 2808,
+          "startColumn": 45,
+          "endColumn": 52
+        },
+        "context": {
+          "startLine": 2806,
+          "endLine": 2810,
+          "snippet": {
+            "text": "\trth = __mkroute_output(res, fl4, orig_oif, dev_out, flags);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 6
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 9,
+      "original_index": 21,
+      "function_name": "tcp_sendmsg_locked",
+      "function_body_sha256": "0a179a0178f81a9211efd84d9baa3efce16afafb9dd8dbe54c47eb63e5064590",
+      "saved_function_lines": 299,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv4/tcp.c",
+        "region": {
+          "startLine": 1248,
+          "startColumn": 37,
+          "endColumn": 40
+        },
+        "context": {
+          "startLine": 1246,
+          "endLine": 1250,
+          "snippet": {
+            "text": "\t\t\tif (tcp_downgrade_zcopy_pure(sk, skb))"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 17
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 10,
+      "original_index": 22,
+      "function_name": "tcp_sendmsg_locked",
+      "function_body_sha256": "0a179a0178f81a9211efd84d9baa3efce16afafb9dd8dbe54c47eb63e5064590",
+      "saved_function_lines": 299,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv4/tcp.c",
+        "region": {
+          "startLine": 1273,
+          "startColumn": 15,
+          "endColumn": 18
+        },
+        "context": {
+          "startLine": 1271,
+          "endLine": 1275,
+          "snippet": {
+            "text": "\t\t\tTCP_SKB_CB(skb)->tcp_flags &= ~TCPHDR_PSH;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 20
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 11,
+      "original_index": 23,
+      "function_name": "tcp_sendmsg_locked",
+      "function_body_sha256": "0a179a0178f81a9211efd84d9baa3efce16afafb9dd8dbe54c47eb63e5064590",
+      "saved_function_lines": 299,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv4/tcp.c",
+        "region": {
+          "startLine": 1276,
+          "startColumn": 14,
+          "endColumn": 17
+        },
+        "context": {
+          "startLine": 1274,
+          "endLine": 1278,
+          "snippet": {
+            "text": "\t\tTCP_SKB_CB(skb)->end_seq += copy;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 20
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 12,
+      "original_index": 24,
+      "function_name": "tcp_set_allowed_congestion_control",
+      "function_body_sha256": "58e06fa2a7bd4630d7cdeab57321ea5d34830a23a0c66231a42cbefe13a77033",
+      "saved_function_lines": 37,
+      "var_name": "saved_clone",
+      "target_location": {
+        "file_path": "net/ipv4/tcp_cong.c",
+        "region": {
+          "startLine": 400,
+          "startColumn": 8,
+          "endColumn": 19
+        },
+        "context": {
+          "startLine": 398,
+          "endLine": 402,
+          "snippet": {
+            "text": "\tkfree(saved_clone);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 13,
+      "original_index": 27,
+      "function_name": "tcp_mtu_probe",
+      "function_body_sha256": "abbd748c32e171ef9034907cc4520570c623cd8c6d04339ca4802ecb919ebb63",
+      "saved_function_lines": 139,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv4/tcp_output.c",
+        "region": {
+          "startLine": 2499,
+          "startColumn": 37,
+          "endColumn": 40
+        },
+        "context": {
+          "startLine": 2497,
+          "endLine": 2501,
+          "snippet": {
+            "text": "\tTCP_SKB_CB(nskb)->seq = TCP_SKB_CB(skb)->seq;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 10
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 14,
+      "original_index": 29,
+      "function_name": "udp_sendmsg",
+      "function_body_sha256": "04478f429fa68fbfddf64e38ea99e6843752aa41a7b38b41cfd88938f74b8bff",
+      "saved_function_lines": 278,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv4/udp.c",
+        "region": {
+          "startLine": 1268,
+          "startColumn": 23,
+          "endColumn": 26
+        },
+        "context": {
+          "startLine": 1266,
+          "endLine": 1270,
+          "snippet": {
+            "text": "\t\t\terr = udp_send_skb(skb, fl4, &cork);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 15
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 15,
+      "original_index": 31,
+      "function_name": "udp_gro_receive_segment",
+      "function_body_sha256": "a45084ac56e0e387de6582aa35d2a1b7f7ae70595725427b3991f4e3193330ed",
+      "saved_function_lines": 90,
+      "var_name": "uh",
+      "target_location": {
+        "file_path": "net/ipv4/udp_offload.c",
+        "region": {
+          "startLine": 477,
+          "startColumn": 7,
+          "endColumn": 9
+        },
+        "context": {
+          "startLine": 475,
+          "endLine": 479,
+          "snippet": {
+            "text": "\tif (!uh->check) {"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 0
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 16,
+      "original_index": 34,
+      "function_name": "inet6_validate_link_af",
+      "function_body_sha256": "2c336688df01cb1bb2d664c21cc6e2b6d0e5dc693992a1b14157d8d52d8e28f1",
+      "saved_function_lines": 33,
+      "var_name": "idev",
+      "target_location": {
+        "file_path": "net/ipv6/addrconf.c",
+        "region": {
+          "startLine": 6007,
+          "startColumn": 35,
+          "endColumn": 39
+        },
+        "context": {
+          "startLine": 6005,
+          "endLine": 6009,
+          "snippet": {
+            "text": "\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 4
+      },
+      "review_level": "COMPLETE_SAVED_FUNCTION_READ",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 17,
+      "original_index": 36,
+      "function_name": "ipv6_route_native_seq_show",
+      "function_body_sha256": "93ca160d4d293117f2064e48065d5d6b75956d177744cf0a5ea2fdbd518ab120",
+      "saved_function_lines": 32,
+      "var_name": "fib6_nh",
+      "target_location": {
+        "file_path": "net/ipv6/ip6_fib.c",
+        "region": {
+          "startLine": 2556,
+          "startColumn": 6,
+          "endColumn": 13
+        },
+        "context": {
+          "startLine": 2554,
+          "endLine": 2558,
+          "snippet": {
+            "text": "\tif (fib6_nh->fib_nh_gw_family) {"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 0
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 18,
+      "original_index": 37,
+      "function_name": "fib6_purge_rt",
+      "function_body_sha256": "3c9addddfd4b87b2c6e643953c00d5b832d858d8a7071670eb8f5c2e11813580",
+      "saved_function_lines": 38,
+      "var_name": "new_leaf",
+      "target_location": {
+        "file_path": "net/ipv6/ip6_fib.c",
+        "region": {
+          "startLine": 1059,
+          "startColumn": 20,
+          "endColumn": 28
+        },
+        "context": {
+          "startLine": 1057,
+          "endLine": 1061,
+          "snippet": {
+            "text": "\t\t\t\tfib6_info_hold(new_leaf);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 0
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 19,
+      "original_index": 38,
+      "function_name": "icmpv6_ndo_send",
+      "function_body_sha256": "a468fc1fecac05a9ee96986899e9670f17b0b2c33fb271ccb16b91a027c80dc0",
+      "saved_function_lines": 30,
+      "var_name": "skb_in",
+      "target_location": {
+        "file_path": "net/ipv6/ip6_icmp.c",
+        "region": {
+          "startLine": 77,
+          "startColumn": 16,
+          "endColumn": 22
+        },
+        "context": {
+          "startLine": 75,
+          "endLine": 79,
+          "snippet": {
+            "text": "\t__icmpv6_send(skb_in, type, code, info, &parm);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "COMPLETE_SAVED_FUNCTION_READ",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 20,
+      "original_index": 39,
+      "function_name": "icmpv6_ndo_send",
+      "function_body_sha256": "a468fc1fecac05a9ee96986899e9670f17b0b2c33fb271ccb16b91a027c80dc0",
+      "saved_function_lines": 30,
+      "var_name": "cloned_skb",
+      "target_location": {
+        "file_path": "net/ipv6/ip6_icmp.c",
+        "region": {
+          "startLine": 80,
+          "startColumn": 14,
+          "endColumn": 24
+        },
+        "context": {
+          "startLine": 78,
+          "endLine": 82,
+          "snippet": {
+            "text": "\tconsume_skb(cloned_skb);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 21,
+      "original_index": 40,
+      "function_name": "ipv6_list_rcv",
+      "function_body_sha256": "304cf6caf8418beb2245875f8941804776c56c25f00d881474769a704882e2d7",
+      "saved_function_lines": 33,
+      "var_name": "curr_net",
+      "target_location": {
+        "file_path": "net/ipv6/ip6_input.c",
+        "region": {
+          "startLine": 345,
+          "startColumn": 41,
+          "endColumn": 49
+        },
+        "context": {
+          "startLine": 343,
+          "endLine": 347,
+          "snippet": {
+            "text": "\t\t\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 22,
+      "original_index": 41,
+      "function_name": "ipv6_list_rcv",
+      "function_body_sha256": "304cf6caf8418beb2245875f8941804776c56c25f00d881474769a704882e2d7",
+      "saved_function_lines": 33,
+      "var_name": "curr_net",
+      "target_location": {
+        "file_path": "net/ipv6/ip6_input.c",
+        "region": {
+          "startLine": 355,
+          "startColumn": 39,
+          "endColumn": 47
+        },
+        "context": {
+          "startLine": 353,
+          "endLine": 357,
+          "snippet": {
+            "text": "\t\tip6_sublist_rcv(&sublist, curr_dev, curr_net);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 0
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 23,
+      "original_index": 42,
+      "function_name": "__ip6_append_data",
+      "function_body_sha256": "4f652c2800b05d4fab8cf926af60a66c348cbdd8e5cc95f2620555feaf1e20a9",
+      "saved_function_lines": 399,
+      "var_name": "skb_prev",
+      "target_location": {
+        "file_path": "net/ipv6/ip6_output.c",
+        "region": {
+          "startLine": 1677,
+          "startColumn": 31,
+          "endColumn": 39
+        },
+        "context": {
+          "startLine": 1675,
+          "endLine": 1679,
+          "snippet": {
+            "text": "\t\t\t\tskb_prev->csum = csum_sub(skb_prev->csum,"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 9
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 24,
+      "original_index": 43,
+      "function_name": "ip6_finish_output2",
+      "function_body_sha256": "90b47239055d70d6940ddc13e68fc1f3e80746d0d735ccb383f25c4c6471a940",
+      "saved_function_lines": 81,
+      "var_name": "neigh",
+      "target_location": {
+        "file_path": "net/ipv6/ip6_output.c",
+        "region": {
+          "startLine": 136,
+          "startColumn": 26,
+          "endColumn": 31
+        },
+        "context": {
+          "startLine": 134,
+          "endLine": 138,
+          "snippet": {
+            "text": "\tsock_confirm_neigh(skb, neigh);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 5
+      },
+      "review_level": "EXCLUDED_PREVIOUS_E07_E08_SAMPLE",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 25,
+      "original_index": 44,
+      "function_name": "ipv6_set_opt_hdr",
+      "function_body_sha256": "d683532bc54a3c71edb7c9ece68a75f600a0d87735c16dd1d256428c9e6d0fdb",
+      "saved_function_lines": 73,
+      "var_name": "new",
+      "target_location": {
+        "file_path": "net/ipv6/ipv6_sockglue.c",
+        "region": {
+          "startLine": 355,
+          "startColumn": 8,
+          "endColumn": 11
+        },
+        "context": {
+          "startLine": 353,
+          "endLine": 357,
+          "snippet": {
+            "text": "\tkfree(new);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 5
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 26,
+      "original_index": 45,
+      "function_name": "igmp6_event_report",
+      "function_body_sha256": "0f908a939bc328df19a92b9b0c88c48e4b1354df55ed8547b5088c69d46c2c1b",
+      "saved_function_lines": 18,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv6/mcast.c",
+        "region": {
+          "startLine": 1558,
+          "startColumn": 12,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 1556,
+          "endLine": 1560,
+          "snippet": {
+            "text": "\tkfree_skb(skb);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 0
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 27,
+      "original_index": 46,
+      "function_name": "__mld_query_work",
+      "function_body_sha256": "ff983b819f3ca0a5ab5c3c1848c3ced4981f93705213d190cc5cac9691391151",
+      "saved_function_lines": 113,
+      "var_name": "mlh2",
+      "target_location": {
+        "file_path": "net/ipv6/mcast.c",
+        "region": {
+          "startLine": 1495,
+          "startColumn": 34,
+          "endColumn": 38
+        },
+        "context": {
+          "startLine": 1493,
+          "endLine": 1497,
+          "snippet": {
+            "text": "\t\t\t    mld_marksources(ma, ntohs(mlh2->mld2q_nsrcs), mlh2->mld2q_srcs))"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 12
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 28,
+      "original_index": 47,
+      "function_name": "igmp6_event_query",
+      "function_body_sha256": "926244053e45ce4f74255860e7234bd5fa38a183d0ea080c6908204e54285afd",
+      "saved_function_lines": 18,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv6/mcast.c",
+        "region": {
+          "startLine": 1390,
+          "startColumn": 12,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 1388,
+          "endLine": 1392,
+          "snippet": {
+            "text": "\tkfree_skb(skb);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 0
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 29,
+      "original_index": 48,
+      "function_name": "ndisc_recv_ns",
+      "function_body_sha256": "1386b24da5722bc672a66ce6363e3eae606b5d586ef49a83a251ed466bdf1114",
+      "saved_function_lines": 185,
+      "var_name": "idev",
+      "target_location": {
+        "file_path": "net/ipv6/ndisc.c",
+        "region": {
+          "startLine": 969,
+          "startColumn": 15,
+          "endColumn": 19
+        },
+        "context": {
+          "startLine": 967,
+          "endLine": 971,
+          "snippet": {
+            "text": "\t\tin6_dev_put(idev);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 9
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 30,
+      "original_index": 49,
+      "function_name": "rawv6_push_pending_frames",
+      "function_body_sha256": "7c732d1d586f425133cc0e4d9d8a941143b48e3b325a2e2c851ce8dfc4456c3c",
+      "saved_function_lines": 82,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv6/raw.c",
+        "region": {
+          "startLine": 585,
+          "startColumn": 24,
+          "endColumn": 27
+        },
+        "context": {
+          "startLine": 583,
+          "endLine": 587,
+          "snippet": {
+            "text": "\tBUG_ON(skb_store_bits(skb, offset, &csum, 2));"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 4
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 31,
+      "original_index": 51,
+      "function_name": "ip6_route_multipath_add",
+      "function_body_sha256": "566c628c900850cce747c990c54badf72f728f76eaa0f9a29ecb2368d595dbf7",
+      "saved_function_lines": 185,
+      "var_name": "rt_notif",
+      "target_location": {
+        "file_path": "net/ipv6/route.c",
+        "region": {
+          "startLine": 5389,
+          "startColumn": 7,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 5387,
+          "endLine": 5391,
+          "snippet": {
+            "text": "\t\tif (rt_notif->fib6_nsiblings != nhn - 1)"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 6
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 32,
+      "original_index": 52,
+      "function_name": "rt6_multipath_rebalance",
+      "function_body_sha256": "edc5b1c918099b9e7891c6478815c2536796dcc2586f7944db9c4ade4e55881c",
+      "saved_function_lines": 23,
+      "var_name": "first",
+      "target_location": {
+        "file_path": "net/ipv6/route.c",
+        "region": {
+          "startLine": 4764,
+          "startColumn": 32,
+          "endColumn": 37
+        },
+        "context": {
+          "startLine": 4762,
+          "endLine": 4766,
+          "snippet": {
+            "text": "\trt6_multipath_upper_bound_set(first, total);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "COMPLETE_SAVED_FUNCTION_READ",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 33,
+      "original_index": 53,
+      "function_name": "ip6_route_info_create",
+      "function_body_sha256": "c59e0935767987ac1be4757ae88affcee8f1e98b5615e79e52c0fac449291f20",
+      "saved_function_lines": 156,
+      "var_name": "fib6_nh",
+      "target_location": {
+        "file_path": "net/ipv6/route.c",
+        "region": {
+          "startLine": 3825,
+          "startColumn": 28,
+          "endColumn": 35
+        },
+        "context": {
+          "startLine": 3823,
+          "endLine": 3827,
+          "snippet": {
+            "text": "\t\tstruct net_device *dev = fib6_nh->fib_nh_dev;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 14
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 34,
+      "original_index": 55,
+      "function_name": "fib6_nh_init",
+      "function_body_sha256": "56f210543ceb96ebae66772111dcebc286df59bd91686b27a96aeadcd3ebcc84",
+      "saved_function_lines": 128,
+      "var_name": "idev",
+      "target_location": {
+        "file_path": "net/ipv6/route.c",
+        "region": {
+          "startLine": 3606,
+          "startColumn": 6,
+          "endColumn": 10
+        },
+        "context": {
+          "startLine": 3604,
+          "endLine": 3608,
+          "snippet": {
+            "text": "\tif (idev->cnf.disable_ipv6) {"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 9
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 35,
+      "original_index": 56,
+      "function_name": "fib6_nh_init",
+      "function_body_sha256": "56f210543ceb96ebae66772111dcebc286df59bd91686b27a96aeadcd3ebcc84",
+      "saved_function_lines": 128,
+      "var_name": "dev",
+      "target_location": {
+        "file_path": "net/ipv6/route.c",
+        "region": {
+          "startLine": 3635,
+          "startColumn": 24,
+          "endColumn": 27
+        },
+        "context": {
+          "startLine": 3633,
+          "endLine": 3637,
+          "snippet": {
+            "text": "\tfib6_nh->fib_nh_oif = dev->ifindex;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 12
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 36,
+      "original_index": 57,
+      "function_name": "rt6_device_match",
+      "function_body_sha256": "6cda4dbe94dc3413c9b193d3f01724c21d884ac94425ddce374ae73e30fad5a3",
+      "saved_function_lines": 67,
+      "var_name": "nh",
+      "target_location": {
+        "file_path": "net/ipv6/route.c",
+        "region": {
+          "startLine": 543,
+          "startColumn": 9,
+          "endColumn": 11
+        },
+        "context": {
+          "startLine": 541,
+          "endLine": 545,
+          "snippet": {
+            "text": "\t\tif (!(nh->fib_nh_flags & RTNH_F_DEAD))"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "COMPLETE_SAVED_FUNCTION_READ",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 37,
+      "original_index": 58,
+      "function_name": "rt6_device_match",
+      "function_body_sha256": "6cda4dbe94dc3413c9b193d3f01724c21d884ac94425ddce374ae73e30fad5a3",
+      "saved_function_lines": 67,
+      "var_name": "nh",
+      "target_location": {
+        "file_path": "net/ipv6/route.c",
+        "region": {
+          "startLine": 580,
+          "startColumn": 6,
+          "endColumn": 8
+        },
+        "context": {
+          "startLine": 578,
+          "endLine": 582,
+          "snippet": {
+            "text": "\tif (nh->fib_nh_flags & RTNH_F_DEAD) {"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 5
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 38,
+      "original_index": 59,
+      "function_name": "udpv6_sendmsg",
+      "function_body_sha256": "da1d80b2f4c33f68f6458b6ab3bfbac4e5af3fd6cce7dfec550aa9df97fe3329",
+      "saved_function_lines": 325,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/ipv6/udp.c",
+        "region": {
+          "startLine": 1589,
+          "startColumn": 26,
+          "endColumn": 29
+        },
+        "context": {
+          "startLine": 1587,
+          "endLine": 1591,
+          "snippet": {
+            "text": "\t\t\terr = udp_v6_send_skb(skb, fl6, &cork.base);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 20
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 39,
+      "original_index": 63,
+      "function_name": "ieee80211_process_addba_request",
+      "function_body_sha256": "f318548f1e81b07f8dc3c49ddb1b4538403d02733f3ddad2b7b93bfb030a29ea",
+      "saved_function_lines": 44,
+      "var_name": "elems",
+      "target_location": {
+        "file_path": "net/mac80211/agg-rx.c",
+        "region": {
+          "startLine": 480,
+          "startColumn": 8,
+          "endColumn": 13
+        },
+        "context": {
+          "startLine": 478,
+          "endLine": 482,
+          "snippet": {
+            "text": "\tkfree(elems);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 0
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 40,
+      "original_index": 64,
+      "function_name": "ieee80211_nan_func_match",
+      "function_body_sha256": "424b8797e091abad6e42e94d6c0e8ea478b4c4adc5ee0f178c71989ae6ed9a80",
+      "saved_function_lines": 23,
+      "var_name": "func",
+      "target_location": {
+        "file_path": "net/mac80211/cfg.c",
+        "region": {
+          "startLine": 4469,
+          "startColumn": 18,
+          "endColumn": 22
+        },
+        "context": {
+          "startLine": 4467,
+          "endLine": 4471,
+          "snippet": {
+            "text": "\tmatch->cookie = func->cookie;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "COMPLETE_SAVED_FUNCTION_READ",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 41,
+      "original_index": 65,
+      "function_name": "ieee80211_nan_func_terminated",
+      "function_body_sha256": "1dbab835ad53a98dbcd4e12acc43c42eeb5fe4dc8e1650cd3795e969efc5e73c",
+      "saved_function_lines": 30,
+      "var_name": "func",
+      "target_location": {
+        "file_path": "net/mac80211/cfg.c",
+        "region": {
+          "startLine": 4440,
+          "startColumn": 11,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 4438,
+          "endLine": 4442,
+          "snippet": {
+            "text": "\tcookie = func->cookie;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "COMPLETE_SAVED_FUNCTION_READ",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 42,
+      "original_index": 67,
+      "function_name": "ieee80211_chsw_switch_vifs",
+      "function_body_sha256": "202c29c9d72986b8d1fae35c5355d05dcc6e3cff3b7c88e014b314c449a9476d",
+      "saved_function_lines": 46,
+      "var_name": "old_ctx",
+      "target_location": {
+        "file_path": "net/mac80211/chan.c",
+        "region": {
+          "startLine": 1373,
+          "startColumn": 27,
+          "endColumn": 34
+        },
+        "context": {
+          "startLine": 1371,
+          "endLine": 1375,
+          "snippet": {
+            "text": "\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 4
+      },
+      "review_level": "COMPLETE_SAVED_FUNCTION_READ",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 43,
+      "original_index": 68,
+      "function_name": "ieee80211_link_use_reserved_reassign",
+      "function_body_sha256": "1428b90ff78f9fed8f6998606a916405559cd2b48ef739e42529c605c57cfadf",
+      "saved_function_lines": 83,
+      "var_name": "old_ctx",
+      "target_location": {
+        "file_path": "net/mac80211/chan.c",
+        "region": {
+          "startLine": 1224,
+          "startColumn": 44,
+          "endColumn": 51
+        },
+        "context": {
+          "startLine": 1222,
+          "endLine": 1226,
+          "snippet": {
+            "text": "\t_ieee80211_change_chanctx(local, new_ctx, old_ctx, chanreq, link);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 5
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 44,
+      "original_index": 69,
+      "function_name": "ieee80211_ibss_rx_queued_mgmt",
+      "function_body_sha256": "649dcf8effda1823a387091fb2502f4301a946221ea13b7a4e167acb9c3c60cd",
+      "saved_function_lines": 55,
+      "var_name": "elems",
+      "target_location": {
+        "file_path": "net/mac80211/ibss.c",
+        "region": {
+          "startLine": 1633,
+          "startColumn": 10,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 1631,
+          "endLine": 1635,
+          "snippet": {
+            "text": "\t\t\tkfree(elems);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 45,
+      "original_index": 71,
+      "function_name": "ieee80211_sta_rx_queued_mgmt",
+      "function_body_sha256": "f0076f0a79e0882a711832d8ae4b5ec34c216584a10fe35a4340609dfbaed064",
+      "saved_function_lines": 103,
+      "var_name": "elems",
+      "target_location": {
+        "file_path": "net/mac80211/mlme.c",
+        "region": {
+          "startLine": 6914,
+          "startColumn": 10,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 6912,
+          "endLine": 6916,
+          "snippet": {
+            "text": "\t\t\tkfree(elems);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 2
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 46,
+      "original_index": 72,
+      "function_name": "ieee80211_sta_rx_queued_mgmt",
+      "function_body_sha256": "f0076f0a79e0882a711832d8ae4b5ec34c216584a10fe35a4340609dfbaed064",
+      "saved_function_lines": 103,
+      "var_name": "elems",
+      "target_location": {
+        "file_path": "net/mac80211/mlme.c",
+        "region": {
+          "startLine": 6944,
+          "startColumn": 10,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 6942,
+          "endLine": 6946,
+          "snippet": {
+            "text": "\t\t\tkfree(elems);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 2
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 47,
+      "original_index": 73,
+      "function_name": "ieee80211_process_neg_ttlm_req",
+      "function_body_sha256": "aa5ad910da0a524b4a81c3d1fe94092c476276c9b0d0a731e0a3fb9fef0be66e",
+      "saved_function_lines": 60,
+      "var_name": "elems",
+      "target_location": {
+        "file_path": "net/mac80211/mlme.c",
+        "region": {
+          "startLine": 6750,
+          "startColumn": 51,
+          "endColumn": 56
+        },
+        "context": {
+          "startLine": 6748,
+          "endLine": 6752,
+          "snippet": {
+            "text": "\tBUILD_BUG_ON(ARRAY_SIZE(direction) != ARRAY_SIZE(elems->ttlm));"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 0
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 48,
+      "original_index": 74,
+      "function_name": "ieee80211_process_neg_ttlm_req",
+      "function_body_sha256": "aa5ad910da0a524b4a81c3d1fe94092c476276c9b0d0a731e0a3fb9fef0be66e",
+      "saved_function_lines": 60,
+      "var_name": "elems",
+      "target_location": {
+        "file_path": "net/mac80211/mlme.c",
+        "region": {
+          "startLine": 6798,
+          "startColumn": 8,
+          "endColumn": 13
+        },
+        "context": {
+          "startLine": 6796,
+          "endLine": 6800,
+          "snippet": {
+            "text": "\tkfree(elems);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 49,
+      "original_index": 75,
+      "function_name": "ieee80211_rx_mgmt_beacon",
+      "function_body_sha256": "97023c19183c6824a14dd5e22e00bc1131a0657757f83e21f381fa81c8840ec8",
+      "saved_function_lines": 307,
+      "var_name": "bssid",
+      "target_location": {
+        "file_path": "net/mac80211/mlme.c",
+        "region": {
+          "startLine": 6213,
+          "startColumn": 30,
+          "endColumn": 35
+        },
+        "context": {
+          "startLine": 6211,
+          "endLine": 6215,
+          "snippet": {
+            "text": "\t    ieee80211_rx_our_beacon(bssid, ifmgd->assoc_data->link[0].bss)) {"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 3
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 50,
+      "original_index": 76,
+      "function_name": "ieee80211_rx_mgmt_beacon",
+      "function_body_sha256": "97023c19183c6824a14dd5e22e00bc1131a0657757f83e21f381fa81c8840ec8",
+      "saved_function_lines": 307,
+      "var_name": "bssid",
+      "target_location": {
+        "file_path": "net/mac80211/mlme.c",
+        "region": {
+          "startLine": 6255,
+          "startColumn": 31,
+          "endColumn": 36
+        },
+        "context": {
+          "startLine": 6253,
+          "endLine": 6257,
+          "snippet": {
+            "text": "\t    !ieee80211_rx_our_beacon(bssid, link->conf->bss))"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 5
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 51,
+      "original_index": 77,
+      "function_name": "ieee80211_rx_mgmt_beacon",
+      "function_body_sha256": "97023c19183c6824a14dd5e22e00bc1131a0657757f83e21f381fa81c8840ec8",
+      "saved_function_lines": 307,
+      "var_name": "sta",
+      "target_location": {
+        "file_path": "net/mac80211/mlme.c",
+        "region": {
+          "startLine": 6411,
+          "startColumn": 39,
+          "endColumn": 42
+        },
+        "context": {
+          "startLine": 6409,
+          "endLine": 6413,
+          "snippet": {
+            "text": "\tlink_sta = rcu_dereference_protected(sta->link[link->link_id],"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 9
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 52,
+      "original_index": 78,
+      "function_name": "ieee80211_rx_mgmt_assoc_resp",
+      "function_body_sha256": "a634de14c25954a80d28ee6f7129935fffcc412ef53a37f1a809da268a3c2f29",
+      "saved_function_lines": 221,
+      "var_name": "elems",
+      "target_location": {
+        "file_path": "net/mac80211/mlme.c",
+        "region": {
+          "startLine": 5531,
+          "startColumn": 8,
+          "endColumn": 13
+        },
+        "context": {
+          "startLine": 5529,
+          "endLine": 5533,
+          "snippet": {
+            "text": "\tkfree(elems);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 6
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 53,
+      "original_index": 79,
+      "function_name": "ieee80211_assoc_success",
+      "function_body_sha256": "c05b202cf96db64e8a05bf4a7feccbdbd00a91f335b4bad22895fd0c26ed6f8d",
+      "saved_function_lines": 175,
+      "var_name": "sta",
+      "target_location": {
+        "file_path": "net/mac80211/mlme.c",
+        "region": {
+          "startLine": 5163,
+          "startColumn": 2,
+          "endColumn": 5
+        },
+        "context": {
+          "startLine": 5161,
+          "endLine": 5165,
+          "snippet": {
+            "text": "\tsta->sta.spp_amsdu = assoc_data->spp_amsdu;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 54,
+      "original_index": 80,
+      "function_name": "ieee80211_assoc_config_link",
+      "function_body_sha256": "a5447f13162320077d51f61f32823ec6a0c31754dffc2d90bd0da9045413377b",
+      "saved_function_lines": 412,
+      "var_name": "bss_ies",
+      "target_location": {
+        "file_path": "net/mac80211/mlme.c",
+        "region": {
+          "startLine": 4616,
+          "startColumn": 8,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 4614,
+          "endLine": 4618,
+          "snippet": {
+            "text": "\tkfree(bss_ies);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 55,
+      "original_index": 81,
+      "function_name": "ieee80211_mgd_probe_ap_send",
+      "function_body_sha256": "ff9fc1e48fe196fe62ded457c0ca33f750574ebb01adda61ec2b7aba719642f7",
+      "saved_function_lines": 48,
+      "var_name": "sta",
+      "target_location": {
+        "file_path": "net/mac80211/mlme.c",
+        "region": {
+          "startLine": 3428,
+          "startColumn": 28,
+          "endColumn": 31
+        },
+        "context": {
+          "startLine": 3426,
+          "endLine": 3430,
+          "snippet": {
+            "text": "\t\t\tieee80211_check_fast_rx(sta);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 56,
+      "original_index": 84,
+      "function_name": "ieee80211_rx_h_sta_process",
+      "function_body_sha256": "f3f7249431f23b346bd8eda597fe67b0bf62a458a482eec2a04b9b5883da0c2f",
+      "saved_function_lines": 134,
+      "var_name": "bssid",
+      "target_location": {
+        "file_path": "net/mac80211/rx.c",
+        "region": {
+          "startLine": 1761,
+          "startColumn": 24,
+          "endColumn": 29
+        },
+        "context": {
+          "startLine": 1759,
+          "endLine": 1763,
+          "snippet": {
+            "text": "\t\tif (ether_addr_equal(bssid, rx->sdata->u.ibss.bssid) &&"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 57,
+      "original_index": 85,
+      "function_name": "ieee80211_rx_monitor",
+      "function_body_sha256": "d8bb106bbcc727fd9818504db47f5246eca97fde34af79bd30e57e9839d7c1f5",
+      "saved_function_lines": 119,
+      "var_name": "monskb",
+      "target_location": {
+        "file_path": "net/mac80211/rx.c",
+        "region": {
+          "startLine": 876,
+          "startColumn": 16,
+          "endColumn": 22
+        },
+        "context": {
+          "startLine": 874,
+          "endLine": 878,
+          "snippet": {
+            "text": "\tdev_kfree_skb(monskb);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 2,
+        "pointer_null_postconditions": 2,
+        "early_jump_constraints": 5
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 58,
+      "original_index": 88,
+      "function_name": "__acquires",
+      "function_body_sha256": "3ab666446e8629b83bcc572c00a0d5ebc3d55dbb3495feb0a64cdcb9e34d7cee",
+      "saved_function_lines": 114,
+      "var_name": "sinfo",
+      "target_location": {
+        "file_path": "net/mac80211/sta_info.c",
+        "region": {
+          "startLine": 929,
+          "startColumn": 8,
+          "endColumn": 13
+        },
+        "context": {
+          "startLine": 927,
+          "endLine": 931,
+          "snippet": {
+            "text": "\tkfree(sinfo);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 5
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 59,
+      "original_index": 89,
+      "function_name": "ieee80211_tx_status_ext",
+      "function_body_sha256": "cc54be09343bc6a8ee006c62145c82e1ebc1c5280d3c206a7975417e0e81cabe",
+      "saved_function_lines": 122,
+      "var_name": "sta",
+      "target_location": {
+        "file_path": "net/mac80211/status.c",
+        "region": {
+          "startLine": 1159,
+          "startColumn": 41,
+          "endColumn": 44
+        },
+        "context": {
+          "startLine": 1157,
+          "endLine": 1161,
+          "snippet": {
+            "text": "\t\tstruct ieee80211_sub_if_data *sdata = sta->sdata;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 60,
+      "original_index": 90,
+      "function_name": "ieee80211_tx_monitor",
+      "function_body_sha256": "f2f5585cb084fe30b52682ac95a9002aaf6f3c7b8fcfd95b90d0dbce051df922",
+      "saved_function_lines": 56,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/mac80211/status.c",
+        "region": {
+          "startLine": 931,
+          "startColumn": 16,
+          "endColumn": 19
+        },
+        "context": {
+          "startLine": 929,
+          "endLine": 933,
+          "snippet": {
+            "text": "\tdev_kfree_skb(skb);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 61,
+      "original_index": 91,
+      "function_name": "ieee80211_report_used_skb",
+      "function_body_sha256": "aa371b2fd26e389d22dabf250923b46d67a48fb0f0d46a30ee6bfad4063a6dad",
+      "saved_function_lines": 93,
+      "var_name": "sdata",
+      "target_location": {
+        "file_path": "net/mac80211/status.c",
+        "region": {
+          "startLine": 773,
+          "startColumn": 33,
+          "endColumn": 38
+        },
+        "context": {
+          "startLine": 771,
+          "endLine": 775,
+          "snippet": {
+            "text": "\t\t\tieee80211_handle_smps_status(sdata, acked,"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 1,
+        "early_jump_constraints": 0
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 62,
+      "original_index": 92,
+      "function_name": "ieee80211_process_tdls_channel_switch_resp",
+      "function_body_sha256": "b06743cc41a8c6c5e05efe674ffe47d06bf2ef5613b0722bda0b5de3f0e877a6",
+      "saved_function_lines": 91,
+      "var_name": "elems",
+      "target_location": {
+        "file_path": "net/mac80211/tdls.c",
+        "region": {
+          "startLine": 1832,
+          "startColumn": 8,
+          "endColumn": 13
+        },
+        "context": {
+          "startLine": 1830,
+          "endLine": 1834,
+          "snippet": {
+            "text": "\tkfree(elems);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 63,
+      "original_index": 93,
+      "function_name": "ieee80211_tdls_channel_switch",
+      "function_body_sha256": "9f95fe7f3829f1109374c91a71bcb2cfa48eb5a75363c381f079e9c011ca8dd7",
+      "saved_function_lines": 50,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/mac80211/tdls.c",
+        "region": {
+          "startLine": 1666,
+          "startColumn": 20,
+          "endColumn": 23
+        },
+        "context": {
+          "startLine": 1664,
+          "endLine": 1668,
+          "snippet": {
+            "text": "\tdev_kfree_skb_any(skb);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 1
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 64,
+      "original_index": 94,
+      "function_name": "ieee80211_tdls_prep_mgmt_packet",
+      "function_body_sha256": "59c3f785a17bcb87def5bad3cf400ca24517e1734345c70a5a1bca3102755e2a",
+      "saved_function_lines": 137,
+      "var_name": "skb",
+      "target_location": {
+        "file_path": "net/mac80211/tdls.c",
+        "region": {
+          "startLine": 1131,
+          "startColumn": 16,
+          "endColumn": 19
+        },
+        "context": {
+          "startLine": 1129,
+          "endLine": 1133,
+          "snippet": {
+            "text": "\tdev_kfree_skb(skb);"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 65,
+      "original_index": 95,
+      "function_name": "ieee80211_tdls_add_setup_cfm_ies",
+      "function_body_sha256": "47da4013b0082df311c00f35a7eccb53f7fad939e0aa123b54cd0ce9e4bebdb6",
+      "saved_function_lines": 96,
+      "var_name": "sta",
+      "target_location": {
+        "file_path": "net/mac80211/tdls.c",
+        "region": {
+          "startLine": 614,
+          "startColumn": 2,
+          "endColumn": 5
+        },
+        "context": {
+          "startLine": 612,
+          "endLine": 616,
+          "snippet": {
+            "text": "\tsta->tdls_chandef = link->conf->chanreq.oper;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "COMPLETE_SAVED_FUNCTION_READ",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 66,
+      "original_index": 96,
+      "function_name": "ieee80211_tdls_add_setup_cfm_ies",
+      "function_body_sha256": "47da4013b0082df311c00f35a7eccb53f7fad939e0aa123b54cd0ce9e4bebdb6",
+      "saved_function_lines": 96,
+      "var_name": "ap_sta",
+      "target_location": {
+        "file_path": "net/mac80211/tdls.c",
+        "region": {
+          "startLine": 653,
+          "startColumn": 7,
+          "endColumn": 13
+        },
+        "context": {
+          "startLine": 651,
+          "endLine": 655,
+          "snippet": {
+            "text": "\tif (!ap_sta->sta.deflink.ht_cap.ht_supported && sta->sta.deflink.ht_cap.ht_supported) {"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "COMPLETE_SAVED_FUNCTION_READ",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 67,
+      "original_index": 97,
+      "function_name": "ieee80211_tdls_add_setup_cfm_ies",
+      "function_body_sha256": "47da4013b0082df311c00f35a7eccb53f7fad939e0aa123b54cd0ce9e4bebdb6",
+      "saved_function_lines": 96,
+      "var_name": "sband",
+      "target_location": {
+        "file_path": "net/mac80211/tdls.c",
+        "region": {
+          "startLine": 667,
+          "startColumn": 6,
+          "endColumn": 11
+        },
+        "context": {
+          "startLine": 665,
+          "endLine": 669,
+          "snippet": {
+            "text": "\tif (sband->band != NL80211_BAND_2GHZ &&"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 68,
+      "original_index": 98,
+      "function_name": "ieee80211_tdls_add_setup_start_ies",
+      "function_body_sha256": "4e88793b38c01462b6b31750d8fbe6aadccbb08550623fc157f8e0c52fe92964",
+      "saved_function_lines": 226,
+      "var_name": "sta",
+      "target_location": {
+        "file_path": "net/mac80211/tdls.c",
+        "region": {
+          "startLine": 441,
+          "startColumn": 3,
+          "endColumn": 6
+        },
+        "context": {
+          "startLine": 439,
+          "endLine": 443,
+          "snippet": {
+            "text": "\t\tsta->tdls_chandef = link->conf->chanreq.oper;"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 1,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    },
+    {
+      "row_zero_based": 69,
+      "original_index": 99,
+      "function_name": "ieee80211_tdls_add_setup_start_ies",
+      "function_body_sha256": "4e88793b38c01462b6b31750d8fbe6aadccbb08550623fc157f8e0c52fe92964",
+      "saved_function_lines": 226,
+      "var_name": "sband",
+      "target_location": {
+        "file_path": "net/mac80211/tdls.c",
+        "region": {
+          "startLine": 451,
+          "startColumn": 19,
+          "endColumn": 24
+        },
+        "context": {
+          "startLine": 449,
+          "endLine": 453,
+          "snippet": {
+            "text": "\tmemcpy(&ht_cap, &sband->ht_cap, sizeof(ht_cap));"
+          }
+        }
+      },
+      "annotation_counts": {
+        "bug_line_constraints": 1,
+        "var_assign_conditions": 0,
+        "pointer_null_postconditions": 0,
+        "early_jump_constraints": 2
+      },
+      "review_level": "METADATA_AND_ANNOTATION_SCREEN_ONLY",
+      "annotations_certified": false
+    }
+  ],
+  "considered_but_not_recommended": [
+    {
+      "sample_id": "NPD/cppcheck/cppcheck_openssl_nullpointer.json:row=2",
+      "dataset_path": "upstream/benchmark/NPD/cppcheck/cppcheck_openssl_nullpointer.json",
+      "row_zero_based": 2,
+      "original_index_present": false,
+      "original_index": null,
+      "function_name": "list_insert_sorted",
+      "function_body_sha256": "ab5c588dd223e8d495f5be6cc7b13541276eaef002b91d5e3b34a358c3d377b2",
+      "target_location": {
+        "file_path": "ssl/quic/quic_cfq.c",
+        "region": {
+          "startLine": 159,
+          "startColumn": 55,
+          "endColumn": 60
+        },
+        "context": {
+          "startLine": 157,
+          "endLine": 161,
+          "snippet": {
+            "text": "for (; p != NULL && cmp(p, n) < 0; pprev = p, p = p->next);"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "callback cmp and linked-list iteration; callback effects and node identities unresolved",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_openssl_nullpointer.json:row=4:index=5",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "row_zero_based": 4,
+      "original_index_present": true,
+      "original_index": 5,
+      "function_name": "print_keyspec",
+      "function_body_sha256": "8348fe8a8403d8d4f29130e3b3c08151f6381efd32b6c1defee5eb005b4546fc",
+      "target_location": {
+        "file_path": "apps/cmp.c",
+        "region": {
+          "startLine": 3270,
+          "startColumn": 50,
+          "endColumn": 53
+        },
+        "context": {
+          "startLine": 3268,
+          "endLine": 3272,
+          "snippet": {
+            "text": "if (paramtype == V_ASN1_UNDEF || alg->parameter == NULL) {"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "paramtype is filled through an output pointer; helper effects, enum macros and a loop are needed",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_openssl_nullpointer.json:row=21:index=22",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "row_zero_based": 21,
+      "original_index_present": true,
+      "original_index": 22,
+      "function_name": "util_do_cmds",
+      "function_body_sha256": "92ff403bb15d82c20ed430d3f5f6429b7a91063ba3599548702ba75a1b948288",
+      "target_location": {
+        "file_path": "apps/engine.c",
+        "region": {
+          "startLine": 262,
+          "startColumn": 25,
+          "endColumn": 28
+        },
+        "context": {
+          "startLine": 260,
+          "endLine": 264,
+          "snippet": {
+            "text": "memcpy(buf, cmd, (int)(arg - cmd));"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "pointer subtraction/provenance, loop and API-return relation would be required",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_openssl_nullpointer.json:row=24:index=25",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_openssl_nullpointer.json",
+      "row_zero_based": 24,
+      "original_index_present": true,
+      "original_index": 25,
+      "function_name": "next_protos_parse",
+      "function_body_sha256": "d1fb9d8a5e965bbd3d90f811964028ff700943e42b0e9ca2779c89768ce2e25b",
+      "target_location": {
+        "file_path": "apps/lib/apps.c",
+        "region": {
+          "startLine": 2186,
+          "startColumn": 13,
+          "endColumn": 16
+        },
+        "context": {
+          "startLine": 2184,
+          "endLine": 2188,
+          "snippet": {
+            "text": "out[start - skipped] = (unsigned char)(i - start);"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "allocation behavior, nested loop versions and bounds exceed this nullness preflight scope",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_libav_nullpointer.json:row=19:index=26",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "row_zero_based": 19,
+      "original_index_present": true,
+      "original_index": 26,
+      "function_name": "epic_decode_from_cache",
+      "function_body_sha256": "c72e4819621cc2795adbc48005fdd7459cd8f967b3b49ac046e18f028352d1c1",
+      "target_location": {
+        "file_path": "libavcodec/g2meet.c",
+        "region": {
+          "startLine": 789,
+          "startColumn": 21,
+          "endColumn": 25
+        },
+        "context": {
+          "startLine": 787,
+          "endLine": 791,
+          "snippet": {
+            "text": "prev->next      = list->next;"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "linked-list mutation, decode effects and iteration-dependent prev versions",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_libav_nullpointer.json:row=31:index=46",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "row_zero_based": 31,
+      "original_index_present": true,
+      "original_index": 46,
+      "function_name": "vp8_find_free_buffer",
+      "function_body_sha256": "de96a5619b2919eab1a9eb266dcafe4c1d6ba0d4503f52373a1d782d70d75017",
+      "target_location": {
+        "file_path": "libavcodec/vp8.c",
+        "region": {
+          "startLine": 156,
+          "startColumn": 9,
+          "endColumn": 14
+        },
+        "context": {
+          "startLine": 154,
+          "endLine": 158,
+          "snippet": {
+            "text": "if (frame->tf.f->buf[0])"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "array-subobject addresses, nested pointer fields and loop invariant require memory/bounds evidence",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_libav_nullpointer.json:row=37:index=53",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "row_zero_based": 37,
+      "original_index_present": true,
+      "original_index": 53,
+      "function_name": "swap_samplerates_on_filter",
+      "function_body_sha256": "dc02806958d2ec4a1e1e7df9384ebfdcefe60795df29254539189ff3c4750a27",
+      "target_location": {
+        "file_path": "libavfilter/avfiltergraph.c",
+        "region": {
+          "startLine": 490,
+          "startColumn": 19,
+          "endColumn": 23
+        },
+        "context": {
+          "startLine": 488,
+          "endLine": 492,
+          "snippet": {
+            "text": "sample_rate = link->out_samplerates->formats[0];"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "array/loop-selected link and nested fields require additional types/invariants",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_libav_nullpointer.json:row=42:index=72",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_libav_nullpointer.json",
+      "row_zero_based": 42,
+      "original_index_present": true,
+      "original_index": 72,
+      "function_name": "unescape",
+      "function_body_sha256": "0dc1e0d6d9b5f75a4b11305f566d68aed5700904ad494891d30bfaa5bb54a2c2",
+      "target_location": {
+        "file_path": "libavformat/ffmetadec.c",
+        "region": {
+          "startLine": 94,
+          "startColumn": 6,
+          "endColumn": 8
+        },
+        "context": {
+          "startLine": 92,
+          "endLine": 96,
+          "snippet": {
+            "text": "*p1 = 0;"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "allocation-copy relation and incremented pointers/loop bounds repeat value propagation and require pointer arithmetic",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/cppcheck/cppcheck_linux_nullpointer.json:row=133",
+      "dataset_path": "upstream/benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+      "row_zero_based": 133,
+      "original_index_present": false,
+      "original_index": null,
+      "function_name": "platform_msi_update_dom_ops",
+      "function_body_sha256": "489f1eaeb36bb1d5470115bd04f42925843ba9bdc854bd9d89fb0eeefba86d41",
+      "target_location": {
+        "file_path": "drivers/base/platform-msi.c",
+        "region": {
+          "startLine": 79,
+          "startColumn": 6,
+          "endColumn": 9
+        },
+        "context": {
+          "startLine": 77,
+          "endLine": 81,
+          "snippet": {
+            "text": "if (ops->msi_init == NULL)"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "BUG_ON active definition is missing; only one directly tracked pointer",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/cppcheck/cppcheck_linux_nullpointer.json:row=134",
+      "dataset_path": "upstream/benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+      "row_zero_based": 134,
+      "original_index_present": false,
+      "original_index": null,
+      "function_name": "platform_msi_update_chip_ops",
+      "function_body_sha256": "02c29c3f80e91e3c32e6c5a4558d71463a1e962870cf4c49cd8885d18baff847",
+      "target_location": {
+        "file_path": "drivers/base/platform-msi.c",
+        "region": {
+          "startLine": 97,
+          "startColumn": 7,
+          "endColumn": 11
+        },
+        "context": {
+          "startLine": 95,
+          "endLine": 99,
+          "snippet": {
+            "text": "if (!chip->irq_mask)"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "BUG_ON and field writes depend on macro/type context",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/cppcheck/cppcheck_linux_nullpointer.json:row=135",
+      "dataset_path": "upstream/benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+      "row_zero_based": 135,
+      "original_index_present": false,
+      "original_index": null,
+      "function_name": "regmap_get_reg_endian",
+      "function_body_sha256": "e97886774d5ea45afc7f7389934b6ea635dd1568b9bad9351fd55270547c105b",
+      "target_location": {
+        "file_path": "drivers/base/regmap/regmap.c",
+        "region": {
+          "startLine": 607,
+          "startColumn": 11,
+          "endColumn": 17
+        },
+        "context": {
+          "startLine": 605,
+          "endLine": 609,
+          "snippet": {
+            "text": "endian = config->reg_format_endian;"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "target config dereference occurs before the later conditions; those cannot protect it",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/cppcheck/cppcheck_linux_nullpointer.json:row=136",
+      "dataset_path": "upstream/benchmark/NPD/cppcheck/cppcheck_linux_nullpointer.json",
+      "row_zero_based": 136,
+      "original_index_present": false,
+      "original_index": null,
+      "function_name": "regmap_get_val_endian",
+      "function_body_sha256": "07f7eb34c7cb85eb439f96e311c5baafab9a953be81eac11db7928bec9dbd613",
+      "target_location": {
+        "file_path": "drivers/base/regmap/regmap.c",
+        "region": {
+          "startLine": 633,
+          "startColumn": 11,
+          "endColumn": 17
+        },
+        "context": {
+          "startLine": 631,
+          "endLine": 635,
+          "snippet": {
+            "text": "endian = config->val_format_endian;"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "target config dereference occurs before the later conditions; do not use post-target guards as preconditions",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_kernel69_nullpointer.json:row=16:index=34",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_zero_based": 16,
+      "original_index_present": true,
+      "original_index": 34,
+      "function_name": "inet6_validate_link_af",
+      "function_body_sha256": "2c336688df01cb1bb2d664c21cc6e2b6d0e5dc693992a1b14157d8d52d8e28f1",
+      "target_location": {
+        "file_path": "net/ipv6/addrconf.c",
+        "region": {
+          "startLine": 6007,
+          "startColumn": 35,
+          "endColumn": 39
+        },
+        "context": {
+          "startLine": 6005,
+          "endLine": 6009,
+          "snippet": {
+            "text": "\t\tif (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "Not recommended: array attributes, parsing effects and helper-call target need extra type/effect/callee evidence; would repeat cross-function certification.",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_kernel69_nullpointer.json:row=32:index=52",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_zero_based": 32,
+      "original_index_present": true,
+      "original_index": 52,
+      "function_name": "rt6_multipath_rebalance",
+      "function_body_sha256": "edc5b1c918099b9e7891c6478815c2536796dcc2586f7944db9c4ade4e55881c",
+      "target_location": {
+        "file_path": "net/ipv6/route.c",
+        "region": {
+          "startLine": 4764,
+          "startColumn": 32,
+          "endColumn": 37
+        },
+        "context": {
+          "startLine": 4762,
+          "endLine": 4766,
+          "snippet": {
+            "text": "\trt6_multipath_upper_bound_set(first, total);"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "Not recommended: WARN_ON_ONCE definition/build not recovered and an intervening helper call precedes the target call.",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_kernel69_nullpointer.json:row=40:index=64",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_zero_based": 40,
+      "original_index_present": true,
+      "original_index": 64,
+      "function_name": "ieee80211_nan_func_match",
+      "function_body_sha256": "424b8797e091abad6e42e94d6c0e8ea478b4c4adc5ee0f178c71989ae6ed9a80",
+      "target_location": {
+        "file_path": "net/mac80211/cfg.c",
+        "region": {
+          "startLine": 4469,
+          "startColumn": 18,
+          "endColumn": 22
+        },
+        "context": {
+          "startLine": 4467,
+          "endLine": 4471,
+          "snippet": {
+            "text": "\tmatch->cookie = func->cookie;"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "Not recommended: WARN_ON guards, spin-lock macros and idr lookup add unresolved macro/build context.",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_kernel69_nullpointer.json:row=41:index=65",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_zero_based": 41,
+      "original_index_present": true,
+      "original_index": 65,
+      "function_name": "ieee80211_nan_func_terminated",
+      "function_body_sha256": "1dbab835ad53a98dbcd4e12acc43c42eeb5fe4dc8e1650cd3795e969efc5e73c",
+      "target_location": {
+        "file_path": "net/mac80211/cfg.c",
+        "region": {
+          "startLine": 4440,
+          "startColumn": 11,
+          "endColumn": 15
+        },
+        "context": {
+          "startLine": 4438,
+          "endLine": 4442,
+          "snippet": {
+            "text": "\tcookie = func->cookie;"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "Not recommended: same WARN_ON/spin-lock/idr context as row40; extra effects unnecessary for the first E12 case.",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_kernel69_nullpointer.json:row=42:index=67",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_zero_based": 42,
+      "original_index_present": true,
+      "original_index": 67,
+      "function_name": "ieee80211_chsw_switch_vifs",
+      "function_body_sha256": "202c29c9d72986b8d1fae35c5355d05dcc6e3cff3b7c88e014b314c449a9476d",
+      "target_location": {
+        "file_path": "net/mac80211/chan.c",
+        "region": {
+          "startLine": 1373,
+          "startColumn": 27,
+          "endColumn": 34
+        },
+        "context": {
+          "startLine": 1371,
+          "endLine": 1375,
+          "snippet": {
+            "text": "\t\t\tvif_chsw[i].old_ctx = &old_ctx->conf;"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "Not recommended: nested list loops and unknown old_ctx return need heap/call-effect evidence.",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_kernel69_nullpointer.json:row=19:index=38",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_zero_based": 19,
+      "original_index_present": true,
+      "original_index": 38,
+      "function_name": "icmpv6_ndo_send",
+      "function_body_sha256": "a468fc1fecac05a9ee96986899e9670f17b0b2c33fb271ccb16b91a027c80dc0",
+      "target_location": {
+        "file_path": "net/ipv6/ip6_icmp.c",
+        "region": {
+          "startLine": 77,
+          "startColumn": 16,
+          "endColumn": 22
+        },
+        "context": {
+          "startLine": 75,
+          "endLine": 79,
+          "snippet": {
+            "text": "\t__icmpv6_send(skb_in, type, code, info, &parm);"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "Not recommended: skb cloning, pointer arithmetic and writable-buffer effects need alias/bounds/lifetime evidence.",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_kernel69_nullpointer.json:row=36:index=57",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_zero_based": 36,
+      "original_index_present": true,
+      "original_index": 57,
+      "function_name": "rt6_device_match",
+      "function_body_sha256": "6cda4dbe94dc3413c9b193d3f01724c21d884ac94425ddce374ae73e30fad5a3",
+      "target_location": {
+        "file_path": "net/ipv6/route.c",
+        "region": {
+          "startLine": 543,
+          "startColumn": 9,
+          "endColumn": 11
+        },
+        "context": {
+          "startLine": 541,
+          "endLine": 545,
+          "snippet": {
+            "text": "\t\tif (!(nh->fib_nh_flags & RTNH_F_DEAD))"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "Not recommended: loops, RCU fields and multiple helper-return versions need substantially more evidence.",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_kernel69_nullpointer.json:row=65:index=95",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_zero_based": 65,
+      "original_index_present": true,
+      "original_index": 95,
+      "function_name": "ieee80211_tdls_add_setup_cfm_ies",
+      "function_body_sha256": "47da4013b0082df311c00f35a7eccb53f7fad939e0aa123b54cd0ce9e4bebdb6",
+      "target_location": {
+        "file_path": "net/mac80211/tdls.c",
+        "region": {
+          "startLine": 614,
+          "startColumn": 2,
+          "endColumn": 5
+        },
+        "context": {
+          "startLine": 612,
+          "endLine": 616,
+          "snippet": {
+            "text": "\tsta->tdls_chandef = link->conf->chanreq.oper;"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "Not recommended: three-pointer guards are promising but WARN_ON_ONCE active definition was not recovered; do not assume macro semantics.",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    },
+    {
+      "sample_id": "NPD/codeql/codeql_kernel69_nullpointer.json:row=66:index=96",
+      "dataset_path": "upstream/benchmark/NPD/codeql/codeql_kernel69_nullpointer.json",
+      "row_zero_based": 66,
+      "original_index_present": true,
+      "original_index": 96,
+      "function_name": "ieee80211_tdls_add_setup_cfm_ies",
+      "function_body_sha256": "47da4013b0082df311c00f35a7eccb53f7fad939e0aa123b54cd0ce9e4bebdb6",
+      "target_location": {
+        "file_path": "net/mac80211/tdls.c",
+        "region": {
+          "startLine": 653,
+          "startColumn": 7,
+          "endColumn": 13
+        },
+        "context": {
+          "startLine": 651,
+          "endLine": 655,
+          "snippet": {
+            "text": "\tif (!ap_sta->sta.deflink.ht_cap.ht_supported && sta->sta.deflink.ht_cap.ht_supported) {"
+          }
+        }
+      },
+      "review_method": "complete saved function read manually; no AST/compiler/analyzer",
+      "recommendation": "NOT_RECOMMENDED_FOR_FIRST_E12_CASE",
+      "reason": "Not recommended: same macro gap as row65 plus intervening calls and heap-field/lifetime effects before the target.",
+      "upstream_source_identity_for_this_record": "NOT_VERIFIED_IN_E12_0",
+      "labels_used_for_selection": false
+    }
+  ],
+  "screening_scope": "all eight NPD JSON files inventoried; all 70 priority rows metadata-screened; complete saved bodies reviewed for the 21 rejected entries plus 2 recommended cases; not a full semantic audit of all 808 rows",
+  "exclusions": [
+    "DBZ/all_cwe369.json:row=4:index=4 (E10)",
+    "DBZ/all_cwe369.json:row=2:index=2 (E11)",
+    "NPD/codeql/codeql_kernel69_nullpointer.json:row=24:index=43 (E07/E08)"
+  ],
+  "solver_status": "NOT_RUN",
+  "SMT_generated": false,
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN"
+}
