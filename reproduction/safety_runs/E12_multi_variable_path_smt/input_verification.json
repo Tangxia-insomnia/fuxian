@@ -1,0 +1,64 @@
+{
+  "status": "MATCH",
+  "sample_id": "NPD/cppcheck/cppcheck_openssl_nullpointer.json:row=3",
+  "row_zero_based": 3,
+  "record_pointer": "/3",
+  "function_pointer": "/3/function_code",
+  "dataset_path": "upstream/benchmark/NPD/cppcheck/cppcheck_openssl_nullpointer.json",
+  "dataset_sha256": "5a7e89ffb017ece94403f862a5cc8d33f478fc92360d4e957648d66aeee12d29",
+  "function_body_sha256": "8b2a929c68a079ae0d9ff1f504feffdaab1b20d23389b8f6c8527a371a81fbde",
+  "original_record": {
+    "var_name": "s2",
+    "function_name": "test_str_ne",
+    "location": {
+      "file_path": "test/testutil/tests.c",
+      "region": {
+        "startLine": 296,
+        "startColumn": 34,
+        "endColumn": 36
+      },
+      "context": {
+        "startLine": 294,
+        "endLine": 298,
+        "snippet": {
+          "text": "if (s1 == NULL || strcmp(s1, s2) == 0) {"
+        }
+      }
+    },
+    "function_code": "int test_str_ne(const char *file, int line, const char *st1, const char *st2,\n                const char *s1, const char *s2)\n{\n    if ((s1 == NULL) ^ (s2 == NULL))\n      return 1;\n    if (s1 == NULL || strcmp(s1, s2) == 0) {\n        test_fail_string_message(NULL, file, line, \"string\", st1, st2, \"!=\",\n                                 s1, s1 == NULL ? 0 : strlen(s1),\n                                 s2, s2 == NULL ? 0 : strlen(s2));\n        return 0;\n    }\n    return 1;\n}",
+    "result": 0
+  },
+  "original_index_present": false,
+  "original_label": 0,
+  "label_used_as_constraint": false,
+  "preflight_commit": "3d58641c8c62e80d60e82d137b03bcba7b8ed5cd",
+  "preflight_SHA256": {
+    "candidate_samples.json": "7d921eb575997956b93ee4a18ef668e1cb3b9511eb9b5737e6416d914ec20dd8",
+    "E12_candidate_audit.md": "b05041f22854d4d2e1b0eac8298c72cd53b43bbb341e20b63d9a0d110b99af09",
+    "preservation_baseline.json": "1405db75a6ab107c3517a8abdd0585b38e6bc1a7cb5b0cea6f5e51c7a88acbfe",
+    "preservation_check.json": "456fdbb31aa4ab603fd1911cf696b36ef6259fbf917e3b7123c2d61882f35654",
+    "source_manifest.json": "4dd824303e0bc0be7aad2580029af3260dbd7484ce79b23d80b2409d155d2d6f"
+  },
+  "source_correspondence": {
+    "repository": "openssl/openssl",
+    "tag": "openssl-3.4.0",
+    "commit": "98acb6b02839c609ef5b837794e08d906d965335",
+    "path": "test/testutil/tests.c",
+    "sha256": "ebad1a5844d1c24dcb8fd049047064effd3e297511005961959667d5939a347c",
+    "bytes": 17153,
+    "function_span": [
+      291,
+      303
+    ],
+    "unique_occurrences": 1,
+    "target_line": 296,
+    "exact_body_match": true,
+    "method": "saved preflight source bytes, exact function and fixed-line checks",
+    "original_scanning_TU_build_or_scan_commit_authenticated": false
+  },
+  "new_source_downloads": 0,
+  "no_backup_selection": true,
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN"
+}

@@ -1,0 +1,116 @@
+{
+  "contract_version": "e12-test-str-ne-two-nullness-booleans-v1",
+  "sample_id": "NPD/cppcheck/cppcheck_openssl_nullpointer.json:row=3",
+  "dataset_path": "upstream/benchmark/NPD/cppcheck/cppcheck_openssl_nullpointer.json",
+  "dataset_sha256": "5a7e89ffb017ece94403f862a5cc8d33f478fc92360d4e957648d66aeee12d29",
+  "record_pointer": "/3",
+  "function_pointer": "/3/function_code",
+  "original_index_present": false,
+  "original_label": 0,
+  "label_used_as_constraint": false,
+  "function": "test_str_ne",
+  "function_body_sha256": "8b2a929c68a079ae0d9ff1f504feffdaab1b20d23389b8f6c8527a371a81fbde",
+  "preflight_commit": "3d58641c8c62e80d60e82d137b03bcba7b8ed5cd",
+  "source_repository": "openssl/openssl",
+  "source_tag": "openssl-3.4.0",
+  "source_commit": "98acb6b02839c609ef5b837794e08d906d965335",
+  "source_file": "test/testutil/tests.c",
+  "source_file_sha256": "ebad1a5844d1c24dcb8fd049047064effd3e297511005961959667d5939a347c",
+  "source_function_span": [291, 303],
+  "target_line": 296,
+  "target_call": "strcmp(s1, s2)",
+  "variables": {
+    "A": {
+      "C_expression": "s1 == NULL",
+      "C_pointer_type": "const char *",
+      "parameter_ordinal_zero_based": 4,
+      "declaration_line": 292,
+      "SMT_sort": "Bool",
+      "SMT_symbol": "e12_test_str_ne_s1_is_null",
+      "version": "entry parameter value, unchanged through target call evaluation"
+    },
+    "B": {
+      "C_expression": "s2 == NULL",
+      "C_pointer_type": "const char *",
+      "parameter_ordinal_zero_based": 5,
+      "declaration_line": 292,
+      "SMT_sort": "Bool",
+      "SMT_symbol": "e12_test_str_ne_s2_is_null",
+      "version": "separate entry parameter value, unchanged through target call evaluation"
+    }
+  },
+  "abstract_domain": "two independent Boolean NULL statuses; all four combinations",
+  "pointer_width": null,
+  "pointer_address_or_heap_encoding": false,
+  "pointer_distinct_objects_assumed": false,
+  "C_equality_result": "int 0 or 1; comparison with the null pointer constant, not pointer-bit equality",
+  "C_xor": {
+    "source_line": 294,
+    "source": "if ((s1 == NULL) ^ (s2 == NULL))",
+    "C_operands": "the two int-valued equality results, each in {0,1}",
+    "abstract_condition": "XOR(A, B)",
+    "true_branch": "return 1 at line 295",
+    "condition_to_continue": "NOT(XOR(A, B))"
+  },
+  "C_short_circuit_OR": {
+    "source_line": 296,
+    "source": "if (s1 == NULL || strcmp(s1, s2) == 0) {",
+    "left_operand": "A",
+    "condition_to_evaluate_right_operand": "NOT(A)",
+    "strcmp_return_value_used_as_precondition": false,
+    "scope": "evaluation boundary of strcmp, before its result exists"
+  },
+  "path_condition": "NOT(XOR(A, B)) AND NOT(A)",
+  "fault_condition": "B",
+  "NOT_B_added_to_path_condition": false,
+  "caller_constraints_added": false,
+  "assignment_or_cross_frame_propagation_needed": false,
+  "source_prefix_preservation": "no writes, address escape, other calls, loop or goto before the tracked call; parameters retain entry values",
+  "queries": {
+    "Q1": {
+      "formula": "NOT(XOR(A, B)) AND NOT(A)",
+      "classification": "REAL_SOURCE_PATH_REACHABILITY",
+      "real_source_path_encoding": true,
+      "expected_status": "SAT"
+    },
+    "Q2": {
+      "formula": "NOT(XOR(A, B)) AND NOT(A) AND B",
+      "classification": "REAL_SOURCE_PATH_NULL_ARGUMENT_FAULT_QUERY",
+      "real_source_path_encoding": true,
+      "expected_status": "UNSAT"
+    },
+    "Q3": {
+      "formula": "NOT(A) AND B",
+      "classification": "COUNTERFACTUAL_XOR_GUARD_REMOVED",
+      "real_source_path_encoding": false,
+      "expected_status": "SAT"
+    },
+    "Q4": {
+      "formula": "NOT(XOR(A, B)) AND B",
+      "classification": "INVALID_ENCODING_DIAGNOSTIC_ONLY",
+      "real_source_path_encoding": false,
+      "expected_status": "SAT"
+    }
+  },
+  "solver_logic": "QF_UF, pure propositional Boolean subset only",
+  "independent_verification": "pure Python C-prefix reference and exhaustive enumeration of all four Boolean inputs; no solver.check",
+  "UNSAT_certificate_generated": false,
+  "UNSAT_solver_certificate_independently_checked": false,
+  "certified_scope": "NULL status of s2 when the line-296 strcmp call is evaluated, under the fixed source-prefix contract",
+  "excluded_scope": [
+    "complete test_str_ne behavior",
+    "strcmp return value and implementation memory reads",
+    "live objects, readable ranges, NUL termination, dangling pointers or memory corruption",
+    "callee/caller, concurrency or complete pointer/memory semantics",
+    "the backup test_strn_ne sample"
+  ],
+  "original_checker_rule_ID": "UNKNOWN",
+  "original_scanning_TU": "UNKNOWN",
+  "original_build_environment": "UNKNOWN",
+  "original_scanning_commit": "UNKNOWN",
+  "source_correspondence_scope": "saved raw benchmark body and preflight source file match; not authentication of the original scan",
+  "blind_test_claim": false,
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN"
+}

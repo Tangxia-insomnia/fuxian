@@ -1,0 +1,154 @@
+{
+  "tests_run": 22,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "passed": true,
+  "extra_solver_checks": 0,
+  "abstract_input_domain_size": 4,
+  "complete_abstract_domain_enumerated": true,
+  "recorded_formula_truth_comparisons": [
+    {
+      "query_id": "Q1",
+      "A": false,
+      "B": false,
+      "SMT_substitution": true,
+      "independent_Python": true,
+      "match": true
+    },
+    {
+      "query_id": "Q1",
+      "A": false,
+      "B": true,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q1",
+      "A": true,
+      "B": false,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q1",
+      "A": true,
+      "B": true,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q2",
+      "A": false,
+      "B": false,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q2",
+      "A": false,
+      "B": true,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q2",
+      "A": true,
+      "B": false,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q2",
+      "A": true,
+      "B": true,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q3",
+      "A": false,
+      "B": false,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q3",
+      "A": false,
+      "B": true,
+      "SMT_substitution": true,
+      "independent_Python": true,
+      "match": true
+    },
+    {
+      "query_id": "Q3",
+      "A": true,
+      "B": false,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q3",
+      "A": true,
+      "B": true,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q4",
+      "A": false,
+      "B": false,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q4",
+      "A": false,
+      "B": true,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q4",
+      "A": true,
+      "B": false,
+      "SMT_substitution": false,
+      "independent_Python": false,
+      "match": true
+    },
+    {
+      "query_id": "Q4",
+      "A": true,
+      "B": true,
+      "SMT_substitution": true,
+      "independent_Python": true,
+      "match": true
+    }
+  ],
+  "test_code_sha256": "ac552823b83811936fa1abf733dd669a82ee7b3fd9c68c7d9572890c8e985417",
+  "independent_reference_sha256": "375f74087dbf4ee64ad71f9236cd9b865c99f772a6225d624085af0d99132766",
+  "verification_layers": [
+    "source/hash static checks",
+    "four saved Z3 query results",
+    "pure Python reference with four cases",
+    "concrete SMT substitutions and parsing without solving"
+  ],
+  "output": "test_01_frozen_preflight_and_original_identity (__main__.NullnessChecks.test_01_frozen_preflight_and_original_identity) ... ok\ntest_02_dataset_hash_tampering_is_stopped (__main__.NullnessChecks.test_02_dataset_hash_tampering_is_stopped) ... ok\ntest_03_function_hash_tampering_is_stopped (__main__.NullnessChecks.test_03_function_hash_tampering_is_stopped) ... ok\ntest_04_target_location_and_variable_identity_are_pinned (__main__.NullnessChecks.test_04_target_location_and_variable_identity_are_pinned) ... ok\ntest_05_index_absence_and_label_preservation (__main__.NullnessChecks.test_05_index_absence_and_label_preservation) ... ok\ntest_06_saved_source_bytes_commit_span_and_line (__main__.NullnessChecks.test_06_saved_source_bytes_commit_span_and_line) ... ok\ntest_07_failed_input_gate_precedes_any_solver_or_result_write (__main__.NullnessChecks.test_07_failed_input_gate_precedes_any_solver_or_result_write) ... ok\ntest_08_unsupported_sample_and_memory_inputs_are_rejected (__main__.NullnessChecks.test_08_unsupported_sample_and_memory_inputs_are_rejected) ... ok\ntest_09_two_distinct_declared_bool_variables (__main__.NullnessChecks.test_09_two_distinct_declared_bool_variables) ... ok\ntest_10_integer_xor_differs_from_or (__main__.NullnessChecks.test_10_integer_xor_differs_from_or) ... ok\ntest_11_branch_polarity_and_early_return (__main__.NullnessChecks.test_11_branch_polarity_and_early_return) ... ok\ntest_12_short_circuit_and_target_call_boundary (__main__.NullnessChecks.test_12_short_circuit_and_target_call_boundary) ... ok\ntest_13_complete_independent_domain_and_formula_agreement (__main__.NullnessChecks.test_13_complete_independent_domain_and_formula_agreement) ... ok\ntest_14_Q1_path_reachability_model (__main__.NullnessChecks.test_14_Q1_path_reachability_model) ... ok\ntest_15_Q2_fault_unsat_without_solver_certificate_claim (__main__.NullnessChecks.test_15_Q2_fault_unsat_without_solver_certificate_claim) ... ok\ntest_16_Q3_counterfactual_is_not_actual_source_execution (__main__.NullnessChecks.test_16_Q3_counterfactual_is_not_actual_source_execution) ... ok\ntest_17_Q4_invalid_encoding_produces_a_spurious_path (__main__.NullnessChecks.test_17_Q4_invalid_encoding_produces_a_spurious_path) ... ok\ntest_18_no_assumed_not_B_or_future_return_value (__main__.NullnessChecks.test_18_no_assumed_not_B_or_future_return_value) ... ok\ntest_19_saved_SMT_files_models_and_independent_status_are_exact (__main__.NullnessChecks.test_19_saved_SMT_files_models_and_independent_status_are_exact) ... ok\ntest_20_filter_authority_and_unresolved_scope_stay_explicit (__main__.NullnessChecks.test_20_filter_authority_and_unresolved_scope_stay_explicit) ... ok\ntest_21_code_contract_and_verification_hashes (__main__.NullnessChecks.test_21_code_contract_and_verification_hashes) ... ok\ntest_22_counts_unknown_handling_and_no_extra_solving (__main__.NullnessChecks.test_22_counts_unknown_handling_and_no_extra_solving) ... ok\n\n----------------------------------------------------------------------\nRan 22 tests in 0.193s\n\nOK\n",
+  "failure_details": [],
+  "file_preservation_checked_here": false,
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN"
+}

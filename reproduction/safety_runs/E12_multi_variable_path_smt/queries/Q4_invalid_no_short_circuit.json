@@ -1,0 +1,50 @@
+{
+  "query_id": "Q4",
+  "formula": "NOT(XOR(A, B)) AND B",
+  "SMT_expression": "(and (not (xor e12_test_str_ne_s1_is_null e12_test_str_ne_s2_is_null))\n     e12_test_str_ne_s2_is_null)",
+  "classification": "INVALID_ENCODING_DIAGNOSTIC_ONLY",
+  "real_source_path_encoding": false,
+  "claimed_actual_execution": false,
+  "logic": "QF_UF (Boolean subset)",
+  "solver_status": "SAT",
+  "expected_status": "SAT",
+  "elapsed_seconds": 7.550000009359792e-05,
+  "timeout_ms": 30000,
+  "smtlib_file": "queries/Q4_invalid_no_short_circuit.smt2",
+  "exact_smtlib": "(set-logic QF_UF)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e12_test_str_ne_s2_is_null () Bool)\n(declare-fun e12_test_str_ne_s1_is_null () Bool)\n(assert\n (let (($x7 (xor e12_test_str_ne_s1_is_null e12_test_str_ne_s2_is_null)))\n(let (($x8 (not $x7)))\n(and $x8 e12_test_str_ne_s2_is_null))))\n(check-sat)\n",
+  "smtlib_sha256": "c4a40c0d7394095ac12ddba99c3fd9ecde40d4ca52fcacb9f6b1301d4eec418c",
+  "model": {
+    "A": true,
+    "B": true
+  },
+  "raw_model": "(define-fun e12_test_str_ne_s1_is_null () Bool\n  true)\n(define-fun e12_test_str_ne_s2_is_null () Bool\n  true)",
+  "reason_unknown": null,
+  "UNSAT_certificate_generated": false,
+  "UNSAT_solver_certificate_independently_checked": false,
+  "real_source_reference_trace_for_model": {
+    "A": true,
+    "B": true,
+    "C_first_condition_int": 0,
+    "early_return_taken": false,
+    "second_left_evaluated": true,
+    "second_left_value": true,
+    "strcmp_evaluated": false,
+    "strcmp_result_used_for_reachability": false
+  },
+  "independent_verification": {
+    "status": "MATCH",
+    "finite_domain_status": "SAT",
+    "all_four_inputs_enumerated": true,
+    "satisfying_assignments": [
+      {
+        "A": true,
+        "B": true
+      }
+    ],
+    "SAT_model_in_reference_solution_set": true,
+    "solver_checks": 0,
+    "method": "independent Python integer-XOR and sequential source-prefix interpretation",
+    "scope": "entire two-Boolean abstraction, not a solver proof certificate or full C program"
+  },
+  "query_checks_passed": true
+}

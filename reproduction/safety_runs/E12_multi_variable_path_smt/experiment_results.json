@@ -1,0 +1,234 @@
+{
+  "stage": "E12-1+E12-2",
+  "sample_id": "NPD/cppcheck/cppcheck_openssl_nullpointer.json:row=3",
+  "original_index_present": false,
+  "original_label": 0,
+  "label_used_as_constraint": false,
+  "dataset_sha256": "5a7e89ffb017ece94403f862a5cc8d33f478fc92360d4e957648d66aeee12d29",
+  "function_body_sha256": "8b2a929c68a079ae0d9ff1f504feffdaab1b20d23389b8f6c8527a371a81fbde",
+  "source_commit": "98acb6b02839c609ef5b837794e08d906d965335",
+  "input_verification_sha256": "5b80d34ca9ee6ea66992f0a062361cd9c7e769b8c217347d125a18c6f54e8028",
+  "contract_sha256": "150a75871a7ed55b56d2aeffda7b9bafcc2512b9eeb4e1a5a9565fb49f22d8e8",
+  "implementation_sha256": "db23f3552a359b2542470d6bf7c57a633c80b448c882ef45e1e6eb6ad106166a",
+  "independent_reference_sha256": "375f74087dbf4ee64ad71f9236cd9b865c99f772a6225d624085af0d99132766",
+  "independent_verification_sha256": "2bbbd8900955238b3b61b3a1726835bab6af614893d7701b9ab2d0d91b7bee2b",
+  "solver": {
+    "name": "Z3",
+    "version": "4.13.4",
+    "package_version": "4.13.4.0",
+    "logic": "QF_UF, Boolean subset only"
+  },
+  "recorded_at_UTC": "2026-11-03T09:14:09.490621+00:00",
+  "queries": [
+    {
+      "query_id": "Q1",
+      "formula": "NOT(XOR(A, B)) AND NOT(A)",
+      "SMT_expression": "(and (not (xor e12_test_str_ne_s1_is_null e12_test_str_ne_s2_is_null))\n     (not e12_test_str_ne_s1_is_null))",
+      "classification": "REAL_SOURCE_PATH_REACHABILITY",
+      "real_source_path_encoding": true,
+      "claimed_actual_execution": false,
+      "logic": "QF_UF (Boolean subset)",
+      "solver_status": "SAT",
+      "expected_status": "SAT",
+      "elapsed_seconds": 0.0006725000021106098,
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/Q1_path_reachable.smt2",
+      "exact_smtlib": "(set-logic QF_UF)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e12_test_str_ne_s1_is_null () Bool)\n(declare-fun e12_test_str_ne_s2_is_null () Bool)\n(assert\n (let (($x9 (not e12_test_str_ne_s1_is_null)))\n(let (($x7 (xor e12_test_str_ne_s1_is_null e12_test_str_ne_s2_is_null)))\n(let (($x8 (not $x7)))\n(and $x8 $x9)))))\n(check-sat)\n",
+      "smtlib_sha256": "f393cf65b5e3840cc9ad44e2f35fadf1839c97282308250f255ccb927164a75c",
+      "model": {
+        "A": false,
+        "B": false
+      },
+      "raw_model": "(define-fun e12_test_str_ne_s1_is_null () Bool\n  false)\n(define-fun e12_test_str_ne_s2_is_null () Bool\n  false)",
+      "reason_unknown": null,
+      "UNSAT_certificate_generated": false,
+      "UNSAT_solver_certificate_independently_checked": false,
+      "real_source_reference_trace_for_model": {
+        "A": false,
+        "B": false,
+        "C_first_condition_int": 0,
+        "early_return_taken": false,
+        "second_left_evaluated": true,
+        "second_left_value": false,
+        "strcmp_evaluated": true,
+        "strcmp_result_used_for_reachability": false
+      },
+      "independent_verification": {
+        "status": "MATCH",
+        "finite_domain_status": "SAT",
+        "all_four_inputs_enumerated": true,
+        "satisfying_assignments": [
+          {
+            "A": false,
+            "B": false
+          }
+        ],
+        "SAT_model_in_reference_solution_set": true,
+        "solver_checks": 0,
+        "method": "independent Python integer-XOR and sequential source-prefix interpretation",
+        "scope": "entire two-Boolean abstraction, not a solver proof certificate or full C program"
+      },
+      "query_checks_passed": true
+    },
+    {
+      "query_id": "Q2",
+      "formula": "NOT(XOR(A, B)) AND NOT(A) AND B",
+      "SMT_expression": "(and (not (xor e12_test_str_ne_s1_is_null e12_test_str_ne_s2_is_null))\n     (not e12_test_str_ne_s1_is_null)\n     e12_test_str_ne_s2_is_null)",
+      "classification": "REAL_SOURCE_PATH_NULL_ARGUMENT_FAULT_QUERY",
+      "real_source_path_encoding": true,
+      "claimed_actual_execution": false,
+      "logic": "QF_UF (Boolean subset)",
+      "solver_status": "UNSAT",
+      "expected_status": "UNSAT",
+      "elapsed_seconds": 6.500000017695129e-05,
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/Q2_real_path_s2_null.smt2",
+      "exact_smtlib": "(set-logic QF_UF)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e12_test_str_ne_s2_is_null () Bool)\n(declare-fun e12_test_str_ne_s1_is_null () Bool)\n(assert\n (let (($x9 (not e12_test_str_ne_s1_is_null)))\n(let (($x7 (xor e12_test_str_ne_s1_is_null e12_test_str_ne_s2_is_null)))\n(let (($x8 (not $x7)))\n(let (($x10 (and $x8 $x9)))\n(and $x10 e12_test_str_ne_s2_is_null))))))\n(check-sat)\n",
+      "smtlib_sha256": "d27c4668f9e02f798309c011c1e5f906ad57b85e56e0f5d115d43caf74f5d417",
+      "model": null,
+      "raw_model": null,
+      "reason_unknown": null,
+      "UNSAT_certificate_generated": false,
+      "UNSAT_solver_certificate_independently_checked": false,
+      "independent_verification": {
+        "status": "MATCH",
+        "finite_domain_status": "UNSAT",
+        "all_four_inputs_enumerated": true,
+        "satisfying_assignments": [],
+        "SAT_model_in_reference_solution_set": null,
+        "solver_checks": 0,
+        "method": "independent Python integer-XOR and sequential source-prefix interpretation",
+        "scope": "entire two-Boolean abstraction, not a solver proof certificate or full C program"
+      },
+      "query_checks_passed": true
+    },
+    {
+      "query_id": "Q3",
+      "formula": "NOT(A) AND B",
+      "SMT_expression": "(and (not e12_test_str_ne_s1_is_null) e12_test_str_ne_s2_is_null)",
+      "classification": "COUNTERFACTUAL_XOR_GUARD_REMOVED",
+      "real_source_path_encoding": false,
+      "claimed_actual_execution": false,
+      "logic": "QF_UF (Boolean subset)",
+      "solver_status": "SAT",
+      "expected_status": "SAT",
+      "elapsed_seconds": 8.589999924879521e-05,
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/Q3_counterfactual_no_xor_guard.smt2",
+      "exact_smtlib": "(set-logic QF_UF)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e12_test_str_ne_s2_is_null () Bool)\n(declare-fun e12_test_str_ne_s1_is_null () Bool)\n(assert\n (let (($x9 (not e12_test_str_ne_s1_is_null)))\n(and $x9 e12_test_str_ne_s2_is_null)))\n(check-sat)\n",
+      "smtlib_sha256": "e684cfb429fe75c2780334d74d07b0413a00c9f2a4632424347947c341be6e49",
+      "model": {
+        "A": false,
+        "B": true
+      },
+      "raw_model": "(define-fun e12_test_str_ne_s1_is_null () Bool\n  false)\n(define-fun e12_test_str_ne_s2_is_null () Bool\n  true)",
+      "reason_unknown": null,
+      "UNSAT_certificate_generated": false,
+      "UNSAT_solver_certificate_independently_checked": false,
+      "real_source_reference_trace_for_model": {
+        "A": false,
+        "B": true,
+        "C_first_condition_int": 1,
+        "early_return_taken": true,
+        "second_left_evaluated": false,
+        "second_left_value": null,
+        "strcmp_evaluated": false,
+        "strcmp_result_used_for_reachability": false
+      },
+      "independent_verification": {
+        "status": "MATCH",
+        "finite_domain_status": "SAT",
+        "all_four_inputs_enumerated": true,
+        "satisfying_assignments": [
+          {
+            "A": false,
+            "B": true
+          }
+        ],
+        "SAT_model_in_reference_solution_set": true,
+        "solver_checks": 0,
+        "method": "independent Python integer-XOR and sequential source-prefix interpretation",
+        "scope": "entire two-Boolean abstraction, not a solver proof certificate or full C program"
+      },
+      "query_checks_passed": true
+    },
+    {
+      "query_id": "Q4",
+      "formula": "NOT(XOR(A, B)) AND B",
+      "SMT_expression": "(and (not (xor e12_test_str_ne_s1_is_null e12_test_str_ne_s2_is_null))\n     e12_test_str_ne_s2_is_null)",
+      "classification": "INVALID_ENCODING_DIAGNOSTIC_ONLY",
+      "real_source_path_encoding": false,
+      "claimed_actual_execution": false,
+      "logic": "QF_UF (Boolean subset)",
+      "solver_status": "SAT",
+      "expected_status": "SAT",
+      "elapsed_seconds": 7.550000009359792e-05,
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/Q4_invalid_no_short_circuit.smt2",
+      "exact_smtlib": "(set-logic QF_UF)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e12_test_str_ne_s2_is_null () Bool)\n(declare-fun e12_test_str_ne_s1_is_null () Bool)\n(assert\n (let (($x7 (xor e12_test_str_ne_s1_is_null e12_test_str_ne_s2_is_null)))\n(let (($x8 (not $x7)))\n(and $x8 e12_test_str_ne_s2_is_null))))\n(check-sat)\n",
+      "smtlib_sha256": "c4a40c0d7394095ac12ddba99c3fd9ecde40d4ca52fcacb9f6b1301d4eec418c",
+      "model": {
+        "A": true,
+        "B": true
+      },
+      "raw_model": "(define-fun e12_test_str_ne_s1_is_null () Bool\n  true)\n(define-fun e12_test_str_ne_s2_is_null () Bool\n  true)",
+      "reason_unknown": null,
+      "UNSAT_certificate_generated": false,
+      "UNSAT_solver_certificate_independently_checked": false,
+      "real_source_reference_trace_for_model": {
+        "A": true,
+        "B": true,
+        "C_first_condition_int": 0,
+        "early_return_taken": false,
+        "second_left_evaluated": true,
+        "second_left_value": true,
+        "strcmp_evaluated": false,
+        "strcmp_result_used_for_reachability": false
+      },
+      "independent_verification": {
+        "status": "MATCH",
+        "finite_domain_status": "SAT",
+        "all_four_inputs_enumerated": true,
+        "satisfying_assignments": [
+          {
+            "A": true,
+            "B": true
+          }
+        ],
+        "SAT_model_in_reference_solution_set": true,
+        "solver_checks": 0,
+        "method": "independent Python integer-XOR and sequential source-prefix interpretation",
+        "scope": "entire two-Boolean abstraction, not a solver proof certificate or full C program"
+      },
+      "query_checks_passed": true
+    }
+  ],
+  "solver_check_count": 4,
+  "all_query_checks_passed": true,
+  "all_input_gates_completed_before_solver_checks": true,
+  "NOT_B_asserted_as_path_assumption": false,
+  "strcmp_return_value_used_as_path_assumption": false,
+  "pointer_width_or_distinct_objects_assumed": false,
+  "independent_reference_solver_checks": 0,
+  "unknown_handling": "retain UNKNOWN, stop acceptance and do not publish",
+  "UNSAT_certificate_generated": false,
+  "UNSAT_solver_certificate_independently_checked": false,
+  "calls": {
+    "LLM_API": 0,
+    "Harness": 0,
+    "original_analyzer": 0,
+    "historical_regression": 0,
+    "build": 0,
+    "source_or_dataset_download": 0
+  },
+  "original_checker_rule_ID": "UNKNOWN",
+  "original_scanning_TU": "UNKNOWN",
+  "original_build_environment": "UNKNOWN",
+  "original_scanning_commit": "UNKNOWN",
+  "non_NULL_object_lifetime_or_readability": "NOT_VERIFIED",
+  "blind_test_claim": false,
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN",
+  "property_scope": "NULL status of s2 when the line-296 strcmp call is evaluated, under the fixed source-prefix contract"
+}

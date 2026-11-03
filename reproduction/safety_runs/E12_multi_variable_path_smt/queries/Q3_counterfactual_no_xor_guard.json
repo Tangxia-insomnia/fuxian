@@ -1,0 +1,50 @@
+{
+  "query_id": "Q3",
+  "formula": "NOT(A) AND B",
+  "SMT_expression": "(and (not e12_test_str_ne_s1_is_null) e12_test_str_ne_s2_is_null)",
+  "classification": "COUNTERFACTUAL_XOR_GUARD_REMOVED",
+  "real_source_path_encoding": false,
+  "claimed_actual_execution": false,
+  "logic": "QF_UF (Boolean subset)",
+  "solver_status": "SAT",
+  "expected_status": "SAT",
+  "elapsed_seconds": 8.589999924879521e-05,
+  "timeout_ms": 30000,
+  "smtlib_file": "queries/Q3_counterfactual_no_xor_guard.smt2",
+  "exact_smtlib": "(set-logic QF_UF)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e12_test_str_ne_s2_is_null () Bool)\n(declare-fun e12_test_str_ne_s1_is_null () Bool)\n(assert\n (let (($x9 (not e12_test_str_ne_s1_is_null)))\n(and $x9 e12_test_str_ne_s2_is_null)))\n(check-sat)\n",
+  "smtlib_sha256": "e684cfb429fe75c2780334d74d07b0413a00c9f2a4632424347947c341be6e49",
+  "model": {
+    "A": false,
+    "B": true
+  },
+  "raw_model": "(define-fun e12_test_str_ne_s1_is_null () Bool\n  false)\n(define-fun e12_test_str_ne_s2_is_null () Bool\n  true)",
+  "reason_unknown": null,
+  "UNSAT_certificate_generated": false,
+  "UNSAT_solver_certificate_independently_checked": false,
+  "real_source_reference_trace_for_model": {
+    "A": false,
+    "B": true,
+    "C_first_condition_int": 1,
+    "early_return_taken": true,
+    "second_left_evaluated": false,
+    "second_left_value": null,
+    "strcmp_evaluated": false,
+    "strcmp_result_used_for_reachability": false
+  },
+  "independent_verification": {
+    "status": "MATCH",
+    "finite_domain_status": "SAT",
+    "all_four_inputs_enumerated": true,
+    "satisfying_assignments": [
+      {
+        "A": false,
+        "B": true
+      }
+    ],
+    "SAT_model_in_reference_solution_set": true,
+    "solver_checks": 0,
+    "method": "independent Python integer-XOR and sequential source-prefix interpretation",
+    "scope": "entire two-Boolean abstraction, not a solver proof certificate or full C program"
+  },
+  "query_checks_passed": true
+}

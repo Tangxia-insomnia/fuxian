@@ -1,0 +1,32 @@
+{
+  "query_id": "Q2",
+  "formula": "NOT(XOR(A, B)) AND NOT(A) AND B",
+  "SMT_expression": "(and (not (xor e12_test_str_ne_s1_is_null e12_test_str_ne_s2_is_null))\n     (not e12_test_str_ne_s1_is_null)\n     e12_test_str_ne_s2_is_null)",
+  "classification": "REAL_SOURCE_PATH_NULL_ARGUMENT_FAULT_QUERY",
+  "real_source_path_encoding": true,
+  "claimed_actual_execution": false,
+  "logic": "QF_UF (Boolean subset)",
+  "solver_status": "UNSAT",
+  "expected_status": "UNSAT",
+  "elapsed_seconds": 6.500000017695129e-05,
+  "timeout_ms": 30000,
+  "smtlib_file": "queries/Q2_real_path_s2_null.smt2",
+  "exact_smtlib": "(set-logic QF_UF)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e12_test_str_ne_s2_is_null () Bool)\n(declare-fun e12_test_str_ne_s1_is_null () Bool)\n(assert\n (let (($x9 (not e12_test_str_ne_s1_is_null)))\n(let (($x7 (xor e12_test_str_ne_s1_is_null e12_test_str_ne_s2_is_null)))\n(let (($x8 (not $x7)))\n(let (($x10 (and $x8 $x9)))\n(and $x10 e12_test_str_ne_s2_is_null))))))\n(check-sat)\n",
+  "smtlib_sha256": "d27c4668f9e02f798309c011c1e5f906ad57b85e56e0f5d115d43caf74f5d417",
+  "model": null,
+  "raw_model": null,
+  "reason_unknown": null,
+  "UNSAT_certificate_generated": false,
+  "UNSAT_solver_certificate_independently_checked": false,
+  "independent_verification": {
+    "status": "MATCH",
+    "finite_domain_status": "UNSAT",
+    "all_four_inputs_enumerated": true,
+    "satisfying_assignments": [],
+    "SAT_model_in_reference_solution_set": null,
+    "solver_checks": 0,
+    "method": "independent Python integer-XOR and sequential source-prefix interpretation",
+    "scope": "entire two-Boolean abstraction, not a solver proof certificate or full C program"
+  },
+  "query_checks_passed": true
+}
