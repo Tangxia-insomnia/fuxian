@@ -1,0 +1,349 @@
+{
+  "sample_id": "DBZ/all_cwe369.json:row=2:index=2",
+  "original_index": 2,
+  "original_label": 0,
+  "dataset_sha256": "0275cd83a4c1cf617f0049d6dbb191dcc3d232e5545ca0139bab3aa45f747fd8",
+  "function_body_sha256": "604a27c78dd3bd48933665f8253480eef56107e88e7e4039701dd4f397615ebb",
+  "source_commit": "9c5a72fbc90d829ffb761da64a73c23cd4e0503f",
+  "contract_sha256": "729bbc9788ad8943b0075a7ee7c08a65f7db2b7b01aa691f3d296f806ce0441b",
+  "implementation_sha256": "10837097014d27f71d62c0e309b2372caa783fdfc5dbc2485a06412e607db5bc",
+  "solver": {
+    "name": "Z3",
+    "version": "4.13.4",
+    "package_version": "4.13.4.0",
+    "logic": "QF_BV"
+  },
+  "recorded_at_UTC": "2026-11-03T08:10:24.695887+00:00",
+  "core_queries": [
+    {
+      "query_id": "core_A_32",
+      "width_bits": 32,
+      "status": "SAT",
+      "elapsed_seconds": 0.000493800000185729,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/core_A_32.smt2",
+      "smtlib_sha256": "821486fe2b894ccf584857f14a045561876ad806f54053937723c3302c7a304e",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u32 () (_ BitVec 32))\n(assert\n (= (_ bv0 32) e11_row2_out_min_v0_u32))\n(check-sat)\n",
+      "model": {
+        "pre": 0
+      },
+      "raw_model": "(define-fun e11_row2_out_min_v0_u32 () (_ BitVec 32)\n  #x00000000)",
+      "unsat_proof": null,
+      "reason_unknown": null,
+      "experiment": "A",
+      "denominator_nonzero_asserted": false,
+      "expected_status": "SAT",
+      "independent_verification": {
+        "status": "MATCH",
+        "unnormalized_divisor": 0,
+        "normalized_reference": 1,
+        "z3_used_in_reference": false
+      }
+    },
+    {
+      "query_id": "core_B_32",
+      "width_bits": 32,
+      "status": "UNSAT",
+      "elapsed_seconds": 0.00013389999912760686,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/core_B_32.smt2",
+      "smtlib_sha256": "7072d26580abcc5e61620d6ddca69b5cb148a0ce88c233d80bddea651c31ec14",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u32 () (_ BitVec 32))\n(declare-fun e11_row2_out_min_v1_u32 () (_ BitVec 32))\n(declare-fun e11_row2_out_min_use189_u32 () (_ BitVec 32))\n(assert\n (let ((?x11 (ite (= (_ bv0 32) e11_row2_out_min_v0_u32) (_ bv1 32) e11_row2_out_min_v0_u32)))\n (= e11_row2_out_min_v1_u32 ?x11)))\n(assert\n (= e11_row2_out_min_use189_u32 e11_row2_out_min_v1_u32))\n(assert\n (= (_ bv0 32) e11_row2_out_min_use189_u32))\n(check-sat)\n",
+      "model": null,
+      "raw_model": null,
+      "unsat_proof": {
+        "solver_reported_unsat": true,
+        "certificate_generated": false,
+        "independently_checked_solver_proof": false,
+        "note": "separate elementary case analysis checks this scalar property; it is not a checked Z3 proof"
+      },
+      "reason_unknown": null,
+      "experiment": "B",
+      "denominator_nonzero_asserted": false,
+      "expected_status": "UNSAT",
+      "independent_verification": {
+        "status": "MATCH_BY_EXHAUSTIVE_SYMBOLIC_CASE_SPLIT",
+        "cases": [
+          "v0=0 => v1=1, use=1",
+          "v0!=0 => v1=v0!=0, use!=0"
+        ],
+        "all_unsigned_values_covered": true,
+        "z3_used_in_reference": false,
+        "machine_checked_certificate": false
+      }
+    },
+    {
+      "query_id": "core_A_64",
+      "width_bits": 64,
+      "status": "SAT",
+      "elapsed_seconds": 0.00012419999984558672,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/core_A_64.smt2",
+      "smtlib_sha256": "2a40973e460a1e09d22c1d0ca4973d7d13a9aeeef5612b07aabf7576894d5351",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u64 () (_ BitVec 64))\n(assert\n (= (_ bv0 64) e11_row2_out_min_v0_u64))\n(check-sat)\n",
+      "model": {
+        "pre": 0
+      },
+      "raw_model": "(define-fun e11_row2_out_min_v0_u64 () (_ BitVec 64)\n  #x0000000000000000)",
+      "unsat_proof": null,
+      "reason_unknown": null,
+      "experiment": "A",
+      "denominator_nonzero_asserted": false,
+      "expected_status": "SAT",
+      "independent_verification": {
+        "status": "MATCH",
+        "unnormalized_divisor": 0,
+        "normalized_reference": 1,
+        "z3_used_in_reference": false
+      }
+    },
+    {
+      "query_id": "core_B_64",
+      "width_bits": 64,
+      "status": "UNSAT",
+      "elapsed_seconds": 0.00010680000013962854,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/core_B_64.smt2",
+      "smtlib_sha256": "b2f7067d2da9099a031b1f8eeb44bdcd4b8019702f4813cfb8fa8355ca6cbe85",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u64 () (_ BitVec 64))\n(declare-fun e11_row2_out_min_v1_u64 () (_ BitVec 64))\n(declare-fun e11_row2_out_min_use189_u64 () (_ BitVec 64))\n(assert\n (let ((?x18 (ite (= (_ bv0 64) e11_row2_out_min_v0_u64) (_ bv1 64) e11_row2_out_min_v0_u64)))\n (= e11_row2_out_min_v1_u64 ?x18)))\n(assert\n (= e11_row2_out_min_use189_u64 e11_row2_out_min_v1_u64))\n(assert\n (= (_ bv0 64) e11_row2_out_min_use189_u64))\n(check-sat)\n",
+      "model": null,
+      "raw_model": null,
+      "unsat_proof": {
+        "solver_reported_unsat": true,
+        "certificate_generated": false,
+        "independently_checked_solver_proof": false,
+        "note": "separate elementary case analysis checks this scalar property; it is not a checked Z3 proof"
+      },
+      "reason_unknown": null,
+      "experiment": "B",
+      "denominator_nonzero_asserted": false,
+      "expected_status": "UNSAT",
+      "independent_verification": {
+        "status": "MATCH_BY_EXHAUSTIVE_SYMBOLIC_CASE_SPLIT",
+        "cases": [
+          "v0=0 => v1=1, use=1",
+          "v0!=0 => v1=v0!=0, use!=0"
+        ],
+        "all_unsigned_values_covered": true,
+        "z3_used_in_reference": false,
+        "machine_checked_certificate": false
+      }
+    }
+  ],
+  "boundary_queries": [
+    {
+      "query_id": "boundary_32_zero",
+      "width_bits": 32,
+      "status": "SAT",
+      "elapsed_seconds": 0.00012620000052265823,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/boundary_32_zero.smt2",
+      "smtlib_sha256": "58b01ab0a90aecef2e5c23623c095a0fa10f0d2541bda67089af06838274276a",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u32 () (_ BitVec 32))\n(declare-fun e11_row2_out_min_v1_u32 () (_ BitVec 32))\n(declare-fun e11_row2_out_min_use189_u32 () (_ BitVec 32))\n(assert\n (let (($x9 (= (_ bv0 32) e11_row2_out_min_v0_u32)))\n (let ((?x11 (ite $x9 (_ bv1 32) e11_row2_out_min_v0_u32)))\n (= e11_row2_out_min_v1_u32 ?x11))))\n(assert\n (= e11_row2_out_min_use189_u32 e11_row2_out_min_v1_u32))\n(assert\n (= (_ bv0 32) e11_row2_out_min_v0_u32))\n(check-sat)\n",
+      "model": {
+        "pre": 0,
+        "post": 1,
+        "use": 1
+      },
+      "raw_model": "(define-fun e11_row2_out_min_v1_u32 () (_ BitVec 32)\n  #x00000001)\n(define-fun e11_row2_out_min_v0_u32 () (_ BitVec 32)\n  #x00000000)\n(define-fun e11_row2_out_min_use189_u32 () (_ BitVec 32)\n  #x00000001)",
+      "unsat_proof": null,
+      "reason_unknown": null,
+      "input": 0,
+      "boundary": "zero",
+      "independent_reference": 1,
+      "z3_used_in_reference": false,
+      "independent_match": true
+    },
+    {
+      "query_id": "boundary_32_one",
+      "width_bits": 32,
+      "status": "SAT",
+      "elapsed_seconds": 0.00013579999904322904,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/boundary_32_one.smt2",
+      "smtlib_sha256": "a01c48d1e4a4f3d9bf04caf02bfafce31ecd8873f08f22947be6d332b9970b29",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u32 () (_ BitVec 32))\n(declare-fun e11_row2_out_min_v1_u32 () (_ BitVec 32))\n(declare-fun e11_row2_out_min_use189_u32 () (_ BitVec 32))\n(assert\n (let ((?x11 (ite (= (_ bv0 32) e11_row2_out_min_v0_u32) (_ bv1 32) e11_row2_out_min_v0_u32)))\n (= e11_row2_out_min_v1_u32 ?x11)))\n(assert\n (= e11_row2_out_min_use189_u32 e11_row2_out_min_v1_u32))\n(assert\n (= (_ bv1 32) e11_row2_out_min_v0_u32))\n(check-sat)\n",
+      "model": {
+        "pre": 1,
+        "post": 1,
+        "use": 1
+      },
+      "raw_model": "(define-fun e11_row2_out_min_v1_u32 () (_ BitVec 32)\n  #x00000001)\n(define-fun e11_row2_out_min_v0_u32 () (_ BitVec 32)\n  #x00000001)\n(define-fun e11_row2_out_min_use189_u32 () (_ BitVec 32)\n  #x00000001)",
+      "unsat_proof": null,
+      "reason_unknown": null,
+      "input": 1,
+      "boundary": "one",
+      "independent_reference": 1,
+      "z3_used_in_reference": false,
+      "independent_match": true
+    },
+    {
+      "query_id": "boundary_32_two",
+      "width_bits": 32,
+      "status": "SAT",
+      "elapsed_seconds": 0.0001205000007757917,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/boundary_32_two.smt2",
+      "smtlib_sha256": "db41c52f91c2564b5f04286faff979e5950eada6c0a8c2ec164c704c3c4b15ab",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u32 () (_ BitVec 32))\n(declare-fun e11_row2_out_min_v1_u32 () (_ BitVec 32))\n(declare-fun e11_row2_out_min_use189_u32 () (_ BitVec 32))\n(assert\n (let ((?x11 (ite (= (_ bv0 32) e11_row2_out_min_v0_u32) (_ bv1 32) e11_row2_out_min_v0_u32)))\n (= e11_row2_out_min_v1_u32 ?x11)))\n(assert\n (= e11_row2_out_min_use189_u32 e11_row2_out_min_v1_u32))\n(assert\n (= (_ bv2 32) e11_row2_out_min_v0_u32))\n(check-sat)\n",
+      "model": {
+        "pre": 2,
+        "post": 2,
+        "use": 2
+      },
+      "raw_model": "(define-fun e11_row2_out_min_v1_u32 () (_ BitVec 32)\n  #x00000002)\n(define-fun e11_row2_out_min_v0_u32 () (_ BitVec 32)\n  #x00000002)\n(define-fun e11_row2_out_min_use189_u32 () (_ BitVec 32)\n  #x00000002)",
+      "unsat_proof": null,
+      "reason_unknown": null,
+      "input": 2,
+      "boundary": "two",
+      "independent_reference": 2,
+      "z3_used_in_reference": false,
+      "independent_match": true
+    },
+    {
+      "query_id": "boundary_32_ULONG_MAX",
+      "width_bits": 32,
+      "status": "SAT",
+      "elapsed_seconds": 0.00013489999946614262,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/boundary_32_ULONG_MAX.smt2",
+      "smtlib_sha256": "50c74f3f538cfcc76d1a155cb333bfe77da52847987b37bcd012109724dc80e4",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u32 () (_ BitVec 32))\n(declare-fun e11_row2_out_min_v1_u32 () (_ BitVec 32))\n(declare-fun e11_row2_out_min_use189_u32 () (_ BitVec 32))\n(assert\n (let ((?x11 (ite (= (_ bv0 32) e11_row2_out_min_v0_u32) (_ bv1 32) e11_row2_out_min_v0_u32)))\n (= e11_row2_out_min_v1_u32 ?x11)))\n(assert\n (= e11_row2_out_min_use189_u32 e11_row2_out_min_v1_u32))\n(assert\n (= (_ bv4294967295 32) e11_row2_out_min_v0_u32))\n(check-sat)\n",
+      "model": {
+        "pre": 4294967295,
+        "post": 4294967295,
+        "use": 4294967295
+      },
+      "raw_model": "(define-fun e11_row2_out_min_v1_u32 () (_ BitVec 32)\n  #xffffffff)\n(define-fun e11_row2_out_min_v0_u32 () (_ BitVec 32)\n  #xffffffff)\n(define-fun e11_row2_out_min_use189_u32 () (_ BitVec 32)\n  #xffffffff)",
+      "unsat_proof": null,
+      "reason_unknown": null,
+      "input": 4294967295,
+      "boundary": "ULONG_MAX",
+      "independent_reference": 4294967295,
+      "z3_used_in_reference": false,
+      "independent_match": true
+    },
+    {
+      "query_id": "boundary_64_zero",
+      "width_bits": 64,
+      "status": "SAT",
+      "elapsed_seconds": 0.0001171000003523659,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/boundary_64_zero.smt2",
+      "smtlib_sha256": "97464680c87d0d89aaaad27b7543eec570ccaa48c4f65e6083e5212fc49eb1fe",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u64 () (_ BitVec 64))\n(declare-fun e11_row2_out_min_v1_u64 () (_ BitVec 64))\n(declare-fun e11_row2_out_min_use189_u64 () (_ BitVec 64))\n(assert\n (let (($x20 (= (_ bv0 64) e11_row2_out_min_v0_u64)))\n (let ((?x18 (ite $x20 (_ bv1 64) e11_row2_out_min_v0_u64)))\n (= e11_row2_out_min_v1_u64 ?x18))))\n(assert\n (= e11_row2_out_min_use189_u64 e11_row2_out_min_v1_u64))\n(assert\n (= (_ bv0 64) e11_row2_out_min_v0_u64))\n(check-sat)\n",
+      "model": {
+        "pre": 0,
+        "post": 1,
+        "use": 1
+      },
+      "raw_model": "(define-fun e11_row2_out_min_v1_u64 () (_ BitVec 64)\n  #x0000000000000001)\n(define-fun e11_row2_out_min_v0_u64 () (_ BitVec 64)\n  #x0000000000000000)\n(define-fun e11_row2_out_min_use189_u64 () (_ BitVec 64)\n  #x0000000000000001)",
+      "unsat_proof": null,
+      "reason_unknown": null,
+      "input": 0,
+      "boundary": "zero",
+      "independent_reference": 1,
+      "z3_used_in_reference": false,
+      "independent_match": true
+    },
+    {
+      "query_id": "boundary_64_one",
+      "width_bits": 64,
+      "status": "SAT",
+      "elapsed_seconds": 0.00011009999980160501,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/boundary_64_one.smt2",
+      "smtlib_sha256": "bb7d122c3d43347d9235d76688d67082feaa5762eb81b51b9623677330bab141",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u64 () (_ BitVec 64))\n(declare-fun e11_row2_out_min_v1_u64 () (_ BitVec 64))\n(declare-fun e11_row2_out_min_use189_u64 () (_ BitVec 64))\n(assert\n (let ((?x18 (ite (= (_ bv0 64) e11_row2_out_min_v0_u64) (_ bv1 64) e11_row2_out_min_v0_u64)))\n (= e11_row2_out_min_v1_u64 ?x18)))\n(assert\n (= e11_row2_out_min_use189_u64 e11_row2_out_min_v1_u64))\n(assert\n (= (_ bv1 64) e11_row2_out_min_v0_u64))\n(check-sat)\n",
+      "model": {
+        "pre": 1,
+        "post": 1,
+        "use": 1
+      },
+      "raw_model": "(define-fun e11_row2_out_min_v1_u64 () (_ BitVec 64)\n  #x0000000000000001)\n(define-fun e11_row2_out_min_v0_u64 () (_ BitVec 64)\n  #x0000000000000001)\n(define-fun e11_row2_out_min_use189_u64 () (_ BitVec 64)\n  #x0000000000000001)",
+      "unsat_proof": null,
+      "reason_unknown": null,
+      "input": 1,
+      "boundary": "one",
+      "independent_reference": 1,
+      "z3_used_in_reference": false,
+      "independent_match": true
+    },
+    {
+      "query_id": "boundary_64_two",
+      "width_bits": 64,
+      "status": "SAT",
+      "elapsed_seconds": 0.00012450000031094532,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/boundary_64_two.smt2",
+      "smtlib_sha256": "8f5e147313db00b1acd6bf0a53a0070b8a29ddbb92e1976a5ac2aef6d01622ee",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u64 () (_ BitVec 64))\n(declare-fun e11_row2_out_min_v1_u64 () (_ BitVec 64))\n(declare-fun e11_row2_out_min_use189_u64 () (_ BitVec 64))\n(assert\n (let ((?x18 (ite (= (_ bv0 64) e11_row2_out_min_v0_u64) (_ bv1 64) e11_row2_out_min_v0_u64)))\n (= e11_row2_out_min_v1_u64 ?x18)))\n(assert\n (= e11_row2_out_min_use189_u64 e11_row2_out_min_v1_u64))\n(assert\n (= (_ bv2 64) e11_row2_out_min_v0_u64))\n(check-sat)\n",
+      "model": {
+        "pre": 2,
+        "post": 2,
+        "use": 2
+      },
+      "raw_model": "(define-fun e11_row2_out_min_v1_u64 () (_ BitVec 64)\n  #x0000000000000002)\n(define-fun e11_row2_out_min_v0_u64 () (_ BitVec 64)\n  #x0000000000000002)\n(define-fun e11_row2_out_min_use189_u64 () (_ BitVec 64)\n  #x0000000000000002)",
+      "unsat_proof": null,
+      "reason_unknown": null,
+      "input": 2,
+      "boundary": "two",
+      "independent_reference": 2,
+      "z3_used_in_reference": false,
+      "independent_match": true
+    },
+    {
+      "query_id": "boundary_64_ULONG_MAX",
+      "width_bits": 64,
+      "status": "SAT",
+      "elapsed_seconds": 0.00011799999992945231,
+      "SMT_logic": "QF_BV",
+      "timeout_ms": 30000,
+      "smtlib_file": "queries/boundary_64_ULONG_MAX.smt2",
+      "smtlib_sha256": "a8cca1fd70ea7347f6d8cc08d84410b92daf1f0ec94e045a91186d187cde8649",
+      "exact_smtlib": "(set-logic QF_BV)\n(set-option :timeout 30000)\n; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e11_row2_out_min_v0_u64 () (_ BitVec 64))\n(declare-fun e11_row2_out_min_v1_u64 () (_ BitVec 64))\n(declare-fun e11_row2_out_min_use189_u64 () (_ BitVec 64))\n(assert\n (let ((?x18 (ite (= (_ bv0 64) e11_row2_out_min_v0_u64) (_ bv1 64) e11_row2_out_min_v0_u64)))\n (= e11_row2_out_min_v1_u64 ?x18)))\n(assert\n (= e11_row2_out_min_use189_u64 e11_row2_out_min_v1_u64))\n(assert\n (= (_ bv18446744073709551615 64) e11_row2_out_min_v0_u64))\n(check-sat)\n",
+      "model": {
+        "pre": 18446744073709551615,
+        "post": 18446744073709551615,
+        "use": 18446744073709551615
+      },
+      "raw_model": "(define-fun e11_row2_out_min_v1_u64 () (_ BitVec 64)\n  #xffffffffffffffff)\n(define-fun e11_row2_out_min_v0_u64 () (_ BitVec 64)\n  #xffffffffffffffff)\n(define-fun e11_row2_out_min_use189_u64 () (_ BitVec 64)\n  #xffffffffffffffff)",
+      "unsat_proof": null,
+      "reason_unknown": null,
+      "input": 18446744073709551615,
+      "boundary": "ULONG_MAX",
+      "independent_reference": 18446744073709551615,
+      "z3_used_in_reference": false,
+      "independent_match": true
+    }
+  ],
+  "solver_check_count": 12,
+  "core_check_count": 4,
+  "boundary_check_count": 8,
+  "semantic_experiment_checks_passed": true,
+  "original_ABI": "UNKNOWN; 32/64 unsigned-long contracts are explicit",
+  "property_scope": "nonzero denominator of clkdco / out_min at source line 189 only",
+  "unsigned_division_quotient_encoded": false,
+  "solver_scope": "version equations and zero-divisor query only; no whole C semantics",
+  "prior_constraints_imported": false,
+  "calls": {
+    "LLM": 0,
+    "Harness": 0,
+    "original_analyzer": 0,
+    "old_regression": 0
+  },
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN"
+}

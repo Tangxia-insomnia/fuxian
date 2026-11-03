@@ -1,0 +1,46 @@
+# E11 complete publication file list
+
+42 files; all are newly added under `reproduction/safety_runs/E11_local_normalization_smt/`.
+
+- `E11_report.md`
+- `acceptance_check.json`
+- `acquire_sources.py`
+- `artifact_hashes.json`
+- `complete_audit.py`
+- `development_failure_01.json`
+- `execution_log.md`
+- `experiment_results.json`
+- `input_verification.json`
+- `local_normalization_smt.py`
+- `original_function.c`
+- `preflight_checks.json`
+- `prepare_evidence.py`
+- `preservation_baseline.json`
+- `preservation_check.json`
+- `publication_file_list.md`
+- `queries/boundary_32_ULONG_MAX.smt2`
+- `queries/boundary_32_one.smt2`
+- `queries/boundary_32_two.smt2`
+- `queries/boundary_32_zero.smt2`
+- `queries/boundary_64_ULONG_MAX.smt2`
+- `queries/boundary_64_one.smt2`
+- `queries/boundary_64_two.smt2`
+- `queries/boundary_64_zero.smt2`
+- `queries/core_A_32.smt2`
+- `queries/core_A_64.smt2`
+- `queries/core_B_32.smt2`
+- `queries/core_B_64.smt2`
+- `semantic_contract.json`
+- `source_acquisition.json`
+- `source_evidence.json`
+- `source_manifest.json`
+- `sources/9c5a72fbc90d829ffb761da64a73c23cd4e0503f/drivers/gpu/drm/omapdrm/dss/pll.c`
+- `sources/9c5a72fbc90d829ffb761da64a73c23cd4e0503f/include/linux/kernel.h`
+- `sources/9c5a72fbc90d829ffb761da64a73c23cd4e0503f/include/linux/math.h`
+- `sources/9c5a72fbc90d829ffb761da64a73c23cd4e0503f/include/linux/minmax.h`
+- `sources/9c5a72fbc90d829ffb761da64a73c23cd4e0503f/include/uapi/linux/const.h`
+- `test_local_normalization.py`
+- `test_local_normalization_v2.py`
+- `test_results.json`
+- `test_results_v2.json`
+- `upstream_tag_verification.json`

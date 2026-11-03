@@ -1,0 +1,78 @@
+{
+  "contract_version": "e11-local-unsigned-normalization-v1",
+  "sample_id": "DBZ/all_cwe369.json:row=2:index=2",
+  "original_index": 2,
+  "original_label": 0,
+  "label_used_as_constraint": false,
+  "dataset_sha256": "0275cd83a4c1cf617f0049d6dbb191dcc3d232e5545ca0139bab3aa45f747fd8",
+  "function_body_sha256": "604a27c78dd3bd48933665f8253480eef56107e88e7e4039701dd4f397615ebb",
+  "source_commit": "9c5a72fbc90d829ffb761da64a73c23cd4e0503f",
+  "function": "dss_pll_hsdiv_calc_a",
+  "source_manifest_sha256": "558015d0804c8ecc9b1946600456fca39e856d2b1a7b1b9d18e5e847d8919f16",
+  "source_evidence_sha256": "747fd269efb5896608fb7b35a44480f22d1e026feb2e46a4790deb5a22b1b83c",
+  "c_type": "unsigned long",
+  "unsigned_long_widths": [
+    32,
+    64
+  ],
+  "ABI_status": "explicit scalar width contracts; original ABI UNKNOWN",
+  "integer_literal": {
+    "source_type": "int",
+    "value": 1,
+    "conditional_conversion": "usual arithmetic conversions to unsigned long",
+    "SMT": "BitVecVal(1, width); representable at both widths"
+  },
+  "condition": "C scalar truth: original out_min != 0; equality/inequality only, no signed comparison",
+  "value_versions": [
+    {
+      "id": "out_min_v0",
+      "role": "parameter value before line 184",
+      "scope": "E11 local encoding for this sample/function and one width",
+      "source_line": 177
+    },
+    {
+      "id": "out_min_v1",
+      "role": "new value after line 184 assignment",
+      "definition": "ITE(out_min_v0 == 0, unsigned_long(1), out_min_v0)",
+      "source_line": 184,
+      "evidence": [
+        "F_TYPE",
+        "F_NORMALIZE"
+      ]
+    },
+    {
+      "id": "out_min_use",
+      "role": "line 189 denominator read, not an additional assignment",
+      "reaching_definition": "out_min_v1",
+      "binding": "out_min_use == out_min_v1",
+      "source_line": 189,
+      "evidence": [
+        "F_PRESERVE",
+        "F_USE"
+      ]
+    }
+  ],
+  "R02_value_versions_reused_or_modified": false,
+  "numerator": "clkdco is unsigned long, unconstrained; unnecessary to encode for zero-denominator property",
+  "division_definedness": "out_min_use != 0; no signed MIN/-1 overflow for unsigned division",
+  "definedness_asserted_in_fault_query": false,
+  "queries": {
+    "A_unnormalized_control": "out_min_v0 == 0 (counterfactual without assignment, not real source execution)",
+    "B_normalized_core": "out_min_v1 == ITE(out_min_v0 == 0, 1, out_min_v0) AND out_min_use == out_min_v1 AND out_min_use == 0"
+  },
+  "input_domain": "all unsigned values 0..2**width-1; no caller constraint or E09/E10 assumption",
+  "independent_proof": "case v0=0 => v1=1; case v0!=0 => v1=v0!=0; use=v1",
+  "certified_scope": "nonzero denominator of clkdco / out_min at source line 189 only",
+  "excluded_scope": [
+    "line 187 division",
+    "line 192 division",
+    "whole function",
+    "loops/callbacks/hardware",
+    "cast to unsigned int and min result",
+    "original build/TU",
+    "cross-function, memory or concurrency semantics"
+  ],
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN"
+}

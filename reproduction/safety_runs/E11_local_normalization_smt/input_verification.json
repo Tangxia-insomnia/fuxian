@@ -1,0 +1,262 @@
+{
+  "sample_id": "DBZ/all_cwe369.json:row=2:index=2",
+  "sample_id_kind": "derived locator; not an original benchmark sample_id field",
+  "row_zero_based": 2,
+  "json_pointer": "/2/function_call/0",
+  "original_index": 2,
+  "original_label": 0,
+  "dataset_file": "upstream/benchmark/DBZ/all_cwe369.json",
+  "dataset_sha256": "0275cd83a4c1cf617f0049d6dbb191dcc3d232e5545ca0139bab3aa45f747fd8",
+  "function_body_sha256": "604a27c78dd3bd48933665f8253480eef56107e88e7e4039701dd4f397615ebb",
+  "original_record": {
+    "prt": "out_min",
+    "function_call": [
+      "bool dss_pll_hsdiv_calc_a(const struct dss_pll *pll, unsigned long clkdco,\n\t\tunsigned long out_min, unsigned long out_max,\n\t\tdss_hsdiv_calc_func func, void *data)\n{\n\tconst struct dss_pll_hw *hw = pll->hw;\n\tint m, m_start, m_stop;\n\tunsigned long out;\n\n\tout_min = out_min ? out_min : 1;\n\tout_max = out_max ? out_max : ULONG_MAX;\n\n\tm_start = max(DIV_ROUND_UP(clkdco, out_max), 1ul);\n\n\tm_stop = min((unsigned)(clkdco / out_min), hw->mX_max);\n\n\tfor (m = m_start; m <= m_stop; ++m) {\n\t\tout = clkdco / m;\n\n\t\tif (func(m, out, data))\n\t\t\treturn true;\n\t}\n\n\treturn false;\n}"
+    ],
+    "source": [
+      "        out_min = out_min ? out_min : 1;"
+    ],
+    "index": 2,
+    "location": {
+      "file_path": "linux-6.9.6/drivers/gpu/drm/omapdrm/dss/pll.c",
+      "region": {
+        "startLine": 189,
+        "startColumn": 33,
+        "endColumn": 33
+      },
+      "context": {
+        "startLine": 187,
+        "endLine": 191,
+        "snippet": {
+          "text": "m_stop = min((unsigned)(clkdco / out_min), hw->mX_max);"
+        }
+      }
+    },
+    "result": 0,
+    "baseline_context": [
+      {
+        "text": [
+          {
+            "file_path": "/tools/virtio/linux/kernel.h",
+            "function_body": "138 #define min(x, y) ({\t\t\t\t\\\n139 \ttypeof(x) _min1 = (x);\t\t\t\\\n140 \ttypeof(y) _min2 = (y);\t\t\t\\\n141 \t(void) (&_min1 == &_min2);\t\t\\\n142 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/tools/thermal/tmon/tui.c",
+            "function_body": "24 #define min(x, y) ({\t\t\t\t\\\n25 \ttypeof(x) _min1 = (x);\t\t\t\\\n26 \ttypeof(y) _min2 = (y);\t\t\t\\\n27 \t(void) (&_min1 == &_min2);\t\t\\\n28 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/tools/testing/selftests/sparc64/drivers/adi-test.c",
+            "function_body": "48 #define min(x, y) ((x) < (y) ? x : y)"
+          },
+          {
+            "file_path": "/tools/testing/selftests/net/tcp_mmap.c",
+            "function_body": "76 #define min(a, b)  ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/tools/testing/selftests/bpf/progs/tcp_ca_write_sk_pacing.c",
+            "function_body": "12 #define min(a, b) ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/tools/testing/selftests/bpf/bpf_tcp_helpers.h",
+            "function_body": "193 #define min(a, b) ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/tools/testing/scatterlist/linux/mm.h",
+            "function_body": "67 #define min(x, y)                                       \\\n68 \t__min(typeof(x), typeof(y),                     \\\n69 \t      __UNIQUE_ID(min1_), __UNIQUE_ID(min2_),   \\\n70 \t      x, y)"
+          },
+          {
+            "file_path": "/tools/lib/bpf/libbpf_internal.h",
+            "function_body": "101 # define min(x, y) ((x) < (y) ? (x) : (y))"
+          },
+          {
+            "file_path": "/tools/include/linux/kernel.h",
+            "function_body": "50 #define min(x, y) ({\t\t\t\t\\\n51 \ttypeof(x) _min1 = (x);\t\t\t\\\n52 \ttypeof(y) _min2 = (y);\t\t\t\\\n53 \t(void) (&_min1 == &_min2);\t\t\\\n54 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/tools/arch/x86/intel_sdsi/intel_sdsi.c",
+            "function_body": "29 #define min(x, y) ({                            \\\n30 \ttypeof(x) _min1 = (x);                  \\\n31 \ttypeof(y) _min2 = (y);                  \\\n32 \t(void) (&_min1 == &_min2);              \\\n33 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/scripts/kconfig/nconf.h",
+            "function_body": "30 #define min(a, b) ({\\\n31 \t\ttypeof(a) _a = a;\\\n32 \t\ttypeof(b) _b = b;\\\n33 \t\t_a < _b ? _a : _b; })"
+          },
+          {
+            "file_path": "/samples/bpf/test_lru_dist.c",
+            "function_body": "23 #define min(a, b) ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/include/linux/minmax.h",
+            "function_body": "85 #define min(x, y)\t__careful_cmp(min, x, y)"
+          },
+          {
+            "file_path": "/drivers/scsi/ips.h",
+            "function_body": "92       #define min(x,y) ((x) < (y) ? x : y)"
+          },
+          {
+            "file_path": "/arch/powerpc/boot/types.h",
+            "function_body": "28 #define min(x,y) ({ \\\n29 \ttypeof(x) _x = (x);\t\\\n30 \ttypeof(y) _y = (y);\t\\\n31 \t(void) (&_x == &_y);\t\\\n32 \t_x < _y ? _x : _y; })"
+          },
+          {
+            "file_path": "/drivers/gpu/drm/omapdrm/dss/pll.c",
+            "function_body": "176 bool dss_pll_hsdiv_calc_a(const struct dss_pll *pll, unsigned long clkdco,\n177 \t\tunsigned long out_min, unsigned long out_max,\n178 \t\tdss_hsdiv_calc_func func, void *data)\n179 {\n180 \tconst struct dss_pll_hw *hw = pll->hw;\n181 \tint m, m_start, m_stop;\n182 \tunsigned long out;\n183\n184 \tout_min = out_min ? out_min : 1;\n185 \tout_max = out_max ? out_max : ULONG_MAX;\n186\n187 \tm_start = max(DIV_ROUND_UP(clkdco, out_max), 1ul);\n188\n189 \tm_stop = min((unsigned)(clkdco / out_min), hw->mX_max);\n190\n191 \tfor (m = m_start; m <= m_stop; ++m) {\n192 \t\tout = clkdco / m;\n193\n194 \t\tif (func(m, out, data))\n195 \t\t\treturn true;\n196 \t}\n197\n198 \treturn false;\n199 }"
+          },
+          {
+            "file_path": "/drivers/gpu/drm/omapdrm/dss/dsi.c",
+            "function_body": "3995 static bool dsi_vm_calc_pll_cb(int n, int m, unsigned long fint,\n3996 \t\tunsigned long clkdco, void *data)\n3997 {\n3998 \tstruct dsi_clk_calc_ctx *ctx = data;\n3999 \tstruct dsi_data *dsi = ctx->dsi;\n4000\n4001 \tctx->dsi_cinfo.n = n;\n4002 \tctx->dsi_cinfo.m = m;\n4003 \tctx->dsi_cinfo.fint = fint;\n4004 \tctx->dsi_cinfo.clkdco = clkdco;\n4005\n4006 \treturn dss_pll_hsdiv_calc_a(ctx->pll, clkdco, ctx->req_pck_min,\n4007 \t\t\tdsi->data->max_fck_freq,\n4008 \t\t\tdsi_vm_calc_hsdiv_cb, ctx);\n4009 }"
+          }
+        ]
+      },
+      {
+        "text": [
+          {
+            "file_path": "/tools/virtio/linux/kernel.h",
+            "function_body": "138 #define min(x, y) ({\t\t\t\t\\\n139 \ttypeof(x) _min1 = (x);\t\t\t\\\n140 \ttypeof(y) _min2 = (y);\t\t\t\\\n141 \t(void) (&_min1 == &_min2);\t\t\\\n142 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/tools/thermal/tmon/tui.c",
+            "function_body": "24 #define min(x, y) ({\t\t\t\t\\\n25 \ttypeof(x) _min1 = (x);\t\t\t\\\n26 \ttypeof(y) _min2 = (y);\t\t\t\\\n27 \t(void) (&_min1 == &_min2);\t\t\\\n28 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/tools/testing/selftests/sparc64/drivers/adi-test.c",
+            "function_body": "48 #define min(x, y) ((x) < (y) ? x : y)"
+          },
+          {
+            "file_path": "/tools/testing/selftests/net/tcp_mmap.c",
+            "function_body": "76 #define min(a, b)  ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/tools/testing/selftests/bpf/progs/tcp_ca_write_sk_pacing.c",
+            "function_body": "12 #define min(a, b) ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/tools/testing/selftests/bpf/bpf_tcp_helpers.h",
+            "function_body": "193 #define min(a, b) ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/tools/testing/scatterlist/linux/mm.h",
+            "function_body": "67 #define min(x, y)                                       \\\n68 \t__min(typeof(x), typeof(y),                     \\\n69 \t      __UNIQUE_ID(min1_), __UNIQUE_ID(min2_),   \\\n70 \t      x, y)"
+          },
+          {
+            "file_path": "/tools/lib/bpf/libbpf_internal.h",
+            "function_body": "101 # define min(x, y) ((x) < (y) ? (x) : (y))"
+          },
+          {
+            "file_path": "/tools/include/linux/kernel.h",
+            "function_body": "50 #define min(x, y) ({\t\t\t\t\\\n51 \ttypeof(x) _min1 = (x);\t\t\t\\\n52 \ttypeof(y) _min2 = (y);\t\t\t\\\n53 \t(void) (&_min1 == &_min2);\t\t\\\n54 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/tools/arch/x86/intel_sdsi/intel_sdsi.c",
+            "function_body": "29 #define min(x, y) ({                            \\\n30 \ttypeof(x) _min1 = (x);                  \\\n31 \ttypeof(y) _min2 = (y);                  \\\n32 \t(void) (&_min1 == &_min2);              \\\n33 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/scripts/kconfig/nconf.h",
+            "function_body": "30 #define min(a, b) ({\\\n31 \t\ttypeof(a) _a = a;\\\n32 \t\ttypeof(b) _b = b;\\\n33 \t\t_a < _b ? _a : _b; })"
+          },
+          {
+            "file_path": "/samples/bpf/test_lru_dist.c",
+            "function_body": "23 #define min(a, b) ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/include/linux/minmax.h",
+            "function_body": "85 #define min(x, y)\t__careful_cmp(min, x, y)"
+          },
+          {
+            "file_path": "/drivers/scsi/ips.h",
+            "function_body": "92       #define min(x,y) ((x) < (y) ? x : y)"
+          },
+          {
+            "file_path": "/arch/powerpc/boot/types.h",
+            "function_body": "28 #define min(x,y) ({ \\\n29 \ttypeof(x) _x = (x);\t\\\n30 \ttypeof(y) _y = (y);\t\\\n31 \t(void) (&_x == &_y);\t\\\n32 \t_x < _y ? _x : _y; })"
+          },
+          {
+            "file_path": "/drivers/gpu/drm/omapdrm/dss/pll.c",
+            "function_body": "176 bool dss_pll_hsdiv_calc_a(const struct dss_pll *pll, unsigned long clkdco,\n177 \t\tunsigned long out_min, unsigned long out_max,\n178 \t\tdss_hsdiv_calc_func func, void *data)\n179 {\n180 \tconst struct dss_pll_hw *hw = pll->hw;\n181 \tint m, m_start, m_stop;\n182 \tunsigned long out;\n183\n184 \tout_min = out_min ? out_min : 1;\n185 \tout_max = out_max ? out_max : ULONG_MAX;\n186\n187 \tm_start = max(DIV_ROUND_UP(clkdco, out_max), 1ul);\n188\n189 \tm_stop = min((unsigned)(clkdco / out_min), hw->mX_max);\n190\n191 \tfor (m = m_start; m <= m_stop; ++m) {\n192 \t\tout = clkdco / m;\n193\n194 \t\tif (func(m, out, data))\n195 \t\t\treturn true;\n196 \t}\n197\n198 \treturn false;\n199 }"
+          },
+          {
+            "file_path": "/drivers/gpu/drm/omapdrm/dss/dsi.c",
+            "function_body": "3695 static bool dsi_cm_calc_pll_cb(int n, int m, unsigned long fint,\n3696 \t\tunsigned long clkdco, void *data)\n3697 {\n3698 \tstruct dsi_clk_calc_ctx *ctx = data;\n3699 \tstruct dsi_data *dsi = ctx->dsi;\n3700\n3701 \tctx->dsi_cinfo.n = n;\n3702 \tctx->dsi_cinfo.m = m;\n3703 \tctx->dsi_cinfo.fint = fint;\n3704 \tctx->dsi_cinfo.clkdco = clkdco;\n3705\n3706 \treturn dss_pll_hsdiv_calc_a(ctx->pll, clkdco, ctx->req_pck_min,\n3707 \t\t\tdsi->data->max_fck_freq,\n3708 \t\t\tdsi_cm_calc_hsdiv_cb, ctx);\n3709 }"
+          }
+        ]
+      },
+      {
+        "text": [
+          {
+            "file_path": "/tools/virtio/linux/kernel.h",
+            "function_body": "138 #define min(x, y) ({\t\t\t\t\\\n139 \ttypeof(x) _min1 = (x);\t\t\t\\\n140 \ttypeof(y) _min2 = (y);\t\t\t\\\n141 \t(void) (&_min1 == &_min2);\t\t\\\n142 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/tools/thermal/tmon/tui.c",
+            "function_body": "24 #define min(x, y) ({\t\t\t\t\\\n25 \ttypeof(x) _min1 = (x);\t\t\t\\\n26 \ttypeof(y) _min2 = (y);\t\t\t\\\n27 \t(void) (&_min1 == &_min2);\t\t\\\n28 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/tools/testing/selftests/sparc64/drivers/adi-test.c",
+            "function_body": "48 #define min(x, y) ((x) < (y) ? x : y)"
+          },
+          {
+            "file_path": "/tools/testing/selftests/net/tcp_mmap.c",
+            "function_body": "76 #define min(a, b)  ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/tools/testing/selftests/bpf/progs/tcp_ca_write_sk_pacing.c",
+            "function_body": "12 #define min(a, b) ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/tools/testing/selftests/bpf/bpf_tcp_helpers.h",
+            "function_body": "193 #define min(a, b) ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/tools/testing/scatterlist/linux/mm.h",
+            "function_body": "67 #define min(x, y)                                       \\\n68 \t__min(typeof(x), typeof(y),                     \\\n69 \t      __UNIQUE_ID(min1_), __UNIQUE_ID(min2_),   \\\n70 \t      x, y)"
+          },
+          {
+            "file_path": "/tools/lib/bpf/libbpf_internal.h",
+            "function_body": "101 # define min(x, y) ((x) < (y) ? (x) : (y))"
+          },
+          {
+            "file_path": "/tools/include/linux/kernel.h",
+            "function_body": "50 #define min(x, y) ({\t\t\t\t\\\n51 \ttypeof(x) _min1 = (x);\t\t\t\\\n52 \ttypeof(y) _min2 = (y);\t\t\t\\\n53 \t(void) (&_min1 == &_min2);\t\t\\\n54 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/tools/arch/x86/intel_sdsi/intel_sdsi.c",
+            "function_body": "29 #define min(x, y) ({                            \\\n30 \ttypeof(x) _min1 = (x);                  \\\n31 \ttypeof(y) _min2 = (y);                  \\\n32 \t(void) (&_min1 == &_min2);              \\\n33 \t_min1 < _min2 ? _min1 : _min2; })"
+          },
+          {
+            "file_path": "/scripts/kconfig/nconf.h",
+            "function_body": "30 #define min(a, b) ({\\\n31 \t\ttypeof(a) _a = a;\\\n32 \t\ttypeof(b) _b = b;\\\n33 \t\t_a < _b ? _a : _b; })"
+          },
+          {
+            "file_path": "/samples/bpf/test_lru_dist.c",
+            "function_body": "23 #define min(a, b) ((a) < (b) ? (a) : (b))"
+          },
+          {
+            "file_path": "/include/linux/minmax.h",
+            "function_body": "85 #define min(x, y)\t__careful_cmp(min, x, y)"
+          },
+          {
+            "file_path": "/drivers/scsi/ips.h",
+            "function_body": "92       #define min(x,y) ((x) < (y) ? x : y)"
+          },
+          {
+            "file_path": "/arch/powerpc/boot/types.h",
+            "function_body": "28 #define min(x,y) ({ \\\n29 \ttypeof(x) _x = (x);\t\\\n30 \ttypeof(y) _y = (y);\t\\\n31 \t(void) (&_x == &_y);\t\\\n32 \t_x < _y ? _x : _y; })"
+          },
+          {
+            "file_path": "/drivers/gpu/drm/omapdrm/dss/pll.c",
+            "function_body": "176 bool dss_pll_hsdiv_calc_a(const struct dss_pll *pll, unsigned long clkdco,\n177 \t\tunsigned long out_min, unsigned long out_max,\n178 \t\tdss_hsdiv_calc_func func, void *data)\n179 {\n180 \tconst struct dss_pll_hw *hw = pll->hw;\n181 \tint m, m_start, m_stop;\n182 \tunsigned long out;\n183\n184 \tout_min = out_min ? out_min : 1;\n185 \tout_max = out_max ? out_max : ULONG_MAX;\n186\n187 \tm_start = max(DIV_ROUND_UP(clkdco, out_max), 1ul);\n188\n189 \tm_stop = min((unsigned)(clkdco / out_min), hw->mX_max);\n190\n191 \tfor (m = m_start; m <= m_stop; ++m) {\n192 \t\tout = clkdco / m;\n193\n194 \t\tif (func(m, out, data))\n195 \t\t\treturn true;\n196 \t}\n197\n198 \treturn false;\n199 }"
+          },
+          {
+            "file_path": "/drivers/gpu/drm/omapdrm/dss/dpi.c",
+            "function_body": "192 static bool dpi_calc_pll_cb(int n, int m, unsigned long fint,\n193 \t\tunsigned long clkdco,\n194 \t\tvoid *data)\n195 {\n196 \tstruct dpi_clk_calc_ctx *ctx = data;\n197\n198 \tctx->pll_cinfo.n = n;\n199 \tctx->pll_cinfo.m = m;\n200 \tctx->pll_cinfo.fint = fint;\n201 \tctx->pll_cinfo.clkdco = clkdco;\n202\n203 \treturn dss_pll_hsdiv_calc_a(ctx->dpi->pll, clkdco,\n204 \t\tctx->pck_min, dss_get_max_fck_rate(ctx->dpi->dss),\n205 \t\tdpi_calc_hsdiv_cb, ctx);\n206 }"
+          }
+        ]
+      }
+    ],
+    "sink": "m_stop = min((unsigned)(clkdco / out_min), hw->mX_max);",
+    "final_sink": "m_stop = min((unsigned)(clkdco / out_min), hw->mX_max);"
+  },
+  "hash_status": "MATCH",
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN",
+  "checker_rule_provenance": "No independently verified per-alert checker/rule ID; author group-level Cppcheck attribution is not certification"
+}
