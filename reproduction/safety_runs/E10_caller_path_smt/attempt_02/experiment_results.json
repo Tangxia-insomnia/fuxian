@@ -1,0 +1,308 @@
+{
+  "phase": "E10",
+  "attempt": 2,
+  "sample_id": "DBZ/all_cwe369.json:row=4:index=4",
+  "original_index": 4,
+  "original_label": 0,
+  "source_commit": "9c5a72fbc90d829ffb761da64a73c23cd4e0503f",
+  "source_body_sha256": "4ad8431edd6f874dcfb6b1c47d3d83607e7c3ce11f9521e45496eff794a5f9f6",
+  "contract_sha256": "8deb27b5f3f967869d19e8e42e36debd4a58975d45b7a028646cada9f3668ee0",
+  "implementation_sha256": "aa671b3184a140e6363d53868cdda1b6a73aeb674b0d5b1a2217b9c64ed25c0c",
+  "source_manifest_sha256": "edb640599b75cd7726ebd0e6b3351d1c15e88a2f575647b29d1da607c071eed7",
+  "side_effect_review_sha256": "7e3ac5ec98e71d08018854ffeb40fd23ed877253aa7f9c8fe1aa723c976906a6",
+  "solver_version": "Z3 4.13.4.0",
+  "solver_package_version": "4.13.4.0",
+  "solver_check_calls": 2,
+  "runs": [
+    {
+      "width_bits": 32,
+      "ABI_assumption": {
+        "signed_long_bits": 32,
+        "int_bits": 32,
+        "status": "EXPLICIT_EXPERIMENTAL_LINUX_ILP32_SCALAR_CONTRACT"
+      },
+      "status": "UNSAT",
+      "logic": "QF_BV",
+      "timeout_ms": 30000,
+      "check_seconds": 0.006993599999987055,
+      "formula_smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e10_input_symbol_rate_u32 () (_ BitVec 32))\n(declare-fun e10_assigned_params_srate_u32 () (_ BitVec 32))\n(declare-fun e10_guard_params_srate_u32 () (_ BitVec 32))\n(declare-fun e10_target_params_srate_u32 () (_ BitVec 32))\n(declare-fun e10_target_srate_signed_long_32 () (_ BitVec 32))\n(declare-fun e10_SYS_DVBS_or_SYS_DSS_branch () Bool)\n(assert\n (= e10_assigned_params_srate_u32 e10_input_symbol_rate_u32))\n(assert\n (= e10_guard_params_srate_u32 e10_assigned_params_srate_u32))\n(assert\n (and (bvuge e10_guard_params_srate_u32 (_ bv1000000 32)) (bvule e10_guard_params_srate_u32 (_ bv45000000 32))))\n(assert\n (= e10_target_params_srate_u32 e10_guard_params_srate_u32))\n(assert\n (= e10_target_srate_signed_long_32 e10_target_params_srate_u32))\n(assert\n e10_SYS_DVBS_or_SYS_DSS_branch)\n(assert\n (bvslt (_ bv0 32) e10_target_srate_signed_long_32))\n(assert\n (and (and (distinct (_ bv1000 32) (_ bv0 32)) true) (not (and (= (_ bv2147483648 32) e10_target_srate_signed_long_32) (= (_ bv1000 32) (_ bv4294967295 32))))))\n(assert\n (let ((?x21 (bvsdiv e10_target_srate_signed_long_32 (_ bv1000 32))))\n(= (_ bv0 32) ?x21)))\n(check-sat)\n",
+      "formula_file": "query_32.smt2",
+      "asserted_constraints": [
+        {
+          "name": "input_assignment",
+          "SMT": "(= e10_assigned_params_srate_u32 e10_input_symbol_rate_u32)",
+          "source_evidence_ids": [
+            "F_INPUT"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "guard_read",
+          "SMT": "(= e10_guard_params_srate_u32 e10_assigned_params_srate_u32)",
+          "source_evidence_ids": [
+            "F_INPUT",
+            "F_BRANCH"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "real_caller_unsigned_range",
+          "SMT": "(and (bvuge e10_guard_params_srate_u32 #x000f4240)\n     (bvule e10_guard_params_srate_u32 #x02aea540))",
+          "source_evidence_ids": [
+            "F_INRANGE",
+            "F_BRANCH"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "preserved_field_until_target",
+          "SMT": "(= e10_target_params_srate_u32 e10_guard_params_srate_u32)",
+          "source_evidence_ids": [
+            "P_PRIVATE_FIELD",
+            "P_CALLBACKS",
+            "P_TRANSPORT",
+            "P_SYNC"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "argument_u32_to_long",
+          "SMT": "(= e10_target_srate_signed_long_32 e10_target_params_srate_u32)",
+          "source_evidence_ids": [
+            "F_CALLEE",
+            "T_INPUT",
+            "T_PARAMS"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "selected_delivery_branch",
+          "SMT": "e10_SYS_DVBS_or_SYS_DSS_branch",
+          "source_evidence_ids": [
+            "F_BRANCH"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "target_original_signed_guard",
+          "SMT": "(bvslt #x00000000 e10_target_srate_signed_long_32)",
+          "source_evidence_ids": [
+            "F_TARGET"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "inner_division_definedness",
+          "SMT": "(and (distinct #x000003e8 #x00000000)\n     (not (and (= #x80000000 e10_target_srate_signed_long_32)\n               (= #x000003e8 #xffffffff))))",
+          "source_evidence_ids": [
+            "F_TARGET"
+          ],
+          "human_added_numeric_assumption": false
+        }
+      ],
+      "fault_SMT": "(= #x00000000 (bvsdiv e10_target_srate_signed_long_32 #x000003e8))",
+      "outer_definedness_SMT": "(let ((a!1 (not (and (= #x000186a0 #x80000000)\n                     (= #xffffffff\n                        (bvsdiv e10_target_srate_signed_long_32 #x000003e8))))))\n  (and (distinct #x00000000 (bvsdiv e10_target_srate_signed_long_32 #x000003e8))\n       a!1))",
+      "outer_definedness_asserted_in_fault_query": false,
+      "outer_undefined_term_consumed_as_C_result": false,
+      "model": null,
+      "independent_model_check": null,
+      "independent_interval_check": {
+        "status": "MATCH_NONZERO_DENOMINATOR",
+        "input_interval_u32": [
+          1000000,
+          45000000
+        ],
+        "signed_long_interval": [
+          1000000,
+          45000000
+        ],
+        "inner_quotient_interval": [
+          1000,
+          45000
+        ],
+        "outer_return_interval": [
+          2,
+          100
+        ],
+        "argument": "For a positive ordered interval and fixed positive divisor1000, C toward-zero quotient is monotone; its minimum here is1000. All conversions are representable. No member has denominator zero.",
+        "method": "Independent Python exact integer arithmetic plus stated monotonicity argument",
+        "z3_used": false,
+        "exhaustive_enumeration": false,
+        "independent_solver_proof_certificate": false
+      },
+      "unsat_proof": {
+        "certificate_requested": false,
+        "certificate_independently_checked": false,
+        "status": "SOLVER_REPORTED_UNSAT_NO_CERTIFICATE"
+      },
+      "certification_scope": "The five pinned in-tree source configurations, normal executions reaching the target; field retention supplied by static source review, not solved by Z3",
+      "caller_path_property": "SCOPED_SOURCE_REVIEW_AND_SCALAR_UNSAT",
+      "original_alert_decision": null,
+      "filter_authority": false,
+      "full_program_semantics": "UNKNOWN"
+    },
+    {
+      "width_bits": 64,
+      "ABI_assumption": {
+        "signed_long_bits": 64,
+        "int_bits": 32,
+        "status": "EXPLICIT_EXPERIMENTAL_LINUX_LP64_SCALAR_CONTRACT"
+      },
+      "status": "UNSAT",
+      "logic": "QF_BV",
+      "timeout_ms": 30000,
+      "check_seconds": 0.007317199999306467,
+      "formula_smt2": "; benchmark generated from python API\n(set-info :status unknown)\n(declare-fun e10_input_symbol_rate_u32 () (_ BitVec 32))\n(declare-fun e10_assigned_params_srate_u32 () (_ BitVec 32))\n(declare-fun e10_guard_params_srate_u32 () (_ BitVec 32))\n(declare-fun e10_target_params_srate_u32 () (_ BitVec 32))\n(declare-fun e10_target_srate_signed_long_64 () (_ BitVec 64))\n(declare-fun e10_SYS_DVBS_or_SYS_DSS_branch () Bool)\n(assert\n (= e10_assigned_params_srate_u32 e10_input_symbol_rate_u32))\n(assert\n (= e10_guard_params_srate_u32 e10_assigned_params_srate_u32))\n(assert\n (and (bvuge e10_guard_params_srate_u32 (_ bv1000000 32)) (bvule e10_guard_params_srate_u32 (_ bv45000000 32))))\n(assert\n (= e10_target_params_srate_u32 e10_guard_params_srate_u32))\n(assert\n (= e10_target_srate_signed_long_64 ((_ zero_extend 32) e10_target_params_srate_u32)))\n(assert\n e10_SYS_DVBS_or_SYS_DSS_branch)\n(assert\n (bvslt (_ bv0 64) e10_target_srate_signed_long_64))\n(assert\n (and (and (distinct (_ bv1000 64) (_ bv0 64)) true) (not (and (= (_ bv9223372036854775808 64) e10_target_srate_signed_long_64) (= (_ bv1000 64) (_ bv18446744073709551615 64))))))\n(assert\n (let ((?x74 (bvsdiv e10_target_srate_signed_long_64 (_ bv1000 64))))\n(= (_ bv0 64) ?x74)))\n(check-sat)\n",
+      "formula_file": "query_64.smt2",
+      "asserted_constraints": [
+        {
+          "name": "input_assignment",
+          "SMT": "(= e10_assigned_params_srate_u32 e10_input_symbol_rate_u32)",
+          "source_evidence_ids": [
+            "F_INPUT"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "guard_read",
+          "SMT": "(= e10_guard_params_srate_u32 e10_assigned_params_srate_u32)",
+          "source_evidence_ids": [
+            "F_INPUT",
+            "F_BRANCH"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "real_caller_unsigned_range",
+          "SMT": "(and (bvuge e10_guard_params_srate_u32 #x000f4240)\n     (bvule e10_guard_params_srate_u32 #x02aea540))",
+          "source_evidence_ids": [
+            "F_INRANGE",
+            "F_BRANCH"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "preserved_field_until_target",
+          "SMT": "(= e10_target_params_srate_u32 e10_guard_params_srate_u32)",
+          "source_evidence_ids": [
+            "P_PRIVATE_FIELD",
+            "P_CALLBACKS",
+            "P_TRANSPORT",
+            "P_SYNC"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "argument_u32_to_long",
+          "SMT": "(= e10_target_srate_signed_long_64\n   ((_ zero_extend 32) e10_target_params_srate_u32))",
+          "source_evidence_ids": [
+            "F_CALLEE",
+            "T_INPUT",
+            "T_PARAMS"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "selected_delivery_branch",
+          "SMT": "e10_SYS_DVBS_or_SYS_DSS_branch",
+          "source_evidence_ids": [
+            "F_BRANCH"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "target_original_signed_guard",
+          "SMT": "(bvslt #x0000000000000000 e10_target_srate_signed_long_64)",
+          "source_evidence_ids": [
+            "F_TARGET"
+          ],
+          "human_added_numeric_assumption": false
+        },
+        {
+          "name": "inner_division_definedness",
+          "SMT": "(and (distinct #x00000000000003e8 #x0000000000000000)\n     (not (and (= #x8000000000000000 e10_target_srate_signed_long_64)\n               (= #x00000000000003e8 #xffffffffffffffff))))",
+          "source_evidence_ids": [
+            "F_TARGET"
+          ],
+          "human_added_numeric_assumption": false
+        }
+      ],
+      "fault_SMT": "(= #x0000000000000000\n   (bvsdiv e10_target_srate_signed_long_64 #x00000000000003e8))",
+      "outer_definedness_SMT": "(let ((a!1 (not (and (= #x00000000000186a0 #x8000000000000000)\n                     (= #xffffffffffffffff\n                        (bvsdiv e10_target_srate_signed_long_64\n                                #x00000000000003e8))))))\n  (and (distinct #x0000000000000000\n                 (bvsdiv e10_target_srate_signed_long_64 #x00000000000003e8))\n       a!1))",
+      "outer_definedness_asserted_in_fault_query": false,
+      "outer_undefined_term_consumed_as_C_result": false,
+      "model": null,
+      "independent_model_check": null,
+      "independent_interval_check": {
+        "status": "MATCH_NONZERO_DENOMINATOR",
+        "input_interval_u32": [
+          1000000,
+          45000000
+        ],
+        "signed_long_interval": [
+          1000000,
+          45000000
+        ],
+        "inner_quotient_interval": [
+          1000,
+          45000
+        ],
+        "outer_return_interval": [
+          2,
+          100
+        ],
+        "argument": "For a positive ordered interval and fixed positive divisor1000, C toward-zero quotient is monotone; its minimum here is1000. All conversions are representable. No member has denominator zero.",
+        "method": "Independent Python exact integer arithmetic plus stated monotonicity argument",
+        "z3_used": false,
+        "exhaustive_enumeration": false,
+        "independent_solver_proof_certificate": false
+      },
+      "unsat_proof": {
+        "certificate_requested": false,
+        "certificate_independently_checked": false,
+        "status": "SOLVER_REPORTED_UNSAT_NO_CERTIFICATE"
+      },
+      "certification_scope": "The five pinned in-tree source configurations, normal executions reaching the target; field retention supplied by static source review, not solved by Z3",
+      "caller_path_property": "SCOPED_SOURCE_REVIEW_AND_SCALAR_UNSAT",
+      "original_alert_decision": null,
+      "filter_authority": false,
+      "full_program_semantics": "UNKNOWN"
+    }
+  ],
+  "research_status": "SCOPED_CALLER_SCALAR_PROPERTY_CONFIRMED",
+  "both_contracts_agree": true,
+  "source_review_vs_solver": "Source/hash/alias/callback/semaphore review supplies the retention relation. SMT only checks the resulting typed scalar implication.",
+  "E09_control_reference": {
+    "file": "reproduction/safety_runs/E09_scalar_smt/experiment_results.json",
+    "sha256": "469f002e82dd02c0d0643a09b5011c8dfc627b0c7a2ac0e1145f00d012d0bf2a",
+    "rerun": false,
+    "local_A": [
+      {
+        "width": 32,
+        "status": "SAT",
+        "model": {
+          "srate_signed": 944,
+          "inner_signed": 0,
+          "smt_model": "(define-fun e09_srate_signed_long_32 () (_ BitVec 32)\n  #x000003b0)"
+        }
+      },
+      {
+        "width": 64,
+        "status": "SAT",
+        "model": {
+          "srate_signed": 304,
+          "inner_signed": 0,
+          "smt_model": "(define-fun e09_srate_signed_long_64 () (_ BitVec 64)\n  #x0000000000000130)"
+        }
+      }
+    ],
+    "B_remains_human_hypothesis_not_used": true
+  },
+  "unsupported_scope_status": "Out-of-tree callbacks, unresolved writes/synchronization, unreviewed type/width/operation are UNKNOWN or rejected before solving",
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN",
+  "LLM_calls": 0,
+  "Harness_calls": 0,
+  "old_regression_runs": 0
+}

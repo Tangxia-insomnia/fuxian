@@ -1,0 +1,96 @@
+{
+  "contract_version": "e10-attempt02-in-tree-caller-scalar-v1",
+  "sample_id": "DBZ/all_cwe369.json:row=4:index=4",
+  "original_index": 4,
+  "original_label": 0,
+  "function_body_sha256": "4ad8431edd6f874dcfb6b1c47d3d83607e7c3ce11f9521e45496eff794a5f9f6",
+  "source_commit": "9c5a72fbc90d829ffb761da64a73c23cd4e0503f",
+  "source_manifest_sha256": "edb640599b75cd7726ebd0e6b3351d1c15e88a2f575647b29d1da607c071eed7",
+  "source_evidence_sha256": "7bb13d8823459e3fd52f1a496c74c7e143036e42a9d821fd5f5ca145363f3de1",
+  "side_effect_review_sha256": "7e3ac5ec98e71d08018854ffeb40fd23ed877253aa7f9c8fe1aa723c976906a6",
+  "input_verification_sha256": "93721e0c6329c8918a96cb09aafe4185f2cdf7209dcf5311f9c844a9c1961e2e",
+  "upstream_body_verification_sha256": "6cf74067251f5897ac40894cfa4080d900752d948bdc3a1b3e66e7dc8a9cf573",
+  "E09_helper_sha256": "26abb4313e62ffa7d31049fd7330bd636d6aa2fdfd52f39e5f096888b478d105",
+  "certification_level": "SCOPED_STATIC_SOURCE_REVIEW",
+  "configuration_ids": [
+    "9c5a72fbc90d829ffb761da64a73c23cd4e0503f:drivers/media/pci/ttpci/budget-av.c:knc1_dvbs2_config",
+    "9c5a72fbc90d829ffb761da64a73c23cd4e0503f:drivers/media/pci/ttpci/budget-ci.c:tt3200_config",
+    "9c5a72fbc90d829ffb761da64a73c23cd4e0503f:drivers/media/pci/mantis/mantis_vp1041.c:vp1041_stb0899_config",
+    "9c5a72fbc90d829ffb761da64a73c23cd4e0503f:drivers/media/usb/dvb-usb/az6027.c:az6027_stb0899_config",
+    "9c5a72fbc90d829ffb761da64a73c23cd4e0503f:drivers/media/usb/dvb-usb/pctv452e.c:stb0899_config"
+  ],
+  "input_type": {
+    "C": "u32",
+    "SMT": "BitVec(32)",
+    "signed": false
+  },
+  "field_type": {
+    "C": "u32",
+    "SMT": "BitVec(32)",
+    "signed": false
+  },
+  "ABI_contracts": [
+    {
+      "signed_long_bits": 32,
+      "int_bits": 32,
+      "status": "EXPLICIT_EXPERIMENTAL_LINUX_ILP32_SCALAR_CONTRACT"
+    },
+    {
+      "signed_long_bits": 64,
+      "int_bits": 32,
+      "status": "EXPLICIT_EXPERIMENTAL_LINUX_LP64_SCALAR_CONTRACT"
+    }
+  ],
+  "range": {
+    "lower": 1000000,
+    "upper": 45000000,
+    "comparison": "UNSIGNED",
+    "closed": true,
+    "source_evidence_ids": [
+      "F_INRANGE",
+      "F_BRANCH"
+    ],
+    "human_added_numeric_assumption": false
+  },
+  "macro_expansion": "(((1000000 <= val) && (val <= 45000000)) || ((45000000 <= val) && (val <= 1000000)) ? 1 : 0)",
+  "macro_simplification": "Distinct ordered endpoints make reversed conjunct impossible for one stable u32 value; remaining comparisons are inclusive unsigned comparisons under both explicit int32 contracts.",
+  "assignment": "assigned_u32 == input_symbol_rate_u32",
+  "guard_read": "guard_u32 == assigned_u32",
+  "preservation": "target_read_u32 == guard_u32",
+  "preservation_basis": [
+    "P_PRIVATE_FIELD",
+    "P_CALLBACKS",
+    "P_TRANSPORT",
+    "P_SYNC"
+  ],
+  "conversion": {
+    "32": "Same bit pattern only within source-derived range, whose upper bound is below LONG_MAX; no out-of-range u32-to-long32 behavior is modeled",
+    "64": "ZeroExt(32,target_read_u32), value-preserving conversion from u32 to signed long64",
+    "actual_original_ABI": "UNKNOWN"
+  },
+  "delivery_path": "Only SYS_DVBS or SYS_DSS selected under outer range guard; no enum numeric values invented",
+  "target_guard": "signed_long_srate > 0",
+  "division": {
+    "semantics": "toward_zero",
+    "SMT": "bvsdiv",
+    "inner_denominator": 1000,
+    "outer_numerator": 100000,
+    "definedness": "denominator != 0 and not (numerator == LONG_MIN and denominator == -1)",
+    "fault_query": "range and assignment/preservation/conversion and target_guard and inner_defined and inner_quotient == 0",
+    "outer_definedness_asserted": false
+  },
+  "execution_model": [
+    "Only normally executing, live frontend paths reaching the target; other prefix arithmetic faults are not certified",
+    "Kernel primitives follow their documented scalar, allocation, buffer-I/O and semaphore semantics; hardware/arbitrary memory corruption not modeled",
+    "Five source-pinned in-tree configurations only; callback replacement/out-of-tree is UNKNOWN"
+  ],
+  "evidence_limitations": [
+    "No original kernel build or TU AST reconstructed",
+    "Static source review supplies the field-preservation summary; SMT verifies only scalar implication",
+    "No general C parser, pointer/memory/concurrency encoding or R05 integration",
+    "No independently checked UNSAT certificate"
+  ],
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN"
+}

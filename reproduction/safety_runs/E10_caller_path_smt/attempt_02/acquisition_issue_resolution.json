@@ -1,0 +1,36 @@
+{
+  "historical_acquisition_issues": [
+    {
+      "path": "drivers/media/pci/ttpci/Kconfig",
+      "error_type": "ValueError",
+      "message": "Only explicit relative C/header source paths are allowed"
+    },
+    {
+      "path": "drivers/media/pci/mantis/Kconfig",
+      "error_type": "ValueError",
+      "message": "Only explicit relative C/header source paths are allowed"
+    },
+    {
+      "path": "drivers/media/usb/dvb-usb/Kconfig",
+      "error_type": "ValueError",
+      "message": "Only explicit relative C/header source paths are allowed"
+    },
+    {
+      "path": "drivers/media/dvb-frontends/stb0899.h",
+      "error_type": "HTTPError",
+      "message": "HTTP Error 404: Not Found"
+    }
+  ],
+  "resolution": [
+    {
+      "issue": "Three Kconfig requests rejected by helper extension gate",
+      "resolution": "Fetched exact same fixed-commit metadata with separately recorded acquisition_build_metadata.json; helper and rejected batch remain immutable"
+    },
+    {
+      "issue": "stb0899.h request returned 404",
+      "resolution": "Actual #include in source is stb0899_drv.h; correct necessary header fetched at same commit; no source/version mismatch was bypassed"
+    }
+  ],
+  "unresolved_required_source_fetches": [],
+  "solver_runs_during_acquisition": 0
+}

@@ -1,0 +1,99 @@
+{
+  "phase": "E10",
+  "recorded_at": "2026-11-03T14:37:21.988518+08:00",
+  "sample_id": "DBZ/all_cwe369.json:row=4:index=4",
+  "original_index": 4,
+  "original_label": 0,
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN",
+  "status": "LOCAL_INPUT_HASH_CONFLICT",
+  "local_inputs": [
+    {
+      "local_path": "E:\\codexconversation\\课题研究\\reproduction\\upstream\\benchmark\\DBZ\\all_cwe369.json",
+      "sha256": "0275cd83a4c1cf617f0049d6dbb191dcc3d232e5545ca0139bab3aa45f747fd8",
+      "evidence_kind": "EXISTING_LOCAL_INPUT",
+      "scope": "Saved data and records only; not original TU or upstream version certification"
+    },
+    {
+      "local_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\SMT_dataset_audit\\candidate_samples.json",
+      "sha256": "2788dff05a5f611965fb9745bb62379bc76683639a5dedacc643b00fcf02aef0",
+      "evidence_kind": "EXISTING_LOCAL_INPUT",
+      "scope": "Saved data and records only; not original TU or upstream version certification"
+    },
+    {
+      "local_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E09_scalar_smt\\semantic_contract.json",
+      "sha256": "f167aac370b10a5d8debf46a0fe591edcdf421d731c7626bfa4534eded8255a3",
+      "evidence_kind": "EXISTING_LOCAL_INPUT",
+      "scope": "Saved data and records only; not original TU or upstream version certification"
+    },
+    {
+      "local_path": "E:\\codexconversation\\课题研究\\reproduction\\safety_runs\\E09_scalar_smt\\experiment_results.json",
+      "sha256": "469f002e82dd02c0d0643a09b5011c8dfc627b0c7a2ac0e1145f00d012d0bf2a",
+      "evidence_kind": "EXISTING_LOCAL_INPUT",
+      "scope": "Saved data and records only; not original TU or upstream version certification"
+    }
+  ],
+  "original_record_pointer": "/4",
+  "function_body_pointer": "/4/function_call/0",
+  "saved_function_body": "static long stb0899_calc_derot_time(long srate)\n{\n\tif (srate > 0)\n\t\treturn (100000 / (srate / 1000));\n\telse\n\t\treturn 0;\n}",
+  "actual_function_body_sha256": "4ad8431edd6f874dcfb6b1c47d3d83607e7c3ce11f9521e45496eff794a5f9f6",
+  "original_location_metadata_unverified": {
+    "file_path": "linux-6.9.6/drivers/media/dvb-frontends/stb0899_algo.c",
+    "region": {
+      "startLine": 110,
+      "startColumn": 18,
+      "endColumn": 18
+    },
+    "context": {
+      "startLine": 108,
+      "endLine": 112,
+      "snippet": {
+        "text": "return (100000 / (srate / 1000));"
+      }
+    }
+  },
+  "requested_upstream": {
+    "repository": "gregkh/linux",
+    "tag": "v6.9.6",
+    "commit": "9c5a72fbc90d829ffb761da64a73c23cd4e0503f",
+    "verified_commit": null
+  },
+  "upstream_sources": [
+    {
+      "path": "drivers/media/dvb-frontends/stb0899_drv.c",
+      "sha256": null,
+      "key_lines": [],
+      "status": "NOT_ACQUIRED_OR_VERIFIED_DUE_TO_INPUT_STOP"
+    },
+    {
+      "path": "drivers/media/dvb-frontends/stb0899_algo.c",
+      "sha256": null,
+      "key_lines": [],
+      "status": "NOT_ACQUIRED_OR_VERIFIED_DUE_TO_INPUT_STOP"
+    },
+    {
+      "path": "drivers/media/dvb-frontends/stb0899_priv.h",
+      "sha256": null,
+      "key_lines": [],
+      "status": "NOT_ACQUIRED_OR_VERIFIED_DUE_TO_INPUT_STOP"
+    },
+    {
+      "path": "include/media/dvb_frontend.h",
+      "sha256": null,
+      "key_lines": [],
+      "status": "NOT_ACQUIRED_OR_VERIFIED_DUE_TO_INPUT_STOP"
+    },
+    {
+      "path": "drivers/media/dvb-core/dvb_frontend.c",
+      "sha256": null,
+      "key_lines": [],
+      "status": "NOT_ACQUIRED_OR_VERIFIED_DUE_TO_INPUT_STOP"
+    }
+  ],
+  "five_in_tree_configurations_and_tuner_callbacks": {
+    "status": "NOT_ENUMERATED_DUE_TO_INPUT_STOP",
+    "files": []
+  },
+  "upstream_body_correspondence": "NOT_CHECKED"
+}

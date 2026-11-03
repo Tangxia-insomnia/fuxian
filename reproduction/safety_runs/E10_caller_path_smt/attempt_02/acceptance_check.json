@@ -1,0 +1,90 @@
+{
+  "phase": "E10",
+  "attempt": 2,
+  "delivery_status": "READY_FOR_RESEARCH_REVIEW",
+  "research_acceptance": "PENDING_RESEARCH_REVIEW",
+  "scope_result": "SCOPED_SOURCE_REVIEW_PLUS_SCALAR_PROPERTY_CONFIRMED",
+  "criteria": [
+    {
+      "id": 1,
+      "requirement": "Original sample identity/body hash",
+      "status": "PASS_SAVED_AND_UPSTREAM_EXACT_BYTES",
+      "evidence": [
+        "input_verification.json",
+        "upstream_body_verification.json"
+      ]
+    },
+    {
+      "id": 2,
+      "requirement": "Source version and positions",
+      "status": "PASS_FIXED_COMMIT_FETCH_AND_LINES",
+      "evidence": [
+        "upstream_tag_verification.json",
+        "source_manifest.json"
+      ],
+      "limit": "No GPG signature or compiled-TU verification"
+    },
+    {
+      "id": 3,
+      "requirement": "Call chain and typed object alias relation",
+      "status": "SCOPED_STATIC_SOURCE_REVIEW",
+      "evidence_ids": [
+        "F_INPUT",
+        "F_BRANCH",
+        "F_CALLEE",
+        "F_ATTACH",
+        "T_STATE"
+      ],
+      "limit": "Not an automatic general alias or AST proof"
+    },
+    {
+      "id": 4,
+      "requirement": "Real caller range",
+      "status": "PASS_SOURCE_DERIVED_UNSIGNED_CLOSED_INTERVAL",
+      "evidence_ids": [
+        "F_INRANGE",
+        "F_BRANCH"
+      ],
+      "human_added_numeric_assumption": false
+    },
+    {
+      "id": 5,
+      "requirement": "Writes/callbacks/synchronization reviewed",
+      "status": "SCOPED_STATIC_SOURCE_REVIEW",
+      "evidence": [
+        "side_effect_review.json"
+      ],
+      "limit": "Five pinned configurations, normal live execution reaching target; not global kernel race/memory proof"
+    },
+    {
+      "id": 6,
+      "requirement": "32/64 SMT results",
+      "status": "PASS_TWO_UNSAT"
+    },
+    {
+      "id": 7,
+      "requirement": "Independent arithmetic consistency",
+      "status": "PASS_INTERVAL_REASONING_AND_CONCRETE_CHECKS",
+      "limit": "No independent SMT proof-certificate checking"
+    },
+    {
+      "id": 8,
+      "requirement": "E10 tests",
+      "status": "PASS_15_OF_15",
+      "boundary_observations": 16,
+      "concrete_formula_cases": 26
+    },
+    {
+      "id": 9,
+      "requirement": "Preserve existing and first-attempt files",
+      "status": "PASS",
+      "protected_files": 8168,
+      "attempt_01_files": 8
+    }
+  ],
+  "automatic_alias_effect_or_concurrency_proof": false,
+  "original_alert_decision": null,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN",
+  "commit_or_push_performed": false
+}

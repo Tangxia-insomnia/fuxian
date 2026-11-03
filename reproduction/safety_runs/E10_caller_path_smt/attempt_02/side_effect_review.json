@@ -1,0 +1,101 @@
+{
+  "status": "SCOPED_SOURCE_REVIEW_COMPLETE",
+  "evidence_level": "STATIC_SOURCE_REVIEW_WITH_HASHED_SPANS",
+  "scope": "Only the five listed configuration initializers; live frontend; normal defined executions that reach the target in SYS_DVBS/SYS_DSS; experimental ILP32/LP64 contracts",
+  "not_a_claim": "Not compiled-TU certification, automatic alias/effect proof, exhaustive kernel race verification or full-program proof",
+  "configuration_ids": [
+    "9c5a72fbc90d829ffb761da64a73c23cd4e0503f:drivers/media/pci/ttpci/budget-av.c:knc1_dvbs2_config",
+    "9c5a72fbc90d829ffb761da64a73c23cd4e0503f:drivers/media/pci/ttpci/budget-ci.c:tt3200_config",
+    "9c5a72fbc90d829ffb761da64a73c23cd4e0503f:drivers/media/pci/mantis/mantis_vp1041.c:vp1041_stb0899_config",
+    "9c5a72fbc90d829ffb761da64a73c23cd4e0503f:drivers/media/usb/dvb-usb/az6027.c:az6027_stb0899_config",
+    "9c5a72fbc90d829ffb761da64a73c23cd4e0503f:drivers/media/usb/dvb-usb/pctv452e.c:stb0899_config"
+  ],
+  "reviews": [
+    {
+      "id": "P_PRIVATE_FIELD",
+      "result": "PRESERVES_PARAMS_SRATE",
+      "reason": "The only cached-field assignment in the reviewed STB0899 driver/algorithm is input copy at drv1426. internal.srate is a distinct field. No whole-object store or params address escape appears in the reviewed prefix. Callee anchors alone are not the proof; entire pinned helper bodies and field lvalues were reviewed.",
+      "evidence_ids": [
+        "F_INPUT",
+        "F_BRANCH",
+        "F_CALLEE",
+        "T_STATE",
+        "M_RATE",
+        "M_DIV",
+        "M_DELIVERY",
+        "M_CLOCK",
+        "M_GATE",
+        "M_READ",
+        "M_WRITE",
+        "M_MACRO"
+      ]
+    },
+    {
+      "id": "P_CALLBACKS",
+      "result": "PRESERVES_PARAMS_SRATE",
+      "reason": "All five gain callbacks are NULL. Four bandwidth callback pairs resolve through stb6100_cfg.h to a separately allocated tuner. Bandwidth setter changes cache bandwidth/frequency (temporarily zero), so set_params skips frequency tuning on this prefix. Getter output aliases internal.tuner_bw, not params.srate. TDA setter is NULL and getter writes only the bandwidth output. Frequency callbacks are after target in dvbs_algo; their cache writes must not be described as globally effect-free.",
+      "evidence_ids": [
+        "F_BRANCH",
+        "T_STATE",
+        "M_BW_WRAP",
+        "M_BW_REAL",
+        "M_TUNER_OPS",
+        "M_FREQ_REENTRY",
+        "M_GET_FE",
+        "M_TDA",
+        "M_TDA_ATTACH",
+        "CFG_1",
+        "CFG_2",
+        "CFG_3",
+        "CFG_4",
+        "CFG_5"
+      ]
+    },
+    {
+      "id": "P_TRANSPORT",
+      "result": "NO_PARAMS_POINTER_IN_REVIEWED_IO",
+      "reason": "I2C/USB/MMIO helpers update their transport state and provided local message buffers. SAA cleanup may write all message buffers, including writes, but the demod helpers copy through local arrays. No params.srate pointer is passed. Standard kernel buffer-I/O semantics and absence of preceding memory corruption are part of the declared execution model, not a numeric caller assumption.",
+      "evidence_ids": [
+        "M_READ",
+        "M_WRITE",
+        "M_RATE",
+        "IO_MANTIS",
+        "IO_SAA",
+        "IO_SAA_XFER",
+        "IO_AZ",
+        "IO_PCTV"
+      ]
+    },
+    {
+      "id": "P_SYNC",
+      "result": "SERIALIZED_RELEVANT_CORE_WRITERS",
+      "reason": "Worker holds the count-one frontend semaphore across ops.search. Native and compat property writers use the same semaphore. Sleep/I2C waits retain this frontend semaphore. Event helper unlocks only on a different ioctl event path. Asynchronous CI reinitialise sets a flag; actual initialization occurs in the worker under semaphore. search_lock is unused and supplies no evidence.",
+      "evidence_ids": [
+        "S_THREAD",
+        "S_IOCTL",
+        "S_COMPAT",
+        "S_SET",
+        "S_INIT",
+        "S_START",
+        "S_EVENT",
+        "S_REINIT",
+        "S_CI",
+        "S_USB",
+        "T_STATE"
+      ]
+    }
+  ],
+  "unresolved_modification_paths_within_declared_scope": [],
+  "unverified_outside_scope": [
+    "out-of-tree configurations or replacement callbacks",
+    "unknown modules or direct unsynchronized callers",
+    "lifetime violations or unrelated memory corruption",
+    "all hardware faults or all kernel races",
+    "original build configuration and actual ABI",
+    "repository-wide exhaustive reference scan beyond the five requested configuration sources"
+  ],
+  "no_intervening_write_relation": "params_srate_at_target == params_srate_at_range_guard; source-review-derived summary, not encoded memory model",
+  "automatic_analysis_only_certification": false,
+  "filter_authority": false,
+  "full_program_semantics": "UNKNOWN"
+}
